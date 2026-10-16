@@ -2,20 +2,20 @@
 
 **Ürün:** Pofis  
 **Maskot:** Pofi  
-**Statü:** Önden oturan ana tasarım sabit. Farklı açılar keşif referansıdır.
+**Statü:** Kanonik varsayılan tam gövde pozu, iki arka ayağı üzerinde doğal dik duruştur.
 
 ## Kanonik referans
 
-`assets/pofi-full.png` tek ve öncelikli görsel referanstır. `assets/pofi-full.webp` aynı görselin web sürümüdür. Farklı açılara ait resimler kanonik tasarımın yerine geçmez.
+`assets/pofi-full.png` ve `assets/pofi-full.webp`, yüz kimliği, kafa oranları, renkler, materyal ve aksesuarlar için öncelikli görsel referanslardır. Bu dosyalardaki oturan poz, yeni üretimlerin pozunu belirlemez; tam gövde üretimlerinde kanonik dik duruş izlenir.
 
-Pofi, açık krem gövdeli, yumuşak lavanta ayrıntılı, oturan, tombul bir kedi maskotudur. Büyük ve yuvarlak kafa, iki üçgen kulak, alında tek kıvrımlı tüy, iri koyu oval gözler, küçük burun ve gülümseme, pembe yanaklar, yanlarda ince bıyıklar, önde yan yana küçük patiler ve sol yanda dolgun lavanta kuyruk karakterin değişmez özellikleridir. Boynunda lavanta renkli bir kart askısı ve beyaz personel kartı bulunur. Kartta kullanıcı tarafından sağlanan **tabii** işareti yer alır.
+Pofi, açık krem gövdeli, yumuşak lavanta ayrıntılı, iki arka ayağı üzerinde doğal biçimde dik duran tombul bir kedi maskotudur. Gövdesi kısa ve yuvarlak kalır; iki kısa ön pati kol gibi doğal durur. Büyük ve yuvarlak kafa, iki üçgen kulak, alında tek kıvrımlı tüy, iri koyu oval gözler, küçük burun ve gülümseme, pembe yanaklar, yanlarda ince bıyıklar ve sol yanda dolgun lavanta kuyruk karakterin değişmez özellikleridir. Boynunda lavanta renkli bir kart askısı ve beyaz personel kartı bulunur. Kartta kullanıcı tarafından sağlanan **tabii** işareti yer alır.
 
 ## Tasarım dili
 
 - Yumuşak, neredeyse mat, hacim hissi veren 2D illüstrasyon
 - Açık krem ve lavanta tonları, düşük kontrastlı doğal gölgeler
 - Sakin ve hafif gülümseyen yüz
-- Tam gövdeli oturma pozu
+- Tam gövde, dengeli ve doğal iki ayaklı dik duruş
 - Statik illüstrasyon, animasyon yok
 - Karakterin yüzü, gövdesi ve kartı bir bütün olarak kullanılır
 
@@ -33,9 +33,16 @@ Pofi, açık krem gövdeli, yumuşak lavanta ayrıntılı, oturan, tombul bir ke
 
 ## Üretim yaklaşımı
 
-Karakterin aynı kalması gereken ana kullanımlarında **mevcut tam gövde PNG/WebP dosyası yeniden kullanılır**. Görsel modelinden her sayfa için yeniden Pofi çizmesi istenmez. Küçük boyutlar için `assets/pofi-mark.svg`, kanonik kedinin tanınan yüz hatlarından üretilmiş **basitleştirilmiş ayrı bir vektör sembolüdür**. Tam gövde illüstrasyonunun vektörel eşdeğeri değildir.
+Mevcut tam gövde PNG/WebP dosyaları Pofi'nin yüz, renk, materyal, kuyruk ve kart kimliğini korumak için referans alınır; yeni tam gövde çizimlerinde kanonik ayakta poz kullanılır. Uygulamadaki mevcut görseller bu prompt kararıyla değiştirilmez. Küçük boyutlar için `assets/pofi-mark.svg`, Pofi'nin tanınan yüz hatlarından üretilmiş **basitleştirilmiş ayrı bir vektör sembolüdür**. Tam gövde illüstrasyonunun vektörel eşdeğeri değildir.
 
-Yeni bir açı veya farklı poz gerektiğinde ana referans görsel ve `docs/MASTER_PROMPT.md` birlikte kullanılır. Yeni çıktı, ana tasarımın yerine otomatik geçmez. Yüz, kulak, kıvrım, gövde/pati oranı ve kart eşleşmesi karşılaştırılarak ayrıca onaylanır.
+Yeni bir sahne gerektiğinde ana referans görsel ve `docs/MASTER_PROMPT.md` birlikte kullanılır. Referans görsel kimliği taşır; prompt ayakta pozu ve nesnelerin sahnedeki yerini tarif eder. Şemsiye gibi bir nesne yüzün çevresinde boşluk bırakacak şekilde, başın üstünde ve yanında konumlandırılır. Yeni çıktı, ana görsel dosyalarının yerini otomatik almaz. Yüz, kulak, kıvrım, gövde/pati oranı, poz ve kart eşleşmesi karşılaştırılarak ayrıca onaylanır.
+
+## Poz ve nesne yerleşimi
+
+- Pofi tam gövdede iki arka ayağı üzerinde dengeli biçimde durur; gövde kısa ve tombul kalır.
+- İki ön pati kısa, yuvarlak ve vücuda doğal biçimde bağlı görünür.
+- Yüz, kulaklar, alın kıvrımı ve kart sahne nesnelerinden tamamen okunur kalır.
+- Şemsiye kanopisi başın üstünde ve yanında durur; şaft baş ve yanak siluetinin dışından ilerleyerek tutan patiye ulaşır.
 
 ## Kullanım boyutları
 
