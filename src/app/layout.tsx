@@ -11,7 +11,10 @@ import { themeInitScript } from "@/lib/theme.js";
 export const metadata: Metadata = {
   title: "Pofis · Mesaiye biraz Pofi.",
   description: "Mesai kayıtları ve çalışma süresi takibi.",
-  icons: { icon: "/brand/pofi-full-512.webp" },
+  icons: {
+    icon: "/pofi/pofi-mark-256.png",
+    apple: "/pofi/pofi-mark-256.png",
+  },
 };
 
 export default function RootLayout({

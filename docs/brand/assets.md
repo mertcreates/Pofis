@@ -9,4 +9,4 @@ Kullanıcının paylaştığı `extras/pofis-brand-kit` özgün karakter kaynağ
 | `public/pofi/` | Arşivin kanonik Pofi varlıkları |
 | `public/icons/` | Arşiv ikonları; lisans aynı klasörde |
 
-Yedi durum görseli ve albüm uygulamadadır. `overworked` albümde bulunur; [durum seçici](../rules/pofi.md) bunu otomatik seçmez. Slogan **Mesaiye biraz Pofi.** Arşiv kimliği [kaynak eşlemesinde](../ui-source-migration.md) tutulur.
+Yedi durum görseli ve albüm uygulamadadır. `overworked`, albümde ve `%115` ilerlemeden itibaren otomatik akışta kullanılır; koşullar [durum seçicide](../rules/pofi.md) yönetilir. Slogan **Mesaiye biraz Pofi.** Arşiv kimliği [kaynak eşlemesinde](../ui-source-migration.md) tutulur.

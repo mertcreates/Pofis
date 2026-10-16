@@ -20,6 +20,7 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 
 ## Arayüz kabulü
 
+- [ ] Pofi'nin canlı/kayıtlı `%114 → %115` geçişinde `overworked` görselini ve “Hedefin üzerindesin.” metnini tarayıcıda doğrula. Kural testleri geçti; yerel Playwright kabulünde Chrome bulunamadı ve Edge başlatılamadı.
 - [ ] Fiziksel mobil cihazda dokunmatik grafik ve modal tutamağından sürükleme davranışını kontrol et.
 - [ ] Safari, forced-colors ve ekran okuyucuyla temel gezinme, durum etiketleri ve dialog odağını kontrol et.
 - [ ] Tarayıcı depolaması yazmayı reddettiğinde plan kayıt hatasını ve son kayıtlı planın korunmasını tarayıcıda doğrula.

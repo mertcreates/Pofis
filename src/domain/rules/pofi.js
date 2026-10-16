@@ -5,6 +5,7 @@ import { ui } from "../../lib/ui-text.js";
 
 export const POFI_THRESHOLDS = Object.freeze({
   tired: 80,
+  overworked: 115,
 });
 
 export const POFI_ASSETS = Object.freeze({
@@ -36,6 +37,7 @@ export function stateForProgress(progress, { isOpen = false } = {}) {
   }
   const { percentage, remaining } = progress;
   if (remaining === 0) {
+    if (percentage >= POFI_THRESHOLDS.overworked) return "overworked";
     return isOpen ? "working" : "completed";
   }
   if (percentage >= POFI_THRESHOLDS.tired) {
@@ -167,7 +169,7 @@ export function pofiNote({
     const state = stateForProgress(progress, { isOpen: true });
     const badge = `%${percentage}`;
 
-    if (remaining === 0) {
+    if (remaining === 0 && state === "working") {
       return buildResult(state, {
         percentage,
         basis: "live",

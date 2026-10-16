@@ -10,7 +10,22 @@ Arayüz: `POFI_THRESHOLDS`, `POFI_ASSETS`, `stateForProgress`, `pofiNote`.
 
 ## Sözleşme
 
-Belirsiz özet/geçiş hata durumunu verir. Seçili olmayan günde Pofi bekler. İlerleme duration sahibinden alınır. Eşik öncesi çalışır, yorgunluk eşiğinde yorulur. Tahmini hedefe ulaşma çalışmayı tamamlamaz; kayıtlı hedefe ulaşma tamamlar. Bugün son hareket çıkışsa hedef öncesinde arşivin break durumu kullanılır; dışarıda kalınan süre hesaplanıp düşülmez. overworked görseli albümde vardır, otomatik seçilmez.
+İlerleme duration sahibinden alınır. Yedi durumun görselleri ve metinleri 1.0.0 Docker kaynak arşivinden gelir. Arşivde tanımlı olup seçiciye bağlanmamış `%115` overworked eşiği, 16 Ekim 2026 kullanıcı isteğiyle otomatik akışa eklenmiştir.
+
+| Koşul | Durum |
+| --- | --- |
+| Belirsiz özet/geçiş veya geçmiş günde açık giriş | `error` |
+| Seçili olmayan çalışma günü veya giriş kaydı yok | `idle` |
+| Bugün son hareket çıkış, kayıtlı hedef henüz tamamlanmamış | `break` |
+| Hedef öncesinde ilerleme `%80` altında | `working` |
+| Hedef öncesinde ilerleme `%80` ve üzerinde | `tired` |
+| Canlı tahmin hedefe ulaşmış, gösterilen ilerleme `%115` altında | `working` |
+| Kayıtlı hedef tamamlanmış, gösterilen ilerleme `%115` altında | `completed` |
+| Canlı veya kayıtlı hedef tamamlanmış, gösterilen ilerleme `%115` ve üzerinde | `overworked` |
+
+Belirsizlik ve seçili gün kontrolleri ilerleme durumlarından önce gelir. Tahmini hedefe ulaşma çalışmayı tamamlamaz. `overworked`, kaynak görseliyle birlikte kendi başlık ve mesajını gösterir; canlı hedefteki bekleme mesajıyla örtülmez. Yüzde yuvarlaması [ilerleme sahibinden](progress.md) gelir. Dışarıda kalınan süre hesaplanıp düşülmez.
+
+8 saat hedef, 08:00 ilk giriş: 14:24 canlı tahmin → `tired`; 16:00 → `working`; 17:07:12 (`%114`) → `working`; 17:12 (`%115`) → `overworked`. Son hareket 16:00 çıkışsa `completed`, 17:12 çıkışsa `overworked` gösterilir. Eski rapor canlı fazla mesai tahmini üretmez; durum kayıtlı süreye göre seçilir.
 
 ## Bağımlılıklar
 

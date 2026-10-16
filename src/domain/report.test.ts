@@ -165,6 +165,42 @@ test("Pofi tahmini hedefte çalışmayı sürdürür; kayıtlı hedefte tamamlan
       .state,
   ).toBe("completed");
 });
+test.each([
+  { name: "giriş yok", clock: "10:00:00", exit: null, empty: true, state: "idle" },
+  { name: "canlı yüzde 25", clock: "10:00:00", exit: null, state: "working" },
+  { name: "canlı yüzde 80", clock: "14:24:00", exit: null, state: "tired" },
+  { name: "canlı yüzde 100", clock: "16:00:00", exit: null, state: "working" },
+  { name: "canlı yüzde 114", clock: "17:07:12", exit: null, state: "working" },
+  { name: "canlı yüzde 115", clock: "17:12:00", exit: null, state: "overworked" },
+  { name: "canlı yüzde 125", clock: "18:00:00", exit: null, state: "overworked" },
+  { name: "kayıtlı yüzde 100", clock: "18:00:00", exit: "16:00:00", state: "completed" },
+  { name: "kayıtlı yüzde 114", clock: "18:00:00", exit: "17:07:12", state: "completed" },
+  { name: "kayıtlı yüzde 115", clock: "18:00:00", exit: "17:12:00", state: "overworked" },
+  { name: "son hareket çıkış, hedef öncesi", clock: "15:00:00", exit: "12:00:00", state: "break" },
+  { name: "belirsiz geçiş", clock: "18:00:00", exit: null, uncertain: true, state: "error" },
+  { name: "eski raporda fazla mesai tahmini yok", clock: "18:00:00", exit: null, stale: true, state: "working" },
+])("Pofi tüm durumları ortak rapordan seçer: $name", (scenario) => {
+  const report = fixture();
+  if (scenario.empty) report.passages = report.passages.slice(0, 8);
+  if (scenario.exit) {
+    report.passages = report.passages.slice(0, 9);
+    report.passages.push({ date: "2026-10-16", time: scenario.exit, direction: "out" });
+  }
+  if (scenario.uncertain) report.passages[9].direction = "in";
+  const pofi = presentReport(
+    report,
+    DEFAULT_WORK_PLAN,
+    Date.parse(`2026-10-16T${scenario.clock}+03:00`),
+    scenario.stale ?? false,
+  ).days[4].source.pofi;
+  expect(pofi.state).toBe(scenario.state);
+  expect(pofi.asset).toBe(`/pofi/states/${scenario.state}.webp`);
+  if (scenario.state === "overworked") {
+    expect(pofi.title).toBe("Hedefin üzerindesin.");
+    expect(pofi.message).toBe("Farkı bir kenara not ettim.");
+  }
+});
+
 test("arşiv plan sınırları 0.25–24 saat/gün; seçili gün şartı ve ondalık hedef", () => {
   expect(readPlanInput({ weekdays: [], hours: 40 })).toBeNull();
   expect(readPlanInput({ weekdays: [0], dailyHours: 24 })).not.toBeNull();
