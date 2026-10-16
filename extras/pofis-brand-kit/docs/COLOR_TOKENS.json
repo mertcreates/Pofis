@@ -1,0 +1,31 @@
+{
+  "brand": "Pofis",
+  "theme": "light",
+  "colors": {
+    "background": "#F7F8FA",
+    "sidebar": "#F8F9FB",
+    "surface": "#FCFCFD",
+    "surfaceSubtle": "#F1F3F7",
+    "border": "#E2E6EE",
+    "borderStrong": "#808A9A",
+    "textPrimary": "#151821",
+    "textSecondary": "#515B6B",
+    "textMuted": "#5D6676",
+    "primary": "#6554C0",
+    "primaryHover": "#5140AB",
+    "primaryContent": "#FCFCFD",
+    "accentVisual": "#8B7CFF",
+    "accentSoft": "#F1EEFF",
+    "accentText": "#4F3FA0",
+    "success": "#167E5F",
+    "warning": "#AE5B0A",
+    "error": "#B6494F",
+    "tabiiLogo": "#00FF99",
+    "pofiFur": "#FFF7F1",
+    "pofiLavender": "#CFC3E6",
+    "pofiInk": "#2B2240",
+    "pofiBlush": "#FFDDEA"
+  },
+  "shape": {"cardRadiusPx": 12,"controlRadiusPx": 8,"baseSpacingPx": 4,"focusWidthPx": 2},
+  "mascotAnimation": false
+}

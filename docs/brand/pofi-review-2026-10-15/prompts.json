@@ -1,0 +1,61 @@
+{
+  "mode": "built-in-imagegen",
+  "status": "briefs-ready-generation-blocked-no-images",
+  "references": [
+    "extras/pofis-brand-kit/assets/pofi-full.png",
+    "extras/pofis-brand-kit/references/tabii-logo-provided.png"
+  ],
+  "basePrompt": "Use case: stylized-concept. Create ONE individual approval-candidate mascot asset for Pofis. Input A is the canonical Pofi identity reference; input B is ONLY the tiny mint-green tabii badge symbol reference. Preserve the SAME particular kitten, never redesign it. Match the canonical image: oversized broad round warm ivory head, large triangular ears with lavender inner ear, ONE large curved ivory forehead curl matching its direction and silhouette, widely spaced deep dark purple oval eyes with small highlights, tiny dark triangular nose and understated cat mouth, pale pink cheeks, two fine lavender whiskers each side, very short chubby seated body, lavender shaded paw tips, one plump lavender tail curving along viewer LEFT, lavender V lanyard with small white rounded rectangular badge bearing faithful mint green tabii star mark. Identity fur #FFF7F1, lavender #CFC3E6, ink #2B2240, blush #FFDDEA. Preserve head/body proportions and ear/eye shape. Premium softly shaded matte pastel illustration, gentle plush volume as reference, no plastic shine, no hyperrealism, no different cartoon style. Calm warm office companion, subtle expressions, never exaggerated or distressed. Centered whole figure with ALL ears/curl/tail/feet/props visible, square 1024x1024-style composition, 8-12% transparent padding, genuinely TRANSPARENT alpha background, no room, no floor plane, no background color, no checkerboard drawn into image. Restrained small office props only as specified. FOUR limbs total: exactly two forelegs and two hind feet, no duplicate paws or human fingers, no floating objects. Badge remains attached visibly and unobscured. No extra text, labels, caption, UI, watermark, stars/hearts/confetti, no simit. Deliver exactly ONE clean isolated asset, not a sheet/collage. Task-specific change: ",
+  "variants": [
+    {
+      "id": "01-idle",
+      "title": "Buradayım",
+      "scene": "Pofi sits front-facing in a relaxed friendly greeting, one forepaw lifted slightly in a small natural wave, other forepaw rests on the ground; both rear feet stay visible. Gaze toward viewer, same very subtle smile. No props. A modest change of pose from reference; no exaggerated smile."
+    },
+    {
+      "id": "02-working",
+      "title": "Bilgisayar başında",
+      "scene": "Pofi seated in a mild three-quarter view, looking attentively at a small open matte muted lavender laptop set LOW to viewer RIGHT. One forepaw on laptop keyboard, other forepaw on ground, badge and torso visible. Laptop unbranded, screen turned away from viewer. Calm focused face, original eye proportions."
+    },
+    {
+      "id": "03-break",
+      "title": "Kupa molası",
+      "scene": "Pofi seated front-facing, calmly holding a small plain ivory mug in the two front paws LOW near belly below badge, elbows natural and paws clearly connected to arms. Both hind feet visible. Mug no text, no steam, no beverage spill. Same gentle open eyes and very small content smile."
+    },
+    {
+      "id": "04-tired",
+      "title": "Biraz uykum geldi",
+      "scene": "Pofi sits with a tiny natural yawn: eyes gently half-lidded, mouth slightly open, one forepaw politely near mouth and other on ground. Both hind feet visible, ears softly relaxed but retain reference shape. Subtle sleepy moment belonging to Pofi, not extreme exhaustion, no sweat, tears, Zzz or symbols."
+    },
+    {
+      "id": "05-completed",
+      "title": "Defteri kapattım",
+      "scene": "Pofi calmly resting one forepaw atop a small CLOSED pale lavender notebook on ground to viewer RIGHT, other forepaw on ground. Both rear feet visible. Mild satisfied closed-mouth smile and relaxed upright seated pose, looking at viewer. No celebration, trophy, checkmarks or achievement symbols."
+    },
+    {
+      "id": "06-overworked",
+      "title": "Ben biraz daha buradayım",
+      "scene": "Pofi seated beside a small muted lavender analog desk clock on viewer RIGHT and ONE closed notebook behind that clock. Calm patient sideways glance toward clock, one forepaw near cheek in quiet thought, other on ground. Both hind feet visible. Clock tiny with simple unnumbered face, no exact time requirement. No exhaustion, drama, stacks or productivity judgment."
+    },
+    {
+      "id": "07-error",
+      "title": "Benimki açılmadı",
+      "scene": "Pofi seated next to a small open dark-screen laptop on viewer RIGHT. One forepaw gently touches the side of laptop as Pofi tilts head slightly with quiet curiosity; other forepaw rests on ground. Both rear feet visible. No broken glass, cables, smoke, anger, warning symbols, readable text. The laptop simply has an unlit screen. Badge remains visible."
+    },
+    {
+      "id": "08-plant",
+      "title": "Bitkiyle aynı yere baktık",
+      "scene": "Pofi sitting in gentle three-quarter pose next to ONE tiny potted office plant on viewer RIGHT: a plain cream round pot with two or three muted sage leaves. Head turned slightly toward plant, one forepaw resting lightly on pot rim, other on ground, both rear feet visible. Quiet curious expression. No room, no window, no extra plants."
+    },
+    {
+      "id": "09-notebook",
+      "title": "Küçük bir not",
+      "scene": "Pofi seated front-facing, looking down gently at a small open cream notebook on ground to viewer RIGHT. One forepaw holds a short blunt lavender pencil with a plausible paw grip, other steadies notebook. Both hind feet visible and badge unobscured. Page blank or a few tiny non-readable marks, no readable words. Calm absorbed expression. No human fingers or extra paws."
+    },
+    {
+      "id": "10-camera",
+      "title": "Bu kez fotoğraftayım",
+      "scene": "Pofi seated with a small plain matte lavender compact camera held LOW beside belly in its TWO front paws, lens facing viewer, both hind feet visible, badge unobscured. Slight curious head tilt, same warm gentle eyes and small cat smile. No camera neck strap beyond existing employee lanyard, no flash, no written brand, no extra accessories."
+    }
+  ]
+}

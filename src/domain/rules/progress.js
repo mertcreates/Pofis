@@ -1,0 +1,37 @@
+export function targetProgress(seconds, target) {
+  if (
+    !Number.isFinite(seconds) ||
+    seconds < 0 ||
+    !Number.isFinite(target) ||
+    target <= 0
+  )
+    return null;
+  const ratio = (100 * seconds) / target;
+  let percentage = Math.floor(ratio);
+  if (seconds >= target) percentage = Math.round(ratio);
+  return {
+    percentage,
+    remaining: Math.max(0, target - seconds),
+    excess: Math.max(0, seconds - target),
+  };
+}
+
+export function percentage(seconds, target) {
+  return targetProgress(seconds, target)?.percentage ?? null;
+}
+
+export const CHART_SCALE = Object.freeze({
+  minimumSeconds: 10 * 3600,
+  stepSeconds: 2 * 3600,
+});
+export function chartMaximum(durations, targets) {
+  return (
+    Math.ceil(
+      Math.max(
+        CHART_SCALE.minimumSeconds,
+        ...durations,
+        ...targets.map((target) => target ?? 0),
+      ) / CHART_SCALE.stepSeconds,
+    ) * CHART_SCALE.stepSeconds
+  );
+}

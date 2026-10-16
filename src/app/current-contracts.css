@@ -1,0 +1,166 @@
+:root {
+  --duration-recorded: #8b7bff;
+  --duration-estimated: light-dark(#c9c2f2, #514a73);
+  --subtle: var(--surface-subtle);
+  --text: var(--ink);
+  --border: var(--line);
+}
+.duration-track {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 4px;
+  background: var(--surface-subtle);
+}
+.duration-track > span {
+  display: block;
+  flex-shrink: 0;
+}
+.duration-track-recorded {
+  background: var(--duration-recorded);
+}
+.duration-track-estimated {
+  background: var(--duration-estimated);
+}
+.duration-track-vertical {
+  flex-direction: column-reverse;
+}
+.duration-track-vertical > span {
+  width: 100%;
+}
+.duration-track > .duration-track-target {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  background: var(--secondary);
+  transform: translateX(-100%);
+}
+.duration-track-vertical > .duration-track-target {
+  top: auto;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  transform: translateY(100%);
+}
+.progress-track {
+  height: 4px;
+  margin-top: 12px;
+}
+.timeline-legend .dot.worked {
+  background: var(--duration-recorded);
+}
+.dot.estimated {
+  background: var(--duration-estimated);
+}
+.dot.target {
+  width: 12px;
+  height: 2px;
+  border-radius: 0;
+  background: var(--secondary);
+}
+.demo-notice {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: var(--secondary);
+  font-size: 13px;
+}
+.demo-preview {
+  margin-bottom: 24px;
+}
+.demo-day-navigation {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+}
+.demo-days {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  width: min(100%, 520px);
+}
+.demo-days button {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  min-height: 58px;
+  padding: 8px 4px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--secondary);
+  font-size: 12px;
+}
+.demo-days button strong {
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+.demo-days button:hover,
+.demo-days button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
+.demo-days button[aria-pressed="true"] strong {
+  color: var(--accent-text);
+}
+.demo-day-context p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ink);
+}
+.demo-day-context p span {
+  display: block;
+  margin-top: 4px;
+  color: var(--secondary);
+  font-size: 12px;
+}
+.demo-extra-time {
+  display: grid;
+  gap: 6px;
+  width: min(100%, 280px);
+}
+.demo-extra-time-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--ink);
+  font-size: 13px;
+}
+.demo-extra-time-heading output {
+  color: var(--accent-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.demo-extra-time input {
+  width: 100%;
+  margin: 2px 0;
+  accent-color: var(--accent);
+}
+.demo-extra-time input:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.demo-extra-time input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.demo-extra-time-help {
+  max-width: 36ch;
+  margin: 0;
+  color: var(--secondary);
+  font-size: 12px;
+}
+button:focus-visible:not(:disabled) {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.record-details-modal .record-intervals {
+  margin-top: 0;
+}

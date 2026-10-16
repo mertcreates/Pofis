@@ -1,0 +1,142 @@
+{
+  "zipSha256": "555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca",
+  "themes": {
+    "chair": {
+      "sha256": "ac6a92e50c574e33996a123aeb68c1e8b8e8fb9d01d11baf3e5189b6bb46e22d",
+      "fragments": 12
+    },
+    "office-silence": {
+      "sha256": "ba15027984958d81f98210acd6860a82e236d1b74693823b47a329aaf1c76fa7",
+      "fragments": 12
+    },
+    "sticky-note": {
+      "sha256": "32df14222672ca8541ede8ace68651ceb714b345a5fef42cddfcb78bd367f060",
+      "fragments": 12
+    },
+    "plant": {
+      "sha256": "3a66c65d3eac22f9f8f198bfc10111af4a00d3fba80b5c0598f9cfbde1143492",
+      "fragments": 12
+    },
+    "computer": {
+      "sha256": "b4a3550a034e75b77f4cc6f7f571ab03b2d679a150506a9eb6435cd1c1af5c14",
+      "fragments": 12
+    },
+    "water-glass": {
+      "sha256": "06dc0a4e2e4e2ad95a5656b606207a5de856122a3ed5d3c6d234e0a4cd9e1648",
+      "fragments": 12
+    },
+    "desk": {
+      "sha256": "f6811fef4da4574f68df109046d41cc1f5447ac365c1fa38a5de53e2c254b6a4",
+      "fragments": 12
+    },
+    "lunch": {
+      "sha256": "0bb23bda20404d80cc0fcb1124c0c5c1ad0490ba8cfcce0de701912383eb55ed",
+      "fragments": 12
+    },
+    "drawer": {
+      "sha256": "af9734fed0e536e97e2c44ac37845967769fc586db9b487be730f2ded9b5ee11",
+      "fragments": 12
+    },
+    "todo": {
+      "sha256": "9f03be57dfd95e11e40a687b653f13980a58eb438c975302cd99383344764af9",
+      "fragments": 12
+    },
+    "coffee": {
+      "sha256": "a262366ea357ba1d6e5fb4e4798571dc4f504e3c834ed58752cf1af8dc9cc44c",
+      "fragments": 12
+    },
+    "elevator": {
+      "sha256": "764da1be9a707cffa55a63cdd4385a6a84a529e13e451f989548bebe35deeca6",
+      "fragments": 12
+    },
+    "headphones": {
+      "sha256": "75c2042d4516f427cc7792011c87164195e25a90b8d565aec792db162a0c7c25",
+      "fragments": 12
+    },
+    "file-name": {
+      "sha256": "7fed0d3ec23ace96cc5ed1351e269e1db3ed80da44af90a04f9a8a0c6c5fd092",
+      "fragments": 12
+    },
+    "desk-lamp": {
+      "sha256": "dd9862b49270bb012adb01aa8d8852cd760dbbb0f08f1e74d1048b8859fae247",
+      "fragments": 12
+    },
+    "umbrella": {
+      "sha256": "210bc6c7f5bd62379764924054693eac5b081cddd3584f5a9330144c26031b99",
+      "fragments": 12
+    },
+    "wall-clock": {
+      "sha256": "c0a8dbf71e92b0b8aeb3a17ccabefb0a3e34d3d411113102567aa037bdb94aed",
+      "fragments": 12
+    },
+    "meeting": {
+      "sha256": "f929750ef957af2ace8a3bf7cffd925cbd445b38e9df63a3ec817a994077e4fb",
+      "fragments": 12
+    },
+    "paperclips": {
+      "sha256": "e909458caeec7b1bf7dcef2b4aff804f654db326899c4bb5bb4f15f062a4655e",
+      "fragments": 12
+    },
+    "door": {
+      "sha256": "4360fb7293a344ee69382710e60c13b4d2bf6facea067cc1b081967dc87fbbea",
+      "fragments": 12
+    }
+  },
+  "specials": {
+    "new-year": {
+      "sha256": "e32f50d2679cc554973f2d49e0f92eb9c4fa028330f33ca369ba19bebf56fc80",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "leap-day": {
+      "sha256": "ee16d1c9f03e5f425ced932575293b2f83e051667dcbffd6e7b40a062ff34eb5",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "paper-boat-arrives": {
+      "sha256": "69eb8fb5ecb9c120ba6b2ec1a8224ec163d8363a5ead950e3c4725dcf10ac261",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "paper-boat-moves": {
+      "sha256": "5b8f2f57e14ed65f0eda26bb8687cb502eb85b240be683e0b926c8f942a467b9",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "paper-boat-returns": {
+      "sha256": "b785976ca14f216862cd142bb5bad2695e00fc162b75ae02afb9e57ed01fb713",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "small-heart": {
+      "sha256": "6e734fdbdce85883add8316c2bfe4650b7a2ee66de66f39e1fc3c67da84f878e",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "april-fools": {
+      "sha256": "1b16e552738f9278c23834cf3a48583af204d6e44ca3e63afb94b27b0745604e",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "children-day": {
+      "sha256": "036e8f7d43b0092018a1e8b178f64530ef2ffc52f06de0dfea0d165e9c74836a",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "cat-day": {
+      "sha256": "1159ca6c755877301208b862876f202e92afe64592df6bc86c67c9cda0136b98",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "little-star": {
+      "sha256": "260ad7e07eb6d69fa09cd4f4e40c9a5540f5236505169cd228af0d583b0a7654",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "year-end": {
+      "sha256": "46bafe3c2004622822940f21aeaaddc71d5bd604633d972da8a37b5c73c34abd",
+      "variants": 4,
+      "paragraphs": 12
+    }
+  }
+}

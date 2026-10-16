@@ -1,0 +1,393 @@
+.pofi-trigger {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  touch-action: manipulation;
+}
+.pofi-trigger:hover:not(:disabled),
+.pofi-trigger:focus:not(:disabled) {
+  background: transparent;
+}
+.pofi-trigger:focus-visible:not(:disabled) {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.pofi-text-trigger {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: inherit;
+}
+.pofi-text-trigger:hover:not(:disabled),
+.pofi-text-trigger:focus:not(:disabled) {
+  background: transparent;
+  color: inherit;
+}
+.pofi-text-trigger:focus-visible:not(:disabled) {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.pofi-room-note {
+  margin: 8px 0 0;
+  color: var(--secondary);
+  font-size: 0.8125rem;
+  font-weight: 400;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+.pofi-room-work-note {
+  max-width: 840px;
+  margin: 12px auto 0;
+}
+.pofi-room-modal {
+  height: fit-content;
+  max-height: calc(100dvh - max(12px, env(safe-area-inset-top)));
+}
+.pofi-room-modal .app-modal-header {
+  gap: 12px;
+  padding: 0 20px 16px;
+}
+.pofi-room-modal .app-modal-header h2 {
+  font-size: 1.375rem;
+}
+.pofi-room-modal .app-modal-header p {
+  margin-top: 4px;
+  line-height: 1.5;
+}
+.pofi-room-modal .app-modal-body {
+  padding: 20px 20px max(20px, env(safe-area-inset-bottom));
+}
+.pofi-room-modal .app-modal-close {
+  position: relative;
+  background: transparent;
+}
+.pofi-room-modal .app-modal-close::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  background: var(--surface-subtle);
+}
+.pofi-room-modal .app-modal-close .ui-icon {
+  position: relative;
+}
+.pofi-room-modal .app-modal-close:hover::before {
+  background: var(--surface-hover);
+}
+.pofi-room-modal .app-modal-close:focus-visible::before {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.pofi-room-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 20px;
+  text-align: center;
+}
+.pofi-room-welcome img {
+  object-fit: contain;
+}
+.pofi-room-welcome-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pofi-room-welcome h3 {
+  margin: 2px 0 0;
+  font-size: 1.625rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+}
+.pofi-room-welcome p {
+  margin: 0;
+  color: var(--secondary);
+  font-size: 0.875rem;
+}
+.pofi-room-sections {
+  display: grid;
+  gap: 12px;
+}
+.pofi-room-tile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-width: 0;
+  min-height: 100px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  text-align: left;
+  background: var(--surface);
+}
+.pofi-room-tile > .ui-icon {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  color: var(--accent);
+}
+.pofi-room-tile > span:not(.ui-icon) {
+  flex: 1;
+  min-width: 0;
+}
+.pofi-room-tile strong {
+  display: block;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.pofi-room-tile small {
+  display: block;
+  margin-top: 5px;
+  color: var(--secondary);
+  font-size: 0.8125rem;
+}
+.pofi-room-tile .pofi-room-arrow {
+  width: 16px;
+  height: 16px;
+  flex-basis: 16px;
+}
+.pofi-room-album {
+  display: grid;
+  gap: 12px;
+}
+.pofi-album-photo {
+  display: grid;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  text-align: center;
+}
+.pofi-album-photo:hover:not(:disabled),
+.pofi-album-photo:focus:not(:disabled) {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+}
+.pofi-room-album img {
+  display: block;
+  width: 100%;
+  height: 148px;
+  object-fit: contain;
+}
+.pofi-album-photo > span {
+  font-size: 0.8125rem;
+  color: var(--accent-text);
+}
+.pofi-missing-placeholder {
+  display: grid;
+  place-items: center;
+  width: min(100%, 180px);
+  height: 148px;
+  margin: 0 auto;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--accent) 8%, var(--accent-soft));
+}
+.pofi-missing-placeholder .ui-icon {
+  width: 40px;
+  height: 40px;
+  color: var(--accent-text);
+  opacity: 0.55;
+}
+.pofi-room-photo {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+}
+.pofi-room-photo img {
+  display: block;
+  width: 100%;
+  height: min(48dvh, 420px);
+  object-fit: contain;
+}
+.pofi-room-photo figcaption {
+  margin-top: 16px;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--secondary);
+  text-align: center;
+  white-space: pre-line;
+}
+.pofi-room-missing {
+  text-align: center;
+}
+.pofi-room-missing .pofi-missing-placeholder {
+  width: min(100%, 240px);
+  height: 180px;
+}
+.pofi-room-photo-trigger {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: var(--radius);
+  background: transparent;
+}
+.pofi-room-photo-trigger:hover:not(:disabled),
+.pofi-room-photo-trigger:focus:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+}
+.pofi-room-photo-trigger:focus-visible:not(:disabled) {
+  border-color: var(--accent);
+}
+.pofi-room-notes {
+  display: grid;
+  gap: 12px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.pofi-room-notes article {
+  padding: 24px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+}
+.pofi-notes-date {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--accent-text);
+  font-size: 0.8125rem;
+}
+.pofi-room-notes p {
+  max-width: 55ch;
+  margin: 20px 0 0;
+  white-space: pre-line;
+  font-size: 0.9375rem;
+  line-height: 1.8;
+}
+.pofi-notes-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.pofi-notes-nav button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: transparent;
+}
+.pofi-notes-nav > span {
+  color: var(--secondary);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.pofi-notes-previous {
+  transform: rotate(180deg);
+}
+.pofi-room-identity {
+  display: grid;
+  justify-items: center;
+  align-items: center;
+  gap: 20px;
+  max-width: 620px;
+  margin: 0 auto;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.pofi-room-identity > img {
+  object-fit: contain;
+  max-width: 100%;
+  padding: 12px;
+  background: var(--accent-soft);
+  border-radius: var(--radius);
+}
+.pofi-room-identity dl {
+  display: grid;
+  gap: 16px;
+  width: 100%;
+  margin: 0;
+}
+.pofi-room-identity dt,
+.pofi-room-work dt {
+  color: var(--secondary);
+  font-size: 0.8125rem;
+}
+.pofi-room-identity dd,
+.pofi-room-work dd {
+  margin: 4px 0 0;
+  line-height: 1.6;
+}
+.pofi-room-identity dl > div:first-child dd {
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.pofi-room-fiction {
+  max-width: 840px;
+  margin: 16px auto 0;
+  font-size: 0.8125rem;
+  color: var(--secondary);
+}
+.pofi-room-work {
+  display: grid;
+  gap: 12px;
+  max-width: 840px;
+  margin: 0 auto;
+}
+.pofi-room-work > div {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.pofi-room-work dd {
+  font-weight: 500;
+}
+@media (min-width: 500px) {
+  .pofi-room-sections {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pofi-room-album {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pofi-room-identity {
+    grid-template-columns: 160px minmax(0, 1fr);
+  }
+  .pofi-room-identity dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .pofi-room-identity dl > div:first-child,
+  .pofi-room-identity dl > div:last-child {
+    grid-column: 1 / -1;
+  }
+}
+@media (min-width: 700px) {
+  .pofi-room-modal {
+    width: min(1000px, calc(100% - 48px));
+    max-height: min(90dvh, calc(100dvh - 40px));
+  }
+  .pofi-room-modal .app-modal-header {
+    padding: 20px 24px 16px;
+  }
+  .pofi-room-modal .app-modal-body {
+    padding: 20px 24px 24px;
+  }
+}
+@media (min-width: 900px) {
+  .pofi-room-album,
+  .pofi-room-work {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

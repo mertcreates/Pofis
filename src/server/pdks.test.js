@@ -1,0 +1,317 @@
+import { test, expect, spyOn } from "bun:test";
+import {
+  PdksClient,
+  PDKS_ORIGIN,
+  PASSAGES_PATH,
+  parsePassages,
+  readCallback,
+} from "./pdks.js";
+
+const name = "Fixture Person";
+const passageUrl = `${PDKS_ORIGIN}${PASSAGES_PATH}`;
+const form = (content) =>
+  `<form action=""><input name="__VIEWSTATE" value="fixture-viewstate">${content}</form>`;
+const gridId = "ctl_ASPxRoundPanel1_CBPItems_gridListe";
+const events = [
+  { date: "2026-10-16", time: "08:00:00", direction: "in" },
+  { date: "2026-10-16", time: "12:00:00", direction: "out" },
+  { date: "2026-10-16", time: "13:00:00", direction: "in" },
+];
+function gridContent(rows, page = 1, pages = 1, total = rows.length) {
+  const body = rows
+    .map((event, i) => {
+      const [year, month, day] = event.date.split("-");
+      return `<tr id="DXDataRow${i}"><td>${day}.${month}.${year} ${event.time}</td><td>${event.direction === "in" ? "Giriş" : "Çıkış"}</td></tr>`;
+    })
+    .join("");
+  return `<table id="${gridId}_DXMainTable"><tr id="DXHeadersRow"><th>Tarih</th><th>İşlem Türü</th></tr>${body}</table><div id="${gridId}_DXPagerBottom">Page ${page} of ${pages} (${total} items)</div>`;
+}
+const wrapGrid = (content) =>
+  `<table id="${gridId}"><tr><td>${content}</td></tr></table>`;
+const dx = (html) => new Response(`/*DX*/({"result":${JSON.stringify(html)}})`);
+const passageGrid = wrapGrid(gridContent(events));
+const prefix = "ctl00$ContentPlaceHolder1$RpFiltrelemeKurallari$FLSonGecisler";
+const passageForm = form(
+  `<input name="ctl$deTarihBaslangic"><input name="ctl$deTarihBitis"><input name="${prefix}$cbTumIslemNoktalari"><input name="${prefix}$teBaslangic"><input name="${prefix}$teBitis"><input type="submit" name="${prefix}$btnGoruntule"><div id="ctl00_ContentPlaceHolder1_ASPxRoundPanel1_CBPItems"></div>`,
+);
+
+test("tam giriş ve kendi raporu WebForms/DevExpress sözleşmesini uygular; parola yalnız giriş isteğinde", async () => {
+  const calls = [];
+  const client = new PdksClient({
+    fetchImpl: async (url, options) => {
+      calls.push({ url: url.href, ...options });
+      if (url.pathname.endsWith("/Giris.aspx"))
+        return new Response(
+          form('<input name="tbUserName"><input name="tbPassword">'),
+          { headers: { "Set-Cookie": "source=fixture; Path=/" } },
+        );
+      if (url.pathname.endsWith("/PizzyMain.aspx"))
+        return new Response(
+          '<span id="ctl_RPPersonel_LblKisiAdiSoyadi">Fixture Person</span>',
+        );
+      if (url.pathname.endsWith("/PizzyLeft.aspx"))
+        return new Response(
+          '<a href="/PizzyKurumWeb/personal?KisiID=fixture-id">Kişisel bilgiler</a>',
+        );
+      if (url.pathname.endsWith("/TarihKisiBazliTumGecisler.aspx"))
+        return new Response(
+          options.method === "POST"
+            ? `/*DX*/({"result":${JSON.stringify(passageGrid)}})`
+            : passageForm,
+        );
+      throw new Error("Unexpected fixture request");
+    },
+  });
+  await client.login("fixture-user", "fixture-password");
+  const report = await client.report("self", "2026-10-12", "2026-10-18");
+  expect(report.person).toEqual({ id: "self", name, unit: "", title: "" });
+  expect(report.passages).toEqual(events);
+  expect(report.passages.map((event) => event.direction)).toEqual([
+    "in",
+    "out",
+    "in",
+  ]);
+  const login = calls.find(
+    (call) => call.method === "POST" && call.url.includes("/Giris.aspx"),
+  );
+  expect(new URLSearchParams(login.body).get("__CALLBACKPARAM")).toBe(
+    "c0:login",
+  );
+  expect(
+    calls.filter((call) => call.body?.includes("fixture-password")),
+  ).toHaveLength(1);
+  expect(calls.map((call) => [new URL(call.url).pathname, call.method])).toEqual([
+    ["/PizzyKurumWeb/Giris.aspx", "GET"],
+    ["/PizzyKurumWeb/Giris.aspx", "POST"],
+    ["/PizzyKurumWeb/PizzyMain.aspx", "GET"],
+    ["/PizzyKurumWeb/PizzyLeft.aspx", "GET"],
+    [PASSAGES_PATH, "GET"],
+    [PASSAGES_PATH, "POST"],
+  ]);
+  const reportPost = calls.find(
+    (call) =>
+      call.method === "POST" && call.url.includes("/TarihKisiBazliTumGecisler.aspx"),
+  );
+  expect(new URLSearchParams(reportPost.body).get("ctl$deTarihBaslangic")).toBe(
+    "12.10.2026",
+  );
+  expect(reportPost.headers.Cookie).toBe("source=fixture");
+  expect(JSON.stringify(report)).not.toContain("fixture-password");
+  expect(JSON.stringify(client)).not.toContain("fixture-password");
+  expect(JSON.stringify(client)).not.toContain("fixture-user");
+  await expect(
+    client.report("other-person", "2026-10-12", "2026-10-18"),
+  ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+});
+
+test("turnike kolonları, yönü, takvim tarihi ve callback kodlaması doğrulanır", () => {
+  expect(() => parsePassages(form("<table></table>"), passageUrl)).toThrow();
+  expect(() => parsePassages(form(passageGrid.replaceAll("İşlem Türü", "Bilinmeyen")), passageUrl)).toThrow();
+  expect(() => parsePassages(form(passageGrid.replaceAll("Giriş", "Bilinmeyen")), passageUrl)).toThrow();
+  expect(() =>
+    parsePassages(
+      form(passageGrid.replaceAll("16.10.2026", "30.02.2026")),
+      `${PDKS_ORIGIN}${PASSAGES_PATH}`,
+    ),
+  ).toThrow();
+  expect(() => readCallback("globalThis.untrusted = true")).toThrow();
+});
+
+test("yönlendirme kurum dışına çıkamaz ve HTTP 200 giriş sayfası oturum bitişidir", async () => {
+  let calls = 0;
+  const redirect = new PdksClient({
+    fetchImpl: async () => {
+      calls++;
+      return new Response("", {
+        status: 302,
+        headers: { location: "https://example.com/leak" },
+      });
+    },
+  });
+  await expect(redirect.request(PASSAGES_PATH)).rejects.toMatchObject({
+    code: "SOURCE_CHANGED",
+  });
+  expect(calls).toBe(1);
+  const expired = new PdksClient({
+    fetchImpl: async () => new Response('<input name="tbPassword">'),
+  });
+  await expect(expired.request(PASSAGES_PATH)).rejects.toMatchObject({
+    code: "SESSION_EXPIRED",
+    status: 401,
+  });
+});
+
+function paginatedClient(fault) {
+  const calls = [];
+  const all = [
+    ...events,
+    { date: "2026-10-16", time: "16:00:00", direction: "out" },
+  ];
+  const client = new PdksClient({
+    fetchImpl: async (url, options) => {
+      expect(url.pathname).toBe(PASSAGES_PATH);
+      const fields = new URLSearchParams(options.body);
+      calls.push(fields);
+      if (options.method === "GET") return new Response(passageForm);
+      if (fields.get("__CALLBACKPARAM") === "c0:List")
+        return dx(wrapGrid(gridContent(all.slice(0, 2), 1, 2, 4)));
+      expect(fields.get("__CALLBACKPARAM")).toContain("8|GOTOPAGE1|1");
+      let rows = all.slice(2);
+      if (fault === "short") rows = rows.slice(0, 1);
+      if (fault === "range")
+        rows = rows.map((row) => ({ ...row, date: "2026-10-19" }));
+      let html = gridContent(
+        rows,
+        fault === "page" ? 1 : 2,
+        fault === "pages" ? 3 : 2,
+        fault === "total" ? 5 : 4,
+      );
+      if (fault === "pager") html = html.replace(/<div[^]*?<\/div>/, "");
+      return dx(html);
+    },
+  });
+  client.self = { name, unit: "", title: "", sourceId: "fixture" };
+  return { client, calls, all };
+}
+
+test("haftanın tüm sayfaları tek raporda birleşir; tarih/saat ve tüm işlem noktaları filtreleri korunur", async () => {
+  const { client, calls, all } = paginatedClient();
+  const report = await client.report("self", "2026-10-12", "2026-10-18");
+  expect(report.passages).toEqual(all);
+  expect(calls).toHaveLength(3);
+  const fields = calls[1];
+  expect(fields.get("ctl$deTarihBaslangic")).toBe("12.10.2026");
+  expect(fields.get("ctl$deTarihBitis")).toBe("18.10.2026");
+  expect(fields.get(`${prefix}$teBaslangic`)).toBe("00:00");
+  expect(fields.get(`${prefix}$teBitis`)).toBe("23:59");
+  expect(fields.get(`${prefix}$cbTumIslemNoktalari`)).toBe("C");
+});
+
+test.each(["page", "pages", "total", "short", "range", "pager"])(
+  "sayfalama kusuru kısmi haftayı başarı olarak döndürmez: %s",
+  async (fault) => {
+    const { client } = paginatedClient(fault);
+    await expect(
+      client.report("self", "2026-10-12", "2026-10-18"),
+    ).rejects.toMatchObject({ code: "SOURCE_CHANGED" });
+    expect(client.reportCache).toBeUndefined();
+  },
+);
+
+function cachedReportClient(clock, name = "Fixture Person") {
+  const client = new PdksClient({
+    clock,
+    fetchImpl: async () => {
+      throw new Error("No network in cache test");
+    },
+  });
+  let loads = 0;
+  client.personalProfile = async () => ({
+    name, unit: "", title: "", sourceId: name,
+  });
+  client.personalPassages = async () => {
+    loads++;
+    return structuredClone(events);
+  };
+  return { client, loads: () => loads };
+}
+
+test("aynı rapor 20 saniye önbellekten gelir; eşzamanlı çağrılar birleşir ve fetchedAt korunur", async () => {
+  let now = Date.parse("2026-10-16T12:00:00Z");
+  const { client, loads } = cachedReportClient(() => now);
+  const reports = await Promise.all(
+    Array.from({ length: 20 }, () =>
+      client.report("self", "2026-10-12", "2026-10-18"),
+    ),
+  );
+  expect(loads()).toBe(1);
+  expect(reports[0].fetchedAt).toBe("2026-10-16T12:00:00.000Z");
+  reports[0].person.name = "modified";
+  reports[0].passages.length = 0;
+  now += 19_999;
+  const cached = await client.report("self", "2026-10-12", "2026-10-18");
+  expect(loads()).toBe(1);
+  expect(cached.person.name).toBe("Fixture Person");
+  expect(cached.passages).toHaveLength(3);
+  expect(cached.fetchedAt).toBe("2026-10-16T12:00:00.000Z");
+  now++;
+  expect(
+    (await client.report("self", "2026-10-12", "2026-10-18")).fetchedAt,
+  ).toBe("2026-10-16T12:00:20.000Z");
+  expect(loads()).toBe(2);
+});
+
+test("önbellek oturum ve tarih aralığına aittir; İstanbul günü değişince yeniden alınır", async () => {
+  let now = Date.parse("2026-10-18T20:59:55Z");
+  const a = cachedReportClient(() => now, "Alice");
+  const b = cachedReportClient(() => now, "Bob");
+  const first = await a.client.report("self", "2026-10-12", "2026-10-18");
+  const other = await b.client.report("self", "2026-10-12", "2026-10-18");
+  expect(first.person.name).toBe("Alice");
+  expect(other.person.name).toBe("Bob");
+  expect(a.loads()).toBe(1);
+  expect(b.loads()).toBe(1);
+  now += 6_000;
+  await a.client.report("self", "2026-10-12", "2026-10-18");
+  expect(a.loads()).toBe(2);
+  // A distinct, valid range must load independently.
+  await a.client.report("self", "2026-10-15", "2026-10-17");
+  expect(a.loads()).toBe(3);
+  await expect(
+    a.client.report("other-person", "2026-10-15", "2026-10-17"),
+  ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+});
+
+test("başarısız yenileme önbellek başarısı gibi sunulmaz; sonraki deneme kaynağı tekrar çağırır", async () => {
+  const { client } = cachedReportClient(Date.now);
+  let attempts = 0;
+  const load = client.personalPassages;
+  client.personalPassages = async (...args) => {
+    attempts++;
+    if (attempts === 1) throw new Error("fixture failure");
+    return load(...args);
+  };
+  await expect(
+    client.report("self", "2026-10-12", "2026-10-18"),
+  ).rejects.toThrow("fixture failure");
+  expect(
+    (await client.report("self", "2026-10-12", "2026-10-18")).passages,
+  ).toHaveLength(3);
+  expect(attempts).toBe(2);
+});
+
+test("giriş hatası ham kaynak yanıtındaki veya bağlantı hatasındaki kimlik bilgilerini loglara ve tanıya taşımaz", async () => {
+  const logs = [];
+  const logger = spyOn(console, "error").mockImplementation((...args) =>
+    logs.push(args),
+  );
+  try {
+    for (const fetchImpl of [
+      async (_url, options) =>
+        options.method === "POST"
+          ? new Response("fixture-user fixture-password", { status: 500 })
+          : new Response(
+              form('<input name="tbUserName"><input name="tbPassword">'),
+            ),
+      async () => {
+        throw new Error("fixture-user fixture-password");
+      },
+    ]) {
+      const client = new PdksClient({ fetchImpl });
+      let received;
+      try {
+        await client.login("fixture-user", "fixture-password");
+      } catch (error) {
+        received = error;
+      }
+      expect(received).toBeDefined();
+      expect(JSON.stringify(received)).not.toContain("fixture-password");
+      expect(JSON.stringify(received)).not.toContain("fixture-user");
+      expect(JSON.stringify(client)).not.toContain("fixture-password");
+    }
+    expect(JSON.stringify(logs)).not.toContain("fixture-password");
+    expect(JSON.stringify(logs)).not.toContain("fixture-user");
+  } finally {
+    logger.mockRestore();
+  }
+});

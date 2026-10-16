@@ -1,0 +1,287 @@
+import { test, expect, spyOn } from "bun:test";
+import { CookieJar } from "tough-cookie";
+import {
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  rmSync,
+} from "node:fs";
+import { join } from "node:path";
+import {
+  createSessionManager,
+  SESSION_COOKIE,
+  SESSION_SECONDS,
+} from "./session-manager.js";
+import { createSessionStorage } from "./session-storage.js";
+import { PdksError } from "./pdks.js";
+
+const request = (id) => ({
+  cookies: {
+    get: (name) => (name === SESSION_COOKIE && id ? { value: id } : undefined),
+  },
+});
+function clientFactory(clock, check = async () => 200) {
+  return () => ({
+    jar: new CookieJar(),
+    self: null,
+    lastRequestAt: clock(),
+    async login(username, password) {
+      if (password !== "fixture-password")
+        throw new PdksError("Reddedildi", "AUTH_FAILED", 401);
+      this.self = { id: "self", name: username, sourceId: username };
+      await this.jar.setCookie(
+        `identity=${username}; Path=/`,
+        "https://pdks.trt.net.tr",
+      );
+    },
+    async run(action) {
+      return action();
+    },
+    checkSession: check,
+  });
+}
+
+test("oturumlar kişiyi ve çerez kavanozunu ayırır; rastgele token ve 8 saat sınırı", async () => {
+  let time = Date.now();
+  const manager = createSessionManager({
+    clock: () => time,
+    createClient: clientFactory(() => time),
+  });
+  const a = await manager.connect({
+    username: "alice",
+    password: "fixture-password",
+  });
+  const b = await manager.connect({
+    username: "bob",
+    password: "fixture-password",
+  });
+  expect(a).toMatch(/^[a-f0-9]{64}$/);
+  expect(a).not.toBe(b);
+  expect((await manager.requireSession(request(a))).client.self.name).toBe(
+    "alice",
+  );
+  expect(
+    await (
+      await manager.requireSession(request(b))
+    ).client.jar.getCookieString("https://pdks.trt.net.tr"),
+  ).toBe("identity=bob");
+  await expect(manager.requireSession(request("forged"))).rejects.toMatchObject(
+    { code: "SESSION_EXPIRED" },
+  );
+  await manager.disconnect(request(a));
+  expect(await manager.sessionFor(request(a))).toBeFalsy();
+  expect(await manager.sessionFor(request(b))).toBeTruthy();
+  time += SESSION_SECONDS * 1000;
+  await expect(manager.requireSession(request(b))).rejects.toMatchObject({
+    code: "SESSION_EXPIRED",
+  });
+});
+
+test("diskten geri yükler, parolayı saklamaz ve çıkış yalnız ilgili dosyayı siler", async () => {
+  const root = join(process.cwd(), "work", "tests");
+  mkdirSync(root, { recursive: true });
+  const directory = mkdtempSync(join(root, "sessions-"));
+  try {
+    const options = {
+      storage: createSessionStorage(directory),
+      createClient: clientFactory(Date.now),
+    };
+    const first = createSessionManager(options);
+    const a = await first.connect({
+      username: "alice",
+      password: "fixture-password",
+    });
+    const b = await first.connect({
+      username: "bob",
+      password: "fixture-password",
+    });
+    const record = readFileSync(join(directory, `${a}.json`), "utf8");
+    expect(record).not.toContain("fixture-password");
+    expect(Object.keys(JSON.parse(record)).sort()).toEqual([
+      "expiresAt",
+      "jar",
+      "lastRequestAt",
+      "self",
+      "version",
+    ]);
+    const restored = createSessionManager(options);
+    expect(
+      await (
+        await restored.requireSession(request(a))
+      ).client.jar.getCookieString("https://pdks.trt.net.tr"),
+    ).toBe("identity=alice");
+    await restored.disconnect(request(a));
+    expect(readdirSync(directory)).toEqual([`${b}.json`]);
+    await restored.disconnect(request(b));
+    await first.disconnect(request(a));
+    await first.disconnect(request(b));
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});
+
+test("hatalı parola ve geçersiz alanlar oturum oluşturmaz", async () => {
+  const records = [];
+  const manager = createSessionManager({
+    createClient: clientFactory(Date.now),
+    storage: {
+      read: async () => null,
+      save: (...args) => records.push(args),
+      remove() {},
+    },
+  });
+  await expect(
+    manager.connect({ username: "alice", password: "bad" }),
+  ).rejects.toMatchObject({ code: "AUTH_FAILED" });
+  await expect(
+    manager.connect({ username: "", password: "fixture-password" }),
+  ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+  expect(records).toHaveLength(0);
+});
+
+test("2.000 paralel oturum ayrı kimlik ve çerezlerle çalışır; çıkış yalnız ilgili kişiyi kaldırır", async () => {
+  const sessions = new Map();
+  const manager = createSessionManager({
+    createClient: clientFactory(Date.now),
+    sessions,
+  });
+  const ids = await Promise.all(
+    Array.from({ length: 2000 }, (_, i) =>
+      manager.connect({ username: `person${i}`, password: "fixture-password" }),
+    ),
+  );
+  expect(new Set(ids).size).toBe(2000);
+  const later = await manager.connect({
+    username: "after-burst",
+    password: "fixture-password",
+  });
+  expect(
+    (await manager.requireSession(request(later))).client.self.sourceId,
+  ).toBe("after-burst");
+  await manager.disconnect(request(later));
+  for (const [i, id] of ids.entries()) {
+    const session = await manager.requireSession(request(id));
+    expect(session.client.self.sourceId).toBe(`person${i}`);
+    expect(
+      await session.client.jar.getCookieString("https://pdks.trt.net.tr"),
+    ).toBe(`identity=person${i}`);
+  }
+  await manager.disconnect(request(ids[0]));
+  expect(await manager.sessionFor(request(ids[0]))).toBeFalsy();
+  expect(
+    (await manager.requireSession(request(ids[1999]))).client.self.sourceId,
+  ).toBe("person1999");
+  await Promise.all(ids.slice(1).map((id) => manager.disconnect(request(id))));
+});
+
+test("heartbeat 20 dakika sonra kontrol eder; lease yoksa susar; kaynak oturumu biterse temizler", async () => {
+  let time = Date.now();
+  let checks = 0;
+  let expired = false;
+  const manager = createSessionManager({
+    clock: () => time,
+    createClient: clientFactory(
+      () => time,
+      async () => {
+        checks++;
+        if (expired) throw new PdksError("Bitti", "SESSION_EXPIRED", 401);
+      },
+    ),
+  });
+  const id = await manager.connect({
+    username: "alice",
+    password: "fixture-password",
+  });
+  const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+  await manager.heartbeat(request(id));
+  await manager.checkKeepAlive();
+  await settle();
+  expect(checks).toBe(0);
+  time += 21 * 60000;
+  await manager.checkKeepAlive();
+  await settle();
+  expect(checks).toBe(0);
+  await manager.heartbeat(request(id));
+  await manager.checkKeepAlive();
+  await settle();
+  expect(checks).toBe(1);
+  expired = true;
+  time += 21 * 60000;
+  await manager.heartbeat(request(id));
+  await manager.checkKeepAlive();
+  await settle();
+  expect(await manager.sessionFor(request(id))).toBeFalsy();
+  expect(checks).toBe(2);
+});
+
+test("giriş isteğinin kimlik alanları işlem sonunda tutulmaz; oturumda yalnız kaynak kimliği kalır", async () => {
+  const body = { username: "credential-user", password: "credential-secret" };
+  const manager = createSessionManager({
+    createClient: () => ({
+      jar: new CookieJar(),
+      self: { sourceId: "verified-person" },
+      async login(username, password) {
+        expect(username).toBe("credential-user");
+        expect(password).toBe("credential-secret");
+      },
+    }),
+  });
+  const token = await manager.connect(body);
+  try {
+    expect(body).toEqual({});
+    const session = await manager.requireSession(request(token));
+    expect(JSON.stringify(session)).not.toContain("credential-user");
+    expect(JSON.stringify(session)).not.toContain("credential-secret");
+    expect(session.client.self.sourceId).toBe("verified-person");
+  } finally {
+    await manager.disconnect(request(token));
+  }
+});
+
+test.each(["prune", "expired-delete"])("%s hatası sağlıklı oturumların keepalive işlemini engellemez", async (fault) => {
+  let time = Date.now();
+  let checks = 0;
+  let scans = 0;
+  const sessions = new Map();
+  const errorLog = spyOn(console, "error").mockImplementation(() => {});
+  const manager = createSessionManager({
+    clock: () => time,
+    sessions,
+    createClient: clientFactory(() => time, async () => { checks++; }),
+    storage: {
+      read: async () => null,
+      save: async () => {},
+      remove: async () => {
+        if (fault === "expired-delete")
+          throw Object.assign(new Error("fixture"), { code: "EACCES" });
+      },
+      pruneExpired: async () => {
+        scans++;
+        if (fault === "prune")
+          throw Object.assign(new Error("fixture"), { code: "EACCES" });
+      },
+    },
+  });
+  const ids = [];
+  try {
+    for (const name of ["alice", "bob", "expired"])
+      ids.push(await manager.connect({ username: name, password: "fixture-password" }));
+    const expired = sessions.get(ids[2]);
+    time += 61 * 60_000;
+    expired.expiresAt = time;
+    await manager.heartbeat(request(ids[0]));
+    await manager.heartbeat(request(ids[1]));
+    await manager.checkKeepAlive();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(checks).toBe(2);
+    expect(sessions.has(ids[2])).toBe(false);
+    expect(expired.client.signal.aborted).toBe(true);
+    expect(errorLog.mock.calls.flat()).toContain("EACCES");
+    await manager.checkKeepAlive();
+    expect(scans).toBe(1);
+  } finally {
+    await Promise.allSettled(ids.map((id) => manager.disconnect(request(id))));
+    errorLog.mockRestore();
+  }
+});

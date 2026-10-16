@@ -1,0 +1,127 @@
+import { SESSION_POLICY } from "../domain/rules/session-policy";
+import { HTTP_POLICY } from "../domain/rules/source-policy";
+import { NextResponse } from "next/server";
+import { PdksError } from "./pdks.js";
+import {
+  disconnect,
+  SESSION_COOKIE,
+  LEGACY_SESSION_COOKIE,
+} from "./session.js";
+import { ui } from "../lib/ui-text.js";
+
+export function json(data, status = 200) {
+  return NextResponse.json(data, {
+    status,
+    headers: {
+      "Cache-Control": "no-store",
+      "X-Content-Type-Options": "nosniff",
+    },
+  });
+}
+
+export function sessionCookieOptions(request) {
+  return {
+    httpOnly: SESSION_POLICY.cookieHttpOnly,
+    sameSite: SESSION_POLICY.cookieSameSite,
+    path: SESSION_POLICY.cookiePath,
+    secure:
+      request.nextUrl.protocol === "https:" ||
+      request.headers.get("x-forwarded-proto")?.split(",")[0].trim() === "https",
+  };
+}
+
+export function clearSessionCookies(response, request) {
+  for (const name of [SESSION_COOKIE, LEGACY_SESSION_COOKIE])
+    response.cookies.set(name, "", {
+      ...sessionCookieOptions(request),
+      maxAge: 0,
+    });
+}
+
+export function migrateSessionCookie(response, request, session) {
+  const legacy = request.cookies.get(LEGACY_SESSION_COOKIE);
+  if (!legacy) return response;
+  if (session && !request.cookies.get(SESSION_COOKIE)) {
+    response.cookies.set(SESSION_COOKIE, legacy.value, {
+      ...sessionCookieOptions(request),
+      maxAge: Math.max(0, Math.floor((session.expiresAt - Date.now()) / 1000)),
+    });
+  }
+  response.cookies.set(LEGACY_SESSION_COOKIE, "", {
+    ...sessionCookieOptions(request),
+    maxAge: 0,
+  });
+  return response;
+}
+
+export async function readBody(request) {
+  if (!request.headers.get("content-type")?.startsWith("application/json"))
+    throw new PdksError(ui.apiErrors.jsonRequired, "INVALID_INPUT", 400);
+  const reader = request.body?.getReader();
+  if (!reader)
+    throw new PdksError(ui.apiErrors.emptyRequest, "INVALID_INPUT", 400);
+  const parts = [];
+  let size = 0;
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.length;
+    if (size > HTTP_POLICY.maxJsonBytes) {
+      await reader.cancel();
+      throw new PdksError(ui.apiErrors.requestTooLarge, "INVALID_INPUT", 413);
+    }
+    parts.push(value);
+  }
+  try {
+    const body = JSON.parse(Buffer.concat(parts).toString("utf8"));
+    if (!body || Array.isArray(body) || typeof body !== "object")
+      throw new Error();
+    return body;
+  } catch {
+    throw new PdksError(ui.apiErrors.requestUnreadable, "INVALID_INPUT", 400);
+  }
+}
+
+export async function failure(error, request) {
+  if (!(error instanceof PdksError)) {
+    console.error("PDKS API unexpected error:", error?.name || "UnknownError");
+    return json(
+      {
+        error: ui.apiErrors.requestFailed,
+        code: "INTERNAL_ERROR",
+        details: {
+          type: "UnexpectedError",
+          diagnostic: ui.apiErrors.unexpectedServerError,
+          occurredAt: new Date().toISOString(),
+        },
+      },
+      500,
+    );
+  }
+  const response = json(
+    {
+      error: error.message,
+      code: error.code,
+      details: {
+        type: "PdksError",
+        diagnostic: error.message,
+        ...error.details,
+        occurredAt: new Date().toISOString(),
+      },
+    },
+    error.status,
+  );
+  // A rejected new login does not revoke the request's existing session.
+  if (error.code === "SESSION_EXPIRED") {
+    try {
+      await disconnect(request);
+    } catch (cleanupError) {
+      console.error(
+        "PDKS session cleanup failed:",
+        cleanupError.code || cleanupError.name,
+      );
+    }
+    clearSessionCookies(response, request);
+  }
+  return response;
+}

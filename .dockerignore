@@ -1,0 +1,13 @@
+.git
+.next
+node_modules
+work
+extras
+output
+.playwright-cli
+.codex
+.agents
+.env*
+!.env.example
+*.tsbuildinfo
+coverage

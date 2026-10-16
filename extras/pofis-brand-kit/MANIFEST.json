@@ -1,0 +1,152 @@
+{
+  "version": "1.0",
+  "product": "Pofis",
+  "mascot": "Pofi",
+  "files": [
+    {
+      "path": "README.md",
+      "size_bytes": 2559,
+      "sha256": "0e09e0947a354fe8e34dc532423f6d62dc6fb4011b304d7a3fad26a870be6811"
+    },
+    {
+      "path": "app.js",
+      "size_bytes": 4364,
+      "sha256": "f8ad01a3d06a8f868e3037590e1ab7d795cbf289ce51b86d00d11f86dcc12fc4"
+    },
+    {
+      "path": "assets/pofi-full-256.webp",
+      "size_bytes": 13258,
+      "sha256": "1ef1b0bec3e1452e45392e27ae66a88850d23a25d102fd3e78ebc04cabbf9c46"
+    },
+    {
+      "path": "assets/pofi-full-512.webp",
+      "size_bytes": 28996,
+      "sha256": "1bbfff0d5fb0d89e0a516091b04681e9a5cdde3e5c7387dbdd94e75d06da2853"
+    },
+    {
+      "path": "assets/pofi-full.png",
+      "size_bytes": 1093609,
+      "sha256": "242889d7d3121a138351f3174bc3970831a5ac193786a81469d6f76ea22b6970"
+    },
+    {
+      "path": "assets/pofi-full.webp",
+      "size_bytes": 91736,
+      "sha256": "22e35b723087998788ba4b7e53501eabcf0c63a4c54ebf09c7182545ff5a19ec"
+    },
+    {
+      "path": "assets/pofi-mark-192.png",
+      "size_bytes": 16334,
+      "sha256": "1eb5dc5c356e7e865bd1ca3b0d8635266c8f57334b17d8484edb3e9e834a0476"
+    },
+    {
+      "path": "assets/pofi-mark-192.webp",
+      "size_bytes": 7172,
+      "sha256": "a97f70c340d2ec991d140f4591ea0cfb8e72297ee534265cb649f2502c39e24f"
+    },
+    {
+      "path": "assets/pofi-mark-32.png",
+      "size_bytes": 1729,
+      "sha256": "bf81387d5f15fe5e9b59966f378825bf4fb5ad978acfe7d5f3b7df2c6e9df2cf"
+    },
+    {
+      "path": "assets/pofi-mark-512.png",
+      "size_bytes": 48551,
+      "sha256": "be9e3223c74e6ee73012c83a087d34f1b942b18c0de4339adb7f76c6d5315714"
+    },
+    {
+      "path": "assets/pofi-mark-64.png",
+      "size_bytes": 4199,
+      "sha256": "c62c6b05bbf60b3530a0e1ef407b9e1f66abff1cc5e22a830d28626579d8720c"
+    },
+    {
+      "path": "assets/pofi-mark-64.webp",
+      "size_bytes": 2138,
+      "sha256": "e41ad5ffa0bb5dca3bf5cbdd8603bb705e23d1d59ea3546eea671e0342bbb2bd"
+    },
+    {
+      "path": "assets/pofi-mark.svg",
+      "size_bytes": 2473,
+      "sha256": "24c2d618d66ccab1e827e3fe345dbf52db7c13bb34fc65804a19f0e05107192d"
+    },
+    {
+      "path": "character-sheet.html",
+      "size_bytes": 4120,
+      "sha256": "33d184c747b84b41ffa040c1e4eec20f37eaa84739ddb68e594bc9efba7d5e13"
+    },
+    {
+      "path": "docs/BRAND_GUIDE.md",
+      "size_bytes": 2132,
+      "sha256": "241e84db3546284068f526b06fe501e67a0a0788d5cd0f9587c53120c4e11ead"
+    },
+    {
+      "path": "docs/CHARACTER_BIBLE.md",
+      "size_bytes": 3352,
+      "sha256": "47b01c5ae185a66067dc4fd2b37a89fd63661b41e52362be991985cf0c0b3146"
+    },
+    {
+      "path": "docs/COLOR_TOKENS.json",
+      "size_bytes": 833,
+      "sha256": "710403a7c75ee911e84bc09570065f81b3989a0069457166dc81eeaeec926288"
+    },
+    {
+      "path": "docs/MASTER_PROMPT.md",
+      "size_bytes": 2460,
+      "sha256": "0c4da037b1ced0fe46ae3eaeb9278a4842a1c27aba7c8696e0ca34b8c1c1caa2"
+    },
+    {
+      "path": "docs/QA_REPORT.md",
+      "size_bytes": 1970,
+      "sha256": "8256afd2c84a3fc2f2e6191890aa8be470ba93c87438f82fd2373aca89926595"
+    },
+    {
+      "path": "index.html",
+      "size_bytes": 13902,
+      "sha256": "931ea614c5abb96ea0de3aaa76dce50552e041d9ae9e4f33e9f1339bb2494003"
+    },
+    {
+      "path": "preview/assets-qa.png",
+      "size_bytes": 182050,
+      "sha256": "6dfc6b96f6a41f679e10fe62175336dcb841cb0ab39ed61dd43b952b6d3d94d4"
+    },
+    {
+      "path": "preview/character-sheet.png",
+      "size_bytes": 190234,
+      "sha256": "f82558c1a0229f2c4ac184e892b839f7754998fc51bfd39b0058890e5837d5d7"
+    },
+    {
+      "path": "preview/dashboard-desktop.png",
+      "size_bytes": 169280,
+      "sha256": "1f9efe0bd2218c1087ed97bee5ddc5ec9ffa1d160d71887d675cf27fa0535bcd"
+    },
+    {
+      "path": "preview/dashboard-mobile.png",
+      "size_bytes": 132275,
+      "sha256": "f07ebcc805bd667f8d09cb175d5ae427e86db0bb05fbcc3085712336637d1e41"
+    },
+    {
+      "path": "references/pofi-exploratory-views.png",
+      "size_bytes": 1611628,
+      "sha256": "4d64c9be063545f2b6273e3a34219872546e4d04a18a2bef0cf8b12957846acd"
+    },
+    {
+      "path": "references/pofi-original-ai-sheet.png",
+      "size_bytes": 1663643,
+      "sha256": "6b465c3a5210159b38394771d8691a804b5b76c57d9a8dac193973d02b0a7474"
+    },
+    {
+      "path": "references/pofi-source-unmodified.png",
+      "size_bytes": 1346864,
+      "sha256": "78995bb93f7e34877d8f23ff3e90e2ab8cd35154e87fdc42cda95de5df4b49dc"
+    },
+    {
+      "path": "references/tabii-logo-provided.png",
+      "size_bytes": 14020,
+      "sha256": "0c58c9de245ac8505efe9ed0b90a523f8225e2c4c499a2d788c023ecf7be5074"
+    },
+    {
+      "path": "styles.css",
+      "size_bytes": 14176,
+      "sha256": "79582744f60852c269baf5e804465d8cbba080515832caebf3638d08f978be3d"
+    }
+  ]
+}

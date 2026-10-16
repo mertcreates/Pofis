@@ -1,0 +1,17 @@
+export const SESSION_POLICY = Object.freeze({
+  cookie: "pofis_session",
+  legacyCookie: "pdks_local_session",
+  ttlSeconds: 8 * 60 * 60,
+  diskCleanupMs: 60 * 60_000,
+  tokenBytes: 32,
+  heartbeatMs: 60_000,
+  heartbeatTimeoutMs: 10_000,
+  leaseMs: 10 * 60_000,
+  keepAliveMs: 20 * 60_000,
+  maxBackoffMs: 60 * 60_000,
+  maxUsernameLength: 200,
+  maxPasswordLength: 1000,
+  cookieSameSite: "strict",
+  cookiePath: "/",
+  cookieHttpOnly: true,
+} as const);

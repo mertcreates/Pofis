@@ -1,0 +1,1492 @@
+{
+  "from": "2026-09-21",
+  "to": "2026-10-16",
+  "capturedAt": "2026-10-16T08:24:00.000Z",
+  "passages": [
+    {
+      "date": "2026-09-21",
+      "time": "06:42:05",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "08:05:00",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "08:09:09",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "08:09:58",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "08:13:29",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "09:27:17",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "09:29:28",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "11:19:53",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "11:22:41",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "11:57:49",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "12:15:54",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "12:56:09",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "12:59:12",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "13:27:34",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "13:30:47",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-21",
+      "time": "13:46:11",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "06:37:13",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "06:39:52",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "06:44:23",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "08:35:24",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "08:43:06",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "09:36:36",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "09:39:32",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "12:10:57",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "12:13:54",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "12:45:07",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "13:42:26",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "14:00:46",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "14:03:55",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-22",
+      "time": "14:11:59",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "06:28:47",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "08:47:49",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "08:49:00",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "09:04:46",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "09:07:19",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "10:47:42",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "10:51:38",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "12:42:14",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "13:28:31",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "13:29:25",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "13:32:50",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-23",
+      "time": "14:04:06",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "06:32:39",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "08:12:06",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "08:16:28",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "09:02:49",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "09:05:49",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "10:10:58",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "10:14:28",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "11:16:45",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "11:23:09",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "11:52:17",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "12:49:56",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "13:48:19",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "13:50:53",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-24",
+      "time": "14:05:42",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "06:40:56",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "07:12:22",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "07:14:57",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "07:32:19",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "07:32:57",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "08:09:52",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "08:15:15",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "09:49:51",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "09:52:24",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "10:19:52",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "10:23:42",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "11:10:42",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "11:13:11",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "12:33:42",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "13:02:02",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "13:03:52",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "13:06:22",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-25",
+      "time": "13:49:36",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "06:40:46",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "07:27:15",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "07:27:54",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "07:28:00",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "07:48:55",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "07:53:49",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "08:24:01",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "08:28:02",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "09:17:54",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "09:20:15",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "09:59:17",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "10:00:16",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "10:09:06",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "10:11:51",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "12:47:48",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "13:04:57",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "13:17:18",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "13:20:43",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-28",
+      "time": "13:46:45",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "06:37:00",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "07:11:22",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "07:16:59",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "08:20:30",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "08:21:32",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "08:43:47",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "08:44:36",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "08:59:56",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "09:01:27",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "09:05:32",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "09:08:02",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "12:04:27",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "12:07:21",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "13:14:10",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "13:20:43",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "13:36:33",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "13:39:03",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-29",
+      "time": "13:42:41",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "06:45:10",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "06:56:11",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "07:01:10",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "07:05:25",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "07:06:07",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "08:21:53",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "08:24:18",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "09:22:20",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "09:40:34",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "10:22:53",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "10:25:19",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "11:24:38",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "12:45:02",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "12:49:52",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "12:52:55",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "13:03:35",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "13:06:07",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "13:19:27",
+      "direction": "out"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "13:22:46",
+      "direction": "in"
+    },
+    {
+      "date": "2026-09-30",
+      "time": "13:58:07",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-01",
+      "time": "06:57:49",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-01",
+      "time": "09:52:40",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-01",
+      "time": "09:55:51",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-01",
+      "time": "11:05:21",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-01",
+      "time": "11:23:58",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-01",
+      "time": "11:24:01",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-01",
+      "time": "13:11:31",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-01",
+      "time": "13:11:34",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-01",
+      "time": "13:26:36",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-01",
+      "time": "14:03:28",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "06:41:07",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "06:46:47",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "06:51:38",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "06:58:29",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "06:59:14",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "08:03:21",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "08:09:25",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "08:44:20",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "08:47:11",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "09:08:02",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "09:41:17",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "12:18:50",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "12:22:16",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-02",
+      "time": "13:44:20",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "06:20:56",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "07:05:06",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "07:11:11",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "08:27:12",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "08:28:51",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "08:43:58",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "08:46:37",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "09:23:49",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "09:33:03",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "10:26:43",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "10:30:12",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "12:06:08",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "12:31:14",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "12:33:10",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "13:19:11",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-05",
+      "time": "13:54:49",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "06:38:51",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "06:50:37",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "06:55:46",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "07:10:21",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "07:11:01",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "08:44:01",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "08:46:24",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "10:00:07",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "10:05:50",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "11:27:16",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "11:29:50",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "12:07:30",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "12:42:29",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "12:46:08",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "13:39:26",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "13:42:22",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "13:44:34",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-06",
+      "time": "13:53:46",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "06:09:27",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "06:18:23",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "06:23:07",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "08:39:38",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "08:42:04",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "09:29:35",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "09:33:24",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "11:14:19",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "11:17:07",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "12:05:48",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "12:34:59",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "12:37:26",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "12:40:21",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "12:40:34",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "13:11:57",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "13:11:58",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "13:29:27",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "13:29:30",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "13:54:53",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "13:56:50",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "14:01:11",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "15:21:09",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "15:23:18",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-07",
+      "time": "15:25:25",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "06:02:02",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "06:59:39",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "07:00:16",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "08:15:41",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "08:17:45",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "08:23:18",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "08:24:55",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "08:26:02",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "08:52:39",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "09:39:46",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "09:40:45",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "09:57:36",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "10:00:10",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "10:38:44",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "10:41:24",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "11:47:21",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "11:51:53",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "12:01:57",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "13:10:10",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "13:11:13",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "13:11:45",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "13:16:50",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "13:17:55",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "13:55:29",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "13:58:09",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-08",
+      "time": "14:04:56",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "06:33:02",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "06:51:20",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "06:51:55",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "07:22:31",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "07:26:10",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "08:43:56",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "08:46:20",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "09:44:09",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "09:47:08",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "10:39:49",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "10:42:03",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "11:22:45",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "11:25:48",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "12:16:53",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "13:08:43",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "13:11:21",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "13:14:05",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "13:15:32",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "13:19:23",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-12",
+      "time": "14:36:33",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "05:52:51",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "08:13:57",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "08:16:52",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "09:01:59",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "09:04:38",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "09:40:09",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "09:42:09",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "09:53:53",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "09:54:48",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "11:46:29",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "11:46:54",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "11:58:39",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "12:01:27",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "12:02:09",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "13:27:45",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "13:28:42",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "13:31:28",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-13",
+      "time": "14:35:12",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "05:57:32",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "06:33:10",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "06:36:55",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "08:34:46",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "08:51:38",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "11:55:35",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "12:18:02",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "12:19:15",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "12:22:58",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "13:24:46",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "13:29:31",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "14:02:46",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "14:04:49",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-14",
+      "time": "14:20:49",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-15",
+      "time": "06:46:54",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-15",
+      "time": "07:19:44",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-15",
+      "time": "07:31:11",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-15",
+      "time": "11:19:19",
+      "direction": "out"
+    },
+    {
+      "date": "2026-10-15",
+      "time": "11:21:43",
+      "direction": "in"
+    },
+    {
+      "date": "2026-10-15",
+      "time": "11:38:46",
+      "direction": "out"
+    }
+  ]
+}

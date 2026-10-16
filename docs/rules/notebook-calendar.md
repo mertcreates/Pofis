@@ -1,0 +1,29 @@
+# Not defteri takvimi
+
+[Kural haritası](README.md) · [Terimler](../../GLOSSARY.md)
+
+## Tek sahip
+
+[src/domain/rules/notebook-calendar.ts](../../src/domain/rules/notebook-calendar.ts)
+
+Arayüz: `isNotebookDate(date, specialDates)`, `pofiNotebookDates(today, specialDates)`, `defaultNotebookDate`.
+
+## Sözleşme
+
+Mevcut haftanın hafta içi günleri ve özel tarihe denk gelen hafta sonları seçilir. Takvim özel tarihleri parametre olarak alır. [Not motoru](../../src/lib/pofi-notes/notebook.ts) geçerli tarihli yayının özel günlerini verir; ekran sunucudan gelen notların tarihlerinden aynı takvimi oluşturur. UI'da ayrı bir özel gün listesi tutulmaz. Bugün listede değilse son hafta içi günü açılır. Bu takvim kişinin çalışma planından bağımsızdır; arşiv davranışı korunur. İçerik ve yayın yönetimi [Pofi notları rehberinde](../pofi-notes.md) açıklanır.
+
+## Bağımlılıklar
+
+- [Takvim ve kaynak saati](calendar.md)
+
+## Kullanan yerler
+
+- [index.ts](../../src/lib/pofi-notes/index.ts)
+- [pofi-notes.js](../../src/server/pofi-notes.js)
+- [notebook.js](../../src/components/pofi/notebook.js)
+
+## Testler
+
+- [rules.test.ts](../../src/domain/rules/rules.test.ts)
+- [report.test.ts](../../src/domain/report.test.ts)
+- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)
