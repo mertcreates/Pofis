@@ -13,14 +13,15 @@ export function Duration({ seconds }: { seconds: number | null }) {
       title={durationClock(seconds)}
       aria-label={durationText(seconds)}
     >
-      {p.hours} <small>sa</small> {String(p.minutes).padStart(2, "0")}{" "}
-      <small>dk</small>
+      {p.hours > 0 && <>{p.hours} <small>sa</small></>}
+      {p.minutes > 0 && <>{p.hours > 0 && " "}{p.minutes} <small>dk</small></>}
       {p.seconds > 0 && (
         <span className="duration-seconds">
-          {" "}
-          {String(p.seconds).padStart(2, "0")} sn
+          {(p.hours > 0 || p.minutes > 0) && " "}
+          {p.seconds} sn
         </span>
       )}
+      {p.hours === 0 && p.minutes === 0 && p.seconds === 0 && <>0 <small>sn</small></>}
     </time>
   );
 }

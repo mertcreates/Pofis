@@ -87,7 +87,11 @@ export function durationParts(seconds: number): {
 
 export function durationText(seconds: number, includeSeconds = true): string {
   const p = durationParts(seconds);
-  return `${p.hours} sa ${String(p.minutes).padStart(2, "0")} dk${includeSeconds ? ` ${String(p.seconds).padStart(2, "0")} sn` : ""}`;
+  const parts = [];
+  if (p.hours > 0) parts.push(`${p.hours} sa`);
+  if (p.minutes > 0) parts.push(`${p.minutes} dk`);
+  if (includeSeconds && p.seconds > 0) parts.push(`${p.seconds} sn`);
+  return parts.join(" ") || (includeSeconds ? "0 sn" : "0 dk");
 }
 
 export function durationClock(seconds: number): string {

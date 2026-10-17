@@ -70,9 +70,6 @@
   color: var(--secondary);
   font-size: 13px;
 }
-.demo-preview {
-  margin-bottom: 24px;
-}
 .demo-day-navigation {
   display: flex;
   align-items: center;

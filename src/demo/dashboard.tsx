@@ -1,17 +1,26 @@
 "use client";
 
-import { useCallback, useMemo, useReducer, useState } from "react";
+import { useCallback, useMemo, useReducer, useState, type ReactNode } from "react";
 import { DashboardView } from "@/components/dashboard/view";
 import { useWorkPlans } from "@/data/use-work-plans";
 import { addDays, dateKey, weekday, weekStart } from "@/domain/rules/calendar";
 import type { demoData } from "./report";
 import { demoDays, previewDemoDay } from "./navigation";
 import { DemoDayPicker } from "./day-picker";
+import { DemoControls, initialErrorPreview, type DemoView, type ErrorPreviewState } from "./controls";
+import { DemoNoticeControls, DemoNoticePreview, initialNoticePreview, type NoticePreviewState } from "./notice-preview";
 import dynamic from "next/dynamic";
 import { ui } from "@/lib/ui-text.js";
 import "./error-preview.css";
 
 const DemoErrorPreview = dynamic(() => import("./error-preview").then(module => module.DemoErrorPreview));
+
+const attendancePresets = {
+  shortfall: { date: "2026-10-15", minutes: 0 },
+  uncertain: { date: "2026-10-07", minutes: 0 },
+  empty: { date: "2026-10-09", minutes: 0 },
+  ongoing: { date: "2026-10-15", minutes: 120 },
+};
 
 export function DemoDashboard({
   now: capturedAt,
@@ -20,7 +29,9 @@ export function DemoDashboard({
 }: ReturnType<typeof demoData>) {
   const [date, setDate] = useState(() => dateKey(capturedAt));
   const [extraMinutes, setExtraMinutes] = useState(0);
-  const [errorPreview, setErrorPreview] = useState(false);
+  const [view, setView] = useState<DemoView>("attendance");
+  const [errorPreview, setErrorPreview] = useState<ErrorPreviewState>(initialErrorPreview);
+  const [noticePreview, setNoticePreview] = useState<NoticePreviewState>(initialNoticePreview);
   const week = weekStart(date);
   const dates = demoDays(week, capturedAt);
   const selectWeek = useCallback(
@@ -55,7 +66,23 @@ export function DemoDashboard({
     setDate(next);
   }
 
-  if (errorPreview) return <DemoErrorPreview onClose={() => setErrorPreview(false)} />;
+  function resetPreview() {
+    setDate(dateKey(capturedAt));
+    setExtraMinutes(0);
+    setErrorPreview(initialErrorPreview);
+    setNoticePreview(initialNoticePreview);
+    setView("attendance");
+  }
+  const selectedPreset = Object.entries(attendancePresets).find(
+    ([, preset]) => preset.date === date && preset.minutes === extraMinutes,
+  )?.[0] ?? "custom";
+  const controls = (children: ReactNode) => (
+    <DemoControls view={view} onViewChange={setView} onReset={resetPreview}>{children}</DemoControls>
+  );
+
+  if (view === "errors") return (
+    <DemoErrorPreview state={errorPreview} onChange={setErrorPreview} controls={controls} />
+  );
 
   return (
     <DashboardView
@@ -68,26 +95,41 @@ export function DemoDashboard({
         refresh,
         firstWeek,
         capturedDate: dateKey(capturedAt),
-        navigation: (
-          <>
-            <button type="button" className="demo-error-launch" onClick={() => setErrorPreview(true)}>
-              {ui.demo.errors.launch}
-            </button>
-            <DemoDayPicker
-              dates={dates}
-              selected={date}
-              now={report.now}
-              capturedAt={capturedAt}
-              extraMinutes={extraMinutes}
-              maxExtraMinutes={report.maxExtraMinutes}
-              unavailableReason={report.unavailableReason}
-              onExtraMinutesChange={setExtraMinutes}
-              onSelect={selectDate}
-            />
-          </>
-        ),
       }}
       workPlans={workPlans}
-    />
+    >
+      {view === "notices" ? <>
+        {controls(<DemoNoticeControls state={noticePreview} onChange={setNoticePreview} />)}
+        <DemoNoticePreview state={noticePreview} onChange={setNoticePreview} />
+      </> : controls(<>
+        <div className="demo-preset-row">
+          <label className="demo-control-select">
+            <span>{ui.demo.controls.scenario}</span>
+            <select value={selectedPreset} onChange={event => {
+              const preset = attendancePresets[event.currentTarget.value as keyof typeof attendancePresets];
+              setDate(preset.date);
+              setExtraMinutes(preset.minutes);
+            }}>
+              <option value="custom" disabled>{ui.demo.controls.custom}</option>
+              {(Object.keys(attendancePresets) as (keyof typeof attendancePresets)[]).map(key => (
+                <option key={key} value={key}>{ui.demo.controls.presets[key]}</option>
+              ))}
+            </select>
+          </label>
+          <p className="demo-notice">{ui.demo.notice}</p>
+        </div>
+        <DemoDayPicker
+          dates={dates}
+          selected={date}
+          now={report.now}
+          capturedAt={capturedAt}
+          extraMinutes={extraMinutes}
+          maxExtraMinutes={report.maxExtraMinutes}
+          unavailableReason={report.unavailableReason}
+          onExtraMinutesChange={setExtraMinutes}
+          onSelect={selectDate}
+        />
+      </>)}
+    </DashboardView>
   );
 }

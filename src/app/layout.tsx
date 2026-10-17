@@ -6,6 +6,7 @@ import "./pofis.css";
 import "./modal.css";
 import "@/components/pofi/room.css";
 import "./current-contracts.css";
+import "@/components/request-error.css";
 import { themeInitScript } from "@/lib/theme.js";
 
 export const metadata: Metadata = {

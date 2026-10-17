@@ -33,7 +33,6 @@ type Source =
       refresh: () => void;
       firstWeek: string;
       capturedDate: string;
-      navigation: ReactNode;
     };
 export function DashboardView({
   now,
@@ -41,12 +40,14 @@ export function DashboardView({
   onWeekChange,
   data,
   workPlans,
+  children,
 }: {
   now: number;
   week: string;
   onWeekChange: (week: string) => void;
   data: Source;
   workPlans: ReturnType<typeof useWorkPlans>;
+  children?: ReactNode;
 }) {
   const appearance = useAppearance();
   const [dialog, setDialog] = useState<"plan" | "room" | "records" | null>(
@@ -160,6 +161,7 @@ export function DashboardView({
           />
         ) : (
           <>
+            {children}
             <DashboardHeader
               week={week}
               today={navigationDate}
@@ -170,14 +172,6 @@ export function DashboardView({
               onSelect={selectWeek}
               onRefresh={() => void refresh()}
             />
-            {data.kind === "demo" && (
-              <div className="demo-preview">
-                <p className="demo-notice">
-                  {ui.demo.notice}
-                </p>
-                {data.navigation}
-              </div>
-            )}
             <div className="report-area" aria-busy={busy}>
               {stale && (
                 <p className="report-notice" role="status">

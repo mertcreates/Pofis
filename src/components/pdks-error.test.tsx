@@ -13,7 +13,7 @@ test("HTTP kaynak hatası erişilememe veya bozuk veri mesajıyla karışmaz", (
   expect(html).not.toContain("beklenen yapıda değil");
 });
 
-test("teknik ayrıntılar kapalı açılır; kopyalama eylemi ve okunabilir İstanbul saati sunar", () => {
+test("teknik ayrıntılar sürekli görünür; kopyalama eylemi ve okunabilir İstanbul saati sunar", () => {
   const error = toRequestFailure({ code: "CONNECTION_FAILED", status: 502, details: {
     apiPath: "/api/session", apiMethod: "POST", method: "GET",
     path: "/PizzyKurumWeb/Giris.aspx", occurredAt: "2026-10-17T08:34:40.001Z",
@@ -21,8 +21,8 @@ test("teknik ayrıntılar kapalı açılır; kopyalama eylemi ve okunabilir İst
   } }, "connect");
   const html = renderToStaticMarkup(<RequestError error={error} onReturnToLogin={() => {}} />);
   expect(html).toContain("Teknik ayrıntılar");
-  expect(html).toContain("Ayrıntıları kopyala");
-  expect(html).not.toContain("<details open");
+  expect(html).toContain("Tanı bilgilerini kopyala");
+  expect(html).not.toContain("<details");
   expect(html).toContain('<time dateTime="2026-10-17T08:34:40.001Z">');
   const time = pdksDiagnosticRows(error).find(row => row.key === "occurredAt")!;
   expect(time.value).toContain("17 Ekim 2026");
@@ -55,7 +55,7 @@ test("yanlış şifre formda alanlarla ilişkili gösterilir; teknik ekran veya 
   expect(html).not.toContain("<details");
   expect(html).not.toContain("AUTH_FAILED");
   expect(html).not.toContain("private");
-  expect(html).not.toContain('class="empty request-error"');
+  expect(html).not.toContain('class="request-error request-error-page"');
 });
 
 test("oturum bitişi giriş yönlendirmesi sunar; teknik tanı veya bağımsız yeniden deneme düğmesi göstermez", () => {
@@ -77,12 +77,12 @@ test("kaynak bağlantı hatası giriş kartının yerini normal hata ekranıyla 
   expect(html).not.toContain("<form");
   expect(html).not.toContain("dashboard-card");
   expect(html).not.toContain("request-error-inline");
-  expect(html).toContain('class="empty request-error"');
+  expect(html).toContain('class="request-error request-error-page"');
   expect(html).toContain("Girişe dön");
   expect(html).toContain("Kurum ağı veya VPN bağlantını kontrol");
   expect(html).toContain('/pofi/states/error.webp');
-  expect(html).toContain("<details");
-  expect(html).not.toContain("<details open");
+  expect(html).toContain("Sorunun nedeni");
+  expect(html).not.toContain("<details");
   expect(html).not.toContain("aria-invalid");
 });
 
@@ -99,7 +99,7 @@ test("giriş doğrulama hatası alanlarda; oturum bitişi nötr ve alanları ge�
 test("ilk oturum kontrol hatası form yerine normal hata ekranında kendi GET eylemini sunar", () => {
   const error = toRequestFailure({ code: "INTERNAL_ERROR", status: 500 }, "session");
   const html = renderToStaticMarkup(<Connection busy={false} error={error} onConnect={async () => {}} onRetry={() => {}} onReturnToLogin={() => {}} />);
-  expect(html).toContain('class="empty request-error"');
+  expect(html).toContain('class="request-error request-error-page"');
   expect(html).toContain("Oturumu yeniden kontrol et");
   expect(html).not.toContain("<form");
   expect(html).not.toContain("Girişe dön");
@@ -113,7 +113,7 @@ test.each([
   const error = toRequestFailure({ code: "CONNECTION_FAILED", status: 502, details: { apiPath: "/api/report" } }, operation);
   const html = renderToStaticMarkup(<RequestError error={error} variant="notice" onRetry={() => {}} />);
   expect(html).toContain(label);
-  expect(html).toContain("<details");
-  expect(html).not.toContain("<details open");
+  expect(html).toContain("Sorunun nedeni");
+  expect(html).not.toContain("<details");
   expect(html).toContain("/api/report");
 });

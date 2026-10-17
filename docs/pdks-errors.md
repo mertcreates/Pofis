@@ -30,7 +30,7 @@ Kaynak adaptörü Bun'ın doğrudan `error.code` ve Node fetch'in `error.cause.c
 | `NETWORK_ERROR` | Uygulamaya erişim sorunu ve ilgili işlemi yeniden deneme. | Rapor isteği başarısızsa eski rapor korunur, anlık tahmin durur. |
 | `CONNECTION_FAILED` | PDKS bağlantısı kurulamadı; kurum ağı/VPN kontrolü ve manuel yeniden deneme. | Oturum korunur. |
 | `SOURCE_ERROR` | PDKS bir HTTP hata yanıtı verdi; manuel yeniden deneme. Kaynağın 429 yanıtında bekleme, 403 yanıtında yetki açıklaması. | HTTP hata gövdesindeki giriş formu oturumu bitirmez. |
-| `SOURCE_CHANGED`, `INVALID_RESPONSE`, `INTERNAL_ERROR`, bilinmeyen kod | Güvenli kullanıcı mesajı; teknik ayrıntı kapalı bir açılır alanda. | Geçerli rapor varsa korunur; başarısız yenilemede tahmin durur. |
+| `SOURCE_CHANGED`, `INVALID_RESPONSE`, `INTERNAL_ERROR`, bilinmeyen kod | Güvenli kullanıcı mesajı; teknik ayrıntılar İz kaydı düzeninde sürekli görünür. | Geçerli rapor varsa korunur; başarısız yenilemede tahmin durur. |
 | `TOO_MANY_RESULTS` | Rapor sınırı ve başka hafta seçme açıklaması. | Kısmi rapor başarı gibi gösterilmez. |
 
 Yalnız doğru kod/durum çiftine sahip `SESSION_EXPIRED` oturumu bitirir. Kod içermeyen veya okunamayan 401 yanıtı oturumu düşürmez. Heartbeat aynı sınıflandırmayı kullanır; geçici heartbeat erişim sorunu raporu silmez.
@@ -43,9 +43,9 @@ Girişte bilgi/doğrulama hatası şifre alanının altında gösterilir. Sistem
 
 Eski rapor varken hata kısa bir bildirim olarak raporun üzerinde kalır; rapor yokken tek hata görünümü sunulur. İlk oturum kontrolü başarısızsa tam sayfa hata ekranında oturum kontrolünü tekrar deneme eylemi bulunur.
 
-Tam sayfa hata görünümü ölçülü Pofi görseli, başlık, kısa açıklama ve işleme uygun ana eylemden oluşur. Teknik ayrıntılar kutusuz ve başlangıçta kapalı bir açılımdır. “Ayrıntıları kopyala” yalnız ekranda sunulan izinli tanı alanlarını kopyalar; başarı veya erişim reddi görünür durum metniyle bildirilir. Hata zamanı İstanbul saat diliminde tarih, saat ve UTC farkıyla gösterilir; kopyalanan metin özgün zaman damgasını korur. Uzun tanı değerleri satır kırar; dar ekranda etiket ve değer alt alta yerleşir.
+Tam sayfa hata görünümü lavanta Pofi sahnesinde başlık, kısa açıklama ve işleme uygun ana eylemi sunar; masaüstünde Pofi sağda, dar ekranda üsttedir. Giriş, raporsuz hatalar ve demo aynı [RequestError](../src/components/request-error.js) sahibini kullanır. Eski rapor üzerindeki kompakt bildirim Pofi Sahne düzenini kullanır: lavanta yüzeyde mesaj ve eylem, sağda küçük Pofi, altta açık İz kaydı bulunur. Demo da aynı RequestError bileşenini kullanır. Bildirim aynı [tanı bileşenini](../src/components/request-error-details.tsx) kullanır; tam sayfa sahnesi raporu kapatmaz.
 
-Teknik ayrıntılar “Hata”, “Uygulama isteği” ve “PDKS isteği” başlıkları altında gruplanır; verisi bulunmayan grup çizilmez. Hata alanları masaüstünde iki, dar ekranda tek sütundur. İstek yöntemi ve yolu aynı satırda, uzun yollar gerektiğinde kırılarak sunulur. Gruplar ayrı kart oluşturmaz. Kopyalama düğmesi ayrıntıların üstündedir; kopyalanan izinli alanlar ve özgün zaman damgası aynı kalır.
+Teknik ayrıntılar kutusuz İz kaydı düzeninde sürekli görünür. “Sorunun nedeni” güvenli açıklama, hata kodu ve kısa İstanbul zamanını içerir. “İstek ayrıntıları” Pofis API ve PDKS alanlarını kendi isteklerinin altında toplar; verisi bulunmayan kaynak grubu çizilmez. API HTTP durumu kaynak yanıtı sayılmaz. Alanlar yalnız boşlukla ayrılır, uzun yollar satır kırar. “Tanı bilgilerini kopyala” tüm izinli alanları ve özgün zaman damgasını kopyalar; başarı veya erişim reddi durum metniyle bildirilir. API hata sınıflandırması, parola/çerez sınırı ve işlem bazındaki toparlanma davranışı değişmez.
 
 ## Doğrulama
 

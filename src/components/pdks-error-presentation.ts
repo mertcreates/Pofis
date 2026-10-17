@@ -40,27 +40,6 @@ export function pdksDiagnosticText(failure: RequestFailure) {
   return pdksDiagnosticRows(failure).map(({ label, raw }) => `${label}: ${raw}`).join("\n");
 }
 
-const diagnosticGroupByKey = {
-  code: "error", status: "error", type: "error", diagnostic: "error",
-  causeCode: "error", occurredAt: "error",
-  apiPath: "application", apiMethod: "application",
-  path: "source", method: "source", sourceStatus: "source", stage: "source",
-  sessionCheck: "source", sessionCheckStatus: "source", sessionCheckCode: "source",
-  recoveryAttempts: "source",
-} as const satisfies Record<keyof typeof diagnosticLabels | "code" | "status", string>;
-
-export function pdksDiagnosticGroups(failure: RequestFailure) {
-  const rows = pdksDiagnosticRows(failure);
-  return [
-    { key: "error", label: ui.diagnosticGroups.error },
-    { key: "application", label: ui.diagnosticGroups.application },
-    { key: "source", label: ui.diagnosticGroups.source },
-  ].map(group => ({
-    ...group,
-    rows: rows.filter(row => diagnosticGroupByKey[row.key as keyof typeof diagnosticGroupByKey] === group.key),
-  })).filter(group => group.rows.length > 0);
-}
-
 const operationTitles: Record<PdksOperation, string> = ui.pdksFailureTitles;
 const actionLabels: Record<PdksOperation, string> = ui.pdksFailureActions;
 const technical: Record<FailureKind, boolean> = {

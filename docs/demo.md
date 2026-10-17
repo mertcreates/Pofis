@@ -2,18 +2,28 @@
 
 Yerel adres: http://127.0.0.1:3000/demo. Sayfa giriş gerektirmeden gerçek Mesaim görünümünü açar. Haftalık grafik, günlük hareketler, rapor tablosu, plan editörü ve Pofi aynı bileşenleri ve [ürün kurallarını](rules/README.md) kullanır.
 
-Yerleşim ve bileşen görünümleri [kaynak arayüzden](ui-source-migration.md) gelir. Hafta seçici aylar üzerinden çalışır. Demo açıklamasının altında Pazartesi–Cuma gün seçicisi bulunur; grafik gün seçme kontrolü değildir. Günün akışı, günlük süre/hedef, kayıt kartı, tablodaki “Bugün” ve Pofi seçilen günü birlikte gösterir. Boş günde “Tüm kayıtlar” düğmesi görünmez. Ayarlar menüsü plan modalını açar.
+Yerleşim ve bileşen görünümleri [kaynak arayüzden](ui-source-migration.md) gelir. Hafta seçici aylar üzerinden çalışır. Demo kontrollerinde Pazartesi–Cuma gün seçicisi bulunur; grafik gün seçme kontrolü değildir. Günün akışı, günlük süre/hedef, kayıt kartı, tablodaki “Bugün” ve Pofi seçilen günü birlikte gösterir. Boş günde “Tüm kayıtlar” düğmesi görünmez. Ayarlar menüsü plan modalını açar.
 
-## Hata ekranı alternatifleri
+## Demo kontrolleri
 
-“Hata ekranlarını dene” düğmesi onaylanan Pofi sahnesini sabit tutar. Başlangıç seçimi İz kaydıdır: sorun açıklaması, hata kodu ve İstanbul saatindeki kısa zaman görünür. İkinci durak olan “İstek ayrıntıları” da sürekli görünür; açma/kapama kontrolü bulunmaz. API HTTP durumu Pofis API altında, kaynak HTTP durumu ve bağlantı kodu PDKS altında gösterilir; uygulama hatasında kaynak verisi üretilmez. Hata sınıfı istek ayrıntılarında bulunur. Çizgi işlem sırası veya başarı göstergesi değildir. “Tanı bilgilerini kopyala” tüm izinli alanları ve özgün zaman damgasını taşır. [İz kaydı sunumu](../src/demo/error-trace.tsx) ortak tanı alanlarını ve kopyalama bileşenini kullanır.
+Üstteki Mesaim, Hata ekranları ve Bildirimler sekmeleri ekranlar arasında geçiş sağlar. Hazır senaryolar mevcut veri ve ortak hesap sahiplerini kullanır: Eksik mesai 15 Ekim'i, Belirsiz kayıt 7 Ekim'i, Kayıtsız gün 9 Ekim'i açar; Devam eden mesai 15 Ekim'e 120 dakika sanal ek süre ekler. Hedef farkı kayıtlı demo mesai planına göre hesaplanır. Gün veya süre elle değiştiğinde eşleşen senaryo seçilir; eşleşme yoksa “Özel seçim” görünür.
 
-Karşılaştırma için Tanı föyü (tek açık yüzey ve bölünmüş kayıtlar) ve Konsol (markanın koyu mor paletinde yoğun kayıt) seçenekleri korunur; bu iki tasarımın ayrıntıları açık başlar. Kart içinde kart kullanılmaz. Canlı ekranın kapalı başlangıcı değişmez.
+Geçişlerde gün, ek süre, hata senaryosu ve örnek giriş adımı korunur. “Başlangıca dön” Mesaim'i yakalama gününde sıfır ek süreyle açar; hata önizlemesini bağlantı hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince önizleme başlangıç durumuna döner.
+
+[Demo kontrolleri](../src/demo/controls.tsx) sekmeleri ve sıfırlamayı sunar; durum [demo istemcisinde](../src/demo/dashboard.tsx) tutulur. Ortak DashboardView demo kontrol yapısını bilmez; içeriği standart `children` ile alır.
+## Hata ekranı
+
+“Hata ekranları” sekmesi onaylanan Pofi sahnesini sabit tutar. Teknik ayrıntılar İz kaydı düzenindedir: sorun açıklaması, hata kodu ve İstanbul saatindeki kısa zaman görünür. İkinci durak olan “İstek ayrıntıları” da sürekli görünür; açma/kapama kontrolü bulunmaz. API HTTP durumu Pofis API altında, kaynak HTTP durumu ve bağlantı kodu PDKS altında gösterilir; uygulama hatasında kaynak verisi üretilmez. Hata sınıfı istek ayrıntılarında bulunur. Çizgi işlem sırası veya başarı göstergesi değildir. “Tanı bilgilerini kopyala” tüm izinli alanları ve özgün zaman damgasını taşır. [İz kaydı sunumu](../src/components/request-error-details.tsx) ortak tanı alanlarını ve kopyalama bileşenini kullanır.
+
+Pofi sahnesi ve İz kaydı tek hata tasarımıdır. Kart içinde kart kullanılmaz. Canlı hata ekranları da aynı açık İz kaydı düzenini kullanır.
 
 Senaryo seçicisi bağlantı/DNS hatası, PDKS HTTP 500 ve uygulama hatasını karşılaştırır. Açıklamalar, güvenli alanlar, gruplama ve kopyalama ortak hata sunumu/bileşeninden gelir. Eksik kaynak bilgisi üretilmez.
 
-“Girişe dön” örnek giriş formunu açar; gönderim formu temizleyip seçili örnek hatayı yeniden gösterir. Bu akış API veya PDKS isteği göndermez. “Mesaim demosuna dön” rapora döner ve seçili gün/ek süreyi korur. Önizleme seçimleri bellektedir; sayfa yenilenince rapor açılır. [Önizleme sahibi](../src/demo/error-preview.tsx) ve [demo stilleri](../src/demo/error-preview.css) canlı hata ekranının tasarımını değiştirmez.
+“Girişe dön” örnek giriş formunu açar; gönderim formu temizleyip seçili örnek hatayı yeniden gösterir. Bu akış API veya PDKS isteği göndermez. “Mesaim” sekmesi rapora döner; iki ekranın önizleme seçimleri geçişlerde korunur. Önizleme seçimleri bellektedir; sayfa yenilenince rapor açılır. [Önizleme sahibi](../src/demo/error-preview.tsx) ortak canlı hata bileşenini kullanır; [demo stilleri](../src/demo/error-preview.css) yalnız demo kontrollerini düzenler.
 
+## Bildirimler
+
+“Bildirimler” sekmesi canlı ekranlarla aynı Pofi Sahne bildirimini rapor üzerinde gösterir. Başlık, açıklama ve işleme uygun yeniden deneme eylemi lavanta yüzeyde; küçük Pofi sağda, sürekli açık İz kaydı altta bulunur. Tasarım seçicisi ve eski alternatifler kaldırılmıştır. Çıkış hatası ve rapor yenileme hatası senaryoları ortak RequestError bileşenini kullanır. Yeniden deneme yalnız örnek hatanın zamanını yeniler; API veya PDKS isteği göndermez. Senaryo sekmeler arasında korunur; “Başlangıca dön” çıkış hatasına döndürür. Önizleme sahibi [bildirim demosudur](../src/demo/notice-preview.tsx).
 ## Veri ve zaman
 
 [Yakalanan turnike verisi](../src/demo/passages.json) 21 Eylül–16 Ekim 2026 aralığındaki 297 hareketi içerir. Her hareket yalnız `date`, `time`, `direction` taşır. Kişi adı, personel/turnike kimliği, parola ve oturum çerezi fixture içinde bulunmaz; ekranda “Örnek kullanıcı” görünür. Gerçek tarih ve saatler korunmuştur; veri tam anonim sayılmaz.
@@ -45,7 +55,7 @@ Yakalanan veride gerçek son hareketi giriş olan gün bulunmuyor. Demo ek süre
 
 - [Sunucu adaptörü](../src/demo/report.ts) fixture'ı ortak rapor sözleşmesiyle doğrular, haftalara böler ve mevcut Pofi not üreticisini sabit örnek anahtarla kullanır.
 - [Demo gezinti sahibi](../src/demo/navigation.ts) kullanılabilir günleri, sabit önizleme saatini, seçilen tarihe kadarki raporu ve geçerli son harekete bağlı sanal açık girişi yönetir. Takvim işlemleri [ortak takvim sahibinden](rules/calendar.md) gelir; süre/plan/Pofi formülleri [ortak rapor hazırlığında](../src/domain/report.ts) kendi kural sahiplerinden alınır.
-- [Demo istemcisi](../src/demo/dashboard.tsx) seçili günü ve o güne ait geçici ek süreyi tutar; hafta ve sanal saat bu seçimden türetilir. [Gün seçici](../src/demo/day-picker.tsx) gün/süre kontrollerini ve açıklamaları sunar. [Ortak DashboardView](../src/components/dashboard/view.tsx) demo kontrolünü demo dalında gösterir; hafta seçicinin üst sınırı yakalama tarihidir. Canlı [Dashboard](../src/components/dashboard.tsx) kendi saatini ve PDKS hook'unu yönetir.
+- [Demo istemcisi](../src/demo/dashboard.tsx) seçili günü ve o güne ait geçici ek süreyi tutar; hafta ve sanal saat bu seçimden türetilir. [Gün seçici](../src/demo/day-picker.tsx) gün/süre kontrollerini ve açıklamaları sunar. [Ortak DashboardView](../src/components/dashboard/view.tsx) demo istemcisinin oluşturduğu içeriği standart children alanında sunar; hafta seçicinin üst sınırı yakalama tarihidir. Canlı [Dashboard](../src/components/dashboard.tsx) kendi saatini ve PDKS hook'unu yönetir.
 - [Plan depolama adaptörü](../src/data/work-plans.ts) demo anahtarlarını `demo:` önekiyle ayırır. Demo planları canlı planları değiştirmez; anında kayıt ve hata davranışı ortak kalır. Görünüm tercihi uygulama genelinde paylaşılır.
 - [Route](../src/app/demo/page.tsx) statik üretilir. Demo gezinme/yenileme akışı PDKS, oturum ve heartbeat API'lerini çağırmaz.
 
