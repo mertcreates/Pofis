@@ -31,16 +31,16 @@ async (page) => {
     await page.getByText("KAPASİTE KABUL", { exact: true }).waitFor();
     await open();
     await day("Cuma").click();
-    await page.getByRole("button", { name: /gününü kapat$/ }).click();
-    check(await card("Perşembe") === "8 sa", "Closing Friday must preserve Thursday required time");
-    check(await target() === "Toplam 33 sa 10 dk", "Closing Friday target is wrong");
-    await page.getByRole("button", { name: "40 saate tamamla", exact: true }).click();
-    check(await card("Perşembe") === "14 sa 50 dk", "Thursday must have sufficient actual capacity");
-    check(await card("Cuma") === "–", "Closed Friday was reopened");
-    check(await target() === "Toplam 40 sa", "Weekly target must reach 40 hours");
+    await page.getByRole("button", { name: /gününü izinli yap$/ }).click();
+    check(await card("Perşembe") === "5 sa 20 dk", "Leave must rebalance Thursday");
+    check(await target() === "Toplam 30 sa 30 dk", "Friday leave must deduct eight template hours");
+    await page.getByRole("button", { name: "32 saate tamamla", exact: true }).click();
+    check(await card("Perşembe") === "6 sa 50 dk", "Thursday must reach the leave-adjusted reference");
+    check(await card("Cuma") === "İzinli", "Friday leave was removed");
+    check(await target() === "Toplam 32 sa", "Weekly target must reach 32 hours");
     check(await page.locator(".work-plan-capacity").count() === 0, "False capacity warning remains");
     await day("Perşembe").click();
-    check(await page.locator(".work-plan-stepper output").innerText() === "14 sa 50 dk", "Stepper must show a usable duration");
+    check(await page.locator(".work-plan-stepper output").innerText() === "6 sa 50 dk", "Stepper must show a usable duration");
     await page.setViewportSize({ width: 320, height: 720 });
     check(await page.locator(".work-plan-modal").evaluate(modal => modal.scrollWidth <= modal.clientWidth), "Actual plan overflows mobile");
     await page.screenshot({ path: "output/playwright/work-plan-capacity-mobile.png", animations: "disabled" });
@@ -65,17 +65,17 @@ async (page) => {
       await page.reload();
       await page.getByText("KAPASİTE KABUL", { exact: true }).waitFor();
       const exit = page.locator(".metric").filter({ hasText: "Bugünkü hedef çıkış" }).locator(".metric-value time");
-      check((await exit.textContent()).replace(/\s/g, "") === "22:50:00", "Dashboard exit must use 14:50");
+      check((await exit.textContent()).replace(/\s/g, "") === "14:50:00", "Dashboard exit must use 6:50");
       await open();
-      check(await target() === "Toplam 40 sa" && await card("Perşembe") === "14 sa 50 dk", "Reload applied carryover twice or lost the weekly target");
+      check(await target() === "Toplam 32 sa" && await card("Perşembe") === "6 sa 50 dk", "Reload applied carryover twice or lost the weekly target");
       await page.keyboard.press("Escape");
     }
     await open();
     await day("Perşembe").click();
-    for (let i = 0; i < 3; i++) await page.getByRole("button", { name: "Süreyi yarım saat artır" }).click();
+    for (let i = 0; i < 19; i++) await page.getByRole("button", { name: "Süreyi yarım saat artır" }).click();
     check(await page.locator(".work-plan-stepper output").innerText() === "16 sa", "An exact-minute plan must stop at the daily limit");
     check(await page.getByRole("button", { name: "Süreyi yarım saat artır" }).isDisabled(), "Stepper can exceed 16 hours");
     await page.keyboard.press("Escape");
-    return { passed: true, fixturesOnly: true, checks: ["Thursday actual capacity", "Friday stays closed", "40 hour target", "14:50 required", "22:50 exit", "reload idempotency", "320px layout"] };
+    return { passed: true, fixturesOnly: true, checks: ["Thursday actual capacity", "Friday stays on leave", "32 hour target", "6:50 required", "14:50 exit", "reload idempotency", "320px layout"] };
   } finally { await context.close(); }
 }

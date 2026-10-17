@@ -10,7 +10,13 @@ Arayüz: `summarizeWeek`.
 
 ## Sözleşme
 
-Gelecek günler dışarıda bırakılır. Turnikeden türetilen günlük kayıtlı süreler toplanır ve duration sahibinin ürettiği ek tahmin bir kez eklenir. Geçmiş eksik veya belirsiz gün haftayı eksik yapar. Giriş ya da çıkışı bulunan gün kayıtlı gün sayılır. Çıkış hedefini çözen plan sahibi haftanın yalnız kayıtlı toplamını kullanır; ekrandaki toplam ek tahmini de içerir.
+Gelecek günler dışarıda bırakılır. Turnikeden türetilen günlük kayıtlı süreler toplanır ve duration sahibinin ürettiği ek tahmin bir kez eklenir. Geçmiş eksik veya belirsiz gün haftayı eksik yapar. Giriş ya da çıkışı bulunan gün kayıtlı gün sayılır.
+
+```text
+Görünen gerçekleşen toplam = kayıtlı süreler toplamı + canlı ek tahmin
+```
+
+[Plan sahibi](work-plan.md), haftalık hedef ve geçmişte tamamlanmış günlerin plan/gerçekleşen farklarıyla gereken süreleri belirler. Çıkış hedefi ilk giriş + bugünün gereken süresidir. Bu belgedeki görünen gerçekleşen toplam, haftalık plan hedefi ve plandaki beklenen toplam ayrı değerlerdir; terimler [sözlükte](../../GLOSSARY.md) tanımlıdır.
 
 ## Bağımlılıklar
 

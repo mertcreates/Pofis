@@ -15,8 +15,8 @@ test("open day separates duration, day action and bulk application", () => {
   expect($(".work-plan-control-label")).toHaveLength(0);
   expect($(".work-plan-stepper").attr("aria-label")).toBe("Perşembe çalışma süresi");
   expect($(".work-plan-stepper output").text()).toBe("5 sa 20 dk");
-  expect($(".work-plan-day-title > strong + .work-plan-day-action").text()).toBe("Kapat");
-  expect($(".work-plan-day-action").attr("aria-label")).toBe("Perşembe gününü kapat");
+  expect($(".work-plan-day-title > strong + .work-plan-day-action").text()).toBe("İzin");
+  expect($(".work-plan-day-action").attr("aria-label")).toBe("Perşembe gününü izinli yap");
   expect($(".work-plan-duration-control > .work-plan-apply + .work-plan-stepper")).toHaveLength(1);
   expect($(".work-plan-apply").text()).toBe("Açık günlere uygula");
   expect($(".work-plan-apply").attr("aria-label")).toBe("Açık günlere uygula: 5 sa 20 dk");
@@ -38,7 +38,7 @@ test("zero required duration from carryover keeps the open day editable", () => 
   days[0] = { date: "2026-10-12", state: "recorded", recordedSeconds: 16 * 3600 };
   const $ = render(DEFAULT_WORK_PLAN, days, "2026-10-16");
   expect($(".work-plan-stepper output").text()).toBe("0 sa");
-  expect($(".work-plan-day-action").text()).toBe("Kapat");
+  expect($(".work-plan-day-action").text()).toBe("İzin");
   expect($(".work-plan-reopen")).toHaveLength(0);
 });
 
@@ -82,4 +82,30 @@ test("reset week at 45 hours shows recalculated Friday without redundant reset o
     "9 sa", "9 sa", "8 sa 40 dk", "9 sa", "9 sa 20 dk",
   ]);
   expect($(".work-plan-actions, .work-plan-reset, .work-plan-complete")).toHaveLength(0);
+});
+
+test("izinli Cuma ve izin düşülmüş tamamlama hedefi aynı net hesabı gösterir", () => {
+  const days: PlanDay[] = Array.from({ length: 7 }, (_, day) => ({
+    date: `2026-10-${12 + day}`, state: day < 4 ? "recorded" : "non-working",
+    recordedSeconds: day < 4 ? 7 * 3600 : null,
+  }));
+  const $ = load(renderToStaticMarkup(<PlanEditor plan={[480,480,480,480,0,0,0]} defaultPlan={DEFAULT_WORK_PLAN}
+    days={days} special ready week="2026-10-12" today="2026-10-16" error="" targetSeconds={30 * 3600} leaveDays={[4]}
+    onSave={() => true} onSaveDefault={() => true} onReset={() => true} onClose={() => {}} />));
+  expect($(".work-plan-days > button").last().text()).toBe("Cumİzinli");
+  expect($(".work-plan-days > button").last().attr("aria-label")).toBe("Cuma, izinli");
+  expect($(".work-plan-total s").text()).toBe("32 sa");
+  expect($(".work-plan-actions > span").text()).toBe("32 sa hedefe kalan: 2 sa");
+  expect($(".work-plan-complete").text()).toBe("32 saate tamamla");
+  expect($(".work-plan-complete").attr("disabled")).toBeDefined();
+});
+
+test("seçili izinli gün süre düzenlemesi yerine izni kaldırma eylemini sunar", () => {
+  const $ = load(renderToStaticMarkup(<PlanEditor plan={[0,0,0,0,0,0,0]} defaultPlan={DEFAULT_WORK_PLAN}
+    days={[]} special ready week="2026-10-12" today="2026-10-12" error="" targetSeconds={32 * 3600} leaveDays={[0]}
+    onSave={() => true} onSaveDefault={() => true} onReset={() => true} onClose={() => {}} />));
+  expect($(".work-plan-day-action").text()).toBe("Aç");
+  expect($(".work-plan-day-action").attr("aria-label")).toBe("Pazartesi iznini kaldır");
+  expect($(".work-plan-closed-status").text()).toBe("İzinli");
+  expect($(".work-plan-stepper, .work-plan-apply")).toHaveLength(0);
 });

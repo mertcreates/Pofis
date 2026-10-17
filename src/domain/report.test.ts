@@ -1,12 +1,31 @@
 import { expect, test } from "bun:test";
 import { prepareReport, presentReport, type Report } from "./report";
-import { DEFAULT_WORK_PLAN, emptyWorkPlans, changeDefaultPlan, resolveStoredPlan, resolveStoredTarget, completedDaySeconds } from "./rules/work-plan";
+import { DEFAULT_WORK_PLAN, emptyWorkPlans, changeDefaultPlan, changeWeekPlan, resolveStoredPlan, resolveStoredTarget, completedDaySeconds } from "./rules/work-plan";
 import { durationSegments } from "./attendance";
 import { summarizeWeek } from "@/domain/rules/week";
 import { readPlanInput, readDayPlan, weeklyTarget } from "@/domain/rules/work-plan";
 import { pofiNotesForWeek } from "@/server/pofi-notes.js";
 
 const now = Date.parse("2026-10-16T15:00:00+03:00");
+
+test("Cuma izni 32 saat hedefini ve Perşembe 5:20 çıkış hesabını rapora taşır", () => {
+  const report = fixture();
+  report.passages = ["17:00:00", "17:00:00", "16:40:00"].flatMap((time, index) => [
+    { date: `2026-10-${12 + index}`, time: "08:00:00", direction: "in" as const },
+    { date: `2026-10-${12 + index}`, time, direction: "out" as const },
+  ]);
+  report.passages.push({ date: "2026-10-15", time: "08:00:00", direction: "in" });
+  const plans = changeWeekPlan(emptyWorkPlans(), report.from, [480,480,480,480,0,0,0], [], 115200, [4]);
+  const result = presentReport(report, resolveStoredPlan(plans, report.from), Date.parse("2026-10-15T10:00:00+03:00"), false, resolveStoredTarget(plans, report.from));
+  expect(result.days[3].source.dailyGoalSeconds).toBe(19200);
+  expect(result.days[3].firstEntry! + result.days[3].source.exitGoalSeconds! * 1000)
+    .toBe(Date.parse("2026-10-15T13:20:00+03:00"));
+  expect(result.days[4].source.dailyGoalSeconds).toBe(0);
+  expect(result.days[4].state).toBe("future");
+  const friday = presentReport(report, resolveStoredPlan(plans, report.from), now, false, resolveStoredTarget(plans, report.from));
+  expect(friday.days[4].state).toBe("non-working");
+  expect(result.days[4].source.exitGoalSeconds).toBeNull();
+});
 
 test("şablon değişikliği miras alınan haftanın hedefini rapora ve Cuma çıkışına taşır", () => {
   const report = fixture();

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { emptyWorkPlans, changeWeekPlan, changeDefaultPlan, resolveStoredPlan, resolveStoredTarget } from "@/domain/rules/work-plan";
+import { emptyWorkPlans, changeWeekPlan, changeDefaultPlan, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays } from "@/domain/rules/work-plan";
 import { defaultNotebookDate, pofiNotebookDates } from "@/domain/rules/notebook-calendar";
 import { weekStart } from "@/domain/rules/calendar";
 import type { Report } from "@/domain/report";
@@ -36,15 +36,16 @@ export function DemoLocalPreview({ scenario, today, notes }: {
     </Modal>
       : <PlanEditor week={week} today={today} plan={plan} defaultPlan={plans.defaultPlan} days={[]}
         targetSeconds={resolveStoredTarget(plans, week)}
-        special={Boolean(plans.weekOverrides[week])} ready
+        leaveDays={resolveLeaveDays(plans, week)}
+        special={Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length)} ready
         error={scenario === "plan-storage" ? ui.storageWriteError : ""}
-        onClose={() => setOpen(false)} onSave={(next, targetSeconds) => {
+        onClose={() => setOpen(false)} onSave={(next, targetSeconds, leaveDays) => {
           if (scenario === "plan-storage") return false;
-          setPlans(current => changeWeekPlan(current, week, next, [], targetSeconds));
+          setPlans(current => changeWeekPlan(current, week, next, [], targetSeconds, leaveDays));
           return true;
         }} onSaveDefault={next => {
           if (scenario === "plan-storage") return false;
-          setPlans(current => changeDefaultPlan(current, next));
+          setPlans(current => changeDefaultPlan(current, next, week));
           return true;
         }} onReset={() => {
           if (scenario === "plan-storage") return false;

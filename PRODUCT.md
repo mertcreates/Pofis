@@ -24,7 +24,7 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 
 ## Capabilities and Constraints
 
-- Raporun tek kaynağı kişisel turnike hareketleridir. Seçilen haftanın bütün sayfaları alınır. İzin bilgisi kaynak sisteme yansımadığı için ürün raporunda yer almaz.
+- Gerçekleşen mesainin kaynağı kişisel turnike hareketleridir. Seçilen haftanın bütün sayfaları alınır. Kullanıcı kişisel haftalık planında günleri izinli işaretleyebilir; izinler plan hedefini günceller. Resmî izin bilgisi PDKS kaynağından alınmaz.
 - [Kayıtlı süre](docs/rules/recorded-time.md) ilk giriş–son çıkıştır; ara molalar düşülmez. Güvenilir açık girişte [anlık tahmin](docs/rules/duration.md) üretilir. Eski raporda tahmin durur.
 - [Günlük kayıt durumu](docs/rules/record-status.md) kayıt bütünlüğünü hedef farkından ayrı değerlendirir. Eksik kayıt sıfır çalışma veya devamsızlık sayılmaz; belirsizlik çıkış hedefini engelleyebilir.
 - [Mesai planı](docs/rules/work-plan.md), kullanıcıya varsayılan şablonu ve mevcut haftanın gereken çalışma sürelerini düzenleme olanağı verir. PDKS kayıtları gerçekleşen süreyi sağlar; planlar tarayıcıda saklanır. Günlük sınırlar, devir, tamamlama ve haftalık hedef sözleşmesi kural belgesindedir.

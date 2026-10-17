@@ -25,12 +25,12 @@ bun run build
 
 ## Plan doğrulaması
 
-Beklenen davranışın sahibi [mesai planı sözleşmesidir](rules/work-plan.md). [Kod testleri](../src/domain/rules/work-plan.test.ts) sayısal senaryoları ve sınırları doğrular. Tarayıcı kabul betikleri aşağıdaki akışları izole API yanıtları ve sentetik saatle çalıştırır; görünüm betiği yerel demoyu kullanır.
+Beklenen davranışın sahibi [mesai planı sözleşmesidir](rules/work-plan.md). [Plan testleri](../src/domain/rules/work-plan.test.ts) sayısal senaryoları ve sınırları; [izin testleri](../src/domain/rules/work-plan-leave.test.ts) şablon karşılığını düşmeyi, sıfır süre/izin ayrımını, yeniden açmayı, şablon değişikliğini ve kapasite sınırındaki otomatik dağıtımı doğrular. Depolama, rapor/çıkış ve düzenleyici testleri bağlı sonuçları sınar. Tarayıcı kabul betikleri aşağıdaki akışları izole API yanıtları ve sentetik saatle çalıştırır; görünüm betiği yerel demoyu kullanır.
 
 | Betik | Doğruladığı akış |
 | --- | --- |
 | [Plan kabulü](../scripts/acceptance/work-plan.js) | Kilitler, devir, hafta/şablon düzenleme, sıfırlama, yazma hatası, yeniden yükleme ve demo ayrımı |
-| [Gereken süre](../scripts/acceptance/work-plan-required.js) | Kart/stepper eşitliği, doğrudan düzenleme, toplu uygulama, seçili gün önceliği, kapatma/açma ve kalıcılık |
+| [Gereken süre](../scripts/acceptance/work-plan-required.js) | Kart/stepper eşitliği, doğrudan düzenleme, toplu uygulama, seçili gün önceliği, izin/açma ve kalıcılık |
 | [Elle düzenleme](../scripts/acceptance/work-plan-manual.js) | Seçili günü dağıtım dışında tutma ve seçim değişikliğinin alıcılara etkisi |
 | [Hafta ilerlemesi](../scripts/acceptance/work-plan-progression.js) | Günlerin tamamlanması, özel hedefler, tekrar hesaplama, hedef çıkış ve hafta navigasyonu |
 | [Kapasite](../scripts/acceptance/work-plan-capacity.js) | Kalan günün kapasitesi, hedef çıkış, yeniden yükleme ve 16 saat sınırı |

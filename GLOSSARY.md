@@ -26,7 +26,13 @@ Güncel gereken çalışma süresi; haftalık hedef ve tamamlanan günlerin kay�
 Tamamlanan günlerin gerçekleşen süreleri ile kayıtlı günlük planları arasındaki net farkın kalan uygun günlere aktarılması.
 
 **Haftalık hedef**:
-Hafta için belirlenen toplam çalışma süresi. Başlangıç planı, elle gereken süre düzenlemesi, varsayılan plana dönüş veya Tamamla eylemiyle belirlenir.
+Hafta için belirlenen, izin karşılıkları düşülmüş toplam çalışma süresi. Elle süre düzenlemesi, izin, Sıfırla veya Tamamla eylemiyle güncellenir. Ayrıntılar [plan sözleşmesindedir](docs/rules/work-plan.md).
+
+**İzinli gün**:
+Kullanıcının haftalık planda izin olarak kapattığı gün. Haftalık hedeften o günün güncel varsayılan şablondaki süresi düşülür.
+
+**İzin sonrası referans hedef**:
+Varsayılan şablonun toplamından izinli günlerin şablon süreleri çıkarıldıktan sonra kalan hedef. Tamamla eylemi bu toplamı kullanır.
 
 **Gerçekleşen toplam**:
 PDKS günlük kayıt sürelerinin toplamı. Canlı ek tahmin dahilse ayrıca belirtilir.

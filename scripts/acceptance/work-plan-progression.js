@@ -77,8 +77,8 @@ async (page) => {
     await day("Salı").click();
     await page.getByRole("button", { name: "Süreyi yarım saat azalt" }).click();
     await day("Cuma").click();
-    await page.getByRole("button", { name: /gününü kapat$/ }).click();
-    await page.getByRole("button", { name: /gününü aç$/ }).click();
+    await page.getByRole("button", { name: /gününü izinli yap$/ }).click();
+    await page.getByRole("button", { name: /iznini kaldır$/ }).click();
     await page.getByRole("button", { name: "Süreyi yarım saat artır" }).click();
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Önceki hafta", exact: true }).click();

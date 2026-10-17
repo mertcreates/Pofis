@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { readWorkPlans, workPlanStorage } from "./work-plans";
-import { readPlanInput, emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, changeWeekPlan, changeDefaultPlan, readDayPlan, readWeekPlan, resolveWeekPlan } from "@/domain/rules/work-plan";
+import { readPlanInput, emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, changeWeekPlan, changeDefaultPlan, readDayPlan, readWeekPlan, resolveWeekPlan } from "@/domain/rules/work-plan";
 import { savePlans, PLAN_STORAGE_KEY } from "@/lib/plan-storage.js";
 import { readReportResponse } from "./report-response";
 import type { Report } from "@/domain/report";
@@ -15,6 +15,41 @@ function storage(initial: Record<string, string> = {}) {
     values,
   };
 }
+
+test("izin günü ve izin öncesi hedef yeniden okunur; karşılık bir kez düşülür ve güncel şablonu izler", () => {
+  const store = storage();
+  const week = "2026-10-12";
+  const completed = [32400,32400,31200,null,null,null,null];
+  const plans = changeWeekPlan(emptyWorkPlans(), week, readDayPlan([480,480,480,480,0,0,0])!, completed, 115200, [4]);
+  savePlans(store, plans);
+  const loaded = readWorkPlans(store);
+  expect(loaded).toEqual(plans);
+  expect(loaded.weekTargets?.[week]).toBe(144000);
+  expect(resolveStoredTarget(loaded, week)).toBe(115200);
+  expect(resolveLeaveDays(loaded, week)).toEqual([4]);
+  const changed = changeDefaultPlan(loaded, readDayPlan([540,540,540,540,540,0,0])!, week, completed);
+  savePlans(store, changed);
+  expect(resolveStoredTarget(readWorkPlans(store), week)).toBe(129600);
+  expect(resolveStoredPlan(readWorkPlans(store), week)[4]).toBe(0);
+  savePlans(store, changeWeekPlan(readWorkPlans(store), week, null, completed));
+  const reset = readWorkPlans(store);
+  expect(resolveStoredTarget(reset, week)).toBe(162000);
+  expect(resolveLeaveDays(reset, week)).toEqual([]);
+  expect(reset.weekLeaves).toBeUndefined();
+});
+
+test("bozuk izin listeleri reddedilir ve özgün kayıt korunur; boş liste temizlenir", () => {
+  const week = "2026-10-12";
+  for (const weekLeaves of [null, [], { [week]: null }, { [week]: [4,4] }, { [week]: [5] },
+    { [week]: [-1] }, { [week]: [0.5] }, { [week]: ["4"] }, { "2026-10-13": [4] }]) {
+    const raw = JSON.stringify({ ...emptyWorkPlans(), weekLeaves });
+    const store = storage({ [PLAN_STORAGE_KEY]: raw });
+    expect(() => readWorkPlans(store)).toThrow("izin");
+    expect(store.getItem(PLAN_STORAGE_KEY)).toBe(raw);
+  }
+  expect(readWorkPlans(storage({ [PLAN_STORAGE_KEY]: JSON.stringify({ ...emptyWorkPlans(), weekLeaves: { [week]: [] } }) })))
+    .toEqual(emptyWorkPlans());
+});
 
 test("kilit koruması yeniden yüklemeden sonra da şablonu izler; diğer özel haftalar korunur", () => {
   const store = storage();

@@ -204,7 +204,7 @@ test("tamamla diğer uygun günlerin kapasitesini kullanır; fazlayı bu günler
   const selectedDay = 2;
   const full = readDayPlan([480,480,240,960,960,0,0])!;
   const largerTarget = readDayPlan([480,480,480,960,960,0,0])!;
-  expect(completeToDefaultTotal(full, largerTarget, eligible, selectedDay)).toBeNull();
+  expect(completeToDefaultTotal(full, largerTarget, eligible, selectedDay)).toEqual(largerTarget);
   expect(completeToDefaultTotal(full, largerTarget, eligible)).toEqual(largerTarget);
   const surplus = readDayPlan([480,480,720,480,480,0,0])!;
   expect(completeToDefaultTotal(surplus, DEFAULT_WORK_PLAN, eligible, selectedDay))
@@ -272,8 +272,8 @@ test("gereken süre toplu uygulanır; kilitler korunur, devir ikinci kez düşü
   const closed = editRequiredMinutes(DEFAULT_WORK_PLAN, resolved, [{ day: 4, minutes: 0 }]);
   const closedResolved = resolveWeekPlan(source, closed.plan, "2026-10-15", false, closed.targetSeconds);
   expect(closedResolved.displaySeconds[4]).toBe(0);
-  expect(closedResolved.displaySeconds[3]).toBe(8 * 3600);
-  const reopened = editRequiredMinutes(closed.plan, closedResolved, [{ day: 4, minutes: 240 }]);
+  expect(closedResolved.displaySeconds[3]).toBe(5 * 3600 + 20 * 60);
+  const reopened = editRequiredMinutes(closed.plan, closedResolved, [{ day: 4, minutes: 240 }], DEFAULT_WORK_PLAN, closed.leaveDays);
   expect(resolveWeekPlan(source, reopened.plan, "2026-10-15", false, reopened.targetSeconds).displaySeconds[4]).toBe(4 * 3600);
 });
 

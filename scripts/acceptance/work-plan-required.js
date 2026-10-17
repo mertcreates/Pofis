@@ -33,19 +33,19 @@ async (page) => {
     await day("Cuma").click();
     const value = () => page.locator(".work-plan-stepper output").innerText();
     check(await card("Cuma") === "4 sa 50 dk" && await value() === "4 sa 50 dk", "Card and control must show the same required time");
-    check(await page.locator(".work-plan-day-title").innerText() === "Cuma", "Original plan must not compete with required time");
+    check(await page.locator(".work-plan-day-title strong").innerText() === "Cuma", "Original plan must not compete with required time");
     check(await page.locator(".work-plan-control-label").count() === 0, "Duration control must use its accessible name");
     await page.getByRole("button", { name: "Süreyi yarım saat artır" }).click();
     check(await value() === "5 sa 20 dk" && await card("Cuma") === "5 sa 20 dk", "Direct increment was carried twice");
     check(await target() === "Toplam 40 sa", "Increment must add only 30 minutes to weekly target");
     check(await page.getByRole("button", { name: /^(4|8) sa$/ }).count() === 0, "Fixed-hour presets must be absent");
-    await page.getByRole("button", { name: /gününü kapat$/ }).click();
+    await page.getByRole("button", { name: /gününü izinli yap$/ }).click();
     check(await page.locator(".work-plan-stepper").count() === 0, "Closed day must hide duration controls");
     check(await page.locator(".work-plan-apply").count() === 0, "Closed day must hide bulk action");
-    await page.getByRole("button", { name: /gününü aç$/ }).click();
+    await page.getByRole("button", { name: /iznini kaldır$/ }).click();
     for (let step = 0; step < 8; step++) await page.getByRole("button", { name: "Süreyi yarım saat azalt", exact: true }).click();
-    check(await value() === "4 sa" && await card("Perşembe") === "8 sa", "Stepper must set exactly four required hours");
-    check(await target() === "Toplam 38 sa 40 dk", "Duration edit shifted target incorrectly");
+    check(await value() === "4 sa" && await card("Perşembe") === "5 sa 20 dk", "Reopening must preserve the leave-adjusted Thursday");
+    check(await target() === "Toplam 36 sa", "Duration edit shifted target incorrectly");
     await page.getByRole("button", { name: "40 saate tamamla", exact: true }).click();
     check(await value() === "4 sa" && await card("Perşembe") === "9 sa 20 dk", "Complete must preserve manually edited Friday");
     await page.keyboard.press("Escape");
@@ -65,10 +65,10 @@ async (page) => {
         await page.screenshot({ path: `output/playwright/work-plan-required-${theme}-${width}.png`, animations: "disabled" });
       }
     }
-    await page.getByRole("button", { name: /gününü kapat$/ }).click();
-    check(await card("Cuma") === "–" && await card("Perşembe") === "4 sa", "Closing Friday must preserve other required hours");
-    check(await target() === "Toplam 30 sa 40 dk", "Closing day must remove its required duration");
-    await page.getByRole("button", { name: /gününü aç$/ }).click();
+    await page.getByRole("button", { name: /gününü izinli yap$/ }).click();
+    check(await card("Cuma") === "İzinli" && await card("Perşembe") === "0 sa", "Leave must rebalance the remaining open day");
+    check(await target() === "Toplam 26 sa 40 dk", "Leave must deduct the eight-hour template allowance");
+    await page.getByRole("button", { name: /iznini kaldır$/ }).click();
     check(await card("Cuma") === "8 sa" && await value() === "8 sa", "Reopened day must show exactly eight hours");
     const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v2")));
     check(JSON.stringify(stored.defaultPlan) === JSON.stringify([480,480,480,480,480,0,0]), "Direct week edits changed template");

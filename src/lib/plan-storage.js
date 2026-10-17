@@ -1,5 +1,5 @@
 import {
-  readPlanInput, readDayPlan, readWeekPlan, isPlanWeek, emptyWorkPlans, samePlan,
+  readPlanInput, readDayPlan, readWeekPlan, readLeaveDays, isPlanWeek, emptyWorkPlans, samePlan,
 } from "../domain/rules/work-plan";
 
 export const PLAN_STORAGE_KEY = "pofis:work-plans:v2";
@@ -53,7 +53,17 @@ export function readStoredPlans(raw) {
       throw new Error("Kayıtlı haftalık hedef geçersiz. Kayıt korunuyor.");
     weekTargets[week] = seconds;
   }
-  return { defaultPlan, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}) };
+  if (stored.weekLeaves !== undefined && (!stored.weekLeaves || typeof stored.weekLeaves !== "object" || Array.isArray(stored.weekLeaves)))
+    throw new Error("Kayıtlı izin günleri geçersiz. Kayıt korunuyor.");
+  /** @type {NonNullable<import('../domain/rules/work-plan').WorkPlans['weekLeaves']>} */
+  const weekLeaves = {};
+  for (const [week, value] of Object.entries(stored.weekLeaves ?? {})) {
+    const days = readLeaveDays(value);
+    if (!isPlanWeek(week) || !days) throw new Error("Kayıtlı izin günleri geçersiz. Kayıt korunuyor.");
+    if (days.length) weekLeaves[week] = days;
+  }
+  return { defaultPlan, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
+    ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}) };
 }
 
 /** @param {import('../domain/rules/work-plan').WorkPlans} plans */

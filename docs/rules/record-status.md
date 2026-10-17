@@ -29,6 +29,8 @@ Tekrarlanan yön, eşleşmeyen çıkış ve geçmiş güne açık giriş kalmas�
 
 Hedefin altında, hedefte veya üzerinde olmak kayıt bütünlüğünü değiştirmez. Örneğin 08:00–12:00 tutarlı geçmiş kayıt, dört saat süreyle `recorded` olur; hedef farkında dört saat eksik görünür. Eksik süre ile eksik geçiş ayrı bilgilerdir. Boş geçmiş gün devamsızlık, izin veya sıfır çalışma diye yorumlanmaz.
 
+Kullanıcının [haftalık planda izinli işaretlediği](work-plan.md#izinli-gün) günün planı sıfırdır; çalışma günü seçimi kapalı gün kurallarını kullanır. Gerçek geçiş oluşursa aynı kayıt bütünlüğü kuralları uygulanır.
+
 Eski rapor canlı süre üretmez. Son açık giriş bilgisi korunur, `open` gösterilir ve mevcut rapor tazeliği uyarısı geçerli olur. Saat son girişe yetişmemişse de aynı tarafsız kayıt etiketi kullanılır. Yeni kaynak yanıtı veya İstanbul gününün değişmesi kayıt durumunu yeniden değerlendirir.
 
 ## Bağlı sonuçlar

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { savePlans } from "@/lib/plan-storage.js";
 import { readWorkPlans, workPlanStorage, type PlanScope } from "./work-plans";
 import {
-  emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, changeWeekPlan, changeDefaultPlan,
+  emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, changeWeekPlan, changeDefaultPlan,
   type WorkPlan, type WorkPlans,
 } from "@/domain/rules/work-plan";
 import { ui } from "@/lib/ui-text.js";
@@ -43,10 +43,11 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
     plan: resolveStoredPlan(plans, week),
     targetSeconds: resolveStoredTarget(plans, week),
     defaultPlan: plans.defaultPlan,
-    special: Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined),
+    leaveDays: resolveLeaveDays(plans, week),
+    special: Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length),
     ready,
     error,
-    save: (plan: WorkPlan, completed: readonly (number | null)[], targetSeconds?: number) => persist(current => changeWeekPlan(current, week, plan, completed, targetSeconds)),
+    save: (plan: WorkPlan, completed: readonly (number | null)[], targetSeconds?: number, leaveDays?: readonly number[]) => persist(current => changeWeekPlan(current, week, plan, completed, targetSeconds, leaveDays)),
     saveDefault: (plan: WorkPlan, completed: readonly (number | null)[] = []) => persist(current => changeDefaultPlan(current, plan, week, completed)),
     reset: (completed: readonly (number | null)[] = []) => persist(current => changeWeekPlan(current, week, null, completed)),
   };

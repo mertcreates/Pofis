@@ -234,10 +234,11 @@ export function DashboardView({
             targetSeconds={workPlans.targetSeconds}
             days={days}
             defaultPlan={workPlans.defaultPlan}
+            leaveDays={workPlans.leaveDays}
             special={workPlans.special}
             ready={workPlans.ready && source?.from === week}
             error={workPlans.error}
-            onSave={(plan, targetSeconds) => workPlans.save(plan, completedDaySeconds(days, week, today), targetSeconds)}
+            onSave={(plan, targetSeconds, leaveDays) => workPlans.save(plan, completedDaySeconds(days, week, today), targetSeconds, leaveDays)}
             onSaveDefault={plan => workPlans.saveDefault(plan, completedDaySeconds(days, week, today))}
             onReset={() => workPlans.reset(completedDaySeconds(days, week, today))}
             onClose={() => setDialog(null)}
