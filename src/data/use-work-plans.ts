@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { savePlans } from "@/lib/plan-storage.js";
 import { readWorkPlans, workPlanStorage, type PlanScope } from "./work-plans";
 import { DEFAULT_WORK_PLAN, type WorkPlan } from "@/domain/rules/work-plan";
+import { ui } from "@/lib/ui-text.js";
 
 export function useWorkPlans(week: string, scope: PlanScope = "live") {
   const [plans, setPlans] = useState<Record<string, WorkPlan>>({});
@@ -13,7 +14,7 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
       setPlans(readWorkPlans(workPlanStorage(localStorage, scope)));
       setReady(true);
     } catch {
-      setError("Planlar okunamadı. Tarayıcı depolama ayarlarını kontrol et.");
+      setError(ui.storageReadError);
     }
   }, [scope]);
   function save(plan: WorkPlan) {
@@ -25,7 +26,7 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
       setError("");
       return true;
     } catch {
-      setError("Plan kaydedilemedi. Tarayıcı depolama ayarlarını kontrol et.");
+      setError(ui.storageWriteError);
       return false;
     }
   }

@@ -8,6 +8,7 @@ import RequestError from "@/components/request-error.js";
 import { useAppearance } from "@/data/use-appearance";
 import { toRequestFailure } from "@/lib/pdks-failure";
 import { ui } from "@/lib/ui-text.js";
+import { NotFoundState } from "@/components/not-found-state";
 
 type Scenario = keyof typeof ui.demo.errors.scenarioLabels;
 
@@ -17,6 +18,10 @@ function sampleError(scenario: Scenario, attempt: number) {
     occurredAt: new Date(Date.UTC(2026, 9, 17, 8, 34, 40) + attempt * 1000).toISOString(),
   };
   switch (scenario) {
+    case "not-found": return null;
+    case "runtime": return toRequestFailure({ code: "RUNTIME_ERROR", details: {
+      diagnostic: ui.apiErrors.unexpectedServerError,
+    } }, "runtime");
     case "connection": return toRequestFailure({ code: "CONNECTION_FAILED", status: 502, details: {
       ...details, method: "GET", path: "/PizzyKurumWeb/Giris.aspx",
       causeCode: "ENOTFOUND", diagnostic: "PDKS sunucusunun adresi çözümlenemedi.",
@@ -58,14 +63,17 @@ export function DemoErrorPreview({ state, onChange, controls }: {
           </label>
           <p>{text.notice}</p>
         </div>)}
-        {appearance.error && <p role="alert">{appearance.error}</p>}
-        {login ? <div className="demo-error-login">
+        {scenario === "not-found" ? <NotFoundState returnHref="/demo" /> : scenario === "runtime" && error ? <>
+          <p className="demo-notice-help">{text.runtimeHelp}</p>
+          <RequestError error={error} onRetry={() => onChange({ ...state, attempt: attempt + 1 })} />
+          {attempt > 0 && <p role="status">{text.runtimeAttempts(attempt)}</p>}
+        </> : login ? <div className="demo-error-login">
           <button type="button" onClick={() => setLogin(false)}>{text.replay}</button>
           <Connection busy={false} error={null} onRetry={() => setLogin(false)} onReturnToLogin={() => setLogin(true)}
             onConnect={async form => { form.reset(); onChange({ ...state, attempt: attempt + 1, login: false }); }} />
         </div> : (
           <>
-            <RequestError error={error} onReturnToLogin={() => setLogin(true)} />
+            {error && <RequestError error={error} onReturnToLogin={() => setLogin(true)} />}
             {attempt > 0 && <p role="status">{text.attempts(attempt)}</p>}
           </>
         )}

@@ -72,6 +72,11 @@ a,
 summary {
   -webkit-tap-highlight-color: transparent;
 }
+button,
+.button-link {
+  -webkit-user-select: none;
+  user-select: none;
+}
 button {
   min-height: var(--control-height);
   border: 1px solid var(--control);
@@ -117,8 +122,7 @@ summary:focus {
   color: var(--accent-hover);
   text-decoration: underline;
 }
-.report-toolbar h1,
-.not-found h1 {
+.report-toolbar h1 {
   font-size: var(--page-title-size);
 }
 
@@ -270,15 +274,6 @@ summary {
 details p {
   margin-top: 8px;
 }
-.error {
-  background: var(--error-soft);
-  border: 1px solid var(--error-line);
-  color: var(--error);
-  padding: 16px 20px;
-  border-radius: var(--radius);
-  margin-bottom: 24px;
-  overflow-wrap: anywhere;
-}
 .report-toolbar {
   display: flex;
   align-items: center;
@@ -355,16 +350,6 @@ details p {
 .report-empty h2 {
   color: var(--ink);
   margin-bottom: 14px;
-}
-.report-notice {
-  padding: 12px 16px;
-  border: 1px solid var(--control);
-  border-radius: var(--radius);
-  margin-bottom: 16px;
-  color: var(--ink);
-  background: var(--paper);
-  font-size: 13px;
-  box-shadow: var(--card-shadow);
 }
 .today-heading h2,
 .records-title h2 {
@@ -497,9 +482,10 @@ details p {
 }
 .plan-hours {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 12px 20px;
 }
 .plan-hours label {
   font-size: 13px;
@@ -509,10 +495,13 @@ details p {
   margin: 0;
 }
 .plan-input-error {
+  margin: 0;
   font-size: 13px;
   color: var(--error);
-  padding-top: 12px;
+  line-height: 1.6;
 }
+.plan-hours .plan-input-error { flex-basis: 100%; }
+.plan-weekdays .plan-input-error { margin-top: 12px; }
 .records {
   overflow: hidden;
   border: 1px solid var(--line);

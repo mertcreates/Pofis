@@ -1,5 +1,6 @@
 import AppHeader from "./app-header.js";
 import AppFooter from "./app-footer.js";
+import { InlineNotice } from "../inline-notice";
 
 export default function AppShell({
   children,
@@ -30,7 +31,10 @@ export default function AppShell({
         onSection={onSection}
       />
       <div className="app-content">
-        <main>{children}</main>
+        <main>
+          {appearance.error && <InlineNotice tone="warning">{appearance.error}</InlineNotice>}
+          {children}
+        </main>
         <AppFooter />
       </div>
     </div>

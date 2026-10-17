@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { THEME_STORAGE_KEY, themePreference } from "@/lib/theme.js";
+import { ui } from "@/lib/ui-text.js";
 
 export function useAppearance() {
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -23,7 +24,7 @@ export function useAppearance() {
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
       preference.current = themePreference(stored);
     } catch {
-      setError("Görünüm tercihin okunamadı.");
+      setError(ui.themeReadError);
     }
     apply();
     setReady(true);
@@ -48,7 +49,7 @@ export function useAppearance() {
       setError("");
       return true;
     } catch {
-      setError("Görünüm tercihin kaydedilemedi.");
+      setError(ui.themeWriteError);
       return false;
     }
   }

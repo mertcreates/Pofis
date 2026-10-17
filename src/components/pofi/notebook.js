@@ -21,32 +21,27 @@ export default function PofiNotebook({ today, notes }) {
   );
   const currentDate = defaultNotebookDate(today, dates);
   const [selectedDate, setSelectedDate] = useState(currentDate);
-  const index = dates.indexOf(selectedDate);
-  const selectedWeekday = weekday(selectedDate);
+  const activeDate = dates.includes(selectedDate) ? selectedDate : currentDate;
+  const index = dates.indexOf(activeDate);
+  const selectedWeekday = weekday(activeDate);
   const copy = ui.pofiRoom;
-  const note = notes?.find((item) => item.date === selectedDate);
-  if (!note)
-    return (
-      <p className="error" role="alert">
-        {copy.notesUnavailable}
-      </p>
-    );
+  const note = notes?.find((item) => item.date === activeDate);
 
   return (
     <div className="pofi-room-notes">
       <article aria-live="polite" aria-atomic="true">
         <div className="pofi-notes-date">
-          <time dateTime={selectedDate}>
-            {formatDateLabel(selectedDate, today)} ·{" "}
+          <time dateTime={activeDate}>
+            {formatDateLabel(activeDate, today)} ·{" "}
             {ui.weekdays[selectedWeekday].long}
           </time>
-          {selectedDate === currentDate && (
+          {activeDate === currentDate && (
             <span>
-              {selectedDate === today ? ui.today : copy.latestWeekdayNote}
+              {activeDate === today ? ui.today : copy.latestWeekdayNote}
             </span>
           )}
         </div>
-        <p>{note.parts.join("\n\n")}</p>
+        <p>{note ? note.parts.join("\n\n") : copy.notesUnavailable}</p>
       </article>
       <nav className="pofi-notes-nav" aria-label={copy.notebookNavigation}>
         <button

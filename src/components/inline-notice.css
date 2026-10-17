@@ -1,0 +1,5 @@
+.inline-notice { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 20px; padding: 14px 16px; border-radius: 8px; background: var(--accent-soft); color: var(--accent-text); font-size: 13px; line-height: 1.65; }
+.inline-notice > svg { flex-shrink: 0; margin-top: 1px; }
+.inline-notice > div { min-width: 0; overflow-wrap: anywhere; }
+.inline-notice-warning { background: var(--surface-subtle); color: var(--ink); }
+.inline-notice-warning > svg { color: var(--warning); }

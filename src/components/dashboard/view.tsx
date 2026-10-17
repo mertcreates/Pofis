@@ -9,6 +9,7 @@ import { Connection } from "../connection";
 import AppShell from "../shell/app-shell.js";
 import LoadingState from "../loading-state.js";
 import RequestError from "../request-error.js";
+import { InlineNotice } from "../inline-notice";
 import { useAppearance } from "@/data/use-appearance";
 import { DashboardHeader } from "./header";
 import { DashboardMetrics } from "./metrics";
@@ -67,31 +68,13 @@ export function DashboardView({
   const firstWeek = data.kind === "demo" ? data.firstWeek : undefined;
   const prepared = useMemo(() => {
     if (!source) return null;
-    try {
-      return {
-        read: prepareReport(source, workPlans.plan, today, stale),
-        error: "",
-      };
-    } catch (error) {
-      return {
-        read: null,
-        error: error instanceof Error ? error.message : "Rapor okunamadı.",
-      };
-    }
+    return prepareReport(source, workPlans.plan, today, stale);
   }, [source, workPlans.plan, today, stale]);
   const presentation = useMemo(() => {
-    if (!prepared?.read) return { value: null, error: prepared?.error };
-    try {
-      return { value: prepared.read(now), error: "" };
-    } catch (error) {
-      return {
-        value: null,
-        error: error instanceof Error ? error.message : "Rapor okunamadı.",
-      };
-    }
+    return prepared ? prepared(now) : null;
   }, [prepared, now]);
-  const days = presentation?.value?.days ?? [];
-  const plan = presentation?.value?.plan ?? [];
+  const days = presentation?.days ?? [];
+  const plan = presentation?.plan ?? [];
   const todayReport = days.find((day) => day.date === today);
   useEffect(() => {
     if (!connected) {
@@ -134,10 +117,8 @@ export function DashboardView({
         }
         onDisconnect={pdks ? () => void pdks.disconnect() : undefined}
       >
-        {(appearance.error || workPlans.error) && (
-          <p role="alert" className="error">
-            {appearance.error || workPlans.error}
-          </p>
+        {workPlans.error && dialog !== "plan" && (
+          <InlineNotice tone="warning">{workPlans.error}</InlineNotice>
         )}
         {pdks?.failure && connected === true && (
           <RequestError
@@ -174,11 +155,11 @@ export function DashboardView({
             />
             <div className="report-area" aria-busy={busy}>
               {stale && (
-                <p className="report-notice" role="status">
+                <InlineNotice>
                   {ui.staleReport}
-                </p>
+                </InlineNotice>
               )}
-              {source && presentation?.value ? (
+              {source && presentation ? (
                 <section
                   className="dashboard"
                   aria-label={ui.personRecords(source.person.name)}
@@ -213,7 +194,7 @@ export function DashboardView({
                         today={today}
                         start={week}
                         current={isCurrent}
-                        blocked={presentation?.value?.blocked}
+                        blocked={presentation.blocked}
                       />
                     </div>
                     {isCurrent && todayReport && (
@@ -230,10 +211,6 @@ export function DashboardView({
                     <ReportTable days={days} plan={plan} today={today} />
                   )}
                 </section>
-              ) : presentation?.error ? (
-                <p className="error" role="alert">
-                  {presentation.error}
-                </p>
               ) : pdks?.failure ? null : busy ? (
                 <LoadingState label={ui.loadingSelf} />
               ) : (
@@ -251,7 +228,8 @@ export function DashboardView({
             today={today}
             plan={workPlans.plan}
             day={todayReport}
-            blocked={presentation?.value?.blocked ?? false}
+            blocked={presentation?.blocked ?? false}
+            error={workPlans.error}
             onSave={workPlans.save}
             onClose={() => setDialog(null)}
           />

@@ -64,7 +64,7 @@ export function RequestErrorDetails({ error, inline = false }: { error: RequestF
               })}</time> : timestamp.value}</dd></div>}
           </dl>
         </section>
-        <section className="request-trace-requests" aria-labelledby={`${headingId}-requests`}>
+        {groups.length > 0 && <section className="request-trace-requests" aria-labelledby={`${headingId}-requests`}>
           <GroupHeading id={`${headingId}-requests`}>{text.requests}</GroupHeading>
           <div className="request-trace-request-groups">
             {groups.map(group => {
@@ -81,7 +81,7 @@ export function RequestErrorDetails({ error, inline = false }: { error: RequestF
               </dl>;
             })}
           </div>
-        </section>
+        </section>}
       </div>
     </section>
   );

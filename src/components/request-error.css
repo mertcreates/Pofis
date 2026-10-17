@@ -7,13 +7,15 @@
 .request-error-page .request-error-actions { justify-content: flex-start; flex-wrap: wrap; margin-top: 28px; }
 .request-error-page .request-error-actions > button { display: inline-flex; align-items: center; justify-content: center; gap: 20px; padding-inline: 18px; }
 .request-error-actions .ui-icon { width: 15px; height: 15px; }
+.request-error-page .request-error-actions > a { gap: 20px; }
+.not-found-art { width: 100%; }
 .request-error-art { display: block; width: min(100%, 300px); height: auto; margin-inline: auto; object-fit: contain; }
 .request-error-notice { margin-bottom: 24px; text-align: left; }
 .request-error-notice-scene { display: grid; grid-template-columns: minmax(0, 1fr) 140px; align-items: center; gap: 32px; padding: 28px 32px; border-radius: 12px; background: var(--accent-soft); }
 .request-error-notice-scene .request-error-art { width: 140px; height: 140px; }
 .request-error-notice .request-error-heading { align-items: flex-start; gap: 6px; }
 .request-error-notice h2 { margin: 0; color: var(--accent-text); font-size: 18px; font-weight: 600; line-height: 1.4; }
-.request-error-notice h2:focus { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 2px; }
+.request-error-heading > :is(h1, h2)[tabindex="-1"]:focus { outline: none; box-shadow: none; }
 .request-error-notice .request-error-heading p { max-width: 48ch; margin: 6px 0 0; color: var(--accent-text); font-size: 13px; line-height: 1.7; overflow-wrap: anywhere; }
 .request-error-notice .request-error-actions { justify-content: flex-start; flex-wrap: wrap; margin-top: 12px; }
 .request-error-notice .request-error-actions button { min-height: 42px; padding: 10px 16px; font-size: 13px; white-space: normal; }
@@ -25,6 +27,7 @@
 .request-trace-heading > :is(h2, h3) { margin: 0; font-size: 14px; font-weight: 600; }
 .request-trace-rail { margin: 28px 0 0 5px; }
 .request-trace-cause { position: relative; border-left: 1px solid var(--line); padding: 0 0 28px 28px; }
+.request-trace-cause:last-child { border-left: 0; padding-bottom: 0; }
 .request-trace-cause::before, .request-trace-requests::before { content: ""; position: absolute; left: -5px; top: 6px; width: 9px; height: 9px; border-radius: 50%; background: var(--accent); }
 .request-trace-cause::before { background: var(--error); }
 .request-trace-cause > :is(h3, h4) { margin: 0 0 12px; font-size: 13px; font-weight: 600; }
@@ -42,6 +45,7 @@
 @media(max-width: 700px) {
   .request-error-hero { padding: 28px; gap: 8px; grid-template-columns: minmax(0, 1fr); }
   .request-error-art { grid-row: 1; width: 176px; }
+  .not-found-art { grid-row: 1; }
   .request-error-page .request-error-heading { align-items: center; text-align: center; }
   .request-error-page .request-error-heading p { margin-inline: auto; }
   .request-error-page .request-error-actions { justify-content: center; }

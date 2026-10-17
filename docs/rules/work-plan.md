@@ -14,6 +14,10 @@ Planın seçili günleri ve haftalık saati tek modeldir. Girdi sınırları hem
 
 Planlar `pofis:work-plans:v1` anahtarında hafta başına `{ weekdays, hours }` biçiminde saklanır. Yalnız bu biçim okunur; başka depolama kayıtlarından plan dönüştürülmez.
 
+## Arayüz davranışı
+
+Plan kaydetme/okuma hatası `use-work-plans` durumundan gösterilir. Modal açıkken hata modalda, kapalıyken raporun üzerindedir; aynı sorun için ayrı bir modal hata durumu tutulmaz. Geçersiz saat/gün girdisi ilgili kontrolün yanında gösterilir ve yalnız ilgili kontrole `aria-describedby` ile bağlanır. Geçersiz girdi kaydedilmez; başarısız depolama yazısı plan durumunu değiştirmez.
+
 ## Bağımlılıklar
 
 - [Günlük kayıt durumu](record-status.md): rapor adaptörü geçiş belirsizliğini `incomplete` olarak bu sahibin plan girdisine taşır; ilk giriş/son çıkış süresinin bulunması belirsiz günü kapatmaz.

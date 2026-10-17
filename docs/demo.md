@@ -24,6 +24,16 @@ Senaryo seçicisi bağlantı/DNS hatası, PDKS HTTP 500 ve uygulama hatasını k
 ## Bildirimler
 
 “Bildirimler” sekmesi canlı ekranlarla aynı Pofi Sahne bildirimini rapor üzerinde gösterir. Başlık, açıklama ve işleme uygun yeniden deneme eylemi lavanta yüzeyde; küçük Pofi sağda, sürekli açık İz kaydı altta bulunur. Tasarım seçicisi ve eski alternatifler kaldırılmıştır. Çıkış hatası ve rapor yenileme hatası senaryoları ortak RequestError bileşenini kullanır. Yeniden deneme yalnız örnek hatanın zamanını yeniler; API veya PDKS isteği göndermez. Senaryo sekmeler arasında korunur; “Başlangıca dön” çıkış hatasına döndürür. Önizleme sahibi [bildirim demosudur](../src/demo/notice-preview.tsx).
+### Diğer hata ve bildirim senaryoları
+
+“Hata ekranları” seçicisinde 404 ve uygulama içi hata da bulunur. 404 canlı sayfayla aynı [NotFoundState](../src/components/not-found-state.tsx) bileşenidir; Mesaim'e dönüş bağlantısı demoya döner. Uygulama içi hata, `runtime` sözleşmesiyle ortak RequestError görünümünü gösterir; API isteği/durumu üretilmez. Bu görsel örnek gerçek istisna oluşturmaz ve framework hata sınırının yeniden bağlanma kabulü değildir.
+
+“Bildirimler” seçicisinde tema okuma/yazma, plan okuma/yazma ve eski rapor bilgisi [ortak kompakt bildirimle](../src/components/inline-notice.tsx) gösterilir. Eski rapor senaryosu durum mesajının önizlemesidir; canlı tazelik durum makinesini veya tahmin durdurmayı çalıştırmaz.
+
+Plan alan doğrulaması ve plan modalında kayıt hatası [yerel önizleme](../src/demo/local-preview.tsx) üzerinden “Planı aç” düğmesiyle gerçek PlanEditor bileşenini açar. Doğrulama için saat alanına `0` girilir; geçerli girdi bellekteki örnek planı günceller. Kayıt hatası senaryosu yazmayı reddeder ve son planı korur. Bu etkileşimler tarayıcı depolamasına yazmaz. Pofi defterinde eksik not senaryosu “Defteri aç” düğmesiyle gerçek Notebook ve Modal bileşenlerini açar: ilk seçilecek günün notu yalnız önizleme girdisinden çıkarılır, diğer notlar ve gezinme korunur; kaynak fixture değiştirilmez.
+
+Senaryo seçimleri sekmeler arasında korunur. Modalın açık/kapalı durumu ve örnek plan senaryo veya sekme değişince sıfırlanır. “Başlangıca dön” seçicileri ilk durumlarına getirir. Yerel örnekler yalnız seçildiklerinde yüklenir; ortak DashboardView demo senaryolarını bilmez.
+
 ## Veri ve zaman
 
 [Yakalanan turnike verisi](../src/demo/passages.json) 21 Eylül–16 Ekim 2026 aralığındaki 297 hareketi içerir. Her hareket yalnız `date`, `time`, `direction` taşır. Kişi adı, personel/turnike kimliği, parola ve oturum çerezi fixture içinde bulunmaz; ekranda “Örnek kullanıcı” görünür. Gerçek tarih ve saatler korunmuştur; veri tam anonim sayılmaz.

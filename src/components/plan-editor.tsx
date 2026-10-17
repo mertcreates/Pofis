@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import { ui } from "@/lib/ui-text.js";
 import { planTargets, type WorkPlan } from "@/domain/rules/work-plan";
 import { weekLabel, durationClock } from "@/domain/time";
@@ -7,12 +6,14 @@ import { weekStart } from "@/domain/rules/calendar";
 import type { DayReport } from "@/domain/attendance";
 import PlanControls from "./plan-controls.js";
 import Modal from "./modal.js";
+import { InlineNotice } from "./inline-notice";
 export function PlanEditor({
   plan,
   week,
   today,
   day,
   blocked,
+  error,
   onSave,
   onClose,
 }: {
@@ -21,10 +22,10 @@ export function PlanEditor({
   today: string;
   day?: DayReport;
   blocked: boolean;
+  error: string;
   onSave: (plan: WorkPlan) => boolean;
   onClose: () => void;
 }) {
-  const [error, setError] = useState("");
   const { dailySeconds } = planTargets(plan);
   const target = day?.source.exitGoalSeconds ?? null;
   const unavailable =
@@ -59,17 +60,11 @@ export function PlanEditor({
           )}
         </div>
         {error && (
-          <p role="alert" className="plan-input-error">
-            {error}
-          </p>
+          <InlineNotice tone="warning">{error}</InlineNotice>
         )}
         <PlanControls
           plan={plan}
-          onChange={(next) => {
-            const saved = onSave(next);
-            setError(saved ? "" : ui.storageWriteError);
-            return saved;
-          }}
+          onChange={onSave}
         />
       </div>
     </Modal>

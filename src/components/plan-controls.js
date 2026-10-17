@@ -2,7 +2,7 @@
 
 import { ui } from "@/lib/ui-text.js";
 
-import { memo, useState } from "react";
+import { memo, useId, useState } from "react";
 import {
   readPlanInput,
   PLAN_LIMITS,
@@ -13,6 +13,8 @@ import {
 function PlanControls({ plan, onChange }) {
   const [draft, setDraft] = useState(null);
   const [error, setError] = useState("");
+  const [errorField, setErrorField] = useState("");
+  const errorId = useId();
   const { dailyHours: dailyTargetHours, dayCount } = planTargets(plan);
   const hours = String(plan.goals.hours);
   const dailyHours = String(Number(dailyTargetHours.toFixed(4)));
@@ -24,6 +26,7 @@ function PlanControls({ plan, onChange }) {
       [field]: value,
     });
     setError(next ? "" : ui.validHours);
+    setErrorField(field);
     if (next) onChange(next);
   }
 
@@ -37,6 +40,7 @@ function PlanControls({ plan, onChange }) {
     });
     if (!next) {
       setError(ui.hoursDoNotFit);
+      setErrorField("weekdays");
       return;
     }
     setError("");
@@ -46,7 +50,7 @@ function PlanControls({ plan, onChange }) {
 
   return (
     <div className="plan-settings">
-      <fieldset className="plan-setting plan-weekdays">
+      <fieldset className="plan-setting plan-weekdays" aria-describedby={error && errorField === "weekdays" ? errorId : undefined}>
         <legend>{ui.workingDays}</legend>
         <div className="plan-day-options">
           {ui.weekdays.map(({ short, long }, index) => (
@@ -65,6 +69,7 @@ function PlanControls({ plan, onChange }) {
             </button>
           ))}
         </div>
+        {error && errorField === "weekdays" && <p id={errorId} className="plan-input-error" role="status">{error}</p>}
       </fieldset>
       <div className="plan-setting plan-hours">
         <label htmlFor="plan-hours">{ui.weeklyHours}</label>
@@ -75,8 +80,8 @@ function PlanControls({ plan, onChange }) {
           max={dayCount * PLAN_LIMITS.maxDailyHours}
           step="any"
           required
-          aria-invalid={draft?.field === "hours" && !!error}
-          aria-describedby={error ? "plan-input-error" : undefined}
+          aria-invalid={errorField === "hours" && !!error}
+          aria-describedby={error && errorField === "hours" ? errorId : undefined}
           value={draft?.field === "hours" ? draft.value : hours}
           onChange={(event) => changeHours("hours", event.target.value)}
           onBlur={() => {
@@ -84,6 +89,7 @@ function PlanControls({ plan, onChange }) {
             setError("");
           }}
         />
+        {error && errorField === "hours" && <p id={errorId} className="plan-input-error" role="status">{error}</p>}
       </div>
       <div className="plan-setting plan-hours">
         <label htmlFor="plan-daily-hours">{ui.dailyHours}</label>
@@ -94,8 +100,8 @@ function PlanControls({ plan, onChange }) {
           max={PLAN_LIMITS.maxDailyHours}
           step="any"
           required
-          aria-invalid={draft?.field === "dailyHours" && !!error}
-          aria-describedby={error ? "plan-input-error" : undefined}
+          aria-invalid={errorField === "dailyHours" && !!error}
+          aria-describedby={error && errorField === "dailyHours" ? errorId : undefined}
           value={draft?.field === "dailyHours" ? draft.value : dailyHours}
           onChange={(event) => changeHours("dailyHours", event.target.value)}
           onBlur={() => {
@@ -103,12 +109,8 @@ function PlanControls({ plan, onChange }) {
             setError("");
           }}
         />
+        {error && errorField === "dailyHours" && <p id={errorId} className="plan-input-error" role="status">{error}</p>}
       </div>
-      {error && (
-        <p id="plan-input-error" className="plan-input-error" role="status">
-          {error}
-        </p>
-      )}
     </div>
   );
 }

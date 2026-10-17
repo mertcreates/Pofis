@@ -25,3 +25,4 @@
 .demo-notice-controls { display: flex; flex-wrap: wrap; gap: 20px; }
 .demo-notice-help { margin: 14px 0 0; color: var(--secondary); font-size: 12px; line-height: 1.6; }
 .demo-notice-preview { margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
+.demo-preview-open { margin-top: 16px; }

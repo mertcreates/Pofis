@@ -86,6 +86,8 @@ Haftalık grafik kaynak sütun yapısını kullanır: geçmiş günlerde `--char
 
 ## Etkileşimler
 
+- **Metin seçimi:** butonlarda ve `.button-link` eylem bağlantılarında metin seçimi kapalıdır. Normal metin bağlantıları, başlıklar, açıklamalar, form girdileri ve teknik ayrıntılar seçilebilir kalır. Bu davranış [ortak CSS](src/app/globals.css) sahibindedir; klavye odağını ve ekran okuyucu etiketlerini değiştirmez.
+
 - **Hafta seçici:** aylar üzerinden gezinilen native popover, kesişen pazartesi haftaları, güncel haftaya dönüş. Gelecekteki haftalar devre dışıdır. Demo haftaları yakalama aralığıyla sınırlıdır. Seçim kapanır ve odağı tetikleyiciye verir.
 - **Demo gün seçici:** beş hafta içi gün düğmesi ve anlık ek süre sürgüsü; seçili gün lavanta tonuyla belirtilir. Dar ekranda günler tek satırda, açıklama alt satırda gösterilir. Tarih/saat ve sanal süre davranışı [demo sözleşmesindedir](docs/demo.md).
 - **Ayarlar:** kaynak plan modalını açar. Geçerli gün/haftalık saat/günlük saat değişiklikleri anında kaydedilir. Kapatma ve Escape kayıtlı sonucu korur; yazma hatası gösterilir.
@@ -101,3 +103,5 @@ Haftalık grafik kaynak sütun yapısını kullanır: geçmiş günlerde `--char
 - **Teknik ayrıntı yerleşimi:** “Sorunun nedeni” açıklama, kod ve kısa İstanbul zamanını; “İstek ayrıntıları” Pofis API ve PDKS alanlarını kendi altında toplar. Boş kaynak grubu çizilmez; API HTTP durumu kaynak yanıtı olarak sunulmaz. Alanlar yalnız boşlukla gruplanır, uzun değerler satır kırar. [Tanı bileşeni](src/components/request-error-details.tsx) izinli veriyi sunar; kopyalama özgün zaman damgasını korur.
 
 Bildirim hatalarında Pofi Sahne düzeni kullanılır: lavanta yüzeyde mesaj ve işleme uygun eylem, sağda küçük Pofi, altta açık İz kaydı. Canlı ekranlar ve demo ortak RequestError bileşenini kullanır; alternatif tasarımlar tutulmaz.
+
+Yerel ayar hataları ve eski rapor bilgisi [InlineNotice](src/components/inline-notice.tsx) ile kompakt gösterilir. Depolama sorunu nötr yüzeyde uyarı simgesiyle, eski rapor lavanta durum satırıyla sunulur; teknik tanı ve büyük Pofi sahnesi kullanılmaz. Plan doğrulaması ilgili alanın altında kalır. Not defterinde içerik eksikliği tarih ve gezinmeyi koruyan nötr metindir. 404 ortak lavanta sayfa sahnesini, Mesaim'e dönüşü ve mevcut Pofi sürprizini kullanır. Bu alanların sözleşmesi [hata rehberindedir](docs/pdks-errors.md#uygulama-içi-hata-ve-yerel-bildirimler).

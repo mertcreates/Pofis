@@ -100,7 +100,7 @@ export function DemoDashboard({
     >
       {view === "notices" ? <>
         {controls(<DemoNoticeControls state={noticePreview} onChange={setNoticePreview} />)}
-        <DemoNoticePreview state={noticePreview} onChange={setNoticePreview} />
+        <DemoNoticePreview state={noticePreview} onChange={setNoticePreview} today={date} notes={report.report.pofiNotes} />
       </> : controls(<>
         <div className="demo-preset-row">
           <label className="demo-control-select">

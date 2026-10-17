@@ -17,8 +17,10 @@ const diagnosticTimeOptions: Intl.DateTimeFormatOptions = {
 export function pdksDiagnosticRows(failure: RequestFailure) {
   const rows = [
     { key: "code", label: ui.errorCode, value: failure.code, raw: failure.code },
-    { key: "status", label: ui.apiStatus, value: String(failure.status || ui.noResponse), raw: String(failure.status || ui.noResponse) },
   ];
+  if (failure.operation !== "runtime") {
+    rows.push({ key: "status", label: ui.apiStatus, value: String(failure.status || ui.noResponse), raw: String(failure.status || ui.noResponse) });
+  }
   for (const [key, label] of Object.entries(diagnosticLabels)) {
     const raw = failure.details[key as keyof typeof diagnosticLabels];
     if (typeof raw !== "string" && typeof raw !== "number") continue;

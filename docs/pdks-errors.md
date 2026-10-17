@@ -47,6 +47,14 @@ Tam sayfa hata görünümü lavanta Pofi sahnesinde başlık, kısa açıklama v
 
 Teknik ayrıntılar kutusuz İz kaydı düzeninde sürekli görünür. “Sorunun nedeni” güvenli açıklama, hata kodu ve kısa İstanbul zamanını içerir. “İstek ayrıntıları” Pofis API ve PDKS alanlarını kendi isteklerinin altında toplar; verisi bulunmayan kaynak grubu çizilmez. API HTTP durumu kaynak yanıtı sayılmaz. Alanlar yalnız boşlukla ayrılır, uzun yollar satır kırar. “Tanı bilgilerini kopyala” tüm izinli alanları ve özgün zaman damgasını kopyalar; başarı veya erişim reddi durum metniyle bildirilir. API hata sınıflandırması, parola/çerez sınırı ve işlem bazındaki toparlanma davranışı değişmez.
 
+## Uygulama içi hata ve yerel bildirimler
+
+Rapor hazırlığı veya saat izdüşümündeki beklenmeyen istisnalar [DashboardView](../src/components/dashboard/view.tsx) içinde metne çevrilmez; Next.js hata sınırına ulaşır. [error.tsx](../src/app/error.tsx) güvenli Pofi hata ekranını ve framework yeniden denemesini sunar. Ham istisna mesajı kullanıcıya gösterilmez. `runtime` hatası API isteği sayılmaz; tanıda API HTTP durumu üretilmez. İstek alanı yoksa İz kaydının istek bölümü çizilmez.
+
+[InlineNotice](../src/components/inline-notice.tsx) yerel depolama sorunlarını ve eski rapor bilgisini kompakt biçimde sunar. Tema hatasını [AppShell](../src/components/shell/app-shell.js) gösterir; giriş, 404 ve hata ekranları da aynı yolu kullanır. Tema ve plan hataları birbirini gizlemez. Plan hatasının durumu [use-work-plans](../src/data/use-work-plans.ts) sahibindedir: plan modalı açıkken modalda, diğer durumlarda raporun üzerinde gösterilir. Başarılı yazı hatayı temizler; başarısız yazı son kayıtlı planı değiştirmez. Eski rapor mesajı durum bilgisidir; ayrı bir teknik hata veya ikinci yeniden deneme eylemi üretmez.
+
+404, aynı lavanta sahne yerleşiminde Mesaim'e dönüş bağlantısını ve mevcut Pofi etkileşimini korur; API hatası veya teknik tanı üretmez. Not defterinde bulunmayan içerik ve planın geçersiz girdileri kendi bağlamlarında kalır; tam sayfa hata ekranına dönüşmez.
+
 ## Doğrulama
 
 [Hata ve HTTP okuma testleri](../src/lib/pdks-failure.test.ts), [durum geçişleri](../src/data/pdks-state.test.ts), [kullanıcı sunumu](../src/components/pdks-error.test.tsx), [sunucu serileştirme](../src/server/http.test.js) ve [route/oturum testleri](../src/server/routes.test.js) sözleşmeyi korur. [Fixture kabulü](../scripts/acceptance/archive-behavior.js) sentetik API yanıtları kullanır; gerçek PDKS erişimini kanıtlamaz.
