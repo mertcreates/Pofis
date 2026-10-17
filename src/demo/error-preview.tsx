@@ -48,7 +48,7 @@ export function DemoErrorPreview({ state, onChange, controls }: {
   const text = ui.demo.errors;
 
   return (
-    <AppShell appearance={appearance} showNavigation={false} onDisconnect={undefined} onSection={undefined}>
+    <AppShell appearance={appearance}>
       <div className="demo-error-workbench">
         {controls(<div className="demo-error-toolbar">
           <label className="demo-control-select">

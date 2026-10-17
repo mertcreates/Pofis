@@ -1,4 +1,4 @@
-import { targetExitAt, weeklyTarget } from "@/domain/rules/work-plan";
+import { targetExitAt } from "@/domain/rules/work-plan";
 import { summarizeWeek } from "@/domain/rules/week";
 import { percentage } from "@/domain/rules/progress.js";
 import type { DayReport } from "@/domain/attendance";
@@ -10,20 +10,17 @@ import { MetricCard } from "./metric-card";
 
 export function DashboardMetrics({
   days,
-  plan,
   today,
   isCurrent,
-  targetSeconds,
+  targetSeconds: target,
 }: {
   days: DayReport[];
-  plan: number[];
   today: string;
   isCurrent: boolean;
-  targetSeconds?: number;
+  targetSeconds: number;
 }) {
   const summary = summarizeWeek(days, today);
   const day = days.find((day) => day.date === today);
-  const target = targetSeconds ?? weeklyTarget(plan);
   const todaySeconds = day?.source.total ?? 0;
   const dailyGoal = day?.source.dailyGoalSeconds ?? 0;
   const exitGoal = day?.source.exitGoalSeconds ?? null;

@@ -6,12 +6,7 @@ import { NotFoundState } from "@/components/not-found-state";
 export default function NotFound() {
   const appearance = useAppearance();
   return (
-    <AppShell
-      appearance={appearance}
-      showNavigation={false}
-      onDisconnect={undefined}
-      onSection={undefined}
-    >
+    <AppShell appearance={appearance}>
       <NotFoundState />
     </AppShell>
   );

@@ -14,12 +14,7 @@ export default function ErrorPage({
 }) {
   const appearance = useAppearance();
   return (
-    <AppShell
-      appearance={appearance}
-      showNavigation={false}
-      onDisconnect={undefined}
-      onSection={undefined}
-    >
+    <AppShell appearance={appearance}>
       <RequestError
         error={toRequestFailure({
           code: "RUNTIME_ERROR",

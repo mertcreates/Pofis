@@ -134,7 +134,7 @@ Otomatik devir, mevcut haftalık hedefe göre kendiliğinden hesaplanır. Tamaml
 
 ## Rapor ve arayüzün kullandığı sonuçlar
 
-[report.ts](../../src/domain/report.ts), `resolveWeekPlan.targets` değerlerini `dailyGoalSeconds` ve `exitGoalSeconds` alanlarına taşır; sunumun `plan` dizisi kayıtlı günlük planı dakika cinsinden tutar. `workingDay` günlük açık durumunu taşır; kayıt durumu, grafik, tablo ve ilerleme bu alanı kullanır. Dashboard, gün akışı, tablo ve Pofi aynı gereken süreyi kullanır. Hedef çıkış, ilk giriş + gereken süredir; bu çıkış hesabı için tam hafta raporu ve bugünün güvenilir kayıt durumu gerekir.
+[report.ts](../../src/domain/report.ts), `resolveWeekPlan.targets` değerlerini günlük `dailyGoalSeconds` ve `exitGoalSeconds` alanlarına taşır. `workingDay` günlük açık durumunu taşır; kayıt durumu, grafik, tablo ve ilerleme bu alanı kullanır. Kayıtlı plan ve haftalık hedef [use-work-plans](../../src/data/use-work-plans.ts) sahibinden alınır; metrikler haftalık hedefi doğrudan kullanır. Dashboard, gün akışı, tablo ve Pofi aynı gereken süreyi kullanır. Hedef çıkış, ilk giriş + gereken süredir; bu çıkış hesabı için tam hafta raporu ve bugünün güvenilir kayıt durumu gerekir.
 
 Modalda tamamlanan gün gerçekleşeni, izinli gün “İzinli”, diğer açık hafta günleri gereken süreyi gösterir. Varsayılan sekmesi şablonu düzenler. Haftalık ana toplam hedeftir; beklenen toplam farklıysa ayrıca gösterilir. Hafta sonu PDKS kayıtları gerçekleşen/beklenen toplama katılır; plan değerleri sıfır kalır.
 

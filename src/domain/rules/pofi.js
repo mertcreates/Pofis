@@ -1,5 +1,5 @@
 import { dailyDurationState, dailyRecordState } from "./duration.js";
-import { formatShortDuration } from "../../lib/duration-format.js";
+import { durationText } from "../time";
 import { passageDay } from "./passages.js";
 import { ui } from "../../lib/ui-text.js";
 
@@ -143,7 +143,7 @@ export function pofiNote({
         basis: "recorded",
         badge,
         message: ui.pofi.breakRemaining(
-          formatShortDuration(remaining),
+          durationText(remaining),
           breakContext.lastExit,
         ),
       });

@@ -1,4 +1,4 @@
-import { secondsOf, dateKey, addDays, weekStart, weekday } from "./calendar";
+import { secondsOf, dateKey, addDays, weekStart } from "./calendar";
 
 /**
  * @param {import("../report").SourcePassage[]} passages
@@ -51,45 +51,15 @@ export function summarize(passages, from, to, today = dateKey(Date.now())) {
   for (let date = from; date <= to; date = addDays(date, 1)) {
     const row = data.get(date);
     const { record, seconds } = summaryRecord(row);
-    let status = "missing";
-    let duration = null;
-    if (date > today) status = "future";
-    else if (record === "recorded") {
-      status = date === today ? "ongoing" : "complete";
-      duration = seconds;
-    } else if (date === today && ["open", "empty"].includes(record))
-      status = "ongoing";
-    else if (record !== "empty") status = "incomplete";
-    else if (weekday(date) >= 5) status = "weekend";
     days.push({
       date,
       firstEntry: row?.firstEntry || null,
       lastExit: row?.lastExit || null,
-      status,
-      duration,
+      duration: date <= today && record === "recorded" ? seconds : null,
     });
-  }
-  const weeks = new Map();
-  for (const day of days) {
-    const start = weekStart(day.date);
-    if (!weeks.has(start))
-      weeks.set(start, {
-        start,
-        seconds: 0,
-        todaySeconds: 0,
-        missing: 0,
-        ongoing: false,
-        partial: from > start || to < addDays(start, 6),
-      });
-    const week = weeks.get(start);
-    if (day.duration !== null) week.seconds += day.duration;
-    if (day.date === today && day.duration !== null)
-      week.todaySeconds += day.duration;
-    if (["missing", "incomplete"].includes(day.status)) week.missing++;
-    if (day.status === "ongoing") week.ongoing = true;
   }
   return {
     days,
-    weeks: [...weeks.values()],
+    partial: days.length > 0 && (from !== weekStart(from) || to !== addDays(weekStart(to), 6)),
   };
 }

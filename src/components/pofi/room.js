@@ -93,7 +93,6 @@ export default function PofiRoom({ onClose, children }) {
 
   return (
     <Modal
-      open
       onClose={onClose}
       title={title}
       onTitleClick={

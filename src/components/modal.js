@@ -6,7 +6,6 @@ import { ui } from "@/lib/ui-text.js";
 
 /**
  * @param {{
- *   open?: boolean,
  *   title: string,
  *   description?: string,
  *   className?: string,
@@ -19,7 +18,6 @@ import { ui } from "@/lib/ui-text.js";
  * }} props
  */
 export default function Modal({
-  open = true,
   onClose,
   title,
   description,
@@ -42,7 +40,6 @@ export default function Modal({
   const descriptionId = useId();
 
   useEffect(() => {
-    if (!open) return;
     const dialog = dialogRef.current;
     previousTitle.current = title;
     const opener = document.activeElement;
@@ -64,14 +61,14 @@ export default function Modal({
       window.scrollTo(scrollX, scrollY);
       if (opener?.isConnected) opener.focus({ preventScroll: true });
     };
-  }, [open]);
+  }, []);
 
   useEffect(() => {
-    if (!open || previousTitle.current === title) return;
+    if (previousTitle.current === title) return;
     previousTitle.current = title;
     bodyRef.current.scrollTop = 0;
     titleRef.current.focus({ preventScroll: true });
-  }, [open, title]);
+  }, [title]);
 
   return (
     <dialog

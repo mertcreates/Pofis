@@ -75,7 +75,6 @@ export function DashboardView({
     return prepared ? prepared(now) : null;
   }, [prepared, now]);
   const days = presentation?.days ?? [];
-  const plan = presentation?.plan ?? [];
   const todayReport = days.find((day) => day.date === today);
   useEffect(() => {
     if (!connected) {
@@ -109,10 +108,7 @@ export function DashboardView({
         connected={!!connected}
         busy={busy}
         appearance={appearance}
-        navigation={null}
-        section="overview"
         settingsOpen={dialog === "plan"}
-        showNavigation={true}
         onSection={(section: string) => {
           selectWeek(currentWeek);
           if (section === "settings") setDialog("plan");
@@ -170,7 +166,6 @@ export function DashboardView({
                   <DashboardMetrics
                     targetSeconds={workPlans.targetSeconds}
                     days={days}
-                    plan={plan}
                     today={today}
                     isCurrent={isCurrent}
                   />

@@ -7,14 +7,13 @@ export function targetProgress(seconds, target) {
   )
     return null;
   // Carryover can fulfill the last working day's target before entry.
-  if (target === 0) return { percentage: 100, remaining: 0, excess: seconds };
+  if (target === 0) return { percentage: 100, remaining: 0 };
   const ratio = (100 * seconds) / target;
   let percentage = Math.floor(ratio);
   if (seconds >= target) percentage = Math.round(ratio);
   return {
     percentage,
     remaining: Math.max(0, target - seconds),
-    excess: Math.max(0, seconds - target),
   };
 }
 

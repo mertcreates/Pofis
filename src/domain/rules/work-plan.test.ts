@@ -429,8 +429,8 @@ test("kilitli kayıtlar saniyeleriyle görünür, fark özgün plandan gelir ve 
   source[0].recordedSeconds! += 17;
   const custom = readDayPlan([240, 0, 960, 240, 480, 0, 0])!;
   const result = resolveWeekPlan(source, DEFAULT_WORK_PLAN, "2026-10-16");
-  expect(resolveWeekPlan(source, custom, "2026-10-16").plan).toEqual(custom);
-  expect(result.plan).toEqual(DEFAULT_WORK_PLAN);
+  expect(resolveWeekPlan(source, custom, "2026-10-16").targets).toEqual([14400, 0, 57600, 14400, 0, 0, 0]);
+  expect(custom).toEqual([240, 0, 960, 240, 480, 0, 0]);
   expect(result.targets).toEqual([28800, 28800, 28800, 28800, 26083, 0, 0]);
   expect(result.completed).toEqual([30617, 29700, 28800, 28800, null, null, null]);
   expect(result.displaySeconds).toEqual([30617, 29700, 28800, 28800, 26083, 0, 0]);
@@ -492,7 +492,7 @@ test.each([6, 5.5, 6.5])("hafta ilerlerken özel 6 saatlik plan korunur; gerçek
   const tuesday = resolveWeekPlan(days([actual, null, null, null, null, null, null]), resolveStoredPlan(state, "2026-10-12"), "2026-10-13");
   expect(monday.completed[0]).toBeNull();
   expect(monday.targets).toEqual([21600, 36000, 28800, 28800, 28800, 0, 0]);
-  expect(tuesday.plan).toEqual(plan);
+  expect(plan).toEqual([360, 600, 480, 480, 480, 0, 0]);
   expect(tuesday.targets[1]).toBe(36000);
   expect(tuesday.targets[4]).toBe((14 - actual) * 3600);
   expect(tuesday.weeklySeconds).toBe(144000);

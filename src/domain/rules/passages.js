@@ -68,11 +68,5 @@ export function passageDay(passages, date, today) {
     }
   }
   if (entry !== null && date !== today) uncertain = true;
-  let seconds = null;
-  if (!uncertain && intervals.length > 0)
-    seconds = intervals.reduce(
-      (total, interval) => total + interval.end - interval.start,
-      0,
-    );
-  return { events, intervals, seconds, openEntry: entry, uncertain };
+  return { events, intervals, openEntry: entry, uncertain };
 }

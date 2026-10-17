@@ -5,15 +5,11 @@ import { product, ui } from "@/lib/ui-text.js";
 import Icon from "../ui-icon.js";
 import ThemeSwitch from "./theme-switch.js";
 
-const sections = [{ id: "overview", label: ui.overview, icon: "layout" }];
-
 export default function AppHeader({
   connected,
   busy,
   onDisconnect,
-  navigation,
   appearance,
-  section = "overview",
   settingsOpen = false,
   onSection,
 }) {
@@ -83,20 +79,16 @@ export default function AppHeader({
           <div className="sidebar-menu">
             {onSection && (
               <nav className="sidebar-nav" aria-label={ui.mainMenu}>
-                {sections.map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    aria-current={section === item.id ? "page" : undefined}
-                    onClick={() => selectSection(item.id)}
-                  >
-                    <Icon name={item.icon} />
-                    {item.label}
-                  </button>
-                ))}
+                <button
+                  type="button"
+                  aria-current="page"
+                  onClick={() => selectSection("overview")}
+                >
+                  <Icon name="layout" />
+                  {ui.overview}
+                </button>
               </nav>
             )}
-            {navigation}
             {onSection && (
               <div className="sidebar-nav settings-nav">
                 <button

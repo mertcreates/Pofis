@@ -42,7 +42,7 @@ export function PlanEditor({
   const id = useId();
   const weekDays = days.filter(day => weekStart(day.date) === week);
   const resolved = resolveWeekPlan(weekDays, plan, today, weekDays.length !== 7, targetSeconds, zeroOpenDays);
-  const activePlan = scope === "default" ? defaultPlan : resolved.plan;
+  const activePlan = scope === "default" ? defaultPlan : plan;
   const locked = scope === "week" && resolved.completed[selectedDay] !== null;
   const selectedSeconds = scope === "week" ? resolved.displaySeconds[selectedDay] : activePlan[selectedDay] * 60;
   const value = selectedSeconds / 60;

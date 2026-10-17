@@ -9,7 +9,6 @@ export function MetricCard({
   foot,
   hint,
   progress,
-  state,
 }: {
   label: string;
   icon: string;
@@ -17,11 +16,10 @@ export function MetricCard({
   children: ReactNode;
   foot?: ReactNode;
   hint?: ReactNode;
-  state?: string;
   progress?: { recorded: number; estimated: number; target: number };
 }) {
   return (
-    <section className="dashboard-card metric" data-state={state}>
+    <section className="dashboard-card metric">
       <div className="metric-header">
         <span>
           <Icon name={icon} />

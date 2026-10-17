@@ -43,14 +43,13 @@ test("all five demo days share the real report rules without counting later reco
   const expected = [29011, 31341, 30197, 17512, null];
   for (const [i, date] of dates.entries()) {
     const preview = previewDemoReport(report, date);
-    const { days, plan } = presentReport(
+    const { days } = presentReport(
       preview,
       DEFAULT_WORK_PLAN,
       demoClock(date, now),
       false,
     );
     expect(days[i].recordedSeconds).toBe(expected[i]);
-    expect(plan[i]).toBe(480);
     // 40 hours minus the four completed captured days = 9:58:59 on Friday.
     expect(days[i].source.dailyGoalSeconds).toBe(i === 4 ? 35939 : 28800);
     expect(days[i].liveSeconds).toBeNull();

@@ -225,7 +225,7 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
     return dayIndex === -1 ? Math.round(minutes * 60) : targets[dayIndex];
   });
   const projectedWeeklySeconds = displaySeconds.reduce((sum, seconds) => sum + seconds, 0);
-  return { targets, plan, workingDays, completed, eligible, displaySeconds, unallocatedSeconds, projectedWeeklySeconds, weeklySeconds: targetSeconds, dailySeconds, blocked, exitGoal };
+  return { targets, workingDays, completed, eligible, displaySeconds, unallocatedSeconds, projectedWeeklySeconds, weeklySeconds: targetSeconds, blocked, exitGoal };
 }
 
 export function editRequiredMinutes(plan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, updates: readonly { day: number; minutes: number }[], defaultPlan = DEFAULT_WORK_PLAN, leaveDays: readonly number[] = []) {

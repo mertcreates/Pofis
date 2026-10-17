@@ -39,16 +39,16 @@ export function prepareReport(
     const state = dailyRecordStatus({ ...statusInput, live: false });
     return { row, passage, statusInput, state };
   });
-  const { targets, plan: resolvedPlan, dailySeconds, blocked, exitGoal } = resolveWeekPlan(
+  const { targets, blocked, exitGoal } = resolveWeekPlan(
     sourceDays.map(({ row, state }) => ({ date: row.date, state, recordedSeconds: row.duration })),
     plan,
     today,
-    summary.weeks.some(week => week.partial),
+    summary.partial,
     targetSeconds,
     zeroOpenDays,
   );
   const prepared = sourceDays.map(({ row, passage, statusInput }, index) => {
-    const selected = isOpenPlanDay(resolvedPlan, weekday(row.date), zeroOpenDays);
+    const selected = isOpenPlanDay(plan, weekday(row.date), zeroOpenDays);
     const input = {
       day: row,
       dailySeconds: targets[index],
@@ -134,8 +134,6 @@ export function prepareReport(
   const presentation = {
     days: prepared.map(({ day }) => day),
     blocked,
-    dailySeconds,
-    plan: [...resolvedPlan],
   };
   const todayIndex = presentation.days.findIndex((day) => day.date === today);
   return (now: number) => {

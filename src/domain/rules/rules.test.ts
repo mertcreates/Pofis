@@ -99,8 +99,8 @@ test("haftalık hedef değişikliği günlük hedef, tahmin, Pofi ve haftalık t
   const longer = readDayPlan([540, 540, 540, 540, 540, 0, 0])!;
   const small = presentReport(report, shorter, at("15:00:00").getTime(), false);
   const large = presentReport(report, longer, at("15:00:00").getTime(), false);
-  expect(small.dailySeconds).toBe(28800);
-  expect(large.dailySeconds).toBe(46800);
+  expect(small.days[4].source.dailyGoalSeconds).toBe(28800);
+  expect(large.days[4].source.dailyGoalSeconds).toBe(46800);
   expect(small.days[4].source.exitGoalSeconds).toBe(28800);
   expect(large.days[4].source.exitGoalSeconds).toBe(46800);
   expect(small.days[4].source.pofi.state).toBe("tired");
@@ -152,7 +152,6 @@ test("ilerleme ve grafik aynı yuvarlama/ölçek sahibini kullanır", () => {
   expect(targetProgress(28799, 28800)).toEqual({
     percentage: 99,
     remaining: 1,
-    excess: 0,
   });
   expect(percentage(29000, 28800)).toBe(101);
   expect(percentage(0, 0)).toBe(100);

@@ -6,6 +6,7 @@ import {
 } from "./recorded-time.js";
 import { presentReport, type SourcePassage } from "../report";
 import { DEFAULT_WORK_PLAN } from "./work-plan";
+import { summarizeWeek } from "./week";
 
 const passage = (
   time: string,
@@ -48,14 +49,32 @@ test("günler birbirine karışmaz; hareket olmayan ve gelecek günler haftalık
     passage("08:00:00", "in", "2026-10-12"),
     passage("08:00:00", "in", "2026-10-13"),
     passage("17:00:00", "out", "2026-10-12"),
+    passage("08:00:00", "in", "2026-10-18"),
+    passage("16:00:00", "out", "2026-10-18"),
   ];
   const rows = recordedRowsFromPassages(passages);
-  expect(rows.map((row) => row.date)).toEqual(["2026-10-12", "2026-10-13"]);
+  expect(rows.map((row) => row.date)).toEqual(["2026-10-12", "2026-10-13", "2026-10-18"]);
   const result = summarize(passages, "2026-10-12", "2026-10-18", "2026-10-16");
-  expect(result.weeks[0].seconds).toBe(17 * 3600);
-  expect(result.days).toHaveLength(7);
-  expect(result.days[2].duration).toBeNull();
-  expect(result.days[6].status).toBe("future");
+  expect(result.days.map(day => day.duration)).toEqual([32400, 28800, null, null, null, null, null]);
+  const view = presentReport({
+    person: { id: "self", name: "Fixture", unit: "", title: "" },
+    from: "2026-10-12", to: "2026-10-18", fetchedAt: "2026-10-16T12:00:00Z", passages,
+  }, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T15:00:00+03:00"), false);
+  expect(summarizeWeek(view.days, "2026-10-16").recordedSeconds).toBe(17 * 3600);
+  expect(view.days[6].state).toBe("future");
+});
+
+test.each([
+  ["2026-10-12", "2026-10-18", false],
+  ["2026-10-12", "2026-10-16", true],
+  ["2026-10-13", "2026-10-18", true],
+  ["2026-10-16", "2026-10-16", true],
+  ["2026-12-28", "2027-01-10", false],
+  ["2026-12-29", "2027-01-10", true],
+  ["2026-12-28", "2027-01-09", true],
+  ["2026-10-18", "2026-10-12", false],
+] as const)("rapor aralığı %s–%s kısmi hafta=%s", (from, to, partial) => {
+  expect(summarize([], from, to, "2026-10-16").partial).toBe(partial);
 });
 
 test("tek kaynak 4 saat kayıtlı + 3 saat tahmin üretir; son çıkış ve eski rapor tahmini durdurur", () => {

@@ -27,8 +27,9 @@ test("sıfır planlı açık gün rapor, grafik ve yüzde göstergesinde çalı�
   expect(chart(".chart-column")).toHaveLength(5);
   report.passages.push({ date: today, time: "08:00:00", direction: "in" });
   const view = presentReport(report, plan, at, false, 39.5 * 3600, [4]);
-  const metrics = load(renderToStaticMarkup(<DashboardMetrics days={view.days} plan={view.plan} today={today} isCurrent targetSeconds={39.5 * 3600} />));
+  const metrics = load(renderToStaticMarkup(<DashboardMetrics days={view.days} today={today} isCurrent targetSeconds={39.5 * 3600} />));
   expect(metrics(".metric-tag").first().text()).toBe("%50");
+  expect(metrics('.metric-facts time[title="39:30:00"]')).toHaveLength(1);
   const table = load(renderToStaticMarkup(<ReportTable days={view.days} today={today} />));
   expect(table(".today-row td").last().text()).toBe("Mesai devam ediyor");
 });
@@ -145,7 +146,7 @@ test("devirli gün kartları, çıkış saati ve tablonun hedef farkı aynı etk
     ]),
   };
   const view = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T15:15:00+03:00"), false);
-  const metrics = load(renderToStaticMarkup(<DashboardMetrics days={view.days} plan={view.plan} today="2026-10-16" isCurrent />));
+  const metrics = load(renderToStaticMarkup(<DashboardMetrics days={view.days} today="2026-10-16" isCurrent targetSeconds={144000} />));
   expect(metrics(".metric-tag").map((_, element) => metrics(element).text()).get()).toEqual(["%100", "%100"]);
   expect(metrics('.metric-value time[title="15:15:00"]')).toHaveLength(1);
   expect(metrics(".metric").first().find(".metric-facts dd").text()).toBe("7 sa 15 dk");

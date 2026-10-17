@@ -54,7 +54,6 @@ export default function AppFooter() {
       </span>
       {noteOpen && (
         <Modal
-          open
           onClose={() => setNoteOpen(false)}
           title={ui.about.title}
           description={ui.about.version(version)}

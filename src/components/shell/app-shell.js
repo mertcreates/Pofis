@@ -2,15 +2,23 @@ import AppHeader from "./app-header.js";
 import AppFooter from "./app-footer.js";
 import { InlineNotice } from "../inline-notice";
 
+/**
+ * @param {{
+ *   children: import('react').ReactNode,
+ *   appearance: ReturnType<typeof import('@/data/use-appearance').useAppearance>,
+ *   connected?: boolean,
+ *   busy?: boolean,
+ *   onDisconnect?: () => void,
+ *   settingsOpen?: boolean,
+ *   onSection?: (section: 'overview' | 'settings') => void,
+ * }} props
+ */
 export default function AppShell({
   children,
   appearance,
-  navigation = null,
   connected = false,
   busy = false,
   onDisconnect,
-  showNavigation = true,
-  section = "overview",
   settingsOpen = false,
   onSection,
 }) {
@@ -25,8 +33,6 @@ export default function AppShell({
         connected={connected}
         busy={busy}
         onDisconnect={onDisconnect}
-        navigation={connected && showNavigation ? navigation : null}
-        section={section}
         settingsOpen={settingsOpen}
         onSection={onSection}
       />
