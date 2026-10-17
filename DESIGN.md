@@ -60,6 +60,8 @@ Gündelik mesaiyi sakin, anlaşılır ve yargılamayan bir dille sunan çalışm
 
 ## Tema ve tipografi
 
+Görseller standart `<img>` ile doğrudan statik dosyadan sunulur; `next/image` kullanılmaz ve Next.js görsel optimizasyonu kapalıdır. Boyut öznitelikleri yerleşim alanını korur; giriş ve paneldeki ana Pofi görseli `fetchPriority="high"` kullanır.
+
 [globals.css](src/app/globals.css) semantik renkleri `light-dark()` ile tanımlar. `html[data-theme]` açık/koyu/sistem tercihini taşır. [pofis.css](src/app/pofis.css) kaynak yerleşim, tipografi, kart ve duyarlı ekran stillerini içerir. [modal.css](src/app/modal.css) ortak dialog sahibidir; [oda CSS](src/components/pofi/room.css) Pofi etkileşimlerini tanımlar. Bu sıra ana yerleşimden yüklenir.
 
 Geist Sans yerel paketten gelir. Sayısal süreler tabular gösterilir; saat/dakika baskın, saniye ikincildir. Kaynak kart tipografisi ve mobil küçülme kuralları kullanılır. Türkçe tarih aralıkları İstanbul takviminden gelir; başka yıl seçildiğinde yıl görünür.

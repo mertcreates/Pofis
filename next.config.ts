@@ -4,6 +4,7 @@ const config: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   devIndicators: false,
+  images: { unoptimized: true },
   async headers() {
     return [
       {

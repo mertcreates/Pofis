@@ -1,5 +1,4 @@
 import { SESSION_POLICY } from "@/domain/rules/session-policy";
-import Image from "next/image";
 import { ui } from "@/lib/ui-text.js";
 import RequestError from "./request-error.js";
 import type { RequestFailure } from "@/lib/pdks-failure";
@@ -39,13 +38,13 @@ export const Connection = memo(function Connection({
   return (
     <section className="connection" aria-labelledby="connection-title">
       <div className="connection-brand">
-        <Image
+        <img
           src={busy ? POFI_ASSETS.working : POFI_ASSETS.idle}
           className="connection-mascot"
           width={240}
           height={240}
           alt="Pofi"
-          priority
+          fetchPriority="high"
         />
       </div>
       <div className="dashboard-card connection-form">

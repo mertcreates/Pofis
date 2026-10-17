@@ -51,7 +51,7 @@ test("yanlış şifre formda alanlarla ilişkili gösterilir; teknik ekran veya 
   expect(html.indexOf('name="password"')).toBeLessThan(html.indexOf('id="connection-error"'));
   expect(html).toContain('class="connection-field-error"');
   expect(html).not.toContain('class="request-error-inline');
-  expect(html).toContain(encodeURIComponent('/pofi/states/idle.webp'));
+  expect(html).toContain('src="/pofi/states/idle.webp"');
   expect(html).not.toContain("<details");
   expect(html).not.toContain("AUTH_FAILED");
   expect(html).not.toContain("private");
@@ -91,7 +91,7 @@ test("giriş doğrulama hatası alanlarda; oturum bitişi nötr ve alanları ge�
   expect(render("INVALID_INPUT", 400).match(/aria-invalid="true"/g)).toHaveLength(2);
   const expired = render("SESSION_EXPIRED", 401);
   expect(expired).toContain("connection-session-message");
-  expect(expired).toContain(encodeURIComponent('/pofi/states/idle.webp'));
+  expect(expired).toContain('src="/pofi/states/idle.webp"');
   expect(expired).not.toContain("aria-invalid");
   expect(expired).not.toContain("<details");
 });

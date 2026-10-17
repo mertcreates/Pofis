@@ -1,5 +1,4 @@
 import { specialMinuteRemaining } from "@/domain/rules/pofi-surprises";
-import Image from "next/image";
 import Icon from "../ui-icon.js";
 import { ui } from "@/lib/ui-text.js";
 import { type DayReport } from "@/domain/attendance";
@@ -50,13 +49,13 @@ export function PofiPanel({ day, now, onOpen }: Props) {
               if (event.repeat) event.preventDefault();
             }}
           >
-            <Image
+            <img
               src={day.source.pofi.asset}
               className="pofi-hero"
               alt=""
               width={156}
               height={156}
-              priority
+              fetchPriority="high"
             />
           </button>
         </div>
