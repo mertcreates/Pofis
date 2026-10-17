@@ -46,4 +46,4 @@ Eski rapor canlı süre üretmez. Son açık giriş bilgisi korunur, `open` gös
 
 ## Testler
 
-[Karar senaryoları](../../src/domain/rules/record-status.test.ts) · [Rapor testleri](../../src/domain/report.test.ts) · [Görünüm testleri](../../src/components/attendance/report-ui.test.tsx).
+[Karar senaryoları](../../src/domain/rules/record-status.test.ts) · [Rapor testleri](../../src/domain/report.test.ts).

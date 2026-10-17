@@ -21,10 +21,10 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 
 ## Arayüz kabulü
 
-- [ ] Mesai planında izinli, şablondan kapalı, sıfır süreli açık ve kilitli günleri; kart/stepper süre eşitliğini ve dar ekran yerleşimini görsel olarak doğrula. Kod ve statik işaretleme testleri mevcut; görsel kontrol kullanıcıda.
+- [ ] Mesai planında izinli, şablondan kapalı, sıfır süreli açık ve kilitli günleri; kart/stepper süre eşitliğini ve dar ekran yerleşimini görsel olarak doğrula. Planın davranış testleri mevcut; görsel kontrol kullanıcıda.
 - [ ] Rapor hesaplama istisnasının ortak hata sınırına geçişini, 404 sahnesini, tema depolama bildirimini ve eksik notta defter gezinmesini masaüstü/mobil tarayıcıda doğrula.
 
-- [ ] Pofi'nin canlı/kayıtlı `%114 → %115` geçişinde `overworked` görselini ve “Hedefin üzerindesin.” metnini tarayıcıda doğrula. Kural testleri geçti; yerel Playwright kabulünde Chrome bulunamadı ve Edge başlatılamadı.
+- [ ] Pofi'nin canlı/kayıtlı `%114 → %115` geçişinde `overworked` görselini ve “Süre hedefin üzerinde.” metnini tarayıcıda doğrula. Kural testleri geçti; yerel Playwright kabulünde Chrome bulunamadı ve Edge başlatılamadı.
 - [ ] Fiziksel mobil cihazda dokunmatik grafik ve modal tutamağından sürükleme davranışını kontrol et.
 - [ ] Safari, forced-colors ve ekran okuyucuyla temel gezinme, durum etiketleri ve dialog odağını kontrol et.
 - [ ] Çalışma zamanı hata sınırının yeniden deneme akışını kontrollü tarayıcı senaryosuyla doğrula.

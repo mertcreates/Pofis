@@ -28,4 +28,3 @@ Başka ürün kuralına bağlı değildir.
 
 - [rules.test.ts](../../src/domain/rules/rules.test.ts)
 - [time.test.ts](../../src/domain/time.test.ts)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

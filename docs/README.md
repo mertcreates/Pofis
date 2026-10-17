@@ -22,6 +22,6 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 
 ## Belge bakımı
 
-Davranış değiştiğinde ilgili sözleşmeyi ve bağımlı testleri birlikte güncelleyin. Tamamlanan doğrulamanın sonucunu kullanıcıya bildirin; tamamlanmış audit raporlarını, ekran görüntülerini ve ölçüm çıktılarını temizleyin. Geçerli kararlar konu sahibinde, çözülmemiş bulgular görev listesinde tutulur. Testler ve yeniden kullanılabilir kabul betikleri korunur.
+Davranış değiştiğinde ilgili sözleşmeyi ve bağımlı testleri birlikte güncelleyin. Tamamlanan doğrulamanın sonucunu kullanıcıya bildirin; tamamlanmış audit raporlarını, ekran görüntülerini ve ölçüm çıktılarını temizleyin. Geçerli kararlar konu sahibinde, çözülmemiş bulgular görev listesinde tutulur. Davranış testleri korunur; arayüz kabulü doğrulama rehberine göre demoda yapılır.
 
 [Özgün master spec](spec/master-spec-v2.md), kullanıcıdan gelen başlangıç belgesidir; güncel kapsam için PRODUCT ve kural belgeleri kullanılır. Marka kiti, ton rehberi ve kullanıcı tasarım referansları kaynak içeriktir.

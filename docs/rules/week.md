@@ -33,4 +33,3 @@ Görünen gerçekleşen toplam = kayıtlı süreler toplamı + canlı ek tahmin
 
 - [rules.test.ts](../../src/domain/rules/rules.test.ts)
 - [report.test.ts](../../src/domain/report.test.ts)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

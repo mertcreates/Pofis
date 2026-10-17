@@ -44,7 +44,7 @@ export function PofiPanel({ day, now, onOpen }: Props) {
             type="button"
             aria-haspopup="dialog"
             onClick={onOpen}
-            aria-label="Pofi’nin odasını aç"
+            aria-label={ui.pofiRoom.open}
             onKeyDown={(event) => {
               if (event.repeat) event.preventDefault();
             }}

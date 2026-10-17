@@ -33,4 +33,3 @@ Hareket sırası ve eşleşme güvenilirliği [geçiş sahibinde](passages.md), 
 - [recorded-time.test.ts](../../src/domain/rules/recorded-time.test.ts)
 - [rules.test.ts](../../src/domain/rules/rules.test.ts)
 - [report.test.ts](../../src/domain/report.test.ts)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

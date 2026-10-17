@@ -26,4 +26,3 @@ Raporun zorunlu hareket listesi giriş/çıkış çiftlerini ve son açık giri�
 
 - [report.test.ts](../../src/domain/report.test.ts)
 - [rules.test.ts](../../src/domain/rules/rules.test.ts)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

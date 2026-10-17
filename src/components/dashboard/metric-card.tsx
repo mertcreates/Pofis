@@ -16,7 +16,7 @@ export function MetricCard({
   children: ReactNode;
   foot?: ReactNode;
   hint?: ReactNode;
-  progress?: { recorded: number; estimated: number; target: number };
+  progress?: { recorded: number | null; estimated: number; target: number };
 }) {
   return (
     <section className="dashboard-card metric">

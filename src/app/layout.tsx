@@ -9,6 +9,7 @@ import "./current-contracts.css";
 import "@/components/request-error.css";
 import "@/components/inline-notice.css";
 import { themeInitScript } from "@/lib/theme.js";
+import { ui } from "@/lib/ui-text.js";
 
 export const metadata: Metadata = {
   title: "Pofis · Mesaiye biraz Pofi.",
@@ -39,7 +40,7 @@ export default function RootLayout({
         {children}
         <Script id="quiet-nod">
           {
-            "if (!window._q) { window._q = true; window.console?.['log']('Buraya kadar geldiysen,\\nsen de küçük detayları seviyorsun demektir.\\n\\nBen de.\\n\\nMesaiye biraz Pofi.\\nmertercan.com'); }"
+            `if (!window._q) { window._q = true; window.console?.['log'](${JSON.stringify(ui.consoleNote)}); }`
           }
         </Script>
       </body>

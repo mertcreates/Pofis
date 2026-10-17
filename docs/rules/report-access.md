@@ -29,4 +29,3 @@ Tek uygulamada yalnız self raporu kabul edilir. Tarih aralığı gerçek günle
 - [routes.test.js](../../src/server/routes.test.js)
 - [pdks.test.js](../../src/server/pdks.test.js)
 - [work-plans.test.ts](../../src/data/work-plans.test.ts)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

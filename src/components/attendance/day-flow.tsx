@@ -103,7 +103,7 @@ export function DayFlow({
         <div
           className="timeline-bar"
           role="img"
-          aria-label={`${ui.recordBasedTime} ${durationText(recorded)}; ${ui.liveEstimateLabel} ${durationText(estimated)}; ${ui.targetLabel} ${target === null ? ui.notCalculated : durationText(target)}`}
+          aria-label={`${hasRecorded ? `${ui.recordedTime} ${durationText(recorded)}` : ui.noRecordedDuration}; ${ui.liveEstimateLabel} ${durationText(estimated)}; ${ui.targetLabel} ${target === null ? ui.notCalculated : durationText(target)}`}
         >
           <DurationTrack
             recorded={recorded}

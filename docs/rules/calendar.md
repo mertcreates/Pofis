@@ -28,4 +28,3 @@ Başka ürün kuralına bağlı değildir.
 
 - [time.test.ts](../../src/domain/time.test.ts)
 - [week-calendar.test.ts](../../src/components/dashboard/week-calendar.test.ts)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

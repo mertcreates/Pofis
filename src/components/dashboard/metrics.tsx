@@ -53,7 +53,7 @@ export function DashboardMetrics({
             icon="clock"
             badge={percent === null ? undefined : `%${percent}`}
             progress={{
-              recorded: day.source.recorded,
+              recorded: day.recordedSeconds,
               estimated: day.source.estimated,
               target: dailyGoal,
             }}

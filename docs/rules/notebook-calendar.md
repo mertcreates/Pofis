@@ -30,4 +30,3 @@ Seçilen tarihte not bulunamazsa defter tarihini ve gezinme kontrollerini korur;
 
 - [rules.test.ts](../../src/domain/rules/rules.test.ts)
 - [report.test.ts](../../src/domain/report.test.ts)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

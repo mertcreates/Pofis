@@ -2,6 +2,7 @@
 
 import { durationClock, durationParts, durationText } from "@/domain/time";
 import { percentage } from "@/domain/rules/progress.js";
+import { ui } from "@/lib/ui-text.js";
 
 export function Duration({ seconds }: { seconds: number | null }) {
   if (seconds === null) return <span className="empty-value">–</span>;
@@ -75,12 +76,12 @@ export function Progress({
   target,
   label,
 }: {
-  recorded: number;
+  recorded: number | null;
   estimated?: number;
   target: number;
   label: string;
 }) {
-  const seconds = recorded + estimated;
+  const seconds = (recorded ?? 0) + estimated;
   const value = percentage(seconds, target);
   return (
     <div
@@ -90,10 +91,10 @@ export function Progress({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.min(100, value ?? 0)}
-      aria-valuetext={`Kayda dayalı ${durationText(recorded)}; anlık tahmin ${durationText(estimated)}; ${target > 0 ? `hedef ${durationText(target)}; %${value}` : "hedef yok"}`}
+      aria-valuetext={`${recorded === null ? ui.noRecordedDuration : `${ui.recordedTime} ${durationText(recorded)}`}; ${ui.liveEstimateLabel} ${durationText(estimated)}; ${ui.targetLabel} ${durationText(target)}${value === null ? "" : `; %${value}`}`}
     >
       <DurationTrack
-        recorded={recorded}
+        recorded={recorded ?? 0}
         estimated={estimated}
         total={Math.max(target, seconds)}
         target={target}

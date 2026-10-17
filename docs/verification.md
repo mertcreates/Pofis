@@ -34,25 +34,11 @@ Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut se
 | [Sıfır süreli açık gün](../src/domain/rules/work-plan-open-days.test.ts) | Kaydetme → yeniden yükleme → sonraki gün yeni kayıt → yeniden dengeleme; izin, şablon ve sıfırlama |
 | [Depolama](../src/data/work-plans.test.ts) | Doğrulama, kalıcılık, yazı hatası ve canlı/demo ayrımı |
 | [Rapor](../src/domain/report.test.ts) | Ortak gereken süre, kayıt durumu, Pofi ve hedef çıkış |
-| [Düzenleyici](../src/components/plan-editor.test.tsx), [rapor görünümü](../src/components/attendance/report-ui.test.tsx) | Kart/kontrol süreleri, açık/kapalı/kilitli durumlar, metrikler ve tablo; statik işaretleme denetimi |
 | [Kural mimarisi](../src/domain/rules/rules.test.ts) | Belge/kod sahipliği ve bağımlılık sınırları |
-
-Tarayıcı kabul betikleri aşağıdaki akışları izole API yanıtları ve sentetik saatle çalıştırır; görünüm betiği yerel demoyu kullanır.
-
-| Betik | Doğruladığı akış |
-| --- | --- |
-| [Plan kabulü](../scripts/acceptance/work-plan.js) | Kilitler, devir, hafta/şablon düzenleme, sıfırlama, yazma hatası, yeniden yükleme ve demo ayrımı |
-| [Gereken süre](../scripts/acceptance/work-plan-required.js) | Kart/stepper eşitliği, doğrudan düzenleme, toplu uygulama, eklemede seçili gün önceliği, izin/açma ve kalıcılık |
-| [Elle düzenleme](../scripts/acceptance/work-plan-manual.js) | Eklemede seçili gün önceliği, seçim değişikliğinin alıcılara etkisi ve azaltmada seçili Cuma'dan başlama |
-| [Hafta ilerlemesi](../scripts/acceptance/work-plan-progression.js) | Günlerin tamamlanması, özel hedefler, tekrar hesaplama, hedef çıkış ve hafta navigasyonu |
-| [Kapasite](../scripts/acceptance/work-plan-capacity.js) | Kalan günün kapasitesi, hedef çıkış, yeniden yükleme ve 16 saat sınırı |
-| [Görünüm](../scripts/acceptance/work-plan-style.js) | Açık/koyu tema kontrastı, 320px taşma, klavye seçimi ve dokunmatik kontroller |
-
-Betikler 3000 portundaki yerel uygulamayla çalışır. Üretilen ekran görüntüleri geçici olarak output/playwright/ içine yazılır; incelemeden sonra temizlenir. Gerçek PDKS ve kurum ortamı kabulünün durumu [görev listesinde](../tasks/todo.md) tutulur.
 
 ## Tarayıcı ve gerçek kaynak
 
-[Mesaim demosu](demo.md) ortak bileşenleri yakalanmış verilerle incelemek içindir. [Fixture kabul betiği](../scripts/acceptance/archive-behavior.js) giriş, rapor, plan, Pofi ve hata akışlarını sahte API yanıtlarıyla sınar. Bu kontroller canlı PDKS erişimini veya kurum kapasitesini kanıtlamaz.
+[Mesaim demosu](demo.md) ortak bileşenleri örnek kayıtlarla incelemek içindir. Arayüz kabulünü ilgili senaryoyu seçip işlem ve sonuç metinlerini, boş/hata durumlarını ve dar ekran yerleşimini tarayıcıda kontrol ederek yapın. Bu kontrol gerçek PDKS erişimini veya kurum kapasitesini kanıtlamaz.
 
 Gerçek kaynak ve dağıtım kabulünde kurum ağı, kullanıcı hesabı ve hedef çalışma ortamı kullanılır. `/api/health` uygulamanın ayakta olduğunu gösterir; PDKS bağlantısını kanıtlamaz. Bekleyen senaryolar [görev listesinde](../tasks/todo.md) yönetilir.
 
@@ -60,4 +46,4 @@ Yerel oturum ölçümü için `bun scripts/benchmark-sessions.ts 100` çalışt�
 
 ## Sonuçların yönetimi
 
-Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulamaların rapor, ekran görüntüsü ve ölçüm çıktılarını temizleyin. Geçerli ürün kararlarını ilgili sözleşmeye, açık bulguları görev listesine taşıyın. Test kodu ve tekrar kullanılabilir kabul betikleri doğrulama yönteminin parçasıdır.
+Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulamaların rapor, ekran görüntüsü ve ölçüm çıktılarını temizleyin. Geçerli ürün kararlarını ilgili sözleşmeye, açık bulguları görev listesine taşıyın. Davranış testleri ve demo üzerinden elle tarayıcı kabulü doğrulama yönteminin parçasıdır.

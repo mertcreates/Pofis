@@ -41,4 +41,3 @@ Giriş, heartbeat ve çıkış uçları Origin/Sec-Fetch-Site değerlerinden ba�
 - [pdks-concurrency.test.js](../../src/server/pdks-concurrency.test.js)
 - [pdks.test.js](../../src/server/pdks.test.js)
 - [http.test.js](../../src/server/http.test.js)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

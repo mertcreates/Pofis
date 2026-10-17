@@ -285,8 +285,8 @@ test.each([
   { name: "kayıtlı yüzde 100", clock: "18:00:00", exit: "16:00:00", state: "completed" },
   { name: "kayıtlı yüzde 114", clock: "18:00:00", exit: "17:07:12", state: "completed" },
   { name: "kayıtlı yüzde 115", clock: "18:00:00", exit: "17:12:00", state: "overworked" },
-  { name: "son hareket çıkış, hedef öncesi", clock: "15:00:00", exit: "12:00:00", state: "break", message: "Son çıkış kaydı: 12:00:00. Günlük hedefe 4 sa kaldı." },
-  { name: "saniyeli kalan süre", clock: "15:00:00", exit: "12:00:01", state: "break", message: "Son çıkış kaydı: 12:00:01. Günlük hedefe 3 sa 59 dk 59 sn kaldı." },
+  { name: "son hareket çıkış, hedef öncesi", clock: "15:00:00", exit: "12:00:00", state: "break", message: "Kupam için masada yer açtım." },
+  { name: "saniyeli çıkış kaydı", clock: "15:00:00", exit: "12:00:01", state: "break", message: "Kupam için masada yer açtım." },
   { name: "belirsiz geçiş", clock: "18:00:00", exit: null, uncertain: true, state: "error" },
   { name: "eski raporda fazla mesai tahmini yok", clock: "18:00:00", exit: null, stale: true, state: "working" },
 ])("Pofi tüm durumları ortak rapordan seçer: $name", (scenario) => {
@@ -307,7 +307,7 @@ test.each([
   expect(pofi.asset).toBe(`/pofi/states/${scenario.state}.webp`);
   if (scenario.message) expect(pofi.message).toBe(scenario.message);
   if (scenario.state === "overworked") {
-    expect(pofi.title).toBe("Hedefin üzerindesin.");
+    expect(pofi.title).toBe("Süre hedefin üzerinde.");
     expect(pofi.message).toBe("Farkı bir kenara not ettim.");
   }
 });

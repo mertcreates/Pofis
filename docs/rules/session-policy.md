@@ -40,4 +40,3 @@ Başka ürün kuralına bağlı değildir.
 - [session-manager.test.js](../../src/server/session-manager.test.js)
 - [routes.test.js](../../src/server/routes.test.js)
 - [http.test.js](../../src/server/http.test.js)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

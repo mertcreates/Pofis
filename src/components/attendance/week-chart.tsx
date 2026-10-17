@@ -69,7 +69,7 @@ export function WeekChart({
           {visible.map((day) => {
             const { recorded, estimated, total } = day.source;
             const live = day.liveSeconds !== null;
-            const label = `${formatDate(day.date)}: ${ui.recordedTime} ${day.recordedSeconds === null ? ui.noRecordedDuration : durationText(recorded)}${live ? `, ${ui.liveEstimateLabel} ${durationText(total)}` : ""}`;
+            const label = `${formatDate(day.date)}: ${day.recordedSeconds === null ? ui.noRecordedDuration : `${ui.recordedTime} ${durationText(recorded)}`}${live ? `, ${ui.liveTotalLabel} ${durationText(total)}` : ""}`;
             return (
               <div
                 key={day.date}
@@ -125,7 +125,7 @@ export function WeekChart({
                       </b>
                     </span>
                     <span>
-                      {ui.liveEstimateLabel}
+                      {ui.liveTotalLabel}
                       <b>{durationClock(total)}</b>
                     </span>
                   </span>

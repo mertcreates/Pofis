@@ -1,5 +1,4 @@
 import { dailyDurationState, dailyRecordState } from "./duration.js";
-import { durationText } from "../time";
 import { passageDay } from "./passages.js";
 import { ui } from "../../lib/ui-text.js";
 
@@ -48,21 +47,17 @@ function stateForProgress(progress, { isOpen = false } = {}) {
 
 function resolveBreakContext({ passages, day, today, isToday }) {
   if (!Array.isArray(passages) || !day?.date) {
-    return { uncertain: false, onBreak: false, lastExit: null };
+    return { uncertain: false, onBreak: false };
   }
   const passage = passageDay(passages, day.date, today ?? day.date);
   if (passage.uncertain) {
-    return { uncertain: true, onBreak: false, lastExit: null };
+    return { uncertain: true, onBreak: false };
   }
   const onBreak =
     Boolean(isToday) &&
     passage.openEntry === null &&
     passage.intervals.length > 0;
-  const lastExit = onBreak
-    ? (passage.events.findLast((event) => event.direction === "out")?.time ??
-      null)
-    : null;
-  return { uncertain: false, onBreak, lastExit };
+  return { uncertain: false, onBreak };
 }
 
 /**
@@ -142,10 +137,6 @@ export function pofiNote({
         percentage,
         basis: "recorded",
         badge,
-        message: ui.pofi.breakRemaining(
-          durationText(remaining),
-          breakContext.lastExit,
-        ),
       });
     }
 

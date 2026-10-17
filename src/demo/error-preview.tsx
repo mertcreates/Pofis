@@ -24,14 +24,14 @@ function sampleError(scenario: Scenario, attempt: number) {
     } }, "runtime");
     case "connection": return toRequestFailure({ code: "CONNECTION_FAILED", status: 502, details: {
       ...details, method: "GET", path: "/PizzyKurumWeb/Giris.aspx",
-      causeCode: "ENOTFOUND", diagnostic: "PDKS sunucusunun adresi çözümlenemedi.",
+      causeCode: "ENOTFOUND", diagnostic: ui.sourceErrors.connectionNameUnresolved,
     } }, "connect");
     case "upstream": return toRequestFailure({ code: "SOURCE_ERROR", status: 502, details: {
       ...details, method: "GET", path: "/PizzyKurumWeb/Giris.aspx",
       sourceStatus: 500, diagnostic: "PDKS bir HTTP hata yanıtı verdi.",
     } }, "connect");
     case "internal": return toRequestFailure({ code: "INTERNAL_ERROR", status: 500, details: {
-      ...details, type: "UnexpectedError", diagnostic: "Uygulama sunucusunda beklenmeyen bir hata oluştu.",
+      ...details, type: "UnexpectedError", diagnostic: ui.apiErrors.unexpectedServerError,
     } }, "connect");
   }
 }

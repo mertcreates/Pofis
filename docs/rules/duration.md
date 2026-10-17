@@ -10,6 +10,8 @@ Arayüz: `dailyDurationState`, `dailyRecordState`, `durationTotals`.
 
 ## Sözleşme
 
+Arayüzde **Kayıtlı süre**, ilk giriş ile son çıkış arasındaki süreyi; **Canlı toplam**, güvenilir açık giriş varken ilk girişten şimdiki ana kadar olan süreyi; **Ek tahmin**, canlı toplamın kayıtlı süreyi aşan bölümünü adlandırır. Grafik ayrıntısındaki canlı toplam ile çubuğun ek tahmin bölümü bu adlarla ayrılır. Tahmin içeren haftalık toplam “tahmin dahil” ifadesini taşır.
+
 Canlı toplam ilk girişten şimdiki İstanbul saatine kadar geçen süredir. Yalnız bugün, güncel rapor, geçerli ilk giriş ve güvenilir son açık giriş varsa kullanılır. Günlük özet ve açık giriş aynı zorunlu hareket listesinden üretilir. Şimdiki an açık girişten önceyse veya canlı toplam kayıtlı sürenin gerisindeyse kayıtlı sonuca dönülür. Ek tahmin = canlı toplam − kayıtlı süre; bir kez burada hesaplanır. Bilinmeyen kayıt sıfır çalışılmış sayılmaz.
 
 08:00 giriş / 12:00 çıkış / 13:00 giriş / 15:00 şimdi → 4 saat kayıtlı + 3 saat ek tahmin = 7 saat. Ara molalar hesaplanmaz veya düşülmez. Son hareket çıkışsa veya hareketler belirsizse ek tahmin durur.
@@ -32,4 +34,3 @@ Canlı toplam ilk girişten şimdiki İstanbul saatine kadar geçen süredir. Ya
 
 - [rules.test.ts](../../src/domain/rules/rules.test.ts)
 - [report.test.ts](../../src/domain/report.test.ts)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

@@ -28,4 +28,3 @@ Kaynak footer'daki sürüm notu `versionRevealTaps: 5` dokunuşla `versionWindow
 ## Testler
 
 - [rules.test.ts](../../src/domain/rules/rules.test.ts)
-- [Tarayıcı kabulü](../../scripts/acceptance/archive-behavior.js)

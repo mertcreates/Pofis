@@ -57,8 +57,8 @@ Rapor hazırlığı veya saat izdüşümündeki beklenmeyen istisnalar [Dashboar
 
 ## Doğrulama
 
-[Hata ve HTTP okuma testleri](../src/lib/pdks-failure.test.ts), [durum geçişleri](../src/data/pdks-state.test.ts), [kullanıcı sunumu](../src/components/pdks-error.test.tsx), [sunucu serileştirme](../src/server/http.test.js) ve [route/oturum testleri](../src/server/routes.test.js) sözleşmeyi korur. [Fixture kabulü](../scripts/acceptance/archive-behavior.js) sentetik API yanıtları kullanır; gerçek PDKS erişimini kanıtlamaz.
+[Hata ve HTTP okuma testleri](../src/lib/pdks-failure.test.ts), [durum geçişleri](../src/data/pdks-state.test.ts), [sunucu serileştirme](../src/server/http.test.js) ve [route/oturum testleri](../src/server/routes.test.js) sözleşmeyi korur.
 
-Tarayıcıda hata zinciri için `bun run dev` yanında `bun scripts/acceptance/pdks-errors.mjs` çalıştırılır; yeni sekmede `http://127.0.0.1:3101` açılır. Tüm API istekleri sentetiktir. Sıra: ilk oturum kontrolü hatası → tekrar kontrol → yanlış şifre → kaynak bağlantı hatası → girişe dön → başarılı giriş → bozuk 401 rapor yanıtı → kaynak 500 → başarılı rapor → çıkış hatası → çelişkili başarılı çıkış yanıtı → çıkışı tekrar deneme → tekrar giriş → oturum bitişi. Akışı baştan almak için yalnız fixture süreci yeniden başlatılır.
+Arayüzdeki hata ve bildirim metinlerini [demo](demo.md) üzerinden kontrol edin: hata ekranı → girişe dönüş, yeniden deneme, rapor/çıkış hataları ve yerel depolama bildirimleri. Demo gerçek PDKS erişimini kanıtlamaz. Gerçek giriş → rapor → yenileme → çıkış ve oturum bitişi kabulünü [görev listesine](../tasks/todo.md) göre kurum ortamında yapın.
 
 [Oturum yanıtı testleri](../src/lib/session-response.test.ts), [heartbeat testleri](../src/lib/session-heartbeat.test.js) ve [rapor sınırı testleri](../src/data/report-response.test.ts) bozuk başarılı yanıtları da kapsar. Rapor yönü yalnız `in` veya `out` metni olabilir; dizi veya başka türden değer metne çevrilerek kabul edilmez.
