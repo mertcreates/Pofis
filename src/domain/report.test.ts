@@ -8,6 +8,29 @@ import { pofiNotesForWeek } from "@/server/pofi-notes.js";
 
 const now = Date.parse("2026-10-16T15:00:00+03:00");
 
+test("kaydedilmiş sıfır açık Cuma borcu ve hedef çıkışı rapora/Pofi'ye taşır", () => {
+  const report = fixture();
+  report.passages = ["20:00:00", "20:00:00", "16:00:00", "15:00:00"].flatMap((time, day) => [
+    { date: `2026-10-${12 + day}`, time: "08:00:00", direction: "in" as const },
+    { date: `2026-10-${12 + day}`, time, direction: "out" as const },
+  ]);
+  const plan = readDayPlan([480,480,480,450,0,0,0])!;
+  const target = 39.5 * 3600;
+  const awaiting = presentReport(report, plan, now, false, target, [4]);
+  expect(awaiting.days[4].state).toBe("awaiting-entry");
+  expect(awaiting.days[4].source.workingDay).toBe(true);
+  expect(awaiting.days[4].source.dailyGoalSeconds).toBe(1800);
+  report.passages.push({ date: "2026-10-16", time: "08:00:00", direction: "in" });
+  const running = presentReport(report, plan, Date.parse("2026-10-16T08:15:00+03:00"), false, target, [4]);
+  expect(running.days[4].source.exitGoalSeconds).toBe(1800);
+  expect(running.days[4].firstEntry! + running.days[4].source.exitGoalSeconds! * 1000)
+    .toBe(Date.parse("2026-10-16T08:30:00+03:00"));
+  expect(running.days[4].source.pofi.percentage).toBe(50);
+  const closed = presentReport({ ...report, passages: report.passages.slice(0,-1) }, plan, now, false, target);
+  expect(closed.days[4].state).toBe("non-working");
+  expect(closed.days[4].source.exitGoalSeconds).toBeNull();
+});
+
 test("Cuma izni 32 saat hedefini ve Perşembe 5:20 çıkış hesabını rapora taşır", () => {
   const report = fixture();
   report.passages = ["17:00:00", "17:00:00", "16:40:00"].flatMap((time, index) => [

@@ -62,8 +62,21 @@ export function readStoredPlans(raw) {
     if (!isPlanWeek(week) || !days) throw new Error("Kayıtlı izin günleri geçersiz. Kayıt korunuyor.");
     if (days.length) weekLeaves[week] = days;
   }
+  if (stored.weekZeroOpenDays !== undefined && (!stored.weekZeroOpenDays || typeof stored.weekZeroOpenDays !== "object" || Array.isArray(stored.weekZeroOpenDays)))
+    throw new Error("Kayıtlı açık günler geçersiz. Kayıt korunuyor.");
+  /** @type {NonNullable<import('../domain/rules/work-plan').WorkPlans['weekZeroOpenDays']>} */
+  const weekZeroOpenDays = {};
+  for (const [week, value] of Object.entries(stored.weekZeroOpenDays ?? {})) {
+    const days = readLeaveDays(value);
+    if (!isPlanWeek(week) || !days || days.some(day => weekLeaves[week]?.includes(day)))
+      throw new Error("Kayıtlı açık günler geçersiz. Kayıt korunuyor.");
+    const plan = weekOverrides[week] ?? defaultPlan;
+    const zeroDays = days.filter(day => plan[day] === 0);
+    if (zeroDays.length) weekZeroOpenDays[week] = zeroDays;
+  }
   return { defaultPlan, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
-    ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}) };
+    ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}),
+    ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}) };
 }
 
 /** @param {import('../domain/rules/work-plan').WorkPlans} plans */

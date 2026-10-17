@@ -42,6 +42,23 @@ test("zero required duration from carryover keeps the open day editable", () => 
   expect($(".work-plan-reopen")).toHaveLength(0);
 });
 
+test.each([0,1800])("kaydedilmiş sıfır açık Cuma, devir %s saniyeyken kartta ve stepper'da aynı süreyi sunar", required => {
+  const days: PlanDay[] = Array.from({ length: 7 }, (_, day) => ({
+    date: `2026-10-${12 + day}`, state: day < 4 ? "recorded" : "awaiting-entry",
+    recordedSeconds: day < 4 ? [43200,43200,28800,25200][day] : null,
+  }));
+  const $ = load(renderToStaticMarkup(<PlanEditor plan={[480,480,480,450,0,0,0]} defaultPlan={DEFAULT_WORK_PLAN}
+    days={days} special ready week="2026-10-12" today="2026-10-16" error="" targetSeconds={39 * 3600 + required} zeroOpenDays={[4]}
+    onSave={() => true} onSaveDefault={() => true} onReset={() => true} onClose={() => {}} />));
+  const text = required === 0 ? "0 sa" : "30 dk";
+  expect($(".work-plan-days > button").last().attr("data-open")).toBe("true");
+  expect($(".work-plan-days > button").last().attr("aria-pressed")).toBe("true");
+  expect($(".work-plan-days > button").last().find(".work-plan-day-time").text()).toBe(text);
+  expect($(".work-plan-stepper output").text()).toBe(text);
+  expect($(".work-plan-day-action").text()).toBe("İzin");
+  expect($(".work-plan-closed-status")).toHaveLength(0);
+});
+
 test("completed day keeps recorded duration and hides editing actions", () => {
   const $ = render(DEFAULT_WORK_PLAN, [
     { date: "2026-10-16", state: "recorded", recordedSeconds: 8 * 3600 },

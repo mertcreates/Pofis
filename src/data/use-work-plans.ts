@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { savePlans } from "@/lib/plan-storage.js";
 import { readWorkPlans, workPlanStorage, type PlanScope } from "./work-plans";
 import {
-  emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, changeWeekPlan, changeDefaultPlan,
+  emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, changeWeekPlan, changeDefaultPlan,
   type WorkPlan, type WorkPlans,
 } from "@/domain/rules/work-plan";
 import { ui } from "@/lib/ui-text.js";
@@ -44,7 +44,8 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
     targetSeconds: resolveStoredTarget(plans, week),
     defaultPlan: plans.defaultPlan,
     leaveDays: resolveLeaveDays(plans, week),
-    special: Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length),
+    zeroOpenDays: resolveZeroOpenDays(plans, week),
+    special: Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length || plans.weekZeroOpenDays?.[week]?.length),
     ready,
     error,
     save: (plan: WorkPlan, completed: readonly (number | null)[], targetSeconds?: number, leaveDays?: readonly number[]) => persist(current => changeWeekPlan(current, week, plan, completed, targetSeconds, leaveDays)),

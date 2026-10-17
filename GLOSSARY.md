@@ -26,7 +26,7 @@ Güncel gereken çalışma süresi; haftalık hedef ve tamamlanan günlerin kay�
 Tamamlanan günlerin gerçekleşen süreleri ile kayıtlı günlük planları arasındaki net farkın kalan uygun günlere aktarılması.
 
 **Haftalık hedef**:
-Hafta için belirlenen, izin karşılıkları düşülmüş toplam çalışma süresi. Elle süre düzenlemesi, izin, Sıfırla veya Tamamla eylemiyle güncellenir. Ayrıntılar [plan sözleşmesindedir](docs/rules/work-plan.md).
+Hafta için belirlenen, izin karşılıkları düşülmüş toplam çalışma süresi.
 
 **İzinli gün**:
 Kullanıcının haftalık planda izin olarak kapattığı gün. Haftalık hedeften o günün güncel varsayılan şablondaki süresi düşülür.
@@ -59,9 +59,14 @@ _Avoid_: Hedef durumu, mesai onayı
 Kaynak yenilemesi başarısız olduğu için güncelliği doğrulanamayan son rapor.
 _Avoid_: Güncel rapor, oturumu bitmiş rapor
 
-**Seçili çalışma günü**:
-Kullanıcının mesai planına dahil ettiği hafta günü.
-_Avoid_: Not defteri günü
+**Açık çalışma günü**:
+Mesai planına dahil olan hafta günü. Gereken süresi sıfır olsa da çalışma planında açıktır.
+
+**Kapalı gün**:
+Çalışma planına dahil olmayan gün. Haftalık izinli gün ve varsayılan şablonda kapalı gün bu kapsamdadır.
+
+**Seçili gün**:
+Plan düzenleyicisinde ayrıntıları ve süre kontrolleri gösterilen gün.
 
 **Pofi notu**:
 Mesai kaydından bağımsız, belirli bir tarih ve kişi anahtarı için seçilen günlük metni.

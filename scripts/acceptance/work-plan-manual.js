@@ -46,6 +46,19 @@ async (page) => {
     check(JSON.stringify((await stored()).weekOverrides["2026-10-12"]) === JSON.stringify([480,480,240,600,600,0,0]),
       "Selecting Wednesday must exclude it while Thursday and Friday are eligible");
     await page.keyboard.press("Escape");
-    return { passed: true, fixturesOnly: true, checks: ["selected Thursday preserved", "selection changes recipients", "selected Wednesday preserved after reload"] };
+    await page.evaluate(() => localStorage.setItem("pofis:work-plans:v2", JSON.stringify({
+      defaultPlan: [480,480,480,480,480,0,0], weekOverrides: { "2026-10-12": [480,480,480,480,540,0,0] },
+    })));
+    await page.reload();
+    await page.getByText("ELLE PLAN KABUL", { exact: true }).waitFor();
+    await open();
+    await day("Cuma").click();
+    await page.getByRole("button", { name: "40 saate tamamla", exact: true }).click();
+    check(!(await stored()).weekOverrides["2026-10-12"], "Surplus must reduce selected Friday from nine to eight hours");
+    check(await page.locator(".work-plan-stepper output").innerText() === "8 sa", "Selected Friday must show its reduced duration");
+    await day("Perşembe").click();
+    check(await page.locator(".work-plan-stepper output").innerText() === "8 sa", "Reduction must keep Thursday at eight hours");
+    await page.keyboard.press("Escape");
+    return { passed: true, fixturesOnly: true, checks: ["selected Thursday preserved on addition", "selection changes addition recipients", "selected Wednesday preserved after reload", "surplus reduces selected Friday first"] };
   } finally { await context.close(); }
 }

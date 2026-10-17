@@ -10,9 +10,12 @@ export type WorkPlans = {
   // Gross seconds before leave; resolveStoredTarget deducts the current template allowance.
   weekTargets?: Record<string, number>;
   weekLeaves?: Record<string, readonly number[]>;
+  // A computed zero duration keeps its open-day intent when materialized and saved.
+  weekZeroOpenDays?: Record<string, readonly number[]>;
 };
 export const PLAN_LIMITS = Object.freeze({ stepMinutes: 30, maxDailyMinutes: 960 });
 export const DEFAULT_WORK_PLAN: WorkPlan = Object.freeze([480, 480, 480, 480, 480, 0, 0]);
+const NO_PLAN_DAYS: readonly number[] = Object.freeze([]);
 
 export function emptyWorkPlans(): WorkPlans {
   return { defaultPlan: DEFAULT_WORK_PLAN, weekOverrides: {} };
@@ -54,7 +57,15 @@ export function readLeaveDays(value: unknown): number[] | null {
 }
 
 export function resolveLeaveDays(plans: WorkPlans, week: string): readonly number[] {
-  return plans.weekLeaves?.[week] ?? [];
+  return plans.weekLeaves?.[week] ?? NO_PLAN_DAYS;
+}
+
+export function resolveZeroOpenDays(plans: WorkPlans, week: string): readonly number[] {
+  return plans.weekZeroOpenDays?.[week] ?? NO_PLAN_DAYS;
+}
+
+export function isOpenPlanDay(plan: WorkPlan, day: number, zeroOpenDays: readonly number[] = []): boolean {
+  return day >= 0 && day < WORKING_DAY_COUNT && (plan[day] > 0 || zeroOpenDays.includes(day));
 }
 
 function leaveSeconds(defaultPlan: WorkPlan, leaveDays: readonly number[]): number {
@@ -103,19 +114,29 @@ export function changeWeekPlan(plans: WorkPlans, week: string, plan: WorkPlan | 
   const weekLeaves = { ...plans.weekLeaves };
   if (leaveDays.length) weekLeaves[week] = [...leaveDays];
   else delete weekLeaves[week];
-  const { weekTargets: _, weekLeaves: __, ...rest } = plans;
+  const weekZeroOpenDays = { ...plans.weekZeroOpenDays };
+  const previousZeroOpenDays = resolveZeroOpenDays(plans, week);
+  const zeroOpenDays = plan.flatMap((minutes, day) => minutes === 0 && !leaveDays.includes(day) &&
+    isOpenPlanDay(previous, day, previousZeroOpenDays) && (!reset || completed[day] != null) ? [day] : []);
+  if (zeroOpenDays.length) weekZeroOpenDays[week] = zeroOpenDays;
+  else delete weekZeroOpenDays[week];
+  const { weekTargets: _, weekLeaves: __, weekZeroOpenDays: ___, ...rest } = plans;
   return { ...rest, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
-    ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}) };
+    ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}),
+    ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}) };
 }
 
 export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?: string, completed: readonly (number | null)[] = []): WorkPlans {
   if (!readDayPlan(defaultPlan)) throw new Error("Geçersiz varsayılan plan");
   const weekOverrides = { ...plans.weekOverrides };
   const weekTargets = { ...plans.weekTargets };
+  const weekZeroOpenDays = { ...plans.weekZeroOpenDays };
   if (week) {
     const leaves = resolveLeaveDays(plans, week);
     const previous = resolveStoredPlan(plans, week);
-    const customRemainingDays = previous.some((minutes, day) => completed[day] == null && !leaves.includes(day) && minutes !== plans.defaultPlan[day]);
+    const zeroOpenDays = resolveZeroOpenDays(plans, week);
+    const customRemainingDays = previous.some((minutes, day) => completed[day] == null && !leaves.includes(day) &&
+      (minutes !== plans.defaultPlan[day] || zeroOpenDays.includes(day)));
     const previousTarget = resolveStoredTarget(plans, week);
     const customTarget = previousTarget !== referenceWeekTarget(plans.defaultPlan, leaves);
     if (!customRemainingDays && !customTarget) {
@@ -131,12 +152,19 @@ export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?
       else weekTargets[week] = grossTarget;
     }
   }
+  for (const [key, days] of Object.entries(weekZeroOpenDays)) {
+    const plan = weekOverrides[key] ?? defaultPlan;
+    const remaining = days.filter(day => plan[day] === 0);
+    if (remaining.length) weekZeroOpenDays[key] = remaining;
+    else delete weekZeroOpenDays[key];
+  }
   return {
     defaultPlan,
     weekOverrides: Object.fromEntries(Object.entries(weekOverrides)
       .filter(([, plan]) => !samePlan(plan, defaultPlan))),
     ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
     ...(plans.weekLeaves ? { weekLeaves: plans.weekLeaves } : {}),
+    ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}),
   };
 }
 
@@ -176,16 +204,17 @@ export function completedDaySeconds(days: readonly PlanDay[], week: string, toda
   return completed;
 }
 
-export function planAdjustmentDays(days: readonly PlanDay[], plan: WorkPlan, week: string, today: string): boolean[] {
+export function planAdjustmentDays(days: readonly PlanDay[], plan: WorkPlan, week: string, today: string, zeroOpenDays: readonly number[] = []): boolean[] {
   const completed = completedDaySeconds(days, week, today);
-  return weekDates(week).map((date, index) => date >= today && plan[index] > 0 && completed[index] === null &&
+  return weekDates(week).map((date, index) => date >= today && isOpenPlanDay(plan, index, zeroOpenDays) && completed[index] === null &&
     days.find(day => day.date === date)?.state !== "uncertain");
 }
 
-export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today: string, partial = false, targetSeconds = weeklyTarget(plan)) {
+export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today: string, partial = false, targetSeconds = weeklyTarget(plan), zeroOpenDays: readonly number[] = []) {
   const week = weekStart(days[0]?.date ?? today);
   const completed = completedDaySeconds(days, week, today);
-  const eligible = planAdjustmentDays(days, plan, week, today);
+  const workingDays = plan.map((_, day) => isOpenPlanDay(plan, day, zeroOpenDays));
+  const eligible = planAdjustmentDays(days, plan, week, today, zeroOpenDays);
   const openDays = plan.flatMap((_, day) => eligible[day] ? [day] : []);
   const lastWorkingDay = openDays.at(-1) ?? null;
   const required = plan.map(minutes => Math.round(minutes * 60));
@@ -202,7 +231,7 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
   const todayIndex = days.findIndex(day => day.date === today);
   const dailySeconds = todayIndex === -1 ? 0 : targets[todayIndex];
   const blocked = days.some(day => day.date <= today && (day.state === "uncertain" || day.state === "missing"));
-  const exitGoal = !partial && todayIndex !== -1 && plan[weekday(today)] > 0 && days[todayIndex].state !== "uncertain"
+  const exitGoal = !partial && todayIndex !== -1 && workingDays[weekday(today)] && days[todayIndex].state !== "uncertain"
     ? dailySeconds : null;
   const displaySeconds = plan.map((minutes, index) => {
     if (completed[index] !== null) return completed[index]!;
@@ -210,7 +239,7 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
     return dayIndex === -1 ? Math.round(minutes * 60) : targets[dayIndex];
   });
   const projectedWeeklySeconds = displaySeconds.reduce((sum, seconds) => sum + seconds, 0);
-  return { targets, plan, completed, eligible, displaySeconds, unallocatedSeconds, projectedWeeklySeconds, lastWorkingDay, weeklySeconds: targetSeconds, dailySeconds, blocked, exitGoal };
+  return { targets, plan, workingDays, completed, eligible, displaySeconds, unallocatedSeconds, projectedWeeklySeconds, lastWorkingDay, weeklySeconds: targetSeconds, dailySeconds, blocked, exitGoal };
 }
 
 export function editRequiredMinutes(plan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, updates: readonly { day: number; minutes: number }[], defaultPlan = DEFAULT_WORK_PLAN, leaveDays: readonly number[] = []) {
@@ -247,8 +276,7 @@ export function completeWeekPlan(plan: WorkPlan, defaultPlan: WorkPlan, resolved
   const reducing = difference < 0;
   const eligible = plan.flatMap((_, day) => resolved.eligible[day] && !leaveDays.includes(day) ? [day] : []);
   const otherDays = eligible.filter(day => day !== selectedDay);
-  let recipients = otherDays.length > 0 ? otherDays : eligible;
-  if (reducing) recipients.reverse();
+  let recipients = reducing ? [...eligible].reverse() : otherDays.length > 0 ? otherDays : eligible;
   while (difference !== 0) {
     let changed = false;
     for (const day of recipients) {

@@ -102,11 +102,9 @@ const DayRow = memo(function DayRow({
 });
 export const ReportTable = memo(function ReportTable({
   days,
-  plan,
   today,
 }: {
   days: DayReport[];
-  plan: number[];
   today: string;
 }) {
   return (
@@ -136,12 +134,12 @@ export const ReportTable = memo(function ReportTable({
           </tr>
         </thead>
         <tbody>
-          {days.map((day, i) => (
+          {days.map(day => (
             <DayRow
               key={day.date}
               day={day}
               today={today}
-              working={plan[i] > 0}
+              working={day.source.workingDay}
               target={day.source.goalSeconds}
             />
           ))}

@@ -11,6 +11,28 @@ import { DEFAULT_WORK_PLAN, readDayPlan } from "@/domain/rules/work-plan";
 import { demoClock, previewDemoReport } from "@/demo/navigation";
 import { DashboardMetrics } from "../dashboard/metrics";
 
+test("sıfır planlı açık gün rapor, grafik ve yüzde göstergesinde çalışma günü kalır", () => {
+  const today = "2026-10-16";
+  const report: Report = { person: { id: "self", name: "Fixture", unit: "", title: "" },
+    from: "2026-10-12", to: "2026-10-18", fetchedAt: `${today}T05:15:00Z`,
+    passages: ["20:00:00", "20:00:00", "16:00:00", "15:00:00"].flatMap((time, day) => [
+      { date: `2026-10-${12 + day}`, time: "08:00:00", direction: "in" as const },
+      { date: `2026-10-${12 + day}`, time, direction: "out" as const },
+    ]),
+  };
+  const at = Date.parse(`${today}T08:15:00+03:00`);
+  const plan = readDayPlan([480,480,480,450,0,0,0])!;
+  const waiting = presentReport(report, plan, at, false, 39.5 * 3600, [4]);
+  const chart = load(renderToStaticMarkup(<WeekChart days={waiting.days} today={today} start={report.from} current />));
+  expect(chart(".chart-column")).toHaveLength(5);
+  report.passages.push({ date: today, time: "08:00:00", direction: "in" });
+  const view = presentReport(report, plan, at, false, 39.5 * 3600, [4]);
+  const metrics = load(renderToStaticMarkup(<DashboardMetrics days={view.days} plan={view.plan} today={today} isCurrent targetSeconds={39.5 * 3600} />));
+  expect(metrics(".metric-tag").first().text()).toBe("%50");
+  const table = load(renderToStaticMarkup(<ReportTable days={view.days} today={today} />));
+  expect(table(".today-row td").last().text()).toBe("Mesai devam ediyor");
+});
+
 test("live report keeps three-part day flow and source chart with recorded and live totals", () => {
   const date = "2026-10-16";
   const now = Date.parse(`${date}T15:00:00+03:00`);
@@ -41,7 +63,6 @@ test("live report keeps three-part day flow and source chart with recorded and l
   const chart = renderToStaticMarkup(
     <WeekChart
       days={days}
-      plan={plan}
       today={date}
       start={report.from}
       current
@@ -70,7 +91,7 @@ test("live report keeps three-part day flow and source chart with recorded and l
   expect(records).toContain("08:00:00");
   expect(records).toContain("12:00:00");
   const table = renderToStaticMarkup(
-    <ReportTable days={days} plan={plan} today={date} />,
+    <ReportTable days={days} today={date} />,
   );
   expect(table).toContain('aria-expanded="false"');
   expect(table).toContain(`id="day-passages-${date}"`);
@@ -91,7 +112,7 @@ test("report status separates target deficit from uncertain passages and shares 
   );
   const table = load(
     renderToStaticMarkup(
-      <ReportTable days={days} plan={plan} today="2026-10-16" />,
+      <ReportTable days={days} today="2026-10-16" />,
     ),
   );
   const rows = table("tbody > tr:not(.report-detail-row)");
@@ -128,7 +149,7 @@ test("devirli gün kartları, çıkış saati ve tablonun hedef farkı aynı etk
   expect(metrics(".metric-tag").map((_, element) => metrics(element).text()).get()).toEqual(["%100", "%100"]);
   expect(metrics('.metric-value time[title="15:15:00"]')).toHaveLength(1);
   expect(metrics(".metric").first().find(".metric-facts dd").text()).toBe("7 sa 15 dk");
-  const table = load(renderToStaticMarkup(<ReportTable days={view.days} plan={view.plan} today="2026-10-16" />));
+  const table = load(renderToStaticMarkup(<ReportTable days={view.days} today="2026-10-16" />));
   expect(table(".today-row .report-difference").text()).toBe("Hedefle aynı");
   expect(table(".report-difference").first().text()).toBe("30 dk fazla");
 });
@@ -146,7 +167,7 @@ test("tamamlanan günün tablo farkı özgün plandan gelir; kapalı gündeki me
     ],
   };
   const view = presentReport(report, readDayPlan([240, 480, 480, 480, 480, 0, 0])!, Date.parse(`${today}T15:00:00+03:00`), false);
-  const table = load(renderToStaticMarkup(<ReportTable days={view.days} plan={view.plan} today={today} />));
+  const table = load(renderToStaticMarkup(<ReportTable days={view.days} today={today} />));
   expect(table(".report-difference").eq(0).text()).toBe("4 sa 30 dk 17 sn fazla");
   expect(table(".report-difference").eq(5).text()).toBe("1 sa 20 dk fazla");
   expect(view.days[0].source.goalSeconds).toBe(14400);
@@ -169,7 +190,7 @@ test("stale open entry retains its last direction without claiming live work or 
     true,
   );
   const table = load(
-    renderToStaticMarkup(<ReportTable days={days} plan={plan} today={date} />),
+    renderToStaticMarkup(<ReportTable days={days} today={date} />),
   );
   const flow = load(
     renderToStaticMarkup(<DayFlow day={days[4]} target={null} />),
@@ -193,7 +214,6 @@ test("source chart retains captured durations, empty days and record notice with
     renderToStaticMarkup(
       <WeekChart
         days={days}
-        plan={plan.map((minutes) => (minutes > 0 ? 1440 : 0))}
         today="2026-10-16"
         start="2026-10-12"
         current

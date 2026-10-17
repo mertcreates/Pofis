@@ -16,6 +16,23 @@ function storage(initial: Record<string, string> = {}) {
   };
 }
 
+test("sıfır süreli açık günler doğrulanır; izinle çelişki reddedilir, gereksiz işaretler temizlenir", () => {
+  const week = "2026-10-12";
+  for (const weekZeroOpenDays of [null, [], { [week]: null }, { [week]: [4,4] }, { [week]: [5] },
+    { [week]: [-1] }, { [week]: [0.5] }, { [week]: ["4"] }, { "2026-10-13": [4] }]) {
+    const raw = JSON.stringify({ ...emptyWorkPlans(), weekZeroOpenDays });
+    const store = storage({ [PLAN_STORAGE_KEY]: raw });
+    expect(() => readWorkPlans(store)).toThrow("açık gün");
+    expect(store.getItem(PLAN_STORAGE_KEY)).toBe(raw);
+  }
+  const conflict = JSON.stringify({ ...emptyWorkPlans(), weekZeroOpenDays: { [week]: [4] }, weekLeaves: { [week]: [4] } });
+  expect(() => readWorkPlans(storage({ [PLAN_STORAGE_KEY]: conflict }))).toThrow("açık gün");
+  for (const days of [[], [4]]) {
+    const store = storage({ [PLAN_STORAGE_KEY]: JSON.stringify({ ...emptyWorkPlans(), weekZeroOpenDays: { [week]: days } }) });
+    expect(readWorkPlans(store)).toEqual(emptyWorkPlans());
+  }
+});
+
 test("izin günü ve izin öncesi hedef yeniden okunur; karşılık bir kez düşülür ve güncel şablonu izler", () => {
   const store = storage();
   const week = "2026-10-12";

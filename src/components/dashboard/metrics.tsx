@@ -33,7 +33,7 @@ export function DashboardMetrics({
       ? targetExitAt(day.firstEntry, exitGoal)
       : null;
   const percent =
-    day && day.firstEntry !== null && day.state !== "uncertain" && day.source.plannedGoalSeconds > 0
+    day && day.firstEntry !== null && day.state !== "uncertain" && day.source.workingDay
       ? percentage(todaySeconds, dailyGoal)
       : null;
   const weeklyPercent = target > 0 ? percentage(summary.totalSeconds, target) : null;
@@ -173,7 +173,7 @@ export function DashboardMetrics({
             icon="target"
             foot={
               <>
-                {ui.planner.workingDayCount(plan.filter(minutes => minutes > 0).length)}
+                {ui.planner.workingDayCount(days.filter(day => day.source.workingDay).length)}
               </>
             }
           >

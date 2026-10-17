@@ -17,6 +17,7 @@ export type DayReport = {
   liveSeconds: number | null;
   issues: string[];
   source: {
+    workingDay: boolean;
     plannedGoalSeconds: number;
     goalSeconds: number;
     dailyGoalSeconds: number;

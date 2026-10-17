@@ -69,8 +69,8 @@ export function DashboardView({
   const firstWeek = data.kind === "demo" ? data.firstWeek : undefined;
   const prepared = useMemo(() => {
     if (!source) return null;
-    return prepareReport(source, workPlans.plan, today, stale, workPlans.targetSeconds);
-  }, [source, workPlans.plan, workPlans.targetSeconds, today, stale]);
+    return prepareReport(source, workPlans.plan, today, stale, workPlans.targetSeconds, workPlans.zeroOpenDays);
+  }, [source, workPlans.plan, workPlans.targetSeconds, workPlans.zeroOpenDays, today, stale]);
   const presentation = useMemo(() => {
     return prepared ? prepared(now) : null;
   }, [prepared, now]);
@@ -194,7 +194,6 @@ export function DashboardView({
                     <div className="weekly-chart-list">
                       <WeekChart
                         days={days}
-                        plan={plan}
                         today={today}
                         start={week}
                         current={isCurrent}
@@ -208,11 +207,11 @@ export function DashboardView({
                       />
                     )}
                     {!isCurrent && (
-                      <ReportTable days={days} plan={plan} today={today} />
+                      <ReportTable days={days} today={today} />
                     )}
                   </div>
                   {isCurrent && (
-                    <ReportTable days={days} plan={plan} today={today} />
+                    <ReportTable days={days} today={today} />
                   )}
                 </section>
               ) : pdks?.failure ? null : busy ? (
@@ -235,6 +234,7 @@ export function DashboardView({
             days={days}
             defaultPlan={workPlans.defaultPlan}
             leaveDays={workPlans.leaveDays}
+            zeroOpenDays={workPlans.zeroOpenDays}
             special={workPlans.special}
             ready={workPlans.ready && source?.from === week}
             error={workPlans.error}

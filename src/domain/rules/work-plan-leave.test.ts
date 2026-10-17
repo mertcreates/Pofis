@@ -13,7 +13,7 @@ function source(seconds: readonly (number | null)[] = [32400,32400,31200,null,nu
     state: (recordedSeconds === null ? "awaiting-entry" : "recorded") as DayState, recordedSeconds }));
 }
 function resolve(plans: WorkPlans, records = source()) {
-  return resolveWeekPlan(records, resolveStoredPlan(plans, week), today, false, resolveStoredTarget(plans, week));
+  return resolveWeekPlan(records, resolveStoredPlan(plans, week), today, false, resolveStoredTarget(plans, week), plans.weekZeroOpenDays?.[week]);
 }
 function edit(plans: WorkPlans, day: number, minutes: number, records = source()) {
   const resolved = resolve(plans, records);
@@ -159,13 +159,13 @@ test("Tamamla diğer günlerin kapasitesi tükenince seçili güne de ekler", ()
   expect(completeWeekPlan(plan, template, resolved, 2)).toEqual(template);
 });
 
-test("Tamamla azaltmada diğer günler sıfırlanınca seçili güne geçer; gerçek kapasite açığında sonuç üretmez", () => {
+test("Tamamla azaltmada seçili Cuma'dan başlar; gerçek kapasite açığında sonuç üretmez", () => {
   const plan = readDayPlan([480,480,480,60,480,0,0])!;
   const records = source([28800,28800,28800,null,null,null,null]);
   const resolved = resolveWeekPlan(records, plan, today, false, 33 * 3600);
   const template = readDayPlan([360,360,360,360,360,0,0])!;
   const next = completeWeekPlan(plan, template, resolved, 4)!;
-  expect(next.slice(3,5)).toEqual([0,360]);
+  expect(next.slice(3,5)).toEqual([60,300]);
   expect(resolveWeekPlan(records, next, today, false, 30 * 3600).projectedWeeklySeconds).toBe(30 * 3600);
   const impossible = completeWeekPlan(plan, readDayPlan([240,240,240,240,240,0,0])!, resolved, 4);
   expect(impossible).toBeNull();

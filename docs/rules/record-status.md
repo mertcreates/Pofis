@@ -31,6 +31,8 @@ Hedefin altında, hedefte veya üzerinde olmak kayıt bütünlüğünü değişt
 
 Kullanıcının [haftalık planda izinli işaretlediği](work-plan.md#izinli-gün) günün planı sıfırdır; çalışma günü seçimi kapalı gün kurallarını kullanır. Gerçek geçiş oluşursa aynı kayıt bütünlüğü kuralları uygulanır.
 
+Plan sahibinin sıfır süreli açık gün olarak işaretlediği gün, `workingDay` alanında açık olarak aktarılır ve çalışma günü kayıt durumlarını kullanır.
+
 Eski rapor canlı süre üretmez. Son açık giriş bilgisi korunur, `open` gösterilir ve mevcut rapor tazeliği uyarısı geçerli olur. Saat son girişe yetişmemişse de aynı tarafsız kayıt etiketi kullanılır. Yeni kaynak yanıtı veya İstanbul gününün değişmesi kayıt durumunu yeniden değerlendirir.
 
 ## Bağlı sonuçlar

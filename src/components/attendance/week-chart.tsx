@@ -15,22 +15,20 @@ import { weekday } from "@/domain/rules/calendar";
 import { useChartTooltip } from "./use-chart-tooltip";
 export function WeekChart({
   days,
-  plan,
   today,
   start,
   current,
   blocked = false,
 }: {
   days: DayReport[];
-  plan: number[];
   today: string;
   start: string;
   current: boolean;
   blocked?: boolean;
 }) {
   const visible = days.filter(
-    (day, i) =>
-      plan[i] > 0 || day.recordedSeconds !== null || day.liveSeconds !== null,
+    day =>
+      day.source.workingDay || day.recordedSeconds !== null || day.liveSeconds !== null,
   );
   const maximum = chartMaximum(visible.map(displayedSeconds), []);
   const hasLive = visible.some((day) => day.liveSeconds !== null);

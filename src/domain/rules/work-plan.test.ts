@@ -211,7 +211,7 @@ test("tamamla diğer uygun günlerin kapasitesini kullanır; fazlayı bu günler
     .toEqual([480,480,720,480,240,0,0]);
 });
 
-test("41:09:17 hedefi azaltılırken seçili Cuma korunur; fazla Perşembeden düşer", () => {
+test("41:09:17 hedefi azaltılırken fazla seçili Cuma'dan düşer", () => {
   const source = days([8,8,8,null,null,null,null]);
   source[0].recordedSeconds = 8 * 3600 + 3 * 60 + 31;
   source[1].recordedSeconds = 8 * 3600 + 42 * 60 + 29;
@@ -220,8 +220,8 @@ test("41:09:17 hedefi azaltılırken seçili Cuma korunur; fazla Perşembeden d�
   const resolved = resolveWeekPlan(source, DEFAULT_WORK_PLAN, "2026-10-15", false, targetSeconds);
   expect(resolved.displaySeconds.slice(3,5)).toEqual([28800,28800]);
   const next = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, resolved, 4)!;
-  expect(next[4]).toBe(480);
-  expect(Math.round(next[3] * 60)).toBe(6 * 3600 + 50 * 60 + 43);
+  expect(next[3]).toBe(480);
+  expect(Math.round(next[4] * 60)).toBe(6 * 3600 + 50 * 60 + 43);
   const after = resolveWeekPlan(source, next, "2026-10-15", false, 144000);
   expect(after.projectedWeeklySeconds).toBe(144000);
   expect(after.displaySeconds.slice(0,3)).toEqual(resolved.displaySeconds.slice(0,3));

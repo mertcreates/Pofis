@@ -3,7 +3,7 @@ import { Fragment, useId, useState } from "react";
 import { LockKeyhole } from "lucide-react";
 import { ui } from "@/lib/ui-text.js";
 import {
-  completeWeekPlan, editRequiredMinutes, referenceWeekTarget, resolveWeekPlan, setDayMinutes, weeklyTarget, DEFAULT_WORK_PLAN, PLAN_LIMITS, WORKING_DAY_COUNT, type WorkPlan, type PlanDay,
+  completeWeekPlan, editRequiredMinutes, isOpenPlanDay, referenceWeekTarget, resolveWeekPlan, setDayMinutes, weeklyTarget, DEFAULT_WORK_PLAN, PLAN_LIMITS, WORKING_DAY_COUNT, type WorkPlan, type PlanDay,
 } from "@/domain/rules/work-plan";
 import { weekLabel, durationText } from "@/domain/time";
 import { weekday, weekStart } from "@/domain/rules/calendar";
@@ -17,7 +17,7 @@ const planHours = (minutes: number) => minutes % 30 === 0
   ? `${(minutes / 60).toLocaleString("tr-TR")} sa` : durationText(Math.round(minutes * 60), false);
 
 export function PlanEditor({
-  plan, defaultPlan, days, special, ready, week, today, error, leaveDays = [], targetSeconds = weeklyTarget(plan), onSave, onSaveDefault, onReset, onClose,
+  plan, defaultPlan, days, special, ready, week, today, error, leaveDays = [], zeroOpenDays = [], targetSeconds = weeklyTarget(plan), onSave, onSaveDefault, onReset, onClose,
 }: {
   plan: WorkPlan;
   defaultPlan: WorkPlan;
@@ -28,6 +28,7 @@ export function PlanEditor({
   today: string;
   error: string;
   leaveDays?: readonly number[];
+  zeroOpenDays?: readonly number[];
   targetSeconds?: number;
   onSave: (plan: WorkPlan, targetSeconds?: number, leaveDays?: readonly number[]) => boolean;
   onSaveDefault: (plan: WorkPlan) => boolean;
@@ -36,15 +37,16 @@ export function PlanEditor({
 }) {
   const [scope, setScope] = useState<"default" | "week">("week");
   const [selectedDay, setSelectedDay] = useState(() =>
-    plan[weekday(today)] > 0 ? weekday(today) : Math.max(0, plan.findLastIndex(minutes => minutes > 0)));
+    isOpenPlanDay(plan, weekday(today), zeroOpenDays) ? weekday(today)
+      : Math.max(0, plan.findLastIndex((_, day) => isOpenPlanDay(plan, day, zeroOpenDays))));
   const id = useId();
   const weekDays = days.filter(day => weekStart(day.date) === week);
-  const resolved = resolveWeekPlan(weekDays, plan, today, weekDays.length !== 7, targetSeconds);
+  const resolved = resolveWeekPlan(weekDays, plan, today, weekDays.length !== 7, targetSeconds, zeroOpenDays);
   const activePlan = scope === "default" ? defaultPlan : resolved.plan;
   const locked = scope === "week" && resolved.completed[selectedDay] !== null;
   const selectedSeconds = scope === "week" ? resolved.displaySeconds[selectedDay] : activePlan[selectedDay] * 60;
   const value = selectedSeconds / 60;
-  const closed = activePlan[selectedDay] === 0;
+  const closed = scope === "week" ? !resolved.workingDays[selectedDay] : activePlan[selectedDay] === 0;
   const onLeave = scope === "week" && leaveDays.includes(selectedDay);
   const reopenMinutes = defaultPlan[selectedDay] || DEFAULT_WORK_PLAN[selectedDay];
   const plannedTotal = scope === "week" ? targetSeconds : weeklyTarget(activePlan);
@@ -59,7 +61,7 @@ export function PlanEditor({
     (scope === "week" ? resolved.displaySeconds[day] / 60 : minutes) !== value);
   const resetTotal = referenceWeekTarget(defaultPlan, leaveDays.filter(day => resolved.completed[day] !== null));
   const canReset = targetSeconds !== resetTotal || leaveDays.some(day => resolved.completed[day] === null) || plan.some((minutes, day) =>
-    resolved.completed[day] === null && minutes !== defaultPlan[day]);
+    resolved.completed[day] === null && (minutes !== defaultPlan[day] || zeroOpenDays.includes(day)));
   const weekTitle = `${week === weekStart(today) ? ui.currentWeek : copy.selectedWeek} · ${weekLabel(week, true, today)}`;
 
   function saveManual(updates: readonly { day: number; minutes: number }[]) {
@@ -68,7 +70,7 @@ export function PlanEditor({
       return;
     }
     const changed = updates.filter(update => Math.round(update.minutes * 60) !== resolved.displaySeconds[update.day] ||
-      (update.minutes === 0 && plan[update.day] > 0));
+      (update.minutes === 0 && resolved.workingDays[update.day]));
     if (!changed.length) return;
     const next = editRequiredMinutes(plan, resolved, changed, defaultPlan, leaveDays);
     onSave(next.plan, next.targetSeconds, next.leaveDays);
@@ -111,17 +113,18 @@ export function PlanEditor({
           {activePlan.slice(0, WORKING_DAY_COUNT).map((minutes, day) => {
             const recorded = scope === "week" ? resolved.completed[day] : null;
             const leave = scope === "week" && leaveDays.includes(day);
+            const open = scope === "week" ? resolved.workingDays[day] : minutes > 0;
             const carried = scope === "week" && resolved.displaySeconds[day] !== minutes * 60;
             const displayedSeconds = recorded ?? (carried ? resolved.displaySeconds[day] : minutes * 60);
             const displayed = scope === "week" ? hours(displayedSeconds / 60) : planHours(minutes);
             return (
             <button key={day} type="button" className="work-plan-day"
-              data-open={minutes > 0 || recorded !== null} data-locked={recorded !== null} aria-pressed={selectedDay === day}
-              aria-label={`${ui.weekdays[day].long}, ${recorded !== null || minutes > 0 ? durationText(displayedSeconds) : (leave ? copy.onLeave : copy.closed).toLocaleLowerCase("tr-TR")}${recorded !== null ? `, ${copy.locked}` : ""}`}
+              data-open={open || recorded !== null} data-locked={recorded !== null} aria-pressed={selectedDay === day}
+              aria-label={`${ui.weekdays[day].long}, ${recorded !== null || open ? durationText(displayedSeconds) : (leave ? copy.onLeave : copy.closed).toLocaleLowerCase("tr-TR")}${recorded !== null ? `, ${copy.locked}` : ""}`}
               onClick={() => setSelectedDay(day)}>
               <span className="work-plan-day-label"><strong>{ui.weekdays[day].short}</strong>
                 {recorded !== null && <LockKeyhole size={10} aria-hidden="true" />}</span>
-              <span className="work-plan-day-time" title={durationText(displayedSeconds)}>{recorded !== null || minutes > 0
+              <span className="work-plan-day-time" title={durationText(displayedSeconds)}>{recorded !== null || open
                 ? displayed.split(/ (?=\d)/).map((part, index) => (
                   <Fragment key={index}>{index > 0 && " "}<span className="work-plan-duration-part">{part}</span></Fragment>
                 ))

@@ -1,5 +1,5 @@
 import { summarize } from "./rules/recorded-time.js";
-import { resolveWeekPlan, planMinutes, weeklyTarget, type WorkPlan } from "./rules/work-plan";
+import { resolveWeekPlan, isOpenPlanDay, planMinutes, weeklyTarget, type WorkPlan } from "./rules/work-plan";
 import { dailyDurationState, durationTotals } from "./rules/duration.js";
 import { passageDay, passageRecordRows } from "./rules/passages.js";
 import { dailyRecordStatus } from "./rules/record-status";
@@ -28,11 +28,12 @@ export function prepareReport(
   today: string,
   stale: boolean,
   targetSeconds = weeklyTarget(plan),
+  zeroOpenDays: readonly number[] = [],
 ) {
   const startOfDay = new Date(sourceTimestamp(today, "00:00:00")!);
   const summary = summarize(report.passages, report.from, report.to, today);
   const sourceDays = summary.days.map((row) => {
-    const selected = plan[weekday(row.date)] > 0;
+    const selected = isOpenPlanDay(plan, weekday(row.date), zeroOpenDays);
     const passage = passageDay(report.passages, row.date, today);
     const statusInput = { day: row, passage, today, workingDay: selected };
     const state = dailyRecordStatus({ ...statusInput, live: false });
@@ -44,10 +45,11 @@ export function prepareReport(
     today,
     summary.weeks.some(week => week.partial),
     targetSeconds,
+    zeroOpenDays,
   );
   const timestamp = sourceTimestamp;
   const prepared = sourceDays.map(({ row, passage, statusInput }, index) => {
-    const selected = resolvedPlan[weekday(row.date)] > 0;
+    const selected = isOpenPlanDay(resolvedPlan, weekday(row.date), zeroOpenDays);
     const input = {
       day: row,
       dailySeconds: targets[index],
@@ -94,6 +96,7 @@ export function prepareReport(
       ),
     };
     const goals = {
+      workingDay: selected,
       plannedGoalSeconds: resolvedPlan[weekday(row.date)] * 60,
       goalSeconds: targets[index],
       dailyGoalSeconds: targets[index],
@@ -161,6 +164,7 @@ export function presentReport(
   now: number,
   stale: boolean,
   targetSeconds = weeklyTarget(plan),
+  zeroOpenDays: readonly number[] = [],
 ) {
-  return prepareReport(report, plan, dateKey(now), stale, targetSeconds)(now);
+  return prepareReport(report, plan, dateKey(now), stale, targetSeconds, zeroOpenDays)(now);
 }

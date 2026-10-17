@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { emptyWorkPlans, changeWeekPlan, changeDefaultPlan, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays } from "@/domain/rules/work-plan";
+import { emptyWorkPlans, changeWeekPlan, changeDefaultPlan, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays } from "@/domain/rules/work-plan";
 import { defaultNotebookDate, pofiNotebookDates } from "@/domain/rules/notebook-calendar";
 import { weekStart } from "@/domain/rules/calendar";
 import type { Report } from "@/domain/report";
@@ -37,7 +37,8 @@ export function DemoLocalPreview({ scenario, today, notes }: {
       : <PlanEditor week={week} today={today} plan={plan} defaultPlan={plans.defaultPlan} days={[]}
         targetSeconds={resolveStoredTarget(plans, week)}
         leaveDays={resolveLeaveDays(plans, week)}
-        special={Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length)} ready
+        zeroOpenDays={resolveZeroOpenDays(plans, week)}
+        special={Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length || plans.weekZeroOpenDays?.[week]?.length)} ready
         error={scenario === "plan-storage" ? ui.storageWriteError : ""}
         onClose={() => setOpen(false)} onSave={(next, targetSeconds, leaveDays) => {
           if (scenario === "plan-storage") return false;
