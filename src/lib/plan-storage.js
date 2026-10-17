@@ -1,18 +1,13 @@
 import { readPlanInput, isPlanWeek } from "../domain/rules/work-plan";
 
 export const PLAN_STORAGE_KEY = "pofis:work-plans:v1";
-const LEGACY_PLAN_STORAGE_KEY = "pdks.mesai-plans.v1";
 
 export function loadPlans(storage) {
-  return readStoredPlans(
-    storage.getItem(PLAN_STORAGE_KEY) ??
-      storage.getItem(LEGACY_PLAN_STORAGE_KEY),
-  );
+  return readStoredPlans(storage.getItem(PLAN_STORAGE_KEY));
 }
 
 export function savePlans(storage, plans) {
   storage.setItem(PLAN_STORAGE_KEY, serializePlans(plans));
-  storage.removeItem(LEGACY_PLAN_STORAGE_KEY);
 }
 
 export function readStoredPlans(raw) {
@@ -20,7 +15,7 @@ export function readStoredPlans(raw) {
   try {
     stored = JSON.parse(raw);
   } catch {
-    // Old or malformed browser data does not replace the default plan.
+    // Malformed browser data does not replace the default plan.
     return {};
   }
   if (!stored || typeof stored !== "object" || Array.isArray(stored)) return {};

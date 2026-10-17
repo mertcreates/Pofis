@@ -1,6 +1,7 @@
 import { SESSION_POLICY } from "../domain/rules/session-policy";
 import { api } from "./api-client.js";
 import { toRequestFailure } from "./pdks-failure";
+import { readSessionResponse } from "./session-response.js";
 
 export function startSessionHeartbeat(onExpired, fetchImpl = fetch) {
   let stopped = false;
@@ -12,7 +13,7 @@ export function startSessionHeartbeat(onExpired, fetchImpl = fetch) {
     inFlight = true;
     controller = new AbortController();
     try {
-      await api(
+      const result = await api(
         "/api/session/heartbeat",
         {
           method: "POST",
@@ -23,6 +24,7 @@ export function startSessionHeartbeat(onExpired, fetchImpl = fetch) {
         },
         fetchImpl,
       );
+      readSessionResponse(result, "/api/session/heartbeat", "POST");
     } catch (error) {
       if (!stopped && toRequestFailure(error, "session").kind === "session-expired") {
         stop();

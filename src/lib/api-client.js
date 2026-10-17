@@ -27,6 +27,7 @@ export async function api(path, options = {}, fetchImpl = fetch) {
   try {
     response = await fetchImpl(path, { cache: 'no-store', ...options });
   } catch (error) {
+    options.signal?.throwIfAborted();
     if (error.name === 'AbortError') throw error;
     throw new ApiError(ui.apiErrors.appUnavailable, 0, 'NETWORK_ERROR', {
       ...context,
@@ -37,7 +38,13 @@ export async function api(path, options = {}, fetchImpl = fetch) {
   try {
     result = await response.json();
   } catch (error) {
+    options.signal?.throwIfAborted();
     if (error.name === 'AbortError') throw error;
+    if (error instanceof TypeError) {
+      throw new ApiError(ui.apiErrors.appUnavailable, 0, 'NETWORK_ERROR', {
+        ...context, diagnostic: ui.apiErrors.responseInterrupted,
+      });
+    }
     throw new ApiError(
       ui.apiErrors.responseUnreadable,
       response.status,

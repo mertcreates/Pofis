@@ -22,9 +22,9 @@ Pofi'nin günlükleri, giriş / gelişme / kapanış parçalarından oluşan kı
 
 ## Korunan arşiv
 
-Kaynak ZIP'teki **20 tema, 240 metin parçası ve 11 özel notun 44 varyantı (132 paragraf)** korunur. Arşiv yayınları önce 768, 19 Ekim 2026 haftasından itibaren 1.280 normal not kombinasyonu kullanır. 8 Aralık `little-star:v1` herkes için ortaktır. Hash, havuz sırası ve seçim adımları eski atamaları korur.
+Kaynak ZIP'teki **20 tema, 240 metin parçası ve 11 özel notun 44 varyantı (132 paragraf)** korunur. Arşiv yayını 1.280 normal not kombinasyonu kullanır. 8 Aralık `little-star:v1` herkes için ortaktır. Havuz sırası ve seçim adımları aynı yayın, tarih ve kişi için tutarlı sonuç verir.
 
-`pool-v1.js` ve `publications.ts` içindeki iki arşiv kaydı geçmiş sözleşmenin dondurulmuş tanımıdır. Buradaki özel günler, gelecekte düzenlenecek `special-days.ts` listesinden özellikle bağımsızdır. İçerik eklemek mevcut yayın havuzuna kendiliğinden girmez; yeni tarihli yayın hazırlanır.
+`pool-v1.js` ve `publications.ts` içindeki arşiv kaydı mevcut havuzun ve özel günlerin dondurulmuş tanımıdır. Buradaki özel günler, gelecekte düzenlenecek `special-days.ts` listesinden özellikle bağımsızdır. İçerik eklemek mevcut yayın havuzuna kendiliğinden girmez; yeni tarihli yayın hazırlanır.
 
 Yayınlar **metnin kopyasını değil, değişmez içerik kimliklerini** saklar. Bu yüzden yayımlanmış tema/parça/varyant kimliklerini silmeyin, yeniden adlandırmayın veya metinlerini değiştirmeyin. Düzeltmeyi yeni bir kimlikle ekleyip eski kimliği gelecek havuzdan çıkarın. Arşiv metinleri ayrıca ZIP'ten alınan hash testleriyle korunur; sonradan eklenen içeriklerde bu disiplin kod incelemesinde de korunmalıdır.
 

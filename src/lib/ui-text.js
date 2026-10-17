@@ -325,6 +325,10 @@ export const ui = {
       title: "",
       message: "PDKS’ye şu anda ulaşılamıyor. Biraz sonra yeniden dene.",
     },
+    upstream: {
+      title: "PDKS işlemi tamamlayamadı",
+      message: "PDKS bir hata yanıtı verdi. Biraz sonra yeniden deneyebilirsin.",
+    },
     "rate-limit": {
       title: "PDKS’nin biraz zamana ihtiyacı var",
       message: "PDKS çok sayıda istek aldı. Bir süre bekleyip yeniden dene.",
@@ -398,6 +402,7 @@ export const ui = {
     connectionTimeout: "PDKS yanıtı 30 saniye içinde gelmedi.",
     connectionUnavailable: "PDKS bağlantısı kurulamadı.",
     connectionNameUnresolved: "PDKS sunucu adresi çözümlenemedi.",
+    sourceAddressUnreadable: "PDKS yanıtındaki adres okunamadı.",
     sessionExpired: "PDKS oturumun sona erdi. Yeniden bağlan.",
     redirectAddressMissing: "PDKS yönlendirme adresi eksik.",
     unknownException: "PDKS beklenmeyen bir hata döndürdü.",
@@ -435,6 +440,8 @@ export const ui = {
     invalidJsonResponse: "API yanıtı geçerli JSON içermiyor.",
     invalidResponseShape: "API yanıtı bir JSON nesnesi içermiyor.",
     invalidErrorResponse: "API hata yanıtı error/code sözleşmesine uymuyor.",
+    invalidSessionResponse: "API yanıtı istenen oturum durumunu doğrulamıyor.",
+    responseInterrupted: "API yanıtı alınırken bağlantı kesildi veya yanıt çözülemedi.",
   },
 };
 

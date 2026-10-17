@@ -66,10 +66,10 @@ test("ZIP'teki 20 tema / 240 parça ve 11 özel not / 44 varyant metinleri aynen
 test.each(selectionFixture)(
   "arşiv seçimleri 2026–2028 boyunca değişmez: $key",
   ({ key, count, sha256 }) => {
-    // Future publications may intentionally change later selections; compare the archive schedule only.
+    // Future publications may intentionally change later selections; compare the archived schedule only.
     const pofiNotebook = createPofiNotebook(
       pofiNoteCatalogue,
-      NOTE_PUBLICATIONS.slice(0, 2),
+      NOTE_PUBLICATIONS.slice(0, 1),
     );
     const notes: DatedNote[] = [];
     for (
@@ -270,5 +270,5 @@ test("çağıran içerik, yayın veya dönen parçaları değiştirince motor et
   notebook.noteForDate("2026-10-16", "a").parts[0] = "Değiştirildi.";
   expect(notebook.noteForDate("2026-10-16", "a")).toEqual(expected);
   expect(pofiNoteCatalogue.inventory().length).toBeGreaterThanOrEqual(20);
-  expect(NOTE_PUBLICATIONS[0].notes).toHaveLength(768);
+  expect(NOTE_PUBLICATIONS[0].notes).toHaveLength(1280);
 });

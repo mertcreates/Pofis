@@ -32,6 +32,7 @@ function fixture(request, url) {
     }
     if (request.method === "DELETE") {
       if (++disconnects === 1) return failure("INTERNAL_ERROR", 500);
+      if (disconnects === 2) return json({ connected: true });
       connected = false;
       return json({ connected });
     }

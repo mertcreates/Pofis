@@ -6,6 +6,7 @@
 
 - [pdks-failure.ts](../src/lib/pdks-failure.ts): hata sınıfları, izinli tanı alanları ve işlem bazında toparlanma sözleşmesi. React veya sunucu bağımlılığı taşımaz.
 - [api-client.js](../src/lib/api-client.js): HTTP/JSON doğrulaması, tarayıcı ağ hatası ve istek iptali. [http.js](../src/server/http.js) sunucu hatasını aynı tanı alanlarıyla serileştirir.
+- [session-response.js](../src/lib/session-response.js): oturum GET yanıtındaki boolean durumu, giriş/heartbeat POST yanıtındaki `true` ve çıkış DELETE yanıtındaki `false` değerini doğrular. Eksik veya çelişkili başarılı yanıt `INVALID_RESPONSE` olur.
 - [pdks-state.ts](../src/data/pdks-state.ts): bağlantı, rapor tazeliği ve hata durumunun atomik geçişleri. [use-pdks.ts](../src/data/use-pdks.ts) istekleri ve iptali yürütür.
 - [pdks-error-presentation.ts](../src/components/pdks-error-presentation.ts): anlamsal hata sınıfını kullanıcı mesajına ve eylem etiketine uyarlar. Metinler [ui-text.js](../src/lib/ui-text.js), çizim [RequestError](../src/components/request-error.js) sahibindedir.
 
@@ -27,11 +28,14 @@ Kaynak adaptörü Bun'ın doğrudan `error.code` ve Node fetch'in `error.cause.c
 | `INVALID_INPUT` | Girişte bilgileri, raporda hafta seçimini düzeltme. Aynı geçersiz raporu tekrar gönderme düğmesi verilmez. | Korunur. |
 | `SESSION_EXPIRED` / 401 | Yeniden giriş formunda nötr bildirim; alanlar geçersiz işaretlenmez, teknik tanı gösterilmez. | Bekleyen rapor iptal edilir, kişi ve rapor temizlenir. |
 | `NETWORK_ERROR` | Uygulamaya erişim sorunu ve ilgili işlemi yeniden deneme. | Rapor isteği başarısızsa eski rapor korunur, anlık tahmin durur. |
-| `CONNECTION_FAILED`, `SOURCE_ERROR` | PDKS’ye erişim sorunu; manuel yeniden deneme. Kaynağın 429 yanıtında bekleme, 403 yanıtında yetki açıklaması. | Kaynak hatası oturum bitişi sayılmaz. |
+| `CONNECTION_FAILED` | PDKS bağlantısı kurulamadı; kurum ağı/VPN kontrolü ve manuel yeniden deneme. | Oturum korunur. |
+| `SOURCE_ERROR` | PDKS bir HTTP hata yanıtı verdi; manuel yeniden deneme. Kaynağın 429 yanıtında bekleme, 403 yanıtında yetki açıklaması. | HTTP hata gövdesindeki giriş formu oturumu bitirmez. |
 | `SOURCE_CHANGED`, `INVALID_RESPONSE`, `INTERNAL_ERROR`, bilinmeyen kod | Güvenli kullanıcı mesajı; teknik ayrıntı kapalı bir açılır alanda. | Geçerli rapor varsa korunur; başarısız yenilemede tahmin durur. |
 | `TOO_MANY_RESULTS` | Rapor sınırı ve başka hafta seçme açıklaması. | Kısmi rapor başarı gibi gösterilmez. |
 
 Yalnız doğru kod/durum çiftine sahip `SESSION_EXPIRED` oturumu bitirir. Kod içermeyen veya okunamayan 401 yanıtı oturumu düşürmez. Heartbeat aynı sınıflandırmayı kullanır; geçici heartbeat erişim sorunu raporu silmez.
+
+Bu çiftin tek sahibi `isSessionExpired` kontrolüdür; API temizliği, kaynak doğrulaması, keepalive ve istemci aynı koşulu kullanır. Kaynakta başarılı HTTP yanıtındaki giriş sayfası veya kaynak 401 yanıtı oturum bitişi üretir. `403/429/5xx` hata yanıtının gövdesi giriş formu içerse de HTTP hata sınıfı korunur. Bozuk form/menü/yönlendirme adresi `SOURCE_CHANGED` olur. İstek hazırlığındaki uygulama hatası ağ hatası olarak maskelenmez; oturum iptali özgün nedeni korur, kaynak zaman aşımı bağlantı hatasıdır. Tarayıcıda yarıda kesilen/çözülemeyen gövde `NETWORK_ERROR`, geçersiz JSON `INVALID_RESPONSE` olur.
 
 Toparlanma işlemi hatanın sahibine döner: oturum kontrolü GET `/api/session`, rapor GET `/api/report`, çıkış DELETE `/api/session`. Giriş yalnız formdan POST edilir. Giriş/çıkış aynı anda ikinci kez başlatılmaz. Geç kalan veya iptal edilmiş rapor yanıtı yeni durumu değiştiremez. İstek sonunda FormData kimlik alanları ve formdaki şifre temizlenir. Kullanıcı adı tekrar deneme için yalnız açık formda korunur; uygulama depolamasına yazılmaz.
 
@@ -45,4 +49,6 @@ Tam sayfa hata görünümü ölçülü Pofi görseli, başlık, kısa açıklama
 
 [Hata ve HTTP okuma testleri](../src/lib/pdks-failure.test.ts), [durum geçişleri](../src/data/pdks-state.test.ts), [kullanıcı sunumu](../src/components/pdks-error.test.tsx), [sunucu serileştirme](../src/server/http.test.js) ve [route/oturum testleri](../src/server/routes.test.js) sözleşmeyi korur. [Fixture kabulü](../scripts/acceptance/archive-behavior.js) sentetik API yanıtları kullanır; gerçek PDKS erişimini kanıtlamaz.
 
-Tarayıcıda hata zinciri için `bun run dev` yanında `bun scripts/acceptance/pdks-errors.mjs` çalıştırılır; yeni sekmede `http://127.0.0.1:3101` açılır. Tüm API istekleri sentetiktir. Sıra: ilk oturum kontrolü hatası → tekrar kontrol → yanlış şifre → kaynak bağlantı hatası → başarılı giriş → bozuk 401 rapor yanıtı → kaynak 500 → başarılı rapor → çıkış hatası → çıkışı tekrar deneme → tekrar giriş → oturum bitişi. Akışı baştan almak için yalnız fixture süreci yeniden başlatılır.
+Tarayıcıda hata zinciri için `bun run dev` yanında `bun scripts/acceptance/pdks-errors.mjs` çalıştırılır; yeni sekmede `http://127.0.0.1:3101` açılır. Tüm API istekleri sentetiktir. Sıra: ilk oturum kontrolü hatası → tekrar kontrol → yanlış şifre → kaynak bağlantı hatası → girişe dön → başarılı giriş → bozuk 401 rapor yanıtı → kaynak 500 → başarılı rapor → çıkış hatası → çelişkili başarılı çıkış yanıtı → çıkışı tekrar deneme → tekrar giriş → oturum bitişi. Akışı baştan almak için yalnız fixture süreci yeniden başlatılır.
+
+[Oturum yanıtı testleri](../src/lib/session-response.test.ts), [heartbeat testleri](../src/lib/session-heartbeat.test.js) ve [rapor sınırı testleri](../src/data/report-response.test.ts) bozuk başarılı yanıtları da kapsar. Rapor yönü yalnız `in` veya `out` metni olabilir; dizi veya başka türden değer metne çevrilerek kabul edilmez.

@@ -12,6 +12,8 @@ Arayüz: `WorkPlan`, `DEFAULT_WORK_PLAN`, `PLAN_LIMITS`, `readPlanInput`, `planT
 
 Planın seçili günleri ve haftalık saati tek modeldir. Girdi sınırları hem formdan hem depolama doğrulamasından okunur. Haftalık saat seçili günlere eşit dağılır; normal günlük hedef saniyeye yukarı yuvarlanır. Son kalan çalışma gününün çıkış hedefi haftalık hedef eksi önceki kayıtlı toplamdır; bugünün kaydı iki kez düşülmez. Eksik/belirsiz kayıt, kısmi hafta veya kalan gün olmaması çıkış hedefini engeller. Normal günlük hedef ile haftalık farkı taşıyan çıkış hedefi farklı kavramlardır. Haftalık anahtar gerçek bir pazartesidir.
 
+Planlar `pofis:work-plans:v1` anahtarında hafta başına `{ weekdays, hours }` biçiminde saklanır. Yalnız bu biçim okunur; başka depolama kayıtlarından plan dönüştürülmez.
+
 ## Bağımlılıklar
 
 - [Günlük kayıt durumu](record-status.md): rapor adaptörü geçiş belirsizliğini `incomplete` olarak bu sahibin plan girdisine taşır; ilk giriş/son çıkış süresinin bulunması belirsiz günü kapatmaz.

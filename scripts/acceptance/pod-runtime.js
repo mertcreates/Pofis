@@ -11,16 +11,13 @@ async (page) => {
     });
   const institution = await request("https://pofis.example.internal");
   const other = await request("https://other.example");
-  const migration = await page.request.get(endpoint, {
+  const forwardedCleanup = await page.request.delete(endpoint, {
     headers: {
-      Cookie: "pdks_local_session=" + "a".repeat(64),
       "X-Forwarded-Proto": "https",
     },
   });
-  const cookie = migration.headers()["set-cookie"] || "";
-  const direct = await page.request.get(endpoint, {
-    headers: { Cookie: "pdks_local_session=" + "a".repeat(64) },
-  });
+  const forwardedCookie = forwardedCleanup.headers()["set-cookie"] || "";
+  const direct = await page.request.delete(endpoint);
   const headers = {
     Origin: "https://other.example",
     "Sec-Fetch-Site": "cross-site",
@@ -35,8 +32,9 @@ async (page) => {
     directHttpCookieSecure: (direct.headers()["set-cookie"] || "").includes(
       "Secure",
     ),
-    secureCookie: cookie.includes("Secure"),
-    httpOnlyCookie: cookie.includes("HttpOnly"),
+    sessionCookieName: forwardedCookie.startsWith("pofis_session="),
+    secureCookie: forwardedCookie.includes("Secure"),
+    httpOnlyCookie: forwardedCookie.includes("HttpOnly"),
   };
   if (
     result.institutionOrigin !== 400 ||
@@ -44,6 +42,7 @@ async (page) => {
     result.heartbeat !== 401 ||
     result.logout !== 200 ||
     result.directHttpCookieSecure ||
+    !result.sessionCookieName ||
     !result.secureCookie ||
     !result.httpOnlyCookie
   )

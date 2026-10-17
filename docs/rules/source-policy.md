@@ -20,6 +20,8 @@ Giriş doğrulaması profil ve kişisel menüden kişi adını ve Pofi notların
 
 Farklı oturumların kaynak istekleri birbirinden bağımsız başlar. Uygulama genelinde eşzamanlılık kotası, ortak bekleme kuyruğu veya bunlardan doğan yoğunluk hatası yoktur. Aynı oturumdaki WebForms işlemleri kendi istemcisinin `run` sırasında yürür; böylece çerez ve form durumu tutarlı kalır. Her HTTP isteği 30 saniyelik zaman aşımı ve oturum iptal sinyalini kullanır.
 
+Kaynak HTTP hatası, bağlantı hatası ve bozuk kaynak yapısı [ortak hata sözleşmesinde](../pdks-errors.md) ayrılır. Başarısız HTTP yanıtındaki giriş formu oturum bitişi kanıtı değildir; başarılı giriş sayfası ve kaynak 401 yanıtı bu sınıfa girer. Oturum iptali özgün iptal nedenini korur; zaman aşımı bağlantı hatasıdır. Hazırlık aşamasındaki uygulama hataları kaynak bağlantı hatasına dönüştürülmez.
+
 Başarılı raporun oturuma ait PDKS istemcisinde en son tek kopyası 20 saniye tutulur (`reportCacheMs`). Anahtar kişi kapsamı, tarih aralığı ve İstanbul gününü içerir. Aynı anahtarın eşzamanlı çağrıları tek işe birleşir. Alınma zamanı yeniden yazılmaz; dönen nesneler bağımsız kopyadır. Aralık/gün değişimi ve süre dolumu yeni kaynak işi başlatır. Hatalar başarı olarak önbelleğe alınmaz; önbellek disk oturumuna yazılmaz. Ortak HTTP yanıt önbelleği `no-store` kalır.
 
 Giriş, heartbeat ve çıkış uçları Origin/Sec-Fetch-Site değerlerinden bağımsız çalışır. Kimlik doğrulama ve kişi kapsamı [oturum politikasına](session-policy.md) aittir. HTTPS çerezinin proxy protokolüne uyarlanması [dağıtım rehberinde](../deployment.md) açıklanır.

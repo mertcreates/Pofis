@@ -5,6 +5,14 @@ import RequestError from "./request-error.js";
 import { Connection } from "./connection";
 import { pdksDiagnosticRows, pdksDiagnosticText } from "./pdks-error-presentation";
 
+test("HTTP kaynak hatası erişilememe veya bozuk veri mesajıyla karışmaz", () => {
+  const error = toRequestFailure({ code: "SOURCE_ERROR", status: 502, details: { sourceStatus: 500 } }, "report");
+  const html = renderToStaticMarkup(<RequestError error={error} onRetry={() => {}} />);
+  expect(html).toContain("PDKS bir hata yanıtı verdi.");
+  expect(html).not.toContain("ulaşılamıyor");
+  expect(html).not.toContain("beklenen yapıda değil");
+});
+
 test("teknik ayrıntılar kapalı açılır; kopyalama eylemi ve okunabilir İstanbul saati sunar", () => {
   const error = toRequestFailure({ code: "CONNECTION_FAILED", status: 502, details: {
     apiPath: "/api/session", apiMethod: "POST", method: "GET",

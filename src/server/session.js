@@ -7,7 +7,6 @@ import { PdksError } from "./pdks.js";
 import { ui } from "../lib/ui-text.js";
 export {
   SESSION_COOKIE,
-  LEGACY_SESSION_COOKIE,
   SESSION_SECONDS,
 } from "./session-manager.js";
 

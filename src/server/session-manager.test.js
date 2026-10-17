@@ -16,9 +16,9 @@ import {
 import { createSessionStorage } from "./session-storage.js";
 import { PdksError } from "./pdks.js";
 
-const request = (id) => ({
+const request = (id, cookieName = SESSION_COOKIE) => ({
   cookies: {
-    get: (name) => (name === SESSION_COOKIE && id ? { value: id } : undefined),
+    get: (name) => (name === cookieName && id ? { value: id } : undefined),
   },
 });
 function clientFactory(clock, check = async () => 200) {
@@ -140,6 +140,19 @@ test("hatalı parola ve geçersiz alanlar oturum oluşturmaz", async () => {
   expect(records).toHaveLength(0);
 });
 
+test("oturum yalnız güncel çerez adından yüklenir", async () => {
+  const manager = createSessionManager({ createClient: clientFactory(Date.now) });
+  const id = await manager.connect({
+    username: "alice",
+    password: "fixture-password",
+  });
+
+  expect(await manager.sessionFor(request(id, "pdks_local_session"))).toBeNull();
+  await manager.disconnect(request(id, "pdks_local_session"));
+  expect(await manager.sessionFor(request(id))).toBeTruthy();
+  await manager.disconnect(request(id));
+});
+
 test("2.000 paralel oturum ayrı kimlik ve çerezlerle çalışır; çıkış yalnız ilgili kişiyi kaldırır", async () => {
   const sessions = new Map();
   const manager = createSessionManager({
@@ -213,6 +226,28 @@ test("heartbeat 20 dakika sonra kontrol eder; lease yoksa susar; kaynak oturumu 
   await settle();
   expect(await manager.sessionFor(request(id))).toBeFalsy();
   expect(checks).toBe(2);
+});
+
+test("keepalive tutarsız SESSION_EXPIRED/500 yanıtında oturumu düşürmez", async () => {
+  let time = Date.now();
+  const logger = spyOn(console, "error").mockImplementation(() => {});
+  const manager = createSessionManager({
+    clock: () => time,
+    createClient: clientFactory(() => time, async () => { throw new PdksError("fixture", "SESSION_EXPIRED", 500); }),
+  });
+  let id;
+  try {
+    id = await manager.connect({ username: "fixture", password: "fixture-password" });
+    time += 21 * 60000;
+    await manager.heartbeat(request(id));
+    await manager.checkKeepAlive();
+    await new Promise(resolve => setTimeout(resolve, 0));
+    expect(await manager.sessionFor(request(id))).toBeTruthy();
+    expect(logger).toHaveBeenCalled();
+  } finally {
+    if (id) await manager.disconnect(request(id));
+    logger.mockRestore();
+  }
 });
 
 test("giriş isteğinin kimlik alanları işlem sonunda tutulmaz; oturumda yalnız kaynak kimliği kalır", async () => {

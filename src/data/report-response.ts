@@ -46,7 +46,7 @@ export function readReportResponse(
       passage.date > to ||
       typeof passage.time !== "string" ||
       secondsOf(passage.time) === null ||
-      !["in", "out"].includes(String(passage.direction))
+      (passage.direction !== "in" && passage.direction !== "out")
     )
       throw invalid();
   }

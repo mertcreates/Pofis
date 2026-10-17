@@ -43,7 +43,7 @@ const operationTitles: Record<PdksOperation, string> = ui.pdksFailureTitles;
 const actionLabels: Record<PdksOperation, string> = ui.pdksFailureActions;
 const technical: Record<FailureKind, boolean> = {
   credentials: false, validation: false, "session-expired": false,
-  network: true, unavailable: true, "rate-limit": true, permission: false,
+  network: true, unavailable: true, upstream: true, "rate-limit": true, permission: false,
   source: true, limit: false, unexpected: true,
 };
 

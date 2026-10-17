@@ -1,7 +1,7 @@
 export type PdksOperation = "session" | "connect" | "report" | "disconnect" | "runtime";
 export type FailureKind =
   | "credentials" | "validation" | "session-expired" | "network"
-  | "unavailable" | "rate-limit" | "permission" | "source" | "limit" | "unexpected";
+  | "unavailable" | "upstream" | "rate-limit" | "permission" | "source" | "limit" | "unexpected";
 
 const diagnosticFields = [
   "apiPath", "apiMethod", "sourceStatus", "sessionCheck", "sessionCheckStatus",
@@ -31,11 +31,17 @@ export type RequestFailure = {
   details: DiagnosticDetails;
 };
 
+export function isSessionExpired(error: unknown): boolean {
+  return error !== null && typeof error === "object"
+    && "code" in error && error.code === "SESSION_EXPIRED"
+    && "status" in error && error.status === 401;
+}
+
 function classify(code: string, status: number, details: DiagnosticDetails): FailureKind {
   switch (code) {
     case "AUTH_FAILED": return status === 401 ? "credentials" : "unexpected";
     case "INVALID_INPUT": return "validation";
-    case "SESSION_EXPIRED": return status === 401 ? "session-expired" : "unexpected";
+    case "SESSION_EXPIRED": return isSessionExpired({ code, status }) ? "session-expired" : "unexpected";
     case "NETWORK_ERROR": return "network";
     case "CONNECTION_FAILED": return "unavailable";
     case "SOURCE_CHANGED": return "source";
@@ -43,7 +49,7 @@ function classify(code: string, status: number, details: DiagnosticDetails): Fai
     case "SOURCE_ERROR":
       if (details.sourceStatus === 429) return "rate-limit";
       if (details.sourceStatus === 403) return "permission";
-      return "unavailable";
+      return "upstream";
     default: return "unexpected";
   }
 }

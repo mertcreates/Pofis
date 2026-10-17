@@ -10,7 +10,7 @@ test.each([
   ["NETWORK_ERROR", 0, "network", "retry"],
   ["CONNECTION_FAILED", 502, "unavailable", "retry"],
   ["SOURCE_CHANGED", 502, "source", "retry"],
-  ["SOURCE_ERROR", 502, "unavailable", "retry"],
+  ["SOURCE_ERROR", 502, "upstream", "retry"],
   ["TOO_MANY_RESULTS", 502, "limit", "none"],
   ["UNKNOWN_CODE", 401, "unexpected", "retry"],
   ["INTERNAL_ERROR", 500, "unexpected", "retry"],
@@ -65,6 +65,21 @@ test("ağ hatası kullanıcı bağlantı sınıfına dönüşür; iptal aynı ha
   await expect(api("/api/session", {}, async () => { throw new TypeError("private browser message"); })).rejects.toMatchObject({ code: "NETWORK_ERROR", status: 0 });
   const abort = new DOMException("fixture", "AbortError");
   await expect(api("/api/session", {}, async () => { throw abort; })).rejects.toBe(abort);
+});
+
+test("gövde aktarımının kesilmesi ağ hatasıdır; bozuk JSON ayrı kalır", async () => {
+  const stream = new ReadableStream({ start(controller) { controller.error(new TypeError("private stream failure")); } });
+  await expect(api("/api/report", {}, async () => new Response(stream))).rejects.toMatchObject({
+    code: "NETWORK_ERROR", status: 0, details: { apiPath: "/api/report", apiMethod: "GET" },
+  });
+  await expect(api("/api/report", {}, async () => new Response("invalid JSON"))).rejects.toMatchObject({ code: "INVALID_RESPONSE", status: 200 });
+});
+
+test("özel iptal nedeni ağ hatasına çevrilmez", async () => {
+  const controller = new AbortController();
+  const reason = new Error("fixture cancellation");
+  controller.abort(reason);
+  await expect(api("/api/report", { signal: controller.signal }, async () => { throw reason; })).rejects.toBe(reason);
 });
 
 test("geciken eski başarısızlık yeni isteği veya oturumu etkilemez", async () => {

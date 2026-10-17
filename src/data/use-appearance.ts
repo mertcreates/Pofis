@@ -21,12 +21,7 @@ export function useAppearance() {
       );
     try {
       const stored = localStorage.getItem(THEME_STORAGE_KEY);
-      // Retain the preview's saved appearance when importing the archive contract.
-      const legacy =
-        stored === null
-          ? JSON.parse(localStorage.getItem("pofis:preferences:v1") ?? "null")
-          : null;
-      preference.current = themePreference(stored ?? legacy?.theme);
+      preference.current = themePreference(stored);
     } catch {
       setError("Görünüm tercihin okunamadı.");
     }

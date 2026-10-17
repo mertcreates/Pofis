@@ -4,9 +4,9 @@ import { CookieJar } from "tough-cookie";
 import { PdksClient, PdksError } from "./pdks.js";
 import { createSessionStorage, validSessionId } from "./session-storage.js";
 import { ui } from "../lib/ui-text.js";
+import { isSessionExpired } from "../lib/pdks-failure";
 
 export const SESSION_COOKIE = SESSION_POLICY.cookie;
-export const LEGACY_SESSION_COOKIE = SESSION_POLICY.legacyCookie;
 export const SESSION_SECONDS = SESSION_POLICY.ttlSeconds;
 const KEEP_ALIVE_MS = SESSION_POLICY.keepAliveMs;
 const LEASE_MS = SESSION_POLICY.leaseMs;
@@ -194,7 +194,7 @@ export function createSessionManager({
             if (sessions.get(id) !== session || !activeLease(session)) return;
             if (
               error instanceof PdksError &&
-              error.code === "SESSION_EXPIRED"
+              isSessionExpired(error)
             ) {
               await removeSession(id);
               return;
@@ -266,10 +266,7 @@ export function createSessionManager({
   }
 
   async function sessionFor(request) {
-    const id = (
-      request.cookies.get(SESSION_COOKIE) ||
-      request.cookies.get(LEGACY_SESSION_COOKIE)
-    )?.value;
+    const id = request.cookies.get(SESSION_COOKIE)?.value;
     if (!validSessionId(id)) return null;
     if (loading.get(id)?.cancelled) return null;
     const session = sessions.get(id) || (await loadSession(id));
@@ -323,12 +320,8 @@ export function createSessionManager({
   }
 
   async function disconnect(request) {
-    await Promise.all(
-      [SESSION_COOKIE, LEGACY_SESSION_COOKIE]
-        .map((name) => request.cookies.get(name)?.value)
-        .filter(Boolean)
-        .map(removeSession),
-    );
+    const id = request.cookies.get(SESSION_COOKIE)?.value;
+    if (id) await removeSession(id);
   }
 
   async function replaceSession(request, body) {

@@ -3,7 +3,6 @@ import {
   readBody,
   failure,
   clearSessionCookies,
-  migrateSessionCookie,
   sessionCookieOptions,
 } from "@/server/http.js";
 import {
@@ -20,11 +19,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request) {
   try {
     const session = await sessionFor(request);
-    return migrateSessionCookie(
-      json({ connected: !!session }),
-      request,
-      session,
-    );
+    return json({ connected: !!session });
   } catch (error) {
     return failure(error, request);
   }

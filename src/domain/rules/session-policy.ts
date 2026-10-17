@@ -1,6 +1,5 @@
 export const SESSION_POLICY = Object.freeze({
   cookie: "pofis_session",
-  legacyCookie: "pdks_local_session",
   ttlSeconds: 8 * 60 * 60,
   diskCleanupMs: 60 * 60_000,
   tokenBytes: 32,

@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { readWorkPlans, workPlanStorage } from "./work-plans";
 import { readPlanInput } from "@/domain/rules/work-plan";
-import { savePlans, PLAN_STORAGE_KEY } from "@/lib/plan-storage.js";
+import { savePlans } from "@/lib/plan-storage.js";
 import { readReportResponse } from "./report-response";
 import type { Report } from "@/domain/report";
 
@@ -11,9 +11,6 @@ function storage(initial: Record<string, string> = {}) {
     getItem: (key: string) => values.get(key) ?? null,
     setItem: (key: string, value: string) => {
       values.set(key, value);
-    },
-    removeItem: (key: string) => {
-      values.delete(key);
     },
     values,
   };
@@ -26,41 +23,27 @@ test("demo planı ayrı saklanır; iki kapsam kendi planını yeniden okur", () 
   const livePlan = readPlanInput({ weekdays: [0, 1, 2, 3, 4], hours: 40 })!;
   const demoPlan = readPlanInput({ weekdays: [0, 1, 2, 3, 4], hours: 35 })!;
   savePlans(live, { [week]: livePlan });
-  expect(readWorkPlans(demo, week)).toEqual({});
+  expect(readWorkPlans(demo)).toEqual({});
   savePlans(demo, { [week]: demoPlan });
-  expect(readWorkPlans(live, week)[week].goals.hours).toBe(40);
-  expect(readWorkPlans(demo, week)[week].goals.hours).toBe(35);
+  expect(readWorkPlans(live)[week].goals.hours).toBe(40);
+  expect(readWorkPlans(demo)[week].goals.hours).toBe(35);
   expect(store.values.size).toBe(2);
 });
-test("önizleme planını toplam ve seçili günleri koruyarak içe alır, özgün kaydı silmez", () => {
+test("eski tercih kayıtlarından plan içe aktarılmaz", () => {
   const original = JSON.stringify({
     defaultPlan: [480, 480, 480, 480, 420, 0, 0],
     overrides: { "2026-10-05": [240, 240, 240, 240, 240, 0, 0] },
   });
-  const store = storage({ "pofis:preferences:v1": original });
-  const plans = readWorkPlans(store, "2026-10-12");
-  expect(plans["2026-10-12"].goals).toEqual({
-    days: 5,
-    hours: 39,
-    weekdays: [0, 1, 2, 3, 4],
+  const oldPlans = JSON.stringify({
+    "2026-10-12": { hours: 8, weekdays: [0] },
   });
-  expect(plans["2026-10-05"].goals.hours).toBe(20);
-  savePlans(store, plans);
-  expect(readWorkPlans(store, "2026-10-19")).toEqual(plans);
-  expect(store.getItem("pofis:preferences:v1")).toBe(original);
-});
-test("arşiv planı önceliklidir; bozuk kayıtları eler ve legacy anahtarı kayıtta taşır", () => {
   const store = storage({
-    "pdks.mesai-plans.v1": JSON.stringify({
-      "2026-10-12": { hours: 8, weekdays: [0] },
-      "2026-02-30": { hours: 8, weekdays: [0] },
-    }),
+    "pofis:preferences:v1": original,
+    "pdks.mesai-plans.v1": oldPlans,
   });
-  const plans = readWorkPlans(store, "2026-10-12");
-  expect(Object.keys(plans)).toEqual(["2026-10-12"]);
-  savePlans(store, plans);
-  expect(store.getItem("pdks.mesai-plans.v1")).toBeNull();
-  expect(store.getItem(PLAN_STORAGE_KEY)).not.toBeNull();
+  expect(readWorkPlans(store)).toEqual({});
+  expect(store.getItem("pofis:preferences:v1")).toBe(original);
+  expect(store.getItem("pdks.mesai-plans.v1")).toBe(oldPlans);
 });
 test("rapor sözleşmesi aynı güne ait hareketleri kabul eder, kişi/tarih ve hareket yapısını doğrular", () => {
   const valid: Report = {

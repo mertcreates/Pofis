@@ -1,6 +1,7 @@
 import { SOURCE_POLICY } from "../domain/rules/source-policy";
 import { isOwnReport } from "../domain/rules/report-access";
 import { ui } from "../lib/ui-text.js";
+import { isSessionExpired } from "../lib/pdks-failure";
 import { load } from "cheerio";
 import { CookieJar } from "tough-cookie";
 import { dateKey, isDateKey, secondsOf } from "../domain/rules/calendar";
@@ -27,6 +28,14 @@ export class PdksError extends Error {
     this.code = code;
     this.status = status;
     this.details = details;
+  }
+}
+
+function readSourceUrl(value, base) {
+  try {
+    return new URL(value, base);
+  } catch {
+    throw new PdksError(ui.sourceErrors.sourceAddressUnreadable, "SOURCE_CHANGED");
   }
 }
 
@@ -98,7 +107,7 @@ export function readForm(html, url) {
         "SOURCE_CHANGED",
       );
   }
-  return { $, fields, url: new URL(form.attr("action") || url, url).href };
+  return { $, fields, url: readSourceUrl(form.attr("action") || url, url).href };
 }
 
 // Decode only a DevExpress string literal; never execute source scripts.
@@ -395,11 +404,11 @@ export class PdksClient {
         );
       let response;
       let html;
+      const cookie = await this.jar.getCookieString(url.href);
+      signal?.throwIfAborted();
+      this.lastRequestAt = Date.now();
+      this.onRequest?.();
       try {
-        const cookie = await this.jar.getCookieString(url.href);
-        signal?.throwIfAborted();
-        this.lastRequestAt = Date.now();
-        this.onRequest?.();
         response = await this.fetchImpl(url, {
           method,
           body,
@@ -421,6 +430,7 @@ export class PdksClient {
         });
         html = await response.text();
       } catch (error) {
+        if (signal?.aborted) throw signal.reason;
         // Bun exposes transport codes directly; Node fetch uses Error.cause.
         const causeCode = error.code ?? error.cause?.code;
         throw new PdksError(
@@ -466,7 +476,7 @@ export class PdksClient {
             ui.sourceErrors.redirectAddressMissing,
             "SOURCE_CHANGED",
           );
-        url = new URL(location, url);
+        url = readSourceUrl(location, url);
         if ([301, 302, 303].includes(response.status)) {
           method = "GET";
           body = undefined;
@@ -474,7 +484,7 @@ export class PdksClient {
         continue;
       }
 
-      if (!loginRequest && isLoginResponse(html, url))
+      if (response.ok && !loginRequest && isLoginResponse(html, url))
         throw new PdksError(
           ui.sourceErrors.sessionExpired,
           "SESSION_EXPIRED",
@@ -525,7 +535,7 @@ export class PdksClient {
             details.sessionCheckCode = error.code || error.name;
             if (error.details?.sourceStatus)
               details.sessionCheckStatus = error.details.sourceStatus;
-            if (error instanceof PdksError && error.code === "SESSION_EXPIRED")
+            if (error instanceof PdksError && isSessionExpired(error))
               throw new PdksError(
                 ui.sourceErrors.sessionExpired,
                 "SESSION_EXPIRED",
@@ -596,7 +606,7 @@ export class PdksClient {
       } catch (retryError) {
         if (retryError instanceof PdksError) {
           retryError.details.recoveryAttempts = 1;
-          if (retryError.code !== "SESSION_EXPIRED") {
+          if (!isSessionExpired(retryError)) {
             retryError.details.sessionCheck = error.details.sessionCheck;
             retryError.details.sessionCheckStatus =
               error.details.sessionCheckStatus;
@@ -611,7 +621,7 @@ export class PdksClient {
     try {
       await this.personalProfile();
     } catch (error) {
-      if (error instanceof PdksError && error.code === "SESSION_EXPIRED")
+      if (error instanceof PdksError && isSessionExpired(error))
         throw new PdksError(ui.sourceErrors.authFailed, "AUTH_FAILED", 401);
       throw error;
     }
@@ -644,7 +654,7 @@ export class PdksClient {
     const name = names.text().trim();
     const $menu = load(menu.html);
     const links = $menu("a[href]")
-      .map((_, link) => new URL($menu(link).attr("href"), menu.url))
+      .map((_, link) => readSourceUrl($menu(link).attr("href"), menu.url))
       .get()
       .filter((url) => url.searchParams.get("KisiID"));
     if (

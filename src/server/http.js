@@ -2,13 +2,9 @@ import { SESSION_POLICY } from "../domain/rules/session-policy";
 import { HTTP_POLICY } from "../domain/rules/source-policy";
 import { NextResponse } from "next/server";
 import { PdksError } from "./pdks.js";
-import {
-  disconnect,
-  SESSION_COOKIE,
-  LEGACY_SESSION_COOKIE,
-} from "./session.js";
+import { disconnect, SESSION_COOKIE } from "./session.js";
 import { ui } from "../lib/ui-text.js";
-import { readDiagnosticDetails } from "../lib/pdks-failure";
+import { isSessionExpired, readDiagnosticDetails } from "../lib/pdks-failure";
 
 export function json(data, status = 200) {
   return NextResponse.json(data, {
@@ -32,27 +28,10 @@ export function sessionCookieOptions(request) {
 }
 
 export function clearSessionCookies(response, request) {
-  for (const name of [SESSION_COOKIE, LEGACY_SESSION_COOKIE])
-    response.cookies.set(name, "", {
-      ...sessionCookieOptions(request),
-      maxAge: 0,
-    });
-}
-
-export function migrateSessionCookie(response, request, session) {
-  const legacy = request.cookies.get(LEGACY_SESSION_COOKIE);
-  if (!legacy) return response;
-  if (session && !request.cookies.get(SESSION_COOKIE)) {
-    response.cookies.set(SESSION_COOKIE, legacy.value, {
-      ...sessionCookieOptions(request),
-      maxAge: Math.max(0, Math.floor((session.expiresAt - Date.now()) / 1000)),
-    });
-  }
-  response.cookies.set(LEGACY_SESSION_COOKIE, "", {
+  response.cookies.set(SESSION_COOKIE, "", {
     ...sessionCookieOptions(request),
     maxAge: 0,
   });
-  return response;
 }
 
 export async function readBody(request) {
@@ -115,7 +94,7 @@ export async function failure(error, request) {
     error.status,
   );
   // A rejected new login does not revoke the request's existing session.
-  if (error.code === "SESSION_EXPIRED") {
+  if (isSessionExpired(error)) {
     try {
       await disconnect(request);
     } catch (cleanupError) {

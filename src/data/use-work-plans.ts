@@ -10,7 +10,7 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
   const [error, setError] = useState("");
   useEffect(() => {
     try {
-      setPlans(readWorkPlans(workPlanStorage(localStorage, scope), week));
+      setPlans(readWorkPlans(workPlanStorage(localStorage, scope)));
       setReady(true);
     } catch {
       setError("Planlar okunamadı. Tarayıcı depolama ayarlarını kontrol et.");

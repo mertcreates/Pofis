@@ -17,7 +17,7 @@ Tek uygulama süreci, süreç belleğinde oturumlar ve yerel JSON dosyaları kul
 ## Oturum yaşam döngüsü
 
 1. Girişte ayrı istemci oluşturulur; parola yalnız kaynak girişinde kullanılır. Oturum yöneticisi yeni oturumu kaydeder, mevcut oturumu kapatır ve ardından tarayıcıya yeni token verilir. Yeni kimlik doğrulama veya ilk kayıt başarısızsa mevcut oturum korunur. Eski oturumun diskten silinmesi başarısızsa yeni oturum da iptal edilip dosyası silinmeye çalışılır; istek başarısız döner.
-2. İstek yalnız kendi oturum kimliğini arar. Bellekte yoksa ilgili dosya asenkron okunur; aynı kimliğin eşzamanlı okumaları birleştirilir. Eski v1 dosya biçimi korunur.
+2. İstek yalnız güncel oturum çerezindeki kimliği arar. Bellekte yoksa v1 biçimindeki ilgili dosya asenkron okunur; aynı kimliğin eşzamanlı okumaları birleştirilir. Desteklenmeyen dosya biçimi yeniden kimlik doğrulama gerektirir.
 3. Kaynak çerezleri değiştiğinde kayıt asenkron yazılır. Oturum başına yazma/silme sırası korunur. Yeniden adlandırma kısmi JSON görünmesini önler; elektrik kesintisine karşı fsync garantisi verilmez.
 4. Çıkış bellek kaydını kaldırır, devam eden kaynak isteğini iptal eder, bekleyen yazıların ardından dosyayı siler. Geciken okuma oturumu geri getiremez. Raporun kaynak işi başarıyla tamamlandığında ve hata verdiğinde üyelik ve TTL tekrar doğrulanır. Geçersiz oturum 401 döner ve tarayıcı çerezi temizlenir; aktif oturumun kaynak bağlantı hatası 502 döner.
 5. Dosya silme başarısızsa hata döner ve aynı süreç oturumu yeniden yüklemeyi engeller; silme yeniden denenebilir. Bu sınır, yeniden bağlantının geri alınmasındaki silme hatası için de geçerlidir. Silinemeyen kayıt süreç yeniden başlatılınca TTL sonuna kadar yeniden yüklenebilir; süreç içi iptal bilgisi kalıcı değildir. Dosya erişimi ve disk hatalarının izlenmesi işletim sorumluluğudur.
@@ -30,6 +30,8 @@ Bozuk bir dosya diğer kullanıcıların yüklenmesini etkilemez; yeniden giriş
 Giriş profil ve kişisel menü üzerinden kimliği doğrular. Mesai raporu seçili haftanın kişisel turnike hareketlerini alır, bütün sayfaları birleştirir ve API'de zorunlu `passages` olarak sunar. Günlük ilk giriş–son çıkış ve süreler [kayıtlı süre sahibinde](../rules/recorded-time.md), açık giriş güvenilirliği [geçiş sahibinde](../rules/passages.md) çözülür. Sabit kişi anahtarı Pofi notları için sunucu oturumunda korunur.
 
 Farklı kullanıcıların istekleri ortak bir sıra beklemeden başlar. Aynı oturumdaki WebForms işlemleri kendi istemcisinde sıralanır; diğer oturumlar bağımsız çalışır. Her HTTP isteğinde 30 saniyelik zaman aşımı ve oturumun iptal sinyali uygulanır. Aynı oturum/aralıktaki başarılı rapor 20 saniye ilgili istemcinin belleğinde tutulur; ortak yanıt önbelleği kullanılmaz. Ayrıntılar [kaynak sözleşmesinde](../rules/source-policy.md).
+
+Kaynak HTTP hatası gövdesinde giriş formu bulunsa da oturum korunur. API temizliği, kaynak kontrolü ve keepalive ortak kod/durum doğrulamasını kullanır; istemci de başarılı oturum yanıtını işlemine göre doğrular. [Hata sözleşmesi](../pdks-errors.md).
 
 [Tek pod, TZ ve ingress ayarları](../deployment.md).
 

@@ -22,6 +22,8 @@ Kişisel API yanıtlarında `Cache-Control: no-store` vardır; ingress/CDN bu ya
 
 Haftalık mesai raporu kişisel turnike listesinin bütün sayfalarını toplar. Kaynaktaki sayfa boyutu uygulamanın ortam ayarı değildir; adaptör kaynağın sayfalama bilgisini izler. Giriş/profil, turnike sorgusu ve sayfa callback'leri kurum ağı üzerinden erişilebilir olmalıdır.
 
+Kaynak erişim kabulünde bağlantı/DNS hatası (`CONNECTION_FAILED`) ile PDKS HTTP hata yanıtını (`SOURCE_ERROR`) ayrı doğrulayın. `ENOTFOUND` DNS çözümlemesinin başarısız olduğunu belirtir; tek başına VPN durumunu belirlemez. Kaynağın `403/429/5xx` hata sayfası oturumu düşürmemelidir. [Hata sözleşmesi](pdks-errors.md).
+
 ## Docker
 
 `/demo` statik sayfası aynı derlemeye dahildir ve oturum gerektirmez. Yakalanan veride kişi adı/kimliği çıkarılmış, gerçek geçiş tarihleri/saatleri korunmuştur. `noindex, nofollow` erişim kontrolü değildir. [Veri kapsamı ve sahipliği](demo.md).

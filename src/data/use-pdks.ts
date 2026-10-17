@@ -1,24 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useEffectEvent, useReducer, useRef, useState } from "react";
-import { api, ApiError, createLatestRequest } from "@/lib/api-client.js";
+import { api, createLatestRequest } from "@/lib/api-client.js";
+import { readSessionResponse } from "@/lib/session-response.js";
 import { startSessionHeartbeat } from "@/lib/session-heartbeat.js";
 import { toRequestFailure, type PdksOperation } from "@/lib/pdks-failure";
 import { addDays } from "@/domain/rules/calendar";
 import { readReportResponse } from "./report-response";
 import { initialPdksState, pdksReducer } from "./pdks-state";
-import { ui } from "@/lib/ui-text.js";
 
 export type { RequestFailure } from "@/lib/pdks-failure";
-
-function connectionState(result: unknown): boolean {
-  if (!result || typeof result !== "object" || !("connected" in result)
-    || typeof result.connected !== "boolean")
-    throw new ApiError(ui.apiErrors.responseUnreadable, 200, "INVALID_RESPONSE", {
-      apiPath: "/api/session", diagnostic: "Oturum yanıtında connected alanı okunamadı.",
-    });
-  return result.connected;
-}
 
 export function usePdks(week: string) {
   const [state, dispatch] = useReducer(pdksReducer, initialPdksState);
@@ -48,7 +39,7 @@ export function usePdks(week: string) {
     try {
       const result = await api("/api/session", { signal });
       if (signal?.aborted || id !== generation.current) return;
-      dispatch({ type: "session-checked", connected: connectionState(result) });
+      dispatch({ type: "session-checked", connected: readSessionResponse(result, "/api/session", "GET") });
     } catch (error) {
       if (!signal?.aborted && id === generation.current) fail(error, "session");
     }
@@ -101,11 +92,7 @@ export function usePdks(week: string) {
         body: JSON.stringify({ username: values.get("username"), password: values.get("password") }),
       });
       if (id !== generation.current) return;
-      if (!connectionState(result))
-        throw new ApiError(ui.apiErrors.requestFailed, 200, "INVALID_RESPONSE", {
-          apiPath: "/api/session", apiMethod: "POST",
-          diagnostic: "Başarılı giriş yanıtı bağlantıyı doğrulamadı.",
-        });
+      readSessionResponse(result, "/api/session", "POST");
       dispatch({ type: "connected" });
     } catch (error) {
       if (id === generation.current) fail(error, "connect");
@@ -124,7 +111,8 @@ export function usePdks(week: string) {
     requests.cancel();
     dispatch({ type: "started", operation: "disconnect" });
     try {
-      await api("/api/session", { method: "DELETE" });
+      const result = await api("/api/session", { method: "DELETE" });
+      readSessionResponse(result, "/api/session", "DELETE");
       if (id === generation.current) dispatch({ type: "disconnected" });
     } catch (error) {
       if (id === generation.current) fail(error, "disconnect");

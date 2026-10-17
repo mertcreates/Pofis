@@ -1,7 +1,5 @@
 import {
   POFI_NOTE_POOL_V1,
-  POFI_NOTE_POOL_V1_LEGACY_LENGTH,
-  POFI_NOTE_POOL_V1_EXPANSION_DATE,
   POFI_SPECIAL_VARIANTS_V1,
 } from "./pool-v1.js";
 import scheduled from "./scheduled-publications.json";
@@ -35,12 +33,6 @@ const archiveSpecialDays = Object.fromEntries(
 export const NOTE_PUBLICATIONS: readonly NotePublication[] = [
   {
     from: "0001-01-01",
-    notes: POFI_NOTE_POOL_V1.slice(0, POFI_NOTE_POOL_V1_LEGACY_LENGTH),
-    strides: [1, 5, 7, 11, 13, 17, 19, 23],
-    specialDays: archiveSpecialDays,
-  },
-  {
-    from: POFI_NOTE_POOL_V1_EXPANSION_DATE,
     notes: [...POFI_NOTE_POOL_V1],
     strides: [1, 3, 7, 9, 11, 13, 17, 19],
     specialDays: archiveSpecialDays,

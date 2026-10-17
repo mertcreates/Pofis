@@ -5,9 +5,42 @@ import {
   PASSAGES_PATH,
   parsePassages,
   readCallback,
+  readForm,
 } from "./pdks.js";
 
 const name = "Fixture Person";
+
+test("kaynağın bozuk form, yönlendirme ve menü adresleri uygulama hatası sayılmaz", async () => {
+  try {
+    readForm('<form action="http://[invalid"></form>', `${PDKS_ORIGIN}/PizzyKurumWeb/Giris.aspx`);
+    throw new Error("Expected invalid source address");
+  } catch (error) { expect(error).toMatchObject({ code: "SOURCE_CHANGED", status: 502 }); }
+  const redirect = new PdksClient({ fetchImpl: async () => new Response("", { status: 302, headers: { location: "http://[invalid" } }) });
+  await expect(redirect.request(PASSAGES_PATH)).rejects.toMatchObject({ code: "SOURCE_CHANGED", status: 502 });
+  const profile = new PdksClient({ fetchImpl: async url => new Response(url.pathname.endsWith("PizzyMain.aspx")
+    ? '<span id="ctl_RPPersonel_LblKisiAdiSoyadi">Fixture</span>'
+    : '<a href="http://[invalid?KisiID=private">Profile</a>') });
+  await expect(profile.personalProfile()).rejects.toMatchObject({ code: "SOURCE_CHANGED", status: 502 });
+});
+
+test("istek öncesi uygulama hatası bağlantı hatasına çevrilmez", async () => {
+  const original = new Error("fixture invariant");
+  let calls = 0;
+  const client = new PdksClient({ fetchImpl: async () => { calls++; return new Response("fixture"); } });
+  client.onRequest = () => { throw original; };
+  await expect(client.request("/PizzyKurumWeb/fixture")).rejects.toBe(original);
+  expect(calls).toBe(0);
+});
+
+test("oturum iptali bağlantı hatasına çevrilmez; timeout bağlantı hatasıdır", async () => {
+  const controller = new AbortController();
+  const cancelled = new DOMException("fixture", "AbortError");
+  controller.abort(cancelled);
+  const client = new PdksClient({ fetchImpl: async () => { throw new Error("must not fetch"); } });
+  await expect(client.request("/PizzyKurumWeb/fixture", undefined, { signal: controller.signal })).rejects.toBe(cancelled);
+  const timedOut = new PdksClient({ fetchImpl: async () => { throw new DOMException("fixture", "TimeoutError"); } });
+  await expect(timedOut.request("/PizzyKurumWeb/fixture")).rejects.toMatchObject({ code: "CONNECTION_FAILED", status: 502, details: { diagnostic: "PDKS yanıtı 30 saniye içinde gelmedi." } });
+});
 
 test.each(["bun", "node"])("%s DNS hatası kaynak erişim hatası olarak güvenli koduyla korunur", async (runtime) => {
   const client = new PdksClient({ fetchImpl: async () => {

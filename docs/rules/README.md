@@ -58,8 +58,8 @@ Oklar bir kuralın sonucunun nerede kullanıldığını gösterir. Rapor uyarlam
 | --- | --- |
 | Rapor hazırlığı ve saat izdüşümü | [report.ts](../../src/domain/report.ts): kaynak ve planı ekran modeline uyarlar; hesapları ilgili kurallardan alır |
 | Pofi notları | [İçerik yönetim rehberi](../pofi-notes.md): katalog, seçim motoru ve tarihli yayınların sahipleri; [sunucu](../../src/server/pofi-notes.js) gerçek kişi anahtarını üretir |
-| Plan kalıcılığı | [plan-storage](../../src/lib/plan-storage.js) serileştirme; [work-plans](../../src/data/work-plans.ts) anahtarlar ve veri göçü; [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonra durum güncelleme |
-| Tema | [theme](../../src/lib/theme.js) tercih değerleri; [use-appearance](../../src/data/use-appearance.ts) işletim sistemi ve depolama olayları |
+| Plan kalıcılığı | [plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulama; [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamı; [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonra durum güncelleme |
+| Tema | [theme](../../src/lib/theme.js) tercih değerleri ve `pofis:theme:v1` depolama anahtarı; [use-appearance](../../src/data/use-appearance.ts) işletim sistemi ve depolama olayları |
 | Metin ve marka | [ui-text](../../src/lib/ui-text.js), [ton rehberi](../brand/pofi-tone-guide.md) ve [görsel kaynaklar](../brand/assets.md) |
 | Kaynak tazeliği ve istek yaşamı | [use-pdks](../../src/data/use-pdks.ts): başarısız yenilemede eski rapor, geç kalan yanıtın ayrılması ve oturum bitişinde temizleme |
 | PDKS hata sözleşmesi | [pdks-failure](../../src/lib/pdks-failure.ts): ortak sınıflandırma ve toparlanma; [hata sözleşmesi](../pdks-errors.md) taşıma, durum ve sunum sahiplerini açıklar |

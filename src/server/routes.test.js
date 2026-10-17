@@ -14,6 +14,40 @@ import { GET as report } from "../app/api/report/route.js";
 import { POST as heartbeat } from "../app/api/session/heartbeat/route.js";
 import { PdksClient, PdksError, PASSAGES_PATH } from "./pdks.js";
 
+test.each([403, 429, 500, "invalid-expiry"])("%s kaynak hatası giriş formu içerse de aktif oturumu korur", async (scenario) => {
+  const key = Symbol.for("pofis.session-manager");
+  const previous = globalThis[key];
+  const logger = spyOn(console, "error").mockImplementation(() => {});
+  const manager = createSessionManager({ createClient: () => {
+    const client = new PdksClient({ fetchImpl: async (url) =>
+      url.pathname.endsWith("/PizzyMain.aspx")
+        ? new Response('<span id="ctl_RPPersonel_LblKisiAdiSoyadi">Fixture</span>')
+        : new Response('<input name="tbPassword">', { status: Number(scenario) }) });
+    client.login = async () => { client.self = { sourceId: "fixture", name: "Fixture" }; };
+    client.report = () => scenario === "invalid-expiry"
+      ? Promise.reject(new PdksError("fixture", "SESSION_EXPIRED", 500))
+      : client.request(PASSAGES_PATH);
+    return client;
+  } });
+  globalThis[key] = manager;
+  let token;
+  try {
+    token = await manager.connect({ username: "fixture", password: "fixture" });
+    const request = new NextRequest("http://localhost:3000/api/report?person=self&from=2026-10-12&to=2026-10-18", {
+      headers: { Cookie: `${SESSION_COOKIE}=${token}` },
+    });
+    const response = await report(request);
+    expect(response.status).toBe(scenario === "invalid-expiry" ? 500 : 502);
+    expect((await response.json()).code).toBe(scenario === "invalid-expiry" ? "SESSION_EXPIRED" : "SOURCE_ERROR");
+    expect(response.cookies.getAll()).toHaveLength(0);
+    expect(await manager.sessionFor(request)).toBeTruthy();
+  } finally {
+    if (token) await manager.disconnect({ cookies: { get: name => name === SESSION_COOKIE ? { value: token } : undefined } });
+    if (previous) globalThis[key] = previous; else delete globalThis[key];
+    logger.mockRestore();
+  }
+});
+
 test.each(["logout", "ttl", "network"])("rapor kaynak hatasında %s durumunu doğru sınıflandırır", async (scenario) => {
   const key = Symbol.for("pofis.session-manager");
   const previous = globalThis[key];
