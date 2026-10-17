@@ -375,6 +375,11 @@ export const ui = {
   type: "Hata türü",
   diagnostic: "Teknik ayrıntı",
   diagnosticDisclosure: "Teknik ayrıntılar",
+  diagnosticGroups: {
+    error: "Hata",
+    application: "Uygulama isteği",
+    source: "PDKS isteği",
+  },
   copyDiagnostics: "Ayrıntıları kopyala",
   copyingDiagnostics: "Kopyalanıyor…",
   diagnosticsCopied: "Ayrıntılar kopyalandı",

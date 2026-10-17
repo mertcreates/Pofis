@@ -2063,10 +2063,53 @@ body {
   margin-inline: 0;
 }
 .request-error-disclosure .request-error-details {
-  margin: 12px 0 0;
+  margin: 0;
+}
+.request-error-group {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+.request-error-group:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+.request-error-group:last-child {
+  padding-bottom: 0;
+}
+.request-error-group > :is(h2, h3) {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.request-error-route {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px 12px;
+  margin: 0;
+}
+.request-error-route > div {
+  min-width: 0;
+}
+.request-error-route dd {
+  margin: 0;
+}
+.request-error-route + .request-error-details {
+  margin-top: 16px;
+}
+.request-error-group code {
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.request-error-method code {
+  font-family: inherit;
+  font-weight: 600;
 }
 .request-error-copy {
-  margin-top: 16px;
+  margin: 12px 0 20px;
 }
 .request-error-copy button {
   padding: 8px 12px;
@@ -2085,9 +2128,8 @@ body {
   .request-error .request-error-mascot {
     width: 120px;
   }
-  .request-error-disclosure .request-error-details > div {
+  .request-error-details {
     grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
   }
 }
 .button-link.primary,

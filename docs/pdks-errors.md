@@ -45,6 +45,8 @@ Eski rapor varken hata kısa bir bildirim olarak raporun üzerinde kalır; rapor
 
 Tam sayfa hata görünümü ölçülü Pofi görseli, başlık, kısa açıklama ve işleme uygun ana eylemden oluşur. Teknik ayrıntılar kutusuz ve başlangıçta kapalı bir açılımdır. “Ayrıntıları kopyala” yalnız ekranda sunulan izinli tanı alanlarını kopyalar; başarı veya erişim reddi görünür durum metniyle bildirilir. Hata zamanı İstanbul saat diliminde tarih, saat ve UTC farkıyla gösterilir; kopyalanan metin özgün zaman damgasını korur. Uzun tanı değerleri satır kırar; dar ekranda etiket ve değer alt alta yerleşir.
 
+Teknik ayrıntılar “Hata”, “Uygulama isteği” ve “PDKS isteği” başlıkları altında gruplanır; verisi bulunmayan grup çizilmez. Hata alanları masaüstünde iki, dar ekranda tek sütundur. İstek yöntemi ve yolu aynı satırda, uzun yollar gerektiğinde kırılarak sunulur. Gruplar ayrı kart oluşturmaz. Kopyalama düğmesi ayrıntıların üstündedir; kopyalanan izinli alanlar ve özgün zaman damgası aynı kalır.
+
 ## Doğrulama
 
 [Hata ve HTTP okuma testleri](../src/lib/pdks-failure.test.ts), [durum geçişleri](../src/data/pdks-state.test.ts), [kullanıcı sunumu](../src/components/pdks-error.test.tsx), [sunucu serileştirme](../src/server/http.test.js) ve [route/oturum testleri](../src/server/routes.test.js) sözleşmeyi korur. [Fixture kabulü](../scripts/acceptance/archive-behavior.js) sentetik API yanıtları kullanır; gerçek PDKS erişimini kanıtlamaz.

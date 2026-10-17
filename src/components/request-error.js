@@ -3,9 +3,14 @@
 import { memo, useEffect, useId, useRef, useState } from "react";
 import { POFI_ASSETS } from "@/domain/rules/pofi.js";
 import { ui } from "@/lib/ui-text.js";
-import { pdksDiagnosticRows, pdksDiagnosticText, presentPdksFailure } from "./pdks-error-presentation";
+import { pdksDiagnosticGroups, pdksDiagnosticText, presentPdksFailure } from "./pdks-error-presentation";
 
-function RequestErrorDetails({ error }) {
+const routeKeys = new Set(["apiMethod", "apiPath", "method", "path"]);
+const proseKeys = new Set(["diagnostic", "occurredAt", "sessionCheck"]);
+
+function RequestErrorDetails({ error, inline }) {
+  const groupId = useId();
+  const GroupHeading = inline ? "h3" : "h2";
   const [copy, setCopy] = useState({ error, status: "idle" });
   const status = copy.error === error ? copy.status : "idle";
   async function copyDetails() {
@@ -21,20 +26,37 @@ function RequestErrorDetails({ error }) {
   return (
     <details className="request-error-disclosure">
       <summary>{ui.diagnosticDisclosure}</summary>
-      <dl className="request-error-details">
-        {pdksDiagnosticRows(error).map(({ key, label, value, raw }) => (
-          <div key={key}>
-            <dt>{label}</dt>
-            <dd>{key === "occurredAt" && value !== raw ? <time dateTime={raw}>{value}</time> : value}</dd>
-          </div>
-        ))}
-      </dl>
       <div className="request-error-copy">
         <button type="button" onClick={copyDetails} disabled={status === "copying"}>
           {status === "copying" ? ui.copyingDiagnostics : ui.copyDiagnostics}
         </button>
         <p role="status">{status === "copied" ? ui.diagnosticsCopied : status === "failed" ? ui.diagnosticsCopyFailed : ""}</p>
       </div>
+      {pdksDiagnosticGroups(error).map(group => {
+        const route = ["apiMethod", "method", "apiPath", "path"]
+          .map(key => group.rows.find(row => row.key === key)).filter(row => row !== undefined);
+        const fields = group.rows.filter(row => !routeKeys.has(row.key));
+        return (
+          <section className="request-error-group" key={group.key} aria-labelledby={`${groupId}-${group.key}`}>
+            <GroupHeading id={`${groupId}-${group.key}`}>{group.label}</GroupHeading>
+            {route.length > 0 && <dl className="request-error-route">
+              {route.map(({ key, label, value }) => <div key={key} className={key === "method" || key === "apiMethod" ? "request-error-method" : undefined}>
+                <dt className="visually-hidden">{label}</dt>
+                <dd><code>{value}</code></dd>
+              </div>)}
+            </dl>}
+            {fields.length > 0 && <dl className="request-error-details">
+              {fields.map(({ key, label, value, raw }) => (
+                <div key={key} className={key === "diagnostic" || key === "occurredAt" ? "request-error-detail-wide" : undefined}>
+                  <dt>{label}</dt>
+                  <dd>{key === "occurredAt" && value !== raw ? <time dateTime={raw}>{value}</time>
+                    : proseKeys.has(key) ? value : <code>{value}</code>}</dd>
+                </div>
+              ))}
+            </dl>}
+          </section>
+        );
+      })}
     </details>
   );
 }
@@ -104,7 +126,7 @@ function RequestError({ error, onRetry, onReturnToLogin, busy = false, variant =
           </button>
         </div>
       )}
-      {presentation.showDiagnostics && <RequestErrorDetails error={error} />}
+      {presentation.showDiagnostics && <RequestErrorDetails error={error} inline={inline} />}
     </section>
   );
 }
