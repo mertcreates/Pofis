@@ -75,7 +75,7 @@ async (page) => {
     await page.getByRole('button', { name: /^Cuma,/ }).click();
     await page.getByRole('button', { name: 'Süreyi yarım saat azalt' }).click();
     await page.getByRole('button', { name: 'Süreyi yarım saat azalt' }).click();
-    await page.getByRole('button', { name: 'Açık günlere uygula', exact: true }).click();
+    await page.getByRole('button', { name: /diğer açık günlere uygula$/ }).click();
     await page.getByRole('button', { name: 'Kapat', exact: true }).click();
     await page.reload();
     await page.getByText('DOĞRULAMA KİŞİSİ', { exact: true }).waitFor();

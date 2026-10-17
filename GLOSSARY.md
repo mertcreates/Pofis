@@ -17,19 +17,16 @@ Canlı toplamın kayıtlı süreyi aşan bölümü; süre çubuğunun açık ton
 _Avoid_: Canlı toplam, mola süresi
 
 **Planlanan günlük hedef**:
-Varsayılan veya özel hafta planında kullanıcının belirlediği süre; tamamlanan günün değeri korunur. Tamamla, kalan günleri güncel gereken süreleriyle yeniden planlayabilir. PDKS kayıtları varsayılan şablonu değiştirmez.
-_Avoid_: Etkin hedef, eşit pay
+Varsayılan veya özel hafta planında belirlenen günlük çalışma süresi.
 
 **Etkin günlük hedef**:
-Güncel gereken süre: özgün planın tamamlanmış geçmiş kayıtların farkıyla dengelenmiş sonucu. Son uygun günden geriye dağıtılır; her gün 0–16 saat sınırındadır.
-_Avoid_: Saklanan plan
+Güncel gereken çalışma süresi; haftalık hedef ve tamamlanan günlerin kayıtlarıyla dengelenmiş günlük hedef.
 
 **Devir**:
-Aynı haftanın geçerli tamamlanmış kayıtlarının kendi özgün günlük planlarına göre net farkı. Kayıtsız/belirsiz günler borç sayılmaz.
-_Avoid_: Otomatik plan değişikliği
+Tamamlanan günlerin gerçekleşen süreleri ile kayıtlı günlük planları arasındaki net farkın kalan uygun günlere aktarılması.
 
 **Haftalık hedef**:
-İlk günlük plandan veya Tamamla eyleminden gelen toplam. Günlerin tamamlanmasıyla değişmez; Tamamla sonrasında kalan gerçek çalışma planından ayrı saklanır.
+Hafta için belirlenen toplam çalışma süresi. Başlangıç planı, elle gereken süre düzenlemesi, varsayılan plana dönüş veya Tamamla eylemiyle belirlenir.
 
 **Gerçekleşen toplam**:
 PDKS günlük kayıt sürelerinin toplamı. Canlı ek tahmin dahilse ayrıca belirtilir.
@@ -38,8 +35,7 @@ PDKS günlük kayıt sürelerinin toplamı. Canlı ek tahmin dahilse ayrıca bel
 Tamamlanan günlerin gerçekleşen süreleri ile tamamlanmamış günlerin güncel gereken sürelerinin toplamı.
 
 **Çıkış hedefi**:
-İlk girişe etkin günlük hedefin eklenmesiyle bulunan çıkış saati. Bugünkü kayıt belirsizse hesaplanmaz.
-_Avoid_: Planlanan günlük hedef
+İlk girişe etkin günlük hedefin eklenmesiyle bulunan çıkış saati.
 
 **Açık giriş**:
 Ardından güvenilir bir çıkış bulunmayan son turnike girişi.

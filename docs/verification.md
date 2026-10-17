@@ -23,17 +23,22 @@ bun run build
 
 [Kurallar testi](../src/domain/rules/rules.test.ts) modül belgelerini, kural bağlantılarını ve bağımlılık sınırlarını denetler. Serbest metin ile kodun anlamca tutarlılığı ayrıca incelenir.
 
-[Plan kabul betiği](../scripts/acceptance/work-plan.js) yeni ve izole bir Playwright sayfasında, yerel sunucunun 3000 portuyla çalışır. API yanıtları ve saat sentetiktir; devir, kayıtsız/belirsiz gün, tamamlanan günün bütün süre kontrollerinde kilitlenmesi, saniyeli kaydın korunması, PDKS ile şablonun ayrılması, varsayılan/özel hafta, kilitli günleri atlayan dağıtım/toplu düzenleme/sıfırlama, yeniden yükleme, yazma hatası ve demo ayrımını denetler. Açık/koyu masaüstü ve mobil görüntülerini geçici olarak `output/playwright/` içine yazar. Görüntüleri inceledikten sonra temizleyin.
+## Plan doğrulaması
 
-[Plan görünüm betiği](../scripts/acceptance/work-plan-style.js) yerel demoda açık/koyu tema metin kontrastını, 320px ekranın yatay taşmasını ve klavyeyle gün seçimini ve ayrı dokunmatik Chromium bağlamında dokunma alanlarını/süre değişikliğini denetler. Dokunmatik açık/koyu ekran görüntülerini `output/playwright/` içine yazar; incelemeden sonra temizleyin. Gerçek kaynak kullanmaz.
+Beklenen davranışın sahibi [mesai planı sözleşmesidir](rules/work-plan.md). [Kod testleri](../src/domain/rules/work-plan.test.ts) sayısal senaryoları ve sınırları doğrular. Tarayıcı kabul betikleri aşağıdaki akışları izole API yanıtları ve sentetik saatle çalıştırır; görünüm betiği yerel demoyu kullanır.
 
-[Hafta ilerleme kabulü](../scripts/acceptance/work-plan-progression.js) haftayı planlama → Pazartesi gerçekleşeni → Salıya geçiş → özgün hedefin korunması → idempotent devir → tamamla → son günün kapanması zincirini ve geçmiş hafta/Ayarlar dönüşünü izole API ile sınar. Toplamlar tam metin veya saniye eşitliğiyle doğrulanır.
+| Betik | Doğruladığı akış |
+| --- | --- |
+| [Plan kabulü](../scripts/acceptance/work-plan.js) | Kilitler, devir, hafta/şablon düzenleme, sıfırlama, yazma hatası, yeniden yükleme ve demo ayrımı |
+| [Gereken süre](../scripts/acceptance/work-plan-required.js) | Kart/stepper eşitliği, doğrudan düzenleme, toplu uygulama, süre eklemede koruma, kapatma/açma ve kalıcılık |
+| [Elle düzenleme](../scripts/acceptance/work-plan-manual.js) | Elle değişen günü süre eklemeden koruma ve seçim değişikliğinin etkisi |
+| [Hafta ilerlemesi](../scripts/acceptance/work-plan-progression.js) | Günlerin tamamlanması, özel hedefler, tekrar hesaplama, hedef çıkış ve hafta navigasyonu |
+| [Kapasite](../scripts/acceptance/work-plan-capacity.js) | Kalan günün kapasitesi, hedef çıkış, yeniden yükleme ve 16 saat sınırı |
+| [Görünüm](../scripts/acceptance/work-plan-style.js) | Açık/koyu tema kontrastı, 320px taşma, klavye seçimi ve dokunmatik kontroller |
+
+Betikler 3000 portundaki yerel uygulamayla çalışır. Üretilen ekran görüntüleri geçici olarak output/playwright/ içine yazılır; incelemeden sonra temizlenir. Gerçek PDKS ve kurum ortamı kabulünün durumu [görev listesinde](../tasks/todo.md) tutulur.
 
 ## Tarayıcı ve gerçek kaynak
-
-[Kapasite kabulü](../scripts/acceptance/work-plan-capacity.js), Cuma kapalıyken Perşembe 5 sa 20 dk → 14 sa 50 dk, 40 saat hafta hedefi, 22.50 hedef çıkış, yenilemede idempotans ve saniyeli planın 16 saat sınırında durmasını izole API ile doğrular.
-
-[Elle plan düzenleme kabulü](../scripts/acceptance/work-plan-manual.js), Çarşambayı 4 saate indirme → başka gün seçme → 40 saate tamamlama zincirinde Çarşambanın korunmasını ve yalnız gün seçmenin dağıtımı engellememesini izole kayıtlarla doğrular. Kapasite mesajı ve pencere kapatıldığında geçici korumanın temizlenmesi plan kabul betiğinde sınanır.
 
 [Mesaim demosu](demo.md) ortak bileşenleri yakalanmış verilerle incelemek içindir. [Fixture kabul betiği](../scripts/acceptance/archive-behavior.js) giriş, rapor, plan, Pofi ve hata akışlarını sahte API yanıtlarıyla sınar. Bu kontroller canlı PDKS erişimini veya kurum kapasitesini kanıtlamaz.
 

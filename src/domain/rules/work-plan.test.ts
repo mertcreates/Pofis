@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import {
   DEFAULT_WORK_PLAN, readDayPlan, resolveWeekPlan, weeklyTarget, completeWeekPlan, resolveStoredTarget,
   emptyWorkPlans, changeDefaultPlan, changeWeekPlan, resolveStoredPlan, setDayMinutes,
-  completedDaySeconds, planAdjustmentDays,
+  completedDaySeconds, planAdjustmentDays, editRequiredMinutes,
 } from "./work-plan";
 import type { DayState } from "./record-status";
 import type { WorkPlan } from "./work-plan";
@@ -55,7 +55,7 @@ test("tamamla elle düzenlenen Çarşambayı korur; yalnız seçilen gün dağı
   expect(plan).toEqual([480,480,240,480,480,0,0]);
 });
 
-test("tamamla korunan günün kapasitesini kullanmaz; fazla hedefte de korur", () => {
+test("tamamla ekleme sırasında korunan günün kapasitesini kullanmaz; fazlayı son günden azaltır", () => {
   const eligible = [false,false,true,true,true,false,false];
   const protectedDays = [false,false,true,false,false,false,false];
   const full = readDayPlan([480,480,240,960,960,0,0])!;
@@ -64,7 +64,73 @@ test("tamamla korunan günün kapasitesini kullanmaz; fazla hedefte de korur", (
   expect(completeToDefaultTotal(full, largerTarget, eligible)).toEqual(largerTarget);
   const surplus = readDayPlan([480,480,720,480,480,0,0])!;
   expect(completeToDefaultTotal(surplus, DEFAULT_WORK_PLAN, eligible, protectedDays))
-    .toEqual([480,480,720,360,360,0,0]);
+    .toEqual([480,480,720,480,240,0,0]);
+});
+
+test("41:09:17 hedefi azaltılırken elle düzenlenen Cuma önce kullanılır; Perşembe 8 saat kalır", () => {
+  const source = days([8,8,8,null,null,null,null]);
+  source[0].recordedSeconds = 8 * 3600 + 3 * 60 + 31;
+  source[1].recordedSeconds = 8 * 3600 + 42 * 60 + 29;
+  source[2].recordedSeconds = 8 * 3600 + 23 * 60 + 17;
+  const targetSeconds = 41 * 3600 + 9 * 60 + 17;
+  const resolved = resolveWeekPlan(source, DEFAULT_WORK_PLAN, "2026-10-15", false, targetSeconds);
+  expect(resolved.displaySeconds.slice(3,5)).toEqual([28800,28800]);
+  const next = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, resolved, [false,false,false,false,true])!;
+  expect(next[3]).toBe(480);
+  expect(Math.round(next[4] * 60)).toBe(6 * 3600 + 50 * 60 + 43);
+  const after = resolveWeekPlan(source, next, "2026-10-15", false, 144000);
+  expect(after.projectedWeeklySeconds).toBe(144000);
+  expect(after.displaySeconds.slice(0,3)).toEqual(resolved.displaySeconds.slice(0,3));
+});
+
+test("azaltma Cuma sıfıra indiğinde Perşembeye geçer; kapalı günleri ve kilitleri atlar", () => {
+  const plan = readDayPlan([480,480,480,480,60,0,0])!;
+  const source = days([12,12,10,null,null,null,null]);
+  const resolved = resolveWeekPlan(source, plan, "2026-10-15", false, 45 * 3600);
+  const next = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, [false,false,false,true,true])!;
+  expect(next).toEqual([480,480,480,360,0,0,0]);
+  expect(resolveWeekPlan(source, next, "2026-10-15", false, 144000).projectedWeeklySeconds).toBe(144000);
+  const closed = readDayPlan([480,480,480,600,0,0,0])!;
+  const closedResolved = resolveWeekPlan(source, closed, "2026-10-15", false, 44 * 3600);
+  expect(completeWeekPlan(closed, DEFAULT_WORK_PLAN, closedResolved, [false,false,false,true,true]))
+    .toEqual([480,480,480,360,0,0,0]);
+});
+
+test("gereken süre doğrudan düzenlenir: 4:50 → 5:00 haftalık hedefe yalnız 10 dakika ekler", () => {
+  const plan = readDayPlan([480,480,480,480,450,0,0])!;
+  const source = days([9,9,8,null,null,null,null]);
+  source[2].recordedSeconds = 31200;
+  const resolved = resolveWeekPlan(source, plan, "2026-10-15");
+  expect(resolved.displaySeconds[4]).toBe(17400);
+  const next = editRequiredMinutes(plan, resolved, [{ day: 4, minutes: 300 }]);
+  expect(next.targetSeconds).toBe(40 * 3600 - 20 * 60);
+  expect(next.plan).toEqual([480,480,480,480,300,0,0]);
+  const saved = changeWeekPlan({ ...emptyWorkPlans(), weekOverrides: { "2026-10-12": plan } }, "2026-10-12", next.plan, resolved.completed, next.targetSeconds);
+  const after = resolveWeekPlan(source, resolveStoredPlan(saved, "2026-10-12"), "2026-10-15", false, resolveStoredTarget(saved, "2026-10-12"));
+  expect(after.displaySeconds).toEqual([32400,32400,31200,28800,18000,0,0]);
+  expect(after.projectedWeeklySeconds).toBe(next.targetSeconds);
+  const again = editRequiredMinutes(next.plan, after, [{ day: 4, minutes: 300 }]);
+  expect(again).toEqual(next);
+  const thursdayCompleted = source.map((day, index) => index === 3 ? { ...day, state: "recorded" as const, recordedSeconds: 9 * 3600 } : day);
+  expect(resolveWeekPlan(thursdayCompleted, next.plan, "2026-10-16", false, next.targetSeconds).displaySeconds[4]).toBe(4 * 3600);
+});
+
+test("gereken süre toplu uygulanır; kilitler korunur, devir ikinci kez düşülmez", () => {
+  const source = days([9,9,8,null,null,null,null]);
+  source[2].recordedSeconds = 31200;
+  const resolved = resolveWeekPlan(source, DEFAULT_WORK_PLAN, "2026-10-15");
+  const next = editRequiredMinutes(DEFAULT_WORK_PLAN, resolved, [{ day: 3, minutes: 300 }, { day: 4, minutes: 300 }]);
+  const after = resolveWeekPlan(source, next.plan, "2026-10-15", false, next.targetSeconds);
+  expect(after.displaySeconds.slice(3, 5)).toEqual([18000,18000]);
+  expect(next.targetSeconds).toBe(36 * 3600 + 40 * 60);
+  expect(() => editRequiredMinutes(DEFAULT_WORK_PLAN, resolved, [{ day: 0, minutes: 300 }])).toThrow("Tamamlanan");
+  expect(() => editRequiredMinutes(DEFAULT_WORK_PLAN, resolved, [{ day: 4, minutes: 961 }])).toThrow();
+  const closed = editRequiredMinutes(DEFAULT_WORK_PLAN, resolved, [{ day: 4, minutes: 0 }]);
+  const closedResolved = resolveWeekPlan(source, closed.plan, "2026-10-15", false, closed.targetSeconds);
+  expect(closedResolved.displaySeconds[4]).toBe(0);
+  expect(closedResolved.displaySeconds[3]).toBe(8 * 3600);
+  const reopened = editRequiredMinutes(closed.plan, closedResolved, [{ day: 4, minutes: 240 }]);
+  expect(resolveWeekPlan(source, reopened.plan, "2026-10-15", false, reopened.targetSeconds).displaySeconds[4]).toBe(4 * 3600);
 });
 
 function days(hours: readonly (number | null)[] = [8, 8, 8, 8, null, null, null]) {
@@ -181,13 +247,13 @@ test("tamamla tüm uygun günleri kullanır; yarım saatlik fark önce Pazartesi
   expect(plan).toEqual([480, 480, 450, 480, 480, 0, 0]);
 });
 
-test("tamamla eksik ve fazla toplamı eşit turlarla dağıtır; kapalı günleri açmaz", () => {
+test("tamamla eksik toplamı turlarla ekler, fazla toplamı son günden azaltır; kapalı günleri açmaz", () => {
   const shorter = readDayPlan([480, 480, 480, 480, 0, 0, 0])!;
   const result = completeToDefaultTotal(shorter, DEFAULT_WORK_PLAN, Array(7).fill(true))!;
   expect(result).toEqual([600, 600, 600, 600, 0, 0, 0]);
   expect(weeklyTarget(result)).toBe(144000);
   expect(completeToDefaultTotal(readDayPlan([600, 600, 480, 480, 480, 0, 0])!, DEFAULT_WORK_PLAN, Array(7).fill(true)))
-    .toEqual([540, 540, 420, 450, 450, 0, 0]);
+    .toEqual([600, 600, 480, 480, 240, 0, 0]);
 });
 
 test("tek açık gün varsa ona dağıtır; kapasite yetmezse kısmi sonuç kaydetmez", () => {

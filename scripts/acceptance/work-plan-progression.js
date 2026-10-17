@@ -63,7 +63,7 @@ async (page) => {
       check((await page.locator(".work-plan-day-title").innerText()) === "Pazartesi\nPlanlanan: 6 sa · Varsayılan: 8 sa", "Completed plan must be distinct from the default");
       check(await page.locator(".work-plan-recorded-label").innerText() === "Gerçekleşen:", "Recorded duration must be labeled");
       await day("Cuma").click();
-      check(await page.locator(".work-plan-stepper output").innerText() === "8 sa", "Effective target overwritten into base plan");
+      check(await page.locator(".work-plan-stepper output").innerText() === "8 sa 30 dk", "Stepper must show the same required duration as the card");
       await page.keyboard.press("Escape");
       await reload();
     }

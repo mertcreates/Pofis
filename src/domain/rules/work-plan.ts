@@ -161,15 +161,32 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
   return { targets, plan, completed, eligible, displaySeconds, unallocatedSeconds, projectedWeeklySeconds, lastWorkingDay, weeklySeconds: targetSeconds, dailySeconds, blocked, exitGoal };
 }
 
+export function editRequiredMinutes(plan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, updates: readonly { day: number; minutes: number }[]) {
+  let next = readWeekPlan(plan.map((minutes, day) => day < WORKING_DAY_COUNT && resolved.completed[day] === null
+    ? resolved.displaySeconds[day] / 60 : minutes))!;
+  let targetSeconds = resolved.weeklySeconds;
+  for (const { day, minutes } of updates) {
+    if (resolved.completed[day] != null) throw new Error("Tamamlanan gün değiştirilemez");
+    const previous = next[day];
+    next = setDayMinutes(next, day, minutes);
+    targetSeconds += Math.round(minutes * 60) - Math.round(previous * 60);
+  }
+  return { plan: next, targetSeconds };
+}
+
 export function completeWeekPlan(plan: WorkPlan, defaultPlan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, protectedDays: readonly boolean[]): WorkPlan | null {
   const next = [...resolved.displaySeconds];
   let difference = weeklyTarget(defaultPlan) - resolved.projectedWeeklySeconds;
-  const recipients = plan.flatMap((_, day) => resolved.eligible[day] && !protectedDays[day] ? [day] : []);
+  const reducing = difference < 0;
+  const recipients = plan.flatMap((_, day) => resolved.eligible[day] && (reducing || !protectedDays[day]) ? [day] : []);
+  if (reducing) recipients.reverse();
   while (difference !== 0) {
     let changed = false;
     for (const day of recipients) {
       const capacity = difference > 0 ? PLAN_LIMITS.maxDailyMinutes * 60 - next[day] : next[day];
-      const step = Math.sign(difference) * Math.min(Math.abs(difference), PLAN_LIMITS.stepMinutes * 60, capacity);
+      const step = difference > 0
+        ? Math.min(difference, PLAN_LIMITS.stepMinutes * 60, capacity)
+        : -Math.min(-difference, capacity);
       if (step === 0) continue;
       next[day] += step;
       difference -= step;

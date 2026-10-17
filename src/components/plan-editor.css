@@ -135,6 +135,8 @@
 .work-plan-day-title { display: flex; flex-direction: column; gap: 4px; }
 .work-plan-day-title strong { font-size: 15px; font-weight: 650; }
 .work-plan-day-title span { color: var(--muted); font-size: 12px; }
+.work-plan-duration-control { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; margin-left: auto; }
+.work-plan-control-label { color: var(--secondary); font-size: 12px; }
 .work-plan-stepper {
   display: inline-flex;
   align-items: center;
@@ -171,7 +173,7 @@
   border-color: var(--accent);
   color: var(--accent-text);
 }
-.work-plan-apply { border-color: transparent; background: transparent; color: var(--accent-text); }
+.work-plan-apply { max-width: 100%; white-space: normal; text-align: right; border-color: transparent; background: transparent; color: var(--accent-text); }
 .work-plan-apply:hover:not(:disabled) { background: var(--accent-soft); border-color: transparent; }
 .work-plan-actions {
   display: flex;
@@ -179,11 +181,9 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 10px;
-  padding: 10px 12px;
-  border: 1px solid light-dark(#c4b5ee, #655881);
-  border-radius: 10px;
-  background: var(--accent-soft);
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
   color: var(--secondary);
   font-size: 13px;
 }
@@ -200,6 +200,8 @@
 }
 .work-plan-actions .work-plan-complete { background: var(--accent); color: var(--accent-content); border-color: var(--accent); }
 .work-plan-actions .work-plan-complete:is(:hover, :focus):not(:disabled) { background: var(--accent-hover); color: var(--accent-content); border-color: var(--accent-hover); }
+.work-plan-actions .work-plan-reset { background: transparent; border-color: transparent; font-weight: 500; }
+.work-plan-actions .work-plan-reset:hover:not(:disabled) { background: var(--surface-hover); border-color: transparent; }
 .work-plan-capacity { margin: 12px 0 0; font-size: 13px; color: var(--secondary); }
 .work-plan-modal button:focus-visible:not(:disabled) { box-shadow: inset 0 0 0 2px var(--accent); }
 .work-plan-actions .work-plan-complete:focus-visible:not(:disabled) { box-shadow: inset 0 0 0 2px var(--accent-content); }

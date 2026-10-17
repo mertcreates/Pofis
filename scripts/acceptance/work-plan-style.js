@@ -57,6 +57,7 @@ async (page) => {
     await touchPage.getByRole('button', { name: 'Ayarlar', exact: true }).tap();
     await touchPage.setViewportSize({ width: 390, height: 844 });
     await touchPage.getByRole('button', { name: /^Cuma,/ }).tap();
+    const beforeValue = await touchPage.locator('.work-plan-stepper output').innerText();
     await touchPage.getByRole('button', { name: 'Süreyi yarım saat azalt' }).tap();
     touch = await touchPage.locator('.work-plan-modal').evaluate(modal => ({
       coarse: matchMedia('(pointer: coarse)').matches,
@@ -66,7 +67,8 @@ async (page) => {
       }).length,
       value: modal.querySelector('output').textContent,
     }));
-    if (!touch.coarse || touch.smallControls || touch.value !== '7,5 sa') throw new Error(JSON.stringify(touch));
+    const cardValue = await touchPage.getByRole('button', { name: /^Cuma,/ }).locator('.work-plan-day-time').innerText();
+    if (!touch.coarse || touch.smallControls || touch.value === beforeValue || touch.value !== cardValue) throw new Error(JSON.stringify(touch));
     for (const theme of ['light', 'dark']) {
       await touchPage.evaluate(theme => { document.documentElement.dataset.theme = theme; }, theme);
       await touchPage.screenshot({ path: `output/playwright/work-plan-touch-${theme}.png`, animations: 'disabled' });

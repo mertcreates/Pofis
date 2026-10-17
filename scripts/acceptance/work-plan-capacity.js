@@ -32,9 +32,9 @@ async (page) => {
     await open();
     await day("Cuma").click();
     await page.getByRole("button", { name: "Kapalı", exact: true }).click();
-    check(await card("Perşembe") === "5 sa 20 dk", "Initial effective Thursday target is wrong");
-    check(await target() === "Haftalık hedef 30 sa 30 dk", "Closing Friday target is wrong");
-    await page.getByRole("button", { name: "Perşembeye 9 sa 30 dk ekle", exact: true }).click();
+    check(await card("Perşembe") === "8 sa", "Closing Friday must preserve Thursday required time");
+    check(await target() === "Haftalık hedef 33 sa 10 dk", "Closing Friday target is wrong");
+    await page.getByRole("button", { name: "Perşembeye 6 sa 50 dk ekle", exact: true }).click();
     check(await card("Perşembe") === "14 sa 50 dk", "Thursday must have sufficient actual capacity");
     check(await card("Cuma") === "–", "Closed Friday was reopened");
     check(await target() === "Haftalık hedef 40 sa", "Weekly target must reach 40 hours");

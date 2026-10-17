@@ -93,12 +93,12 @@ async (page) => {
     await day("Cuma").click();
     check(await page.locator("fieldset.work-plan-day-editor").count() === 1 && await page.locator(".work-plan-recorded-time").count() === 0, "Editable controls did not return for an open day");
     await page.getByRole("button", { name: "Süreyi yarım saat azalt" }).click();
-    check(await page.locator(".work-plan-stepper output").innerText() === "7,5 sa", "Stepper must use compact planned hours");
-    check((await page.locator(".work-plan-day-title").innerText()) === "Cuma\nPlanlanan: 7,5 sa · Gereken: 6 sa 44 dk", "Planned and required hours must be clearly distinguished");
-    check(await page.getByRole("button", { name: "Açık günlere uygula", exact: true }).count() === 0, "Bulk apply must be hidden when only Friday is eligible");
-    check(await day("Cuma").locator(".work-plan-day-time").innerText() === "6 sa 44 dk", "Card must show effective target while stepper retains base plan");
+    check(await page.locator(".work-plan-stepper output").innerText() === "6 sa 44 dk", "Stepper must edit current required hours");
+    check((await page.locator(".work-plan-day-title").innerText()) === "Cuma", "Day title must not repeat a conflicting original plan");
+    check(await page.getByRole("button", { name: /diğer açık günlere uygula$/ }).count() === 0, "Bulk apply must be hidden when only Friday is eligible");
+    check(await day("Cuma").locator(".work-plan-day-time").innerText() === "6 sa 44 dk", "Card and stepper must show the same required time");
     check(await page.getByRole("button", { name: "40 saate tamamla", exact: true }).isDisabled(), "Complete must preserve manually edited Friday when no other day is eligible");
-    check(await page.locator(".work-plan-capacity").innerText() === "Cuma 7,5 sa korunarak 40 saate ulaşılamıyor. Diğer uygun günlerin saat kapasitesi yetersiz.", "Protected-day capacity explanation missing");
+    check(await page.locator(".work-plan-capacity").innerText() === "Cuma 6 sa 44 dk korunarak 40 saate ulaşılamıyor. Diğer uygun günlerin saat kapasitesi yetersiz.", "Protected-day capacity explanation missing");
     await page.keyboard.press("Escape");
     await open();
     await page.setViewportSize({ width: 320, height: 720 });
@@ -116,14 +116,14 @@ async (page) => {
     await page.getByRole("button", { name: "Varsayılan plana dön", exact: true }).click();
     await day("Cuma").click();
     await page.getByRole("button", { name: "Kapalı", exact: true }).click();
-    check((await targetText()) === "Haftalık hedef 32 sa", "Closing Friday should reduce target to 32 hours");
+    check((await targetText()) === "Haftalık hedef 32 sa 45 dk", "Closing Friday should remove its required time");
     await day("Pazartesi").click();
     check(await day("Cuma").evaluate(button => getComputedStyle(button).backgroundColor) === "rgb(248, 249, 251)", "Closed weekday must retain neutral background");
     await day("Cuma").click();
-    check(await page.locator(".work-plan-total > .work-plan-total-label").innerText() === "Beklenen toplam: 32 sa 45 dk", "Expected total must be distinct from target");
-    check(await page.locator(".work-plan-modal .inline-notice").innerText() === "Uygun günlerin kapasitesi yetmiyor: 45 dk 17 sn fazla süre dengelenemedi.", "Unallocated surplus must be visible with exact seconds");
+    check(await page.locator(".work-plan-total > .work-plan-total-label").count() === 0, "Equal expected and target totals must not be duplicated");
+    check(await page.locator(".work-plan-modal .inline-notice").count() === 0, "Closing required time must not create artificial residual");
     await page.setViewportSize({ width: 320, height: 720 });
-    check(await page.locator(".work-plan-total > .work-plan-total-label").isVisible(), "Expected total is hidden on narrow screens");
+    check(await page.locator(".work-plan-total").isVisible(), "Weekly total is hidden on narrow screens");
     check(await page.locator(".work-plan-modal").evaluate(modal => modal.scrollWidth <= modal.clientWidth), "Residual and expected-total text overflow");
     await page.screenshot({ path: "output/playwright/work-plan-residual-mobile.png", animations: "disabled" });
     await page.setViewportSize({ width: 1440, height: 1000 });
@@ -149,7 +149,7 @@ async (page) => {
     });
     check(visual.locked === 'rgb(246, 244, 255)' && visual.selected === 'rgb(237, 233, 254)' && visual.selectedText === 'rgb(59, 7, 100)' && parseFloat(visual.selectedBorder) > 0, JSON.stringify(visual));
     check(visual.total === '13px' && visual.stepper === '13px' && visual.weight === '600', JSON.stringify(visual));
-    check(visual.buttons.every(color => color === 'rgb(241, 243, 247)') && visual.editor === '12px' && visual.actions === 'rgb(241, 238, 255)', JSON.stringify(visual));
+    check(visual.buttons.every(color => color === 'rgb(241, 243, 247)') && visual.editor === '12px' && visual.actions === 'rgba(0, 0, 0, 0)', JSON.stringify(visual));
     const layout = await page.locator(".work-plan-modal").evaluate(modal => {
       const cards = [...modal.querySelectorAll(".work-plan-day")];
       return { dayHeights: cards.map(card => card.getBoundingClientRect().height),
@@ -184,7 +184,7 @@ async (page) => {
     await page.getByRole("button", { name: "Varsayılan plan", exact: true }).click();
     await day("Pazartesi").click();
     await page.getByRole("button", { name: "4 sa", exact: true }).click();
-    await page.getByRole("button", { name: "Açık günlere uygula", exact: true }).click();
+    await page.getByRole("button", { name: /diğer açık günlere uygula$/ }).click();
     check(JSON.stringify((await stored()).defaultPlan) === JSON.stringify([240,240,240,240,240,0,0]), "Default plan not persisted");
     await page.getByRole("button", { name: /^Bu hafta ·/ }).click();
     check((await day("Cuma").locator(".work-plan-day-time").innerText()) === "3 sa 14 dk", "Completed plans must survive template edits");
@@ -201,14 +201,14 @@ async (page) => {
     });
     await page.getByRole("button", { name: "Süreyi yarım saat azalt" }).click();
     await page.locator(".work-plan-modal .inline-notice").waitFor();
-    check(await page.locator(".work-plan-stepper output").innerText() === "4 sa", "Failed write changed plan");
+    check(await page.locator(".work-plan-stepper output").innerText() === "3 sa 14 dk", "Failed write changed plan");
     check(JSON.stringify(await stored()) === JSON.stringify(beforeFailure), "Failed write changed storage");
     await page.evaluate(() => { Storage.prototype.setItem = window.__planOriginalSetter; delete window.__planOriginalSetter; });
     await page.getByRole("button", { name: "Süreyi yarım saat artır" }).click();
     await page.getByRole("button", { name: "Süreyi yarım saat azalt" }).click();
-    check(JSON.stringify((await stored()).weekOverrides["2026-10-12"]) === JSON.stringify([480,480,480,480,240,0,0]), "Template edits lost completed plans");
+    check(JSON.stringify((await stored()).weekOverrides["2026-10-12"]) === JSON.stringify([480,480,480,480,194 + 43/60,0,0]), "Template edits lost completed plans");
     await page.getByRole("button", { name: "Kapalı", exact: true }).click();
-    check(await page.getByRole("button", { name: "Açık günlere uygula", exact: true }).count() === 0, "Bulk apply must stay hidden with no eligible recipient");
+    check(await page.getByRole("button", { name: /diğer açık günlere uygula$/ }).count() === 0, "Bulk apply must stay hidden with no eligible recipient");
     check(await page.getByRole("button", { name: "20 saate tamamla", exact: true }).isDisabled(), "Impossible total not disabled");
     check(await page.locator(".work-plan-capacity").innerText() === "Cuma 0 sa korunarak 20 saate ulaşılamıyor. Diğer uygun günlerin saat kapasitesi yetersiz.", "Insufficient-capacity reason must include the manual preference");
     await page.getByRole("button", { name: "Varsayılan plana dön", exact: true }).click();
@@ -221,17 +221,17 @@ async (page) => {
     await page.getByRole("button", { name: "Varsayılan plan", exact: true }).click();
     await day("Cuma").click();
     await page.getByRole("button", { name: "8 sa", exact: true }).click();
-    check(await page.getByRole("button", { name: "Açık günlere uygula", exact: true }).count() === 0, "Bulk apply must be hidden when all open days already match");
+    check(await page.getByRole("button", { name: /diğer açık günlere uygula$/ }).count() === 0, "Bulk apply must be hidden when all open days already match");
     check(await day("Cuma").locator(".work-plan-day-time").innerText() === "8 sa", "Default template must not show carryover");
     await page.getByRole("button", { name: /^Bu hafta ·/ }).click();
     check(await day("Cuma").locator(".work-plan-day-time").innerText() === "7 sa 14 dk", "Friday carryover missing with two locked days");
-    check(await page.locator(".work-plan-stepper output").innerText() === "8 sa", "Stepper lost base target");
+    check(await page.locator(".work-plan-stepper output").innerText() === "7 sa 14 dk", "Stepper must match the Friday card");
     await page.getByRole("button", { name: "Kapalı", exact: true }).click();
     check(await day("Cuma").locator(".work-plan-day-time").innerText() === "–", "Friday did not close");
-    check(await day("Perşembe").locator(".work-plan-day-time").innerText() === "7 sa 14 dk", "Carryover did not move to Thursday");
+    check(await day("Perşembe").locator(".work-plan-day-time").innerText() === "8 sa", "Closing Friday must preserve Thursday required time");
     await day("Perşembe").click();
-    check(await page.locator(".work-plan-stepper output").innerText() === "8 sa", "Thursday stepper lost base target");
-    check((await targetText()) === "Haftalık hedef 32 sa", "Closing Friday must retain 32 hour nominal total when carryover can balance");
+    check(await page.locator(".work-plan-stepper output").innerText() === "8 sa", "Thursday stepper must match the card");
+    check((await targetText()) === "Haftalık hedef 32 sa 45 dk", "Closing Friday removes only its required time");
     await page.keyboard.press("Escape");
     await page.goto("http://127.0.0.1:3000/demo");
     await page.getByRole("button", { name: "Ayarlar", exact: true }).waitFor();
@@ -241,7 +241,7 @@ async (page) => {
     check(errors.length === 0, errors.join("\n"));
     return { passed: true, fixturesOnly: true, layout, pageErrors: errors,
       checks: ["exact-second daily/weekly carryover", "missing/uncertain safeguards", "distribution and reset",
-        "Friday closed gives 32 hours", "completed days locked in all controls", "actual seconds and original-plan differences", "hours and minutes", "autosave/reload", "default inheritance",
+        "closing Friday removes its required time", "completed days locked in all controls", "actual seconds and original-plan differences", "hours and minutes", "autosave/reload", "default inheritance",
         "write failure preserves state", "auto-prune", "impossible distribution", "demo isolation", "Escape and focus return",
         "desktop/mobile light/dark"] };
   } finally {

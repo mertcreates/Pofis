@@ -313,7 +313,7 @@ export const ui = {
     decrease: "Süreyi yarım saat azalt",
     increase: "Süreyi yarım saat artır",
     presets: "Hızlı süre seçimi",
-    applyToOpen: "Açık günlere uygula",
+    applyToOpen: duration => `${duration} diğer açık günlere uygula`,
     customDistribution: "Bu hafta için özel gün dağılımı",
     reset: "Varsayılan plana dön",
     capacity: "Bu toplam için yeterli açık gün veya saat kapasitesi yok. Günleri 0–16 saat aralığında düzenle.",
@@ -322,7 +322,7 @@ export const ui = {
     adjustDay: (day, duration, add) => add
       ? `${["Pazartesiye", "Salıya", "Çarşambaya", "Perşembeye", "Cumaya"][day]} ${duration} ekle`
       : `${["Pazartesiden", "Salıdan", "Çarşambadan", "Perşembeden", "Cumadan"][day]} ${duration} azalt`,
-    difference: (duration, less) => `Varsayılan plandan ${duration} ${less ? "eksik" : "fazla"}`,
+    difference: (target, duration, less) => less ? `${target} hedefe kalan: ${duration}` : `${target} hedefin üzerinde: ${duration}`,
     workingDayCount: count => `${count} çalışma günü`,
   },
   hoursPerDays: "saat /",

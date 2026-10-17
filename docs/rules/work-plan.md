@@ -1,86 +1,114 @@
 # Mesai planı ve çıkış hedefi
 
-[Kural haritası](README.md) · [Terimler](../../GLOSSARY.md)
+[Kural haritası](README.md) · [Terimler](../../GLOSSARY.md) · [Görsel sözleşme](../../DESIGN.md)
 
-## Tek sahip
+## Sahiplik
 
-[src/domain/rules/work-plan.ts](../../src/domain/rules/work-plan.ts): `WorkPlan`, `WorkPlans`, doğrulama, miras, düzenleme kilidi, `planAdjustmentDays`, `completeWeekPlan`, `completedDaySeconds`, `resolveWeekPlan`, `weeklyTarget`, `resolveStoredTarget`, `targetExitAt`.
+[src/domain/rules/work-plan.ts](../../src/domain/rules/work-plan.ts) planlama hesaplarının sahibidir:
 
-## Plan ve miras
+| İşlem | Sahip |
+| --- | --- |
+| Planı doğrulama, haftayı ve hedefini okuma | `readDayPlan`, `readWeekPlan`, `resolveStoredPlan`, `resolveStoredTarget` |
+| Hafta/şablon kaydetme ve sıfırlama | `changeWeekPlan`, `changeDefaultPlan` |
+| Tamamlanan ve dağıtıma uygun günleri belirleme | `completedDaySeconds`, `planAdjustmentDays` |
+| Devir, gereken süreler ve haftalık toplam | `resolveWeekPlan` |
+| Gereken süreyi elle düzenleme | `editRequiredMinutes` |
+| Varsayılan hafta toplamına tamamlama | `completeWeekPlan` |
+| Hedef çıkış | `targetExitAt` |
 
-- Plan takvimle eşleşmek için pazartesi–pazar sırasındaki yedi dakika değerini tutar. Yalnız pazartesi–cuma düzenlenir: 0–960 dakika. Şablon 30 dakika adımıyla belirlenir; Tamamla sonucu ve sonraki haftalık düzenlemeler saniye hassasiyetini korur. Cumartesi/pazar resmî tatildir, hedefleri daima sıfırdır ve pozitif hafta sonu hedefi geçersizdir. Sıfır kapalı gündür; bütün çalışma günleri kapalı olabilir.
-- İlk varsayılan pazartesi–cuma 480, hafta sonu 0 dakikadır. Kullanıcı şablonu elle değiştirir; PDKS kayıtları şablonu değiştirmez.
-- Saklanan durum `{ defaultPlan, weekOverrides, weekTargets? }` biçimindedir. `weekTargets` yalnız günlük girdilerin toplamından ayrılan açık haftalık hedefi saniye olarak tutar; eski hedef geçmişi veya PDKS kaydı tutmaz. Haftalık anahtar gerçek bir pazartesi tarihidir (`YYYY-MM-DD`). Özel plan yoksa varsayılan miras alınır. Özel plan varsa bütün günlerin özgün hedefleri bu plandan gelir; günün tamamlanması planı değiştirmez.
-- İlk haftalık hedef günlük hedeflerin toplamıdır. Tamamla sonrası hedef, tamamlanan günlerin gerçekleşeni ve kalan gerçek çalışma planından bağımsız olarak korunur. Elle günlük düzenleme hedefi değiştirilen süre kadar artırır/azaltır. Henüz tamamlanmamış Cuma kapatılıp dört gün 8 saat bırakılırsa hedef 32 saattir. Varsayılan toplamına tamamlama ayrı eylemdir.
-- Yedi değeri varsayılanla aynı olan özel plan kaldırılır. Yalnız toplamın eşitliği yeterli değildir. Geçmiş hedef versiyonlaması veya snapshot yoktur.
-- Varsayılan değişince özel planı olmayan haftalar yeni şablonu kullanır. Düzenlenen haftada tamamlanan günler varsa bunların özgün planı aynı `weekOverrides` kaydında korunur. Kalan günlerde özel düzenleme yoksa onlar yeni şablonu miras almaya devam eder; özel hedefler varsa korunur.
-- Varsayılan plana dön tamamlanmamış günleri varsayılana döndürür; tamamlanan günlerin özgün hedefleri korunur. Sonuç şablonla aynıysa özel kayıt kaldırılır. Otomatik hesap tek başına kayıt yazmaz. Tamamla, kullanıcının açık eylemi olarak kalan günlerin gereken sürelerini yeni çalışma planı olarak kaydeder; tamamlanan günlerin özgün hedeflerine dokunmaz.
+[PlanEditor](../../src/components/plan-editor.tsx) bu işlemleri kullanıcı eylemlerine bağlar; [report.ts](../../src/domain/report.ts) sonuçlarını ekran modeline taşır.
 
-## Üç günlük süre ve tamamlanma
+## Planın yapısı ve varsayılan şablon
 
-**Planlanan günlük süre:** kullanıcının varsayılan veya özel hafta planında belirlediği özgün hedef.
+- `WorkPlan`, pazartesi–pazar sırasıyla yedi dakika değeri tutar. Düzenlenebilir günler pazartesi–cumadır; günlük aralık 0–960 dakika, kapalı günün değeri sıfırdır. Cumartesi/pazar resmî tatildir ve plan değerleri sıfırdır.
+- İlk şablon pazartesi–cuma 480’er dakika, toplam 40 saattir. Şablonu kullanıcı düzenler; PDKS kayıtları gerçekleşen süreyi sağlar.
+- Şablon 30 dakika adımlarını kullanır. Haftalık gereken süreler ve bunların düzenlenmesi saniye hassasiyetini korur; stepper 30 dakikalık artış/azalış yapar ve sınırdaki son adımda 0 veya 16 saate ulaşır.
+- Haftanın planı özel hafta kaydından, böyle bir kayıt bulunmadığında varsayılan şablondan gelir. Şablon değişikliği onu miras alan geçmiş haftalara da uygulanır.
+- Düzenlenen haftada tamamlanan günlerin kayıtlı plan değerleri korunur. Kalan günlerde özel düzenleme varsa o hafta planı kullanılır; diğer durumda kalan günler yeni şablonu miras alır.
 
-**Gerçekleşen günlük süre:** PDKS günlük süre sahibinin ilk giriş–son çıkış hesabı. Ara çıkışlar düşülmez. Bugünün güvenilir canlı süresi ilk girişten anlık zamana uzanır; kesinleşmiş kayıt sayılmaz.
+## Süreler ve tamamlanan günler
 
-**Güncel gereken süre (etkin hedef):** özgün planın, önceki tamamlanmış günlerin farklarıyla dengelenmiş sonucu.
+| Kavram | Hesapta kullanılan değer |
+| --- | --- |
+| Planlanan günlük süre | Varsayılan veya özel hafta kaydındaki günlük hedef |
+| Gerçekleşen günlük süre | [Kayıtlı süre sahibinin](recorded-time.md) ilk giriş–son çıkış sonucu |
+| Gereken günlük süre | Günlük planın, haftalık hedef ve tamamlanan günlerin farklarıyla dengelenmiş sonucu |
+| Haftalık hedef | Başlangıçta günlük planların toplamı; elle düzenlemede gereken süre farkıyla, Tamamla işleminde varsayılan hafta toplamıyla güncellenen hedef |
+| Beklenen toplam | Tamamlanan günlerin gerçekleşen süreleri + kalan günlerin gereken süreleri |
 
-Bugünden önceki, aynı haftaya ait `recorded` ve kayıtlı süresi tanımlı gün tamamlanmıştır. Sıfır süreli tutarlı kayıt da kilitlenir. Bugünün `outside`, `open`, `ongoing` durumu ve gelecekteki kayıtlar tamamlanmış sayılmaz. Kayıtsız/belirsiz günler sıfır çalışma veya borç sayılmaz.
+Tamamlanan gün, aynı haftada bugünden önceki bir tarihe ait, durumu `recorded` ve kayıtlı süresi tanımlı gündür. Tutarlı sıfır süreli kayıt da bu kapsamdadır. Bugünün süreleri [canlı tahmin sözleşmesiyle](duration.md), kayıt bütünlüğü [kayıt durumu sözleşmesiyle](record-status.md) değerlendirilir.
 
-Hafta kutusunda tamamlanan günün gerçekleşen süresi kilitli görünür. Elle/toplu kaydetme, sıfırlama ve şablon düzenlemesi, tamamlanan günün özgün planını korur. Karşılaştırma farkı gerçekleşen süre eksi **o günün özgün planıdır**. Örneğin 6 saat plan + 6 saat kayıt fark üretmez; ertesi gün de 6 saat plan korunur. Gerçekleşen süre yarım saat adımına yuvarlanmaz veya 16 saate kesilmez.
+Tamamlanan günün gerçekleşeni kilitli gösterilir. Elle/toplu düzenleme, sıfırlama ve şablon değişikliği bu günün kayıtlı planını korur. Devir farkı **gerçekleşen − o günün kayıtlı planı** üzerinden hesaplanır. Örneğin 6 saat planlanan günde 6 saat gerçekleşmesi sıfır fark üretir. Gerçekleşen süre kaynak hassasiyetiyle kullanılır; 16 saat sınırı düzenlenebilir gereken süreye uygulanır.
 
 ## Otomatik devir
 
-`planAdjustmentDays` uygun günleri belirler: bugün veya gelecek, pozitif özgün hedefli, tamamlanmamış ve belirsiz olmayan günler. Geçmiş kayıtsız günler, kilitli günler ve kapalı günler otomatik işlemlere katılmaz.
+Dağıtıma uygun gün: bugün veya gelecekte bulunan, pozitif planlı, tamamlanmamış ve kayıt durumu belirsiz olmayan gündür. Tam hafta raporunda gereken süreler şu bakiyeyle hesaplanır:
 
 ```text
-dağıtılacak eksik = haftalık hedef − günlük plan toplamı + Σ(tamamlanan günün plan saniyesi − gerçekleşen saniyesi)
-gereken süreler başlangıçta özgün plan süreleridir
+bakiye = haftalık hedef − günlük plan toplamı
+       + Σ(tamamlanan günün plan saniyesi − gerçekleşen saniyesi)
+gereken süreler başlangıçta günlük plan süreleridir
 ```
 
-Kısmi hafta dışında fark, son uygun günden geriye doğru aktarılır. Her gereken süre 0–16 saat arasında kalır; saniye hassasiyeti korunur. Son günün kapasitesi yetmezse kalan fark önceki uygun güne geçer. Kapalı/belirsiz son gün atlanır. Hiç uygun gün yoksa geçmiş değiştirilmez. `unallocatedSeconds` pozitifse dağıtılamayan eksik, negatifse dengelenemeyen fazla süredir; modal bunu görünür kılar.
+Bakiye son uygun günden geriye doğru uygulanır. Her gereken süre 0–16 saat aralığında tutulur; o günün sınırı aşılırsa kalan bakiye önceki uygun güne aktarılır. `unallocatedSeconds`, dağıtım sonunda kalan bakiyedir: pozitif değer eksik, negatif değer fazla süreyi gösterir.
 
-Örnek: Pzt 6 saat plan/5,5 saat kayıt, Sal 10 saat, Çar–Cum 8 saat → Sal yine 10 saat, Cum gereken 8,5 saat, haftalık hedef 40 saat. Pzt 6,5 saat çalışılsaydı Cum gereken 7,5 saat olurdu.
+Aynı plan, kayıt, tarih ve haftalık hedef aynı sonucu üretir. Otomatik hesap güncel planı okuyarak sonuç döndürür; kalıcı kayıt kullanıcı düzenlemesinde yapılır. Gün seçimi dağıtım sırasını belirlemez.
 
-Kullanıcının diğer günlere yaptığı elle plan düzenlemeleri korunur; her hesap özgün yeni planı temel alır. Gün seçmek veya görüntülemek aktarım tercihi değildir. Mevcut arayüzde ayrı aktarım tercihi yoktur; bu çalışma yeni tercih özelliği veya saklama alanı eklemez.
+Örnek: Pzt 6 saat plan/5,5 saat kayıt, Sal 10 saat, Çar–Cum 8 saat → Sal 10 saat, Cum gereken 8,5 saat, haftalık hedef 40 saat. Pzt 6,5 saat çalışılsaydı Cum gereken 7,5 saat olurdu.
 
-Hesap idempotenttir: aynı plan/kayıt/tarih aynı sonucu verir. Otomatik hesap kendi sonucunu tekrar girdi olarak kaydetmez. Tamamla gerektiğinde gereken süreleri yeni plan yapar; bağımsız hafta hedefi aynı farkın ikinci kez eklenmesini önler. Kısmi hafta raporunda devir ve bugünkü çıkış hedefi verilmez. Bugünün belirsizliği çıkış hedefini engeller; geçmiş eksik kayıtlar kendi farklarını üretmeden yaklaşık toplamda belirtilir.
+## Elle haftalık düzenleme ve sıfırlama
 
-## Haftalık toplamlar ve rapor
+`editRequiredMinutes`, tamamlanmamış günlerin güncel gereken sürelerini yeni çalışma planına alır. Haftalık hedef, yalnız kullanıcının açıkça değiştirdiği günlerin gereken süre farkı kadar güncellenir. Diğer günlerin gereken süreleri ve tamamlanan günlerin kayıtlı planları korunur. Bağımsız haftalık hedef sonraki hesaplamada bu sürelerin aynı kalmasını sağlar.
 
-- **Haftalık hedef (`weeklySeconds`):** ilk plandan veya kullanıcının Tamamla eyleminden gelen toplam; günler tamamlandığı için değişmez. Kalan gerçek çalışma planı bu hedeften ayrı tutulur.
-- **Gerçekleşen toplam:** PDKS kayıtlarından gelen süre. Dashboard güvenilir canlı ek tahmini dahil ediyorsa başlık bunu belirtir; tamamlanan gün devrinde canlı tahmin kullanılmaz.
-- **Beklenen toplam (`projectedWeeklySeconds`):** tamamlanan günlerin gerçekleşen süreleri + tamamlanmamış günlerin gereken süreleri. Geçmiş kayıtsız günün planı bilinmeyen kayıt yerine bir hedef olarak korunur; eksik kayıt gerçek çalışma sayılmaz.
+Toplu uygulama, seçili gereken süreyi diğer uygun açık günlere uygular. Başarılı kayıtta açıkça değişen günler, pencere açık kaldığı sürece Tamamla ile **süre eklemeden** korunur. Seçim değişikliği korumayı sürdürür; aynı değeri yeniden seçmek mevcut tercihi korur. Pencereyi kapatmak veya başarılı sıfırlama geçici korumayı temizler.
 
-Bu değerler eşit olmak zorunda değildir. Örneğin hedef 32 saatken 32 saat 45 dakika gerçekleşebilir. Modal ana toplamı “Haftalık hedef” olarak gösterir; beklenen toplam farklıysa ayrı etiketle sunar. Dashboard gerçekleşen toplamı hedefle karşılaştırır. Dağıtılamayan bakiye ayrıca gösterilir.
+Varsayılan plana dön, tamamlanmamış günleri şablona döndürür ve haftalık hedefi sonuç planının toplamına ayarlar. Tamamlanan günlerin kayıtlı planları korunur.
 
-Modal yalnız pazartesi–cuma günlerini gösterir. Hafta sonu PDKS kayıtları raporda görünür ve gerçekleşen/beklenen toplama katılır; sıfır planı veya haftalık hedefi değiştirmez. Gün kutuları tamamlanan günlerde gerçekleşeni, devirle değişen bütün uygun günlerde gereken süreyi, diğerlerinde planı gösterir. Alt stepper özgün planı düzenler; haftalık gün başlığının altında “Planlanan” ve devir varsa “Gereken” tek satırda ayrılır. Kilitli günde özgün plan, farklıysa varsayılanı ve “Gerçekleşen” kayıtlı süre gösterilir. Farklı süreli başka uygun gün yoksa toplu uygulama gizlenir. “Varsayılan plana dön”, yalnız değişecek tamamlanmamış hedef veya temizlenecek geçici düzenleme tercihi varsa gösterilir. Saniyeler hesapta ve erişilebilir/tam süre etiketlerinde korunur. Görünür dakika değerlerinin toplamı saniyeli hassas toplamdan ayrışabilir; bu sunum farkı kayıtları değiştirmez.
+Örnek: Pzt–Çar 26 sa 40 dk kayıt, Per 8 sa, Cum planı 7,5 sa → Cum gereken 4 sa 50 dk, haftalık hedef 39 sa 30 dk. Bu başlangıçtan:
 
-[report.ts](../../src/domain/report.ts) aynı hesap sahibinin `targets` sonucunu `goalSeconds`, `dailyGoalSeconds`, `exitGoalSeconds` alanlarına taşır; `plannedGoalSeconds` özgün plandır. Dashboard, günlük akış, tablo ve Pofi ortak gereken süreyi kullanır. Hedef çıkış ilk giriş + gereken süredir; ara çıkışlar bu saati ötelemez. [İlerleme](progress.md) sıfır hedef ve yüzde gösterimini yönetir.
+| Kullanıcı eylemi | Sonuç |
+| --- | --- |
+| Cuma gereken süreyi 5 saate ayarlamak | Cum 5 sa, Per 8 sa, haftalık hedef 39 sa 40 dk |
+| Cuma’yı kapatmak | Cum 0, Per 8 sa, haftalık hedef 34 sa 40 dk |
 
-## Tamamla
+## Varsayılan hafta toplamına tamamlama
 
-`completeWeekPlan`, gerçekleşen toplam + kalan gereken süreleri varsayılan hafta toplamına getirmek için yalnız uygun günlerin gerçek çalışma süresini düzenler. Günlük 16 saat kapasitesi devir öncesi bazdan hesaplanmaz. Birden fazla gün değişiyorsa gösterim “40 saate tamamla” gibi dinamik kalır. Başarılı sonuç yalnız tek günün gereken süresini değiştiriyorsa düğme bu farkı söyler: “Cumaya 1 sa 30 dk ekle” veya “Cumadan 30 dk azalt”. Kapasite yoksa uygulanabilir bir değişiklik vaat edilmez; hedefe tamamlama etiketi ve mevcut gerekçe gösterilir.
+`completeWeekPlan`, beklenen toplamı varsayılan hafta toplamına getirir. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır.
 
-- Uygunluk otomatik devirle aynı tarihe/kilide/belirsizliğe dayanır. Geçmiş kayıtsız günler değiştirilmez.
-- Yalnız gün seçmek kapasiteyi kısıtlamaz. Plan penceresi açıkken haftalık süre kontrolleriyle elle değiştirilen günler Tamamla dağıtımından çıkarılır; seçim değiştirilse de bu tercih korunur. Toplu düzenlemede değişen günler de korunur. Başarısız kayıt ve aynı değeri yeniden seçmek yeni koruma oluşturmaz.
-- Koruma yalnız Tamamla içindir; otomatik PDKS devri kendi kuralını izler. Korunan günler varken kapasite yetmezse günler ve süreleriyle gerekçe gösterilir; işlem kısmi sonuç yazmaz. Başarılı Varsayılan plana dön işlemi veya pencereyi kapatmak geçici korumayı temizler; saatler normal plan olarak kayıtlı kalır. Yeni kalıcı kilit alanı yoktur.
-- Pazartesi–cuma sırasındaki en fazla 30 dakikalık turlar kullanılır; son adım tam saniyeli fark kadar olabilir. Her kalan gereken süre 0–16 saat sınırında kalır. Kapalı günler açılmaz; hafta sonu dağıtıma katılmaz.
-- Kapasite yetmezse `null` döner, kısmi plan kaydedilmez, düğme devre dışı kalır ve gerekçe gösterilir.
-- Pzt–Çar 25 sa 10 dk gerçekleşen, Per gereken 5 sa 20 dk ve Cum kapalıyken 40 saate tamamlamak Perşembeyi 14 sa 50 dk yapar. Devir öncesinde 17,5 saatlik yapay bir plan gerektirmez. Kaydetme/yenileme aynı sonucu korur; hedef çıkış ilk giriş + 14 sa 50 dk olur.
+| Yön | Dağıtım |
+| --- | --- |
+| Süre ekleme | Elle düzenlenen günleri koruyarak pazartesi–cuma sırasıyla en fazla 30 dakikalık turlar; son adım kalan saniye kadar |
+| Süre azaltma | Elle düzenlenen günler dahil, son uygun günden geriye; gün sıfıra inince önceki uygun güne geçiş |
+
+Başarılı işlem kalan gereken süreleri çalışma planına, varsayılan toplamını haftalık hedefe kaydeder. Kapasite yetersizse sonuç `null` olur; arayüz işlemi gerekçesiyle devre dışı gösterir ve mevcut kayıt korunur.
+
+| Senaryo | Sonuç |
+| --- | --- |
+| Pzt–Çar 25 sa 9 dk 17 sn kayıt, Per/Cum 8’er saat gereken, hedef 41 sa 9 dk 17 sn | Per 8 sa, Cum 6 sa 50 dk 43 sn, hedef 40 sa; Cuma’nın elle düzenlenmiş olması azaltma sırasını korur |
+| Pzt–Çar 25 sa 10 dk kayıt, Per gereken 5 sa 20 dk, Cum kapalı | Per 14 sa 50 dk, hedef 40 sa; Per ilk girişi 08.00 ise hedef çıkış 22.50 |
+
+## Rapor ve arayüzün kullandığı sonuçlar
+
+[report.ts](../../src/domain/report.ts), `resolveWeekPlan.targets` değerlerini `goalSeconds`, `dailyGoalSeconds` ve `exitGoalSeconds` alanlarına taşır; `plannedGoalSeconds` kayıtlı günlük plandır. Dashboard, gün akışı, tablo ve Pofi aynı gereken süreyi kullanır. Hedef çıkış, ilk giriş + gereken süredir; bu çıkış hesabı için tam hafta raporu ve bugünün güvenilir kayıt durumu gerekir.
+
+Modalda tamamlanan gün gerçekleşeni, diğer hafta günleri gereken süreyi gösterir. Varsayılan sekmesi şablonu düzenler. Haftalık ana toplam hedeftir; beklenen toplam farklıysa ayrıca gösterilir. Geçmiş kayıtsız günün planı beklenen toplamda hedef olarak yer alır; kayıt durumu haftanın eksikliğini belirtir. Hafta sonu PDKS kayıtları gerçekleşen/beklenen toplama katılır; plan değerleri sıfır kalır.
+
+Hesaplar saniye hassasiyetini korur. Görünür süreler saat/dakika, erişilebilir etiketler ve tam süre başlıkları saniye hassasiyetindedir. Etiketler, kontrol durumları ve yerleşim [DESIGN](../../DESIGN.md) sahibindedir.
 
 ## Kalıcılık ve navigasyon
 
-[plan-storage](../../src/lib/plan-storage.js) `pofis:work-plans:v2` verisini doğrular. [work-plans](../../src/data/work-plans.ts) canlı/demo kapsamlarını ayırır. [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonra tek durum güncellemesi yapar; yazı hatasında son kayıt korunur. PDKS kayıtları ve kilitler planda saklanmaz. Tamamla ile seçilen kalan çalışma süreleri saniye hassasiyetinde dakika değerleriyle, haftalık hedef ise ayrı saniye değeriyle kaydedilir. Varsayılan şablon yarım saat adımlarını korur.
+Saklanan `WorkPlans` durumu `{ defaultPlan, weekOverrides, weekTargets? }` biçimindedir:
 
-V2 yoksa yalnız mevcut v1 `{ weekdays, hours }` biçimi okunur. Okuma yazmaz; ilk başarılı düzenleme v2 oluşturur, özgün v1 korunur. Bozuk veya yeni sınırlara uymayan veri görünür hata verir, düzenleme kilitlenir; sessiz yuvarlama veya eski veriye dönüş yapılmaz.
+- `defaultPlan`: güncel şablon.
+- `weekOverrides`: pazartesi tarihiyle (`YYYY-MM-DD`) anahtarlanan hafta planları. Yedi değerin tamamı şablonla eşleşirse özel kayıt kaldırılır.
+- `weekTargets`: günlük plan toplamından ayrılan haftalık hedefler, saniye cinsinden. Günlük toplamla eşleşen hedef girdisi kaldırılır. Her hafta için güncel plan ve hedef tutulur.
 
-Ana navigasyondaki Ayarlar mevcut haftaya geçip plan modalını açar. Geçmiş hafta başlığındaki “Hafta planını düzenle” aynı modalı o haftanın bağlamında açar. Kaynak rapor ve plan yüklenene kadar düzenleme devre dışıdır. Modal hataları modal içinde, kapalıyken rapor üzerinde gösterilir. Görsel sözleşme [DESIGN](../../DESIGN.md) sahibindedir.
+[plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulamayı, [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamını, [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonraki durum güncellemesini yönetir. Okuyucu v2 kaydını; v2 bulunmadığında v1 `{ weekdays, hours }` girdisini kabul eder. Geçersiz veri görünür hata üretir ve düzenleme kilitlenir. Yazı hatasında son başarılı kayıt korunur.
 
-## Doğrulama ve bağımlılıklar
+Ana Ayarlar mevcut haftanın planını, geçmiş hafta başlığındaki düzenleme eylemi ilgili haftanın planını açar. Düzenleme için kaynak rapor ve yerel planın yüklenmesi gerekir. Modal açıkken hatalar modalda, kapalıyken rapor üzerinde gösterilir.
 
-[Takvim](calendar.md), [kayıt durumu](record-status.md), [süre](duration.md), [ilerleme](progress.md), [görünen haftalık toplam](week.md).
+## Doğrulama
 
-- [Plan testleri](../../src/domain/rules/work-plan.test.ts): gün ilerlemesi, özgün özel hedef, eksik/fazla devir, geriye dağıtım, sınırlar, bakiye, seçimden bağımsız tamamla, kilitler, saniyeler ve idempotans.
-- [Rapor testleri](../../src/domain/report.test.ts), [tablo testleri](../../src/components/attendance/report-ui.test.tsx), [kural testleri](../../src/domain/rules/rules.test.ts), [depolama testleri](../../src/data/work-plans.test.ts).
-- [Plan kabulü](../../scripts/acceptance/work-plan.js), [hafta ilerleme kabulü](../../scripts/acceptance/work-plan-progression.js), [görünüm kabulü](../../scripts/acceptance/work-plan-style.js), [genel kabul](../../scripts/acceptance/archive-behavior.js).
-- Gerçek PDKS kabulü [görev listesinde](../../tasks/todo.md); fixture testleri gerçek kaynağı kanıtlamaz.
+- [Plan testleri](../../src/domain/rules/work-plan.test.ts): bu belgedeki sayısal senaryolar, kilitler, sınırlar, bakiye, koruma ve tekrar hesaplama.
+- Bağımlı sonuçlar: [rapor](../../src/domain/report.test.ts), [tablo](../../src/components/attendance/report-ui.test.tsx), [depolama](../../src/data/work-plans.test.ts), [kural mimarisi](../../src/domain/rules/rules.test.ts).
+- Kabul betikleri ve çalışma yöntemi: [doğrulama rehberi](../verification.md). Gerçek PDKS kabulünün durumu: [görev listesi](../../tasks/todo.md).
