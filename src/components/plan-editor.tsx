@@ -6,7 +6,7 @@ import { weekLabel, durationClock } from "@/domain/time";
 import { weekStart } from "@/domain/rules/calendar";
 import type { DayReport } from "@/domain/attendance";
 import PlanControls from "./plan-controls.js";
-import { Modal } from "./primitives";
+import Modal from "./modal.js";
 export function PlanEditor({
   plan,
   week,

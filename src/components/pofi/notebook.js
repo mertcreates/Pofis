@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Icon from "../ui-icon.js";
-import { formatDateLabel } from "@/lib/date-label.js";
+import { formatDateLabel } from "@/domain/time";
 import { weekday } from "@/domain/rules/calendar";
 import {
   pofiNotebookDates,

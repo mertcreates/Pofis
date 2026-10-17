@@ -1,9 +1,10 @@
 import { ui } from "./ui-text.js";
+import { durationParts } from "../domain/time";
+
 export function formatShortDuration(seconds) {
-  const total = Math.floor(Math.abs(seconds));
-  const hours = Math.floor(total / 3600);
-  const minutes = Math.floor((total % 3600) / 60);
-  const remainder = total % 60;
+  const { hours, minutes, seconds: remainder } = durationParts(
+    Math.abs(seconds),
+  );
   const parts = [];
   if (hours) parts.push(`${hours} ${ui.hourShort}`);
   if (minutes) parts.push(`${minutes} ${ui.minuteShort}`);

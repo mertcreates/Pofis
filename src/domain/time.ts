@@ -1,15 +1,4 @@
 import { TIME_ZONE, addDays } from "./rules/calendar";
-const clockFormatter = new Intl.DateTimeFormat("tr-TR", {
-  timeZone: TIME_ZONE,
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-});
-const minuteFormatter = new Intl.DateTimeFormat("tr-TR", {
-  timeZone: TIME_ZONE,
-  hour: "2-digit",
-  minute: "2-digit",
-});
 const dateFormatters = new Map<string, Intl.DateTimeFormat>();
 
 function dateFormatter(options: Intl.DateTimeFormatOptions) {
@@ -29,11 +18,38 @@ function dateFormatter(options: Intl.DateTimeFormatOptions) {
   return formatter;
 }
 
+const clockFormatter = dateFormatter({
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+});
+const minuteFormatter = dateFormatter({ hour: "2-digit", minute: "2-digit" });
+
+function isDifferentYear(date: string, today: string): boolean {
+  return date.slice(0, 4) !== today.slice(0, 4);
+}
+
 export function formatDate(
   date: string,
   options: Intl.DateTimeFormatOptions = { day: "numeric", month: "long" },
 ): string {
   return dateFormatter(options).format(new Date(`${date}T12:00:00Z`));
+}
+
+export function formatDateTime(
+  timestamp: number,
+  options: Intl.DateTimeFormatOptions,
+): string {
+  return dateFormatter(options).format(timestamp);
+}
+
+export function formatDateLabel(date: string, today: string): string {
+  const options: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: "long",
+  };
+  if (isDifferentYear(date, today)) options.year = "numeric";
+  return formatDate(date, options);
 }
 
 export function weekLabel(
@@ -43,9 +59,7 @@ export function weekLabel(
 ): string {
   const end = addDays(start, 6);
   const showYear =
-    today &&
-    (start.slice(0, 4) !== today.slice(0, 4) ||
-      end.slice(0, 4) !== today.slice(0, 4));
+    today && (isDifferentYear(start, today) || isDifferentYear(end, today));
   return dateFormatter({
     day: "numeric",
     month: short ? "short" : "long",

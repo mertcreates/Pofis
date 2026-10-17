@@ -1,6 +1,6 @@
 import { createNoteCatalogue } from "./catalogue";
 import { createPofiNotebook } from "./notebook";
-import { NOTE_PUBLICATIONS } from "./publications";
+import { SPECIAL_DAYS } from "./special-days";
 import { POFI_NOTE_THEMES } from "./themes/index.js";
 import { POFI_SPECIAL_NOTES } from "./specials.js";
 
@@ -10,5 +10,5 @@ export const pofiNoteCatalogue = createNoteCatalogue({
 });
 export const pofiNotebook = createPofiNotebook(
   pofiNoteCatalogue,
-  NOTE_PUBLICATIONS,
+  SPECIAL_DAYS,
 );

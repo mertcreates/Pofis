@@ -3,7 +3,7 @@ import Icon from "../ui-icon.js";
 import { ui } from "@/lib/ui-text.js";
 import type { DayReport } from "@/domain/attendance";
 import { formatClock, formatDate } from "@/domain/time";
-import { Modal } from "../primitives";
+import Modal from "../modal.js";
 import { passageSummary } from "./labels";
 
 export function RecordIntervals({

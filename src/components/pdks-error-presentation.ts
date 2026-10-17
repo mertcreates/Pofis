@@ -1,6 +1,6 @@
 import type { RequestFailure, FailureKind, PdksOperation } from "@/lib/pdks-failure";
 import { ui } from "@/lib/ui-text.js";
-import { TIME_ZONE } from "@/domain/rules/calendar";
+import { formatDateTime } from "@/domain/time";
 
 const diagnosticLabels = {
   apiPath: ui.apiPath, apiMethod: ui.apiMethod, sourceStatus: ui.sourceStatus,
@@ -9,10 +9,10 @@ const diagnosticLabels = {
   stage: ui.stage, method: ui.method, path: ui.path, type: ui.type,
   diagnostic: ui.diagnostic, causeCode: ui.causeCode, occurredAt: ui.occurredAt,
 };
-const diagnosticTime = new Intl.DateTimeFormat("tr-TR", {
-  timeZone: TIME_ZONE, day: "numeric", month: "long", year: "numeric",
+const diagnosticTimeOptions: Intl.DateTimeFormatOptions = {
+  day: "numeric", month: "long", year: "numeric",
   hour: "2-digit", minute: "2-digit", second: "2-digit", timeZoneName: "shortOffset",
-});
+};
 
 export function pdksDiagnosticRows(failure: RequestFailure) {
   const rows = [
@@ -28,7 +28,8 @@ export function pdksDiagnosticRows(failure: RequestFailure) {
     }
     if (key === "occurredAt" && typeof raw === "string") {
       const timestamp = Date.parse(raw);
-      if (Number.isFinite(timestamp)) value = diagnosticTime.format(timestamp);
+      if (Number.isFinite(timestamp))
+        value = formatDateTime(timestamp, diagnosticTimeOptions);
     }
     rows.push({ key, label, value, raw: String(raw) });
   }

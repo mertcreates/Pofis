@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Modal from "../archive-modal";
+import Modal from "../modal.js";
 import Icon from "../ui-icon.js";
 import { POFI_SURPRISES, nextSurpriseTap } from "@/domain/rules/pofi-surprises";
 import { POFI_ASSETS } from "@/domain/rules/pofi.js";

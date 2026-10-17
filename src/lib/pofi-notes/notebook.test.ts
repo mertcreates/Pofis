@@ -2,14 +2,12 @@ import { expect, test } from "bun:test";
 import { createHash } from "node:crypto";
 import { createNoteCatalogue } from "./catalogue";
 import { createPofiNotebook } from "./notebook";
-import { prepareNotePublication } from "./authoring";
-import { pofiNoteCatalogue } from "./index";
-import { NOTE_PUBLICATIONS } from "./publications";
+import { pofiNoteCatalogue, pofiNotebook } from "./index";
 import { POFI_NOTE_THEMES } from "./themes/index.js";
 import { POFI_SPECIAL_NOTES } from "./specials.js";
 import contentFixture from "./fixtures/archive-content.json";
-import selectionFixture from "./fixtures/archive-selections.json";
-import type { NoteTheme, NotePublication, DatedNote } from "./types";
+import selectionFixture from "./fixtures/selections.json";
+import type { NoteTheme, DatedNote } from "./types";
 
 function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
@@ -22,11 +20,11 @@ function canonical(value: unknown): string {
 }
 const sha = (value: string) => createHash("sha256").update(value).digest("hex");
 
-test("ZIP'teki 20 tema / 240 parça ve 11 özel not / 44 varyant metinleri aynen korunur", () => {
+test("kaynak ZIP'teki tema ve özel not metinleri aynen korunur", () => {
   for (const [id, reference] of Object.entries(contentFixture.themes)) {
     const theme = POFI_NOTE_THEMES.find((theme) => theme.id === id);
     expect(theme).toBeDefined();
-    const archiveGroup = (group: Record<string, string>, prefix: string) =>
+    const sourceGroup = (group: Record<string, string>, prefix: string) =>
       Object.fromEntries(
         [1, 2, 3, 4].map((number) => [
           `${prefix}${number}`,
@@ -37,9 +35,9 @@ test("ZIP'teki 20 tema / 240 parça ve 11 özel not / 44 varyant metinleri aynen
       sha(
         canonical({
           ...theme,
-          intros: archiveGroup(theme!.intros, "i"),
-          developments: archiveGroup(theme!.developments, "d"),
-          endings: archiveGroup(theme!.endings, "e"),
+          intros: sourceGroup(theme!.intros, "i"),
+          developments: sourceGroup(theme!.developments, "d"),
+          endings: sourceGroup(theme!.endings, "e"),
         }),
       ),
     ).toBe(reference.sha256);
@@ -64,13 +62,8 @@ test("ZIP'teki 20 tema / 240 parça ve 11 özel not / 44 varyant metinleri aynen
 });
 
 test.each(selectionFixture)(
-  "arşiv seçimleri 2026–2028 boyunca değişmez: $key",
+  "tek havuz günlük seçimleri 2026–2028 boyunca tutarlı: $key",
   ({ key, count, sha256 }) => {
-    // Future publications may intentionally change later selections; compare the archived schedule only.
-    const pofiNotebook = createPofiNotebook(
-      pofiNoteCatalogue,
-      NOTE_PUBLICATIONS.slice(0, 1),
-    );
     const notes: DatedNote[] = [];
     for (
       let at = Date.UTC(2026, 0, 1);
@@ -98,17 +91,8 @@ const theme = (id = "cloud"): NoteTheme => ({
 });
 const smallCatalogue = () =>
   createNoteCatalogue({ themes: [theme()], specials: {} });
-const baseline = (catalogue = smallCatalogue()): NotePublication[] => [
-  {
-    from: "0001-01-01",
-    notes: catalogue.createPool(),
-    strides: [1, 5],
-    specialDays: {},
-  },
-];
 
-test("yeni tema ve beşinci giriş parçası motor değişmeden havuza girer; geçmiş atamalar korunur", () => {
-  const old = smallCatalogue();
+test("katalog tek havuzu güncel bütün tema ve parçalardan üretir", () => {
   const original = theme();
   const expanded = createNoteCatalogue({
     themes: [
@@ -117,99 +101,43 @@ test("yeni tema ve beşinci giriş parçası motor değişmeden havuza girer; ge
     ],
     specials: {},
   });
-  const history = baseline(old);
-  const publication = prepareNotePublication(
-    expanded,
-    history,
-    {},
-    { from: "2026-10-26", today: "2026-10-16" },
-  );
-  expect(publication.notes).toHaveLength(16);
-  expect(publication.notes).toContain("cloud:i5:d1:e2");
-  expect(publication.notes).toContain("rain:i1:d1:e1");
-  const before = createPofiNotebook(old, history);
-  const after = createPofiNotebook(expanded, [...history, publication]);
-  expect(after.notesForWeek("2026-10-16", "a")).toEqual(
-    before.notesForWeek("2026-10-16", "a"),
-  );
-  expect(
-    new Set(after.notesForWeek("2026-10-26", "a").map((note) => note.id)).size,
-  ).toBe(5);
+  const pool = expanded.createPool();
+  const notebook = createPofiNotebook(expanded);
+
+  expect(pool).toHaveLength(16);
+  expect(pool).toContain("cloud:i5:d1:e2");
+  expect(pool).toContain("rain:i1:d1:e1");
+  for (const date of ["2020-10-19", "2026-10-16", "2026-10-19"])
+    expect(pool).toContain(notebook.noteForDate(date, "a").id);
 });
 
-test("tema, parça ve tam not gelecek seçimden çıkarılabilir; arşivde çözülmeye devam eder", () => {
-  const catalogue = createNoteCatalogue({
-    themes: [theme(), theme("rain"), theme("sun")],
-    specials: {},
-  });
-  const history = baseline(catalogue);
-  const publication = prepareNotePublication(
-    catalogue,
-    history,
-    {},
-    {
-      from: "2026-10-26",
-      today: "2026-10-16",
-      excludeThemes: ["rain"],
-      excludeParts: ["cloud:intros:i3"],
-      excludeNotes: ["sun:i2:d1:e1"],
-    },
-  );
-  expect(publication.notes).toHaveLength(9);
-  expect(publication.notes.some((id) => id.startsWith("rain:"))).toBe(false);
-  expect(publication.notes.some((id) => id.startsWith("cloud:i3:"))).toBe(
-    false,
-  );
-  expect(publication.notes).not.toContain("sun:i2:d1:e1");
-  expect(catalogue.resolve("rain:i1:d1:e1").parts).toEqual([
-    "Bir.",
-    "Bekledim.",
-    "Gitti.",
-  ]);
-  const notebook = createPofiNotebook(catalogue, [...history, publication]);
-  for (const key of ["a", "b", "c"])
-    expect(
-      notebook
-        .notesForWeek("2026-10-26", key)
-        .every((note) => publication.notes.includes(note.id)),
-    ).toBe(true);
-});
-
-test("özel gün varyantı ekleme/çıkarma tarihli yayına bağlıdır; ortak not içerik verisidir", () => {
+test("özel gün varyantı katalogdan gelir ve ortak seçim herkes için aynıdır", () => {
   const catalogue = createNoteCatalogue({
     themes: [theme()],
     specials: {
       star: {
         theme: "Yıldız",
-        variants: { v1: ["Ortak not."], v2: ["Yeni not."] },
+        variants: { v1: ["İlk not."], v2: ["Yeni not."] },
       },
     },
   });
-  const history = baseline(catalogue);
-  const publication = prepareNotePublication(
-    catalogue,
-    history,
-    { "12-08": { note: "star", sharedVariant: "v2" } },
-    { from: "2026-10-26", today: "2026-10-16" },
-  );
-  const notebook = createPofiNotebook(catalogue, [...history, publication]);
+  const notebook = createPofiNotebook(catalogue, {
+    "12-08": { note: "star", sharedVariant: "v2" },
+  });
   expect(notebook.noteForDate("2026-12-08", "a")).toEqual(
     notebook.noteForDate("2026-12-08", "b"),
   );
-  expect(notebook.noteForDate("2026-12-08", "a").parts).toEqual(["Yeni not."]);
-  const noSpecial = prepareNotePublication(
-    catalogue,
-    [...history, publication],
-    { "12-08": { note: "star" } },
-    { from: "2027-01-04", today: "2026-10-16", excludeSpecialDates: ["12-08"] },
-  );
-  expect(noSpecial.specialDays).toEqual({});
-  expect(notebook.notesForWeek("2029-12-08", "a").at(-1)!.date).toBe(
-    "2029-12-08",
-  );
+  expect(notebook.noteForDate("2026-12-08", "a").parts).toEqual([
+    "Yeni not.",
+  ]);
+  expect(() =>
+    createPofiNotebook(catalogue, {
+      "12-08": { note: "star", sharedVariant: "missing" },
+    }),
+  ).toThrow("Unknown shared variant");
 });
 
-test("bozuk içerik ve yayınlar başarı gibi sunulmaz", () => {
+test("bozuk içerik ve geçersiz tarih başarı gibi sunulmaz", () => {
   expect(() =>
     createNoteCatalogue({ themes: [theme(), theme()], specials: {} }),
   ).toThrow("duplicate theme");
@@ -219,56 +147,69 @@ test("bozuk içerik ve yayınlar başarı gibi sunulmaz", () => {
       specials: {},
     }),
   ).toThrow("Empty note text");
-  const catalogue = smallCatalogue();
-  expect(() => catalogue.createPool({ excludeThemes: ["missing"] })).toThrow(
-    "Unknown excluded theme",
-  );
-  expect(() =>
-    catalogue.createPool({ excludeParts: ["cloud:intros:missing"] }),
-  ).toThrow("Unknown excluded fragment");
-  expect(() => catalogue.resolve("cloud:i1:d1:e1:extra")).toThrow(
+  expect(() => smallCatalogue().resolve("cloud:i1:d1:e1:extra")).toThrow(
     "Unknown Pofi note",
   );
-  const history = baseline(catalogue);
   expect(() =>
-    createPofiNotebook(catalogue, [
-      { ...history[0], notes: history[0].notes.slice(0, 4) },
-    ]),
+    createPofiNotebook(
+      createNoteCatalogue({
+        themes: [
+          {
+            ...theme(),
+            intros: { i1: "Bir." },
+            endings: { e1: "Gitti." },
+          },
+        ],
+        specials: {},
+      }),
+    ),
   ).toThrow("at least five");
   expect(() =>
-    createPofiNotebook(catalogue, [{ ...history[0], strides: [2] }]),
-  ).toThrow("Invalid publication strides");
+    createPofiNotebook(smallCatalogue(), { "2-08": { note: "star" } }),
+  ).toThrow("Invalid special day");
   expect(() =>
-    prepareNotePublication(
-      catalogue,
-      history,
-      {},
-      { from: "2026-10-12", today: "2026-10-16" },
-    ),
-  ).toThrow("future Monday");
-  expect(() =>
-    prepareNotePublication(
-      catalogue,
-      history,
-      {},
-      { from: "2026-10-27", today: "2026-10-16" },
-    ),
-  ).toThrow("future Monday");
-  expect(() => createPofiNotebook(catalogue, [...history, history[0]])).toThrow(
-    "ascending Mondays",
+    createPofiNotebook(smallCatalogue(), { "12-08": { note: "missing" } }),
+  ).toThrow("Unknown special note");
+
+  const notebook = createPofiNotebook(smallCatalogue());
+  expect(() => notebook.noteForDate("not-a-date", "a")).toThrow(
+    "Invalid Pofi note date",
+  );
+  expect(() => notebook.noteForDate("2026-10-16", " ")).toThrow(
+    "Missing Pofi user key",
+  );
+  expect(() => notebook.noteForDate("2026-10-17", "a")).toThrow(
+    "weekdays and special dates",
+  );
+  expect(() => notebook.notesForWeek("not-a-date", "a")).toThrow(
+    "Invalid Pofi note date",
   );
 });
 
-test("çağıran içerik, yayın veya dönen parçaları değiştirince motor etkilenmez", () => {
+test("katalog ve özel gün listesi motor kurulduktan sonra dışarıdan değiştirilemez", () => {
   const content = { ...theme(), intros: { ...theme().intros } };
-  const catalogue = createNoteCatalogue({ themes: [content], specials: {} });
-  const publications = baseline(catalogue);
-  const notebook = createPofiNotebook(catalogue, publications);
-  const expected = notebook.noteForDate("2026-10-16", "a");
+  const catalogue = createNoteCatalogue({
+    themes: [content],
+    specials: {
+      star: {
+        theme: "Yıldız",
+        variants: { v1: ["Ortak not."], v2: ["Yeni not."] },
+      },
+    },
+  });
+  const specialDays = { "12-08": { note: "star", sharedVariant: "v1" } };
+  const notebook = createPofiNotebook(catalogue, specialDays);
+  const expected = notebook.noteForDate("2026-12-08", "a");
+
   content.intros.i1 = "Değiştirildi.";
-  publications[0].notes.length = 0;
-  notebook.noteForDate("2026-10-16", "a").parts[0] = "Değiştirildi.";
-  expect(notebook.noteForDate("2026-10-16", "a")).toEqual(expected);
+  specialDays["12-08"].sharedVariant = "v2";
+  notebook.noteForDate("2026-12-08", "a").parts[0] = "Değiştirildi.";
+  expect(notebook.noteForDate("2026-12-08", "a")).toEqual(expected);
+
+  const pool = pofiNoteCatalogue.createPool();
+  expect(pool).toHaveLength(1280);
+  expect(new Set(pool).size).toBe(1280);
+  pool.pop();
+  expect(pofiNoteCatalogue.createPool()).toHaveLength(1280);
   expect(pofiNoteCatalogue.inventory().length).toBeGreaterThanOrEqual(20);
-  expect(NOTE_PUBLICATIONS[0].notes).toHaveLength(1280);
 });

@@ -4,7 +4,9 @@ import {
   pofiNotebookDates,
 } from "@/domain/rules/notebook-calendar";
 import type { NoteCatalogue } from "./catalogue";
-import type { DatedNote, NotePublication } from "./types";
+import type { DatedNote } from "./types";
+
+const STRIDE_CANDIDATES = [1, 3, 5, 7, 9, 11, 13, 17, 19] as const;
 
 function hash(value: string) {
   let result = 2166136261;
@@ -15,89 +17,51 @@ function hash(value: string) {
 function gcd(a: number, b: number): number {
   return b === 0 ? a : gcd(b, a % b);
 }
-export function publicationStrides(poolSize: number): number[] {
-  return Array.from(
-    { length: Math.min(23, poolSize - 1) },
-    (_, index) => index + 1,
-  ).filter((stride) => gcd(stride, poolSize) === 1);
-}
 
 export function createPofiNotebook(
   catalogue: NoteCatalogue,
-  source: readonly NotePublication[],
+  specialDaySource: Readonly<
+    Record<string, { note: string; sharedVariant?: string }>
+  > = {},
 ) {
-  if (!source.length)
-    throw new Error("At least one note publication is required");
-  // Snapshot configuration to keep later editor mutations from changing this notebook.
-  const publications: NotePublication[] = structuredClone([...source]);
-  for (const [index, publication] of publications.entries()) {
-    if (
-      !isDateKey(publication.from) ||
-      weekday(publication.from) !== 0 ||
-      (index > 0 && publication.from <= publications[index - 1].from)
-    )
-      throw new Error(
-        `Publication dates must be unique ascending Mondays: ${publication.from}`,
-      );
-    if (
-      publication.notes.length < 5 ||
-      new Set(publication.notes).size !== publication.notes.length
-    )
-      throw new Error(
-        `Publication needs at least five unique notes: ${publication.from}`,
-      );
-    for (const id of publication.notes) {
-      if (id.startsWith("special:"))
-        throw new Error(`Regular pool contains special note: ${id}`);
-      catalogue.resolve(id);
-    }
-    if (
-      !publication.strides.length ||
-      publication.strides.some(
-        (stride) =>
-          !Number.isInteger(stride) ||
-          stride < 1 ||
-          gcd(stride, publication.notes.length) !== 1,
-      )
-    )
-      throw new Error(`Invalid publication strides: ${publication.from}`);
-    for (const [date, special] of Object.entries(publication.specialDays)) {
-      if (
-        !isDateKey(`2000-${date}`) ||
-        date.length !== 5 ||
-        !special.variants.length ||
-        new Set(special.variants).size !== special.variants.length
-      )
-        throw new Error(`Invalid special day: ${date}`);
-      for (const variant of special.variants)
-        catalogue.resolve(`special:${special.note}:${variant}`);
-      if (
-        special.sharedVariant &&
-        !special.variants.includes(special.sharedVariant)
-      )
-        throw new Error(`Unknown shared variant: ${date}`);
-    }
+  const notes = catalogue.createPool();
+  if (notes.length < 5 || new Set(notes).size !== notes.length)
+    throw new Error("The note pool needs at least five unique notes");
+  for (const id of notes) {
+    if (id.startsWith("special:"))
+      throw new Error(`Regular pool contains special note: ${id}`);
+    catalogue.resolve(id);
   }
 
-  function publicationFor(date: string) {
-    if (!isDateKey(date))
-      throw new RangeError(`Invalid Pofi note date: ${date}`);
-    const monday = weekStart(date);
-    const publication = publications.findLast((item) => item.from <= monday);
-    if (!publication) throw new RangeError(`No note publication for: ${date}`);
-    return publication;
+  const specialDays = new Map<
+    string,
+    { note: string; variants: string[]; sharedVariant?: string }
+  >();
+  for (const [date, special] of Object.entries(specialDaySource)) {
+    if (date.length !== 5 || !isDateKey(`2000-${date}`))
+      throw new Error(`Invalid special day: ${date}`);
+    const variants = catalogue.variants(special.note);
+    if (special.sharedVariant && !variants.includes(special.sharedVariant))
+      throw new Error(`Unknown shared variant: ${date}`);
+    specialDays.set(date, { ...special, variants });
   }
+
+  // Preserve the established 1,280-note selection sequence while supporting smaller catalogues.
+  const strides = STRIDE_CANDIDATES.filter(
+    (stride) => stride < notes.length && gcd(stride, notes.length) === 1,
+  );
+  const specialDates = [...specialDays.keys()];
 
   function noteForDate(date: string, userKey: string): DatedNote {
-    const publication = publicationFor(date);
+    if (!isDateKey(date))
+      throw new RangeError(`Invalid Pofi note date: ${date}`);
     if (typeof userKey !== "string" || !userKey.trim())
       throw new Error("Missing Pofi user key");
-    const specialDates = Object.keys(publication.specialDays);
     if (!isNotebookDate(date, specialDates))
       throw new RangeError(
         `Pofi notes are for weekdays and special dates: ${date}`,
       );
-    const special = publication.specialDays[date.slice(5)];
+    const special = specialDays.get(date.slice(5));
     let id: string;
     if (special) {
       const variant =
@@ -109,12 +73,8 @@ export function createPofiNotebook(
       id = `special:${special.note}:${variant}`;
     } else {
       const seed = hash(`pofi-notes:v1:${userKey}:${weekStart(date)}`);
-      const stride =
-        publication.strides[(seed >>> 16) % publication.strides.length];
-      id =
-        publication.notes[
-          (seed + weekday(date) * stride) % publication.notes.length
-        ];
+      const stride = strides[(seed >>> 16) % strides.length];
+      id = notes[(seed + weekday(date) * stride) % notes.length];
     }
     return { date, ...catalogue.resolve(id) };
   }
@@ -122,9 +82,10 @@ export function createPofiNotebook(
   return {
     noteForDate,
     notesForWeek(today: string, userKey: string): DatedNote[] {
-      const publication = publicationFor(today);
-      return pofiNotebookDates(today, Object.keys(publication.specialDays)).map(
-        (date) => noteForDate(date, userKey),
+      if (!isDateKey(today))
+        throw new RangeError(`Invalid Pofi note date: ${today}`);
+      return pofiNotebookDates(today, specialDates).map((date) =>
+        noteForDate(date, userKey),
       );
     },
   };

@@ -8,7 +8,7 @@
 | Mesaim | Kaynak ekran düzeni, hafta seçici, metrikler, gün akışı, grafik, ham kayıtlar ve plan modalı |
 | Demo | Aynı görünüm ve kurallar; dört haftalık yakalama, gün seçimi ve sanal ek süre |
 | Plan | Anında yerel kayıt; seçili günlere dağılım ve son çalışma gününde haftalık denge |
-| Pofi | Kaynak durum görselleri, albüm, sürprizler ve tarihli havuzlarla modüler not yönetimi |
+| Pofi | Kaynak durum görselleri, albüm, sürprizler ve tek havuzlu not yönetimi |
 | Oturum | Kullanıcı başına PDKS istemcisi, sabit TTL, JSON kalıcılığı ve kısa kişisel rapor önbelleği |
 | Dağıtım | Tek Bun süreci, standalone çıktı, Dockerfile ve kalıcı oturum dizini |
 

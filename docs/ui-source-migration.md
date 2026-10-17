@@ -22,7 +22,7 @@ Arşiv SHA256: `555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca
 | `app/dashboard/pofi-room.js`, `pofi-notebook.js` | [oda](../src/components/pofi/room.js), [not defteri](../src/components/pofi/notebook.js), [bağlantı](../src/components/pofi-room-content.tsx) | Albüm, kart, mesai, notlar ve mevcut sürprizler |
 | `app/pofi-call.js`, `ui-icon.js` | [PofiCall](../src/components/pofi-call.js), [Icon](../src/components/ui-icon.js) | Klavyeyle Pofi çağırma ve ortak ikonlar |
 | `app/dashboard/work-plan.js`, `app/plan-controls.js` | [PlanEditor](../src/components/plan-editor.tsx), [PlanControls](../src/components/plan-controls.js) | Kaynak plan özeti/gün-saat kontrolleri; anında kayıt |
-| `app/modal.js` | [Modal](../src/components/modal.js), [typed interface](../src/components/archive-modal.tsx) | Native dialog, odak dönüşü, Escape, mobil tutamaktan sürükleme |
+| `app/modal.js` | [Modal](../src/components/modal.js) | Native dialog, tipli prop arayüzü, varsayılan açık durum, odak dönüşü, Escape, mobil tutamaktan sürükleme |
 | `app/mesai.js` Connection | [Connection](../src/components/connection.tsx) | Kaynak giriş kartı ve maskot; mevcut oturum sınırları |
 | `app/request-error.js`, `loading-state.js` | [RequestError](../src/components/request-error.js), [LoadingState](../src/components/loading-state.js) | [Hata sözleşmesi](pdks-errors.md): beklenen giriş hatası formda ve teknik tanısızdır; eski rapor korunur, yeniden deneme ilgili işlemi çalıştırır |
 | `app/error.js`, `not-found.js`, `loading.js` | [error](../src/app/error.tsx), [not-found](../src/app/not-found.tsx), [loading](../src/app/loading.tsx) | Next 16 hata yeniden denemesi ve kaynak yardımcı ekranları |

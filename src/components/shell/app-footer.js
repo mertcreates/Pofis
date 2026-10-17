@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { product, ui } from "@/lib/ui-text.js";
-import Modal from "../archive-modal";
+import Modal from "../modal.js";
 import { version } from "../../../package.json";
 import { POFI_SURPRISES } from "@/domain/rules/pofi-surprises";
 

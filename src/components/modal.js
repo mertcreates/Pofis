@@ -4,8 +4,21 @@ import { useEffect, useId, useRef, useState } from "react";
 import Icon from "./ui-icon.js";
 import { ui } from "@/lib/ui-text.js";
 
+/**
+ * @param {{
+ *   open?: boolean,
+ *   title: string,
+ *   description?: string,
+ *   className?: string,
+ *   onClose: () => void,
+ *   onBack?: () => void,
+ *   backLabel?: string,
+ *   onTitleClick?: () => void,
+ *   children: import('react').ReactNode,
+ * }} props
+ */
 export default function Modal({
-  open,
+  open = true,
   onClose,
   title,
   description,

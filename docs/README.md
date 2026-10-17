@@ -12,7 +12,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Oturum yaşam döngüsü ve tek süreç sınırları | [Çok kullanıcılı yapı](architecture/multi-user-sessions.md) |
 | Çalışma ortamı, proxy ve Docker | [Dağıtım](deployment.md) |
 | Demo verisi, saat ve gezinme | [Mesaim demosu](demo.md) |
-| Tema, not ve tarihli yayın yönetimi | [Pofi notları](pofi-notes.md) |
+| Pofi içeriği ve tek havuz seçimi | [Pofi notları](pofi-notes.md) |
 | Pofi dili ve görselleri | [Ton rehberi](brand/pofi-tone-guide.md), [görsel kaynaklar](brand/assets.md) |
 | Arşiv kaynağı ve bileşen eşlemesi | [Kaynak arayüz aktarımı](ui-source-migration.md) |
 | Uygulama durumu ve sonraki aşama | [Uygulama planı](implementation-plan.md) |

@@ -1,7 +1,6 @@
 "use client";
 
 import type { CSSProperties } from "react";
-export { default as Modal } from "./archive-modal";
 import { durationClock, durationParts, durationText } from "@/domain/time";
 import { percentage } from "@/domain/rules/progress.js";
 
