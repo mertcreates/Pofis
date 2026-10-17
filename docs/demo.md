@@ -4,6 +4,16 @@ Yerel adres: http://127.0.0.1:3000/demo. Sayfa giriş gerektirmeden gerçek Mesa
 
 Yerleşim ve bileşen görünümleri [kaynak arayüzden](ui-source-migration.md) gelir. Hafta seçici aylar üzerinden çalışır. Demo açıklamasının altında Pazartesi–Cuma gün seçicisi bulunur; grafik gün seçme kontrolü değildir. Günün akışı, günlük süre/hedef, kayıt kartı, tablodaki “Bugün” ve Pofi seçilen günü birlikte gösterir. Boş günde “Tüm kayıtlar” düğmesi görünmez. Ayarlar menüsü plan modalını açar.
 
+## Hata ekranı alternatifleri
+
+“Hata ekranlarını dene” düğmesi onaylanan Pofi sahnesini sabit tutar. Başlangıç seçimi İz kaydıdır: sorun açıklaması, hata kodu ve İstanbul saatindeki kısa zaman görünür. İkinci durak olan “İstek ayrıntıları” da sürekli görünür; açma/kapama kontrolü bulunmaz. API HTTP durumu Pofis API altında, kaynak HTTP durumu ve bağlantı kodu PDKS altında gösterilir; uygulama hatasında kaynak verisi üretilmez. Hata sınıfı istek ayrıntılarında bulunur. Çizgi işlem sırası veya başarı göstergesi değildir. “Tanı bilgilerini kopyala” tüm izinli alanları ve özgün zaman damgasını taşır. [İz kaydı sunumu](../src/demo/error-trace.tsx) ortak tanı alanlarını ve kopyalama bileşenini kullanır.
+
+Karşılaştırma için Tanı föyü (tek açık yüzey ve bölünmüş kayıtlar) ve Konsol (markanın koyu mor paletinde yoğun kayıt) seçenekleri korunur; bu iki tasarımın ayrıntıları açık başlar. Kart içinde kart kullanılmaz. Canlı ekranın kapalı başlangıcı değişmez.
+
+Senaryo seçicisi bağlantı/DNS hatası, PDKS HTTP 500 ve uygulama hatasını karşılaştırır. Açıklamalar, güvenli alanlar, gruplama ve kopyalama ortak hata sunumu/bileşeninden gelir. Eksik kaynak bilgisi üretilmez.
+
+“Girişe dön” örnek giriş formunu açar; gönderim formu temizleyip seçili örnek hatayı yeniden gösterir. Bu akış API veya PDKS isteği göndermez. “Mesaim demosuna dön” rapora döner ve seçili gün/ek süreyi korur. Önizleme seçimleri bellektedir; sayfa yenilenince rapor açılır. [Önizleme sahibi](../src/demo/error-preview.tsx) ve [demo stilleri](../src/demo/error-preview.css) canlı hata ekranının tasarımını değiştirmez.
+
 ## Veri ve zaman
 
 [Yakalanan turnike verisi](../src/demo/passages.json) 21 Eylül–16 Ekim 2026 aralığındaki 297 hareketi içerir. Her hareket yalnız `date`, `time`, `direction` taşır. Kişi adı, personel/turnike kimliği, parola ve oturum çerezi fixture içinde bulunmaz; ekranda “Örnek kullanıcı” görünür. Gerçek tarih ve saatler korunmuştur; veri tam anonim sayılmaz.

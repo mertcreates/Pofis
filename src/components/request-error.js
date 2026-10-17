@@ -8,9 +8,7 @@ import { pdksDiagnosticGroups, pdksDiagnosticText, presentPdksFailure } from "./
 const routeKeys = new Set(["apiMethod", "apiPath", "method", "path"]);
 const proseKeys = new Set(["diagnostic", "occurredAt", "sessionCheck"]);
 
-function RequestErrorDetails({ error, inline }) {
-  const groupId = useId();
-  const GroupHeading = inline ? "h3" : "h2";
+export function DiagnosticCopyButton({ error, label = ui.copyDiagnostics }) {
   const [copy, setCopy] = useState({ error, status: "idle" });
   const status = copy.error === error ? copy.status : "idle";
   async function copyDetails() {
@@ -24,14 +22,23 @@ function RequestErrorDetails({ error, inline }) {
     }
   }
   return (
-    <details className="request-error-disclosure">
-      <summary>{ui.diagnosticDisclosure}</summary>
       <div className="request-error-copy">
         <button type="button" onClick={copyDetails} disabled={status === "copying"}>
-          {status === "copying" ? ui.copyingDiagnostics : ui.copyDiagnostics}
+          {status === "copying" ? ui.copyingDiagnostics : label}
         </button>
         <p role="status">{status === "copied" ? ui.diagnosticsCopied : status === "failed" ? ui.diagnosticsCopyFailed : ""}</p>
       </div>
+  );
+}
+
+export function RequestErrorDetails({ error, inline = false, initiallyOpen = false }) {
+  const groupId = useId();
+  const GroupHeading = inline ? "h3" : "h2";
+  return (
+    <details className="request-error-disclosure" open={initiallyOpen}>
+      <summary>{ui.diagnosticDisclosure}</summary>
+      <DiagnosticCopyButton error={error} />
+      <div className="request-error-groups">
       {pdksDiagnosticGroups(error).map(group => {
         const route = ["apiMethod", "method", "apiPath", "path"]
           .map(key => group.rows.find(row => row.key === key)).filter(row => row !== undefined);
@@ -57,6 +64,7 @@ function RequestErrorDetails({ error, inline }) {
           </section>
         );
       })}
+      </div>
     </details>
   );
 }

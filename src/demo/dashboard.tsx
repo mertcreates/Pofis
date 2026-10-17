@@ -7,6 +7,11 @@ import { addDays, dateKey, weekday, weekStart } from "@/domain/rules/calendar";
 import type { demoData } from "./report";
 import { demoDays, previewDemoDay } from "./navigation";
 import { DemoDayPicker } from "./day-picker";
+import dynamic from "next/dynamic";
+import { ui } from "@/lib/ui-text.js";
+import "./error-preview.css";
+
+const DemoErrorPreview = dynamic(() => import("./error-preview").then(module => module.DemoErrorPreview));
 
 export function DemoDashboard({
   now: capturedAt,
@@ -15,6 +20,7 @@ export function DemoDashboard({
 }: ReturnType<typeof demoData>) {
   const [date, setDate] = useState(() => dateKey(capturedAt));
   const [extraMinutes, setExtraMinutes] = useState(0);
+  const [errorPreview, setErrorPreview] = useState(false);
   const week = weekStart(date);
   const dates = demoDays(week, capturedAt);
   const selectWeek = useCallback(
@@ -49,6 +55,8 @@ export function DemoDashboard({
     setDate(next);
   }
 
+  if (errorPreview) return <DemoErrorPreview onClose={() => setErrorPreview(false)} />;
+
   return (
     <DashboardView
       now={report.now}
@@ -61,17 +69,22 @@ export function DemoDashboard({
         firstWeek,
         capturedDate: dateKey(capturedAt),
         navigation: (
-          <DemoDayPicker
-            dates={dates}
-            selected={date}
-            now={report.now}
-            capturedAt={capturedAt}
-            extraMinutes={extraMinutes}
-            maxExtraMinutes={report.maxExtraMinutes}
-            unavailableReason={report.unavailableReason}
-            onExtraMinutesChange={setExtraMinutes}
-            onSelect={selectDate}
-          />
+          <>
+            <button type="button" className="demo-error-launch" onClick={() => setErrorPreview(true)}>
+              {ui.demo.errors.launch}
+            </button>
+            <DemoDayPicker
+              dates={dates}
+              selected={date}
+              now={report.now}
+              capturedAt={capturedAt}
+              extraMinutes={extraMinutes}
+              maxExtraMinutes={report.maxExtraMinutes}
+              unavailableReason={report.unavailableReason}
+              onExtraMinutesChange={setExtraMinutes}
+              onSelect={selectDate}
+            />
+          </>
         ),
       }}
       workPlans={workPlans}
