@@ -3,10 +3,37 @@ import { prepareReport, presentReport, type Report } from "./report";
 import { DEFAULT_WORK_PLAN } from "./rules/work-plan";
 import { durationSegments } from "./attendance";
 import { summarizeWeek } from "@/domain/rules/week";
-import { readPlanInput } from "@/domain/rules/work-plan";
+import { readPlanInput, readDayPlan, weeklyTarget } from "@/domain/rules/work-plan";
 import { pofiNotesForWeek } from "@/server/pofi-notes.js";
 
 const now = Date.parse("2026-10-16T15:00:00+03:00");
+
+test("hafta sonu kayıtları raporda ve gerçekleşen toplamda kalır; plan hedefi hafta içidir", () => {
+  const report = fixture();
+  report.passages = [8,8,8,8,8,2,1].flatMap((hours, index) => [
+    { date: `2026-10-${12 + index}`, time: "08:00:00", direction: "in" as const },
+    { date: `2026-10-${12 + index}`, time: `${String(8 + hours).padStart(2, "0")}:00:00`, direction: "out" as const },
+  ]);
+  const result = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-19T09:00:00+03:00"), false);
+  expect(result.days).toHaveLength(7);
+  expect(result.days.slice(5).map(day => day.recordedSeconds)).toEqual([7200,3600]);
+  expect(result.days.slice(5).map(day => day.source.dailyGoalSeconds)).toEqual([0,0]);
+  expect(summarizeWeek(result.days, "2026-10-19").totalSeconds).toBe(43 * 3600);
+  expect(weeklyTarget(result.plan)).toBe(40 * 3600);
+});
+
+test("tamamlanan günlerden sonra güncel 14:50 planı hedef çıkışa taşınır", () => {
+  const report = fixture();
+  report.passages = ["16:03:00", "16:42:00", "16:25:00"].flatMap((time, index) => [
+    { date: `2026-10-${12 + index}`, time: "08:00:00", direction: "in" as const },
+    { date: `2026-10-${12 + index}`, time, direction: "out" as const },
+  ]);
+  report.passages.push({ date: "2026-10-15", time: "08:00:00", direction: "in" });
+  const result = presentReport(report, [480,480,390,890,0,0,0], Date.parse("2026-10-15T15:00:00+03:00"), false, 144000);
+  expect(result.days[3].source.exitGoalSeconds).toBe(53400);
+  expect(result.days[3].firstEntry! + result.days[3].source.exitGoalSeconds! * 1000)
+    .toBe(Date.parse("2026-10-15T22:50:00+03:00"));
+});
 function fixture(): Report {
   return {
     person: { id: "self", name: "Fixture Person", title: "", unit: "" },
@@ -57,12 +84,10 @@ test("prepared reports refresh with plan, source, freshness and Istanbul date ch
   expect(stale(now).days[4].liveSeconds).toBeNull();
   const fresh = prepareReport(report, DEFAULT_WORK_PLAN, "2026-10-16", false);
   expect(fresh(now).days[4].liveSeconds).toBe(25200);
-  const changedPlan = {
-    goals: { hours: 35, days: 5, weekdays: [0, 1, 2, 3, 4] },
-  };
+  const changedPlan = readDayPlan([420, 420, 420, 420, 420, 0, 0])!;
   expect(
     prepareReport(report, changedPlan, "2026-10-16", false)(now).dailySeconds,
-  ).toBe(25200);
+  ).toBe(10800);
   const closed = {
     ...report,
     passages: [
@@ -118,7 +143,7 @@ test("son hareket çıkış olduğunda veya rapor eskidiğinde canlı tahmin dur
   expect(stale.liveSeconds).toBeNull();
   expect(stale.recordedSeconds).toBe(4 * 3600);
 });
-test("eksik seçili gün çıkış hedefini engeller, son gün fazla/eksik süreyi devralır", () => {
+test("eksik seçili gün borç üretmez, son gün geçerli fazla/eksik süreyi devralır", () => {
   const report = fixture();
   report.passages[1].time = "17:00:00";
   expect(
@@ -131,7 +156,7 @@ test("eksik seçili gün çıkış hedefini engeller, son gün fazla/eksik süre
   expect(
     presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4].source!
       .exitGoalSeconds,
-  ).toBeNull();
+  ).toBe(8 * 3600);
 });
 test("aynı günün hareketleri bir güne birleşir; belirsiz geçiş canlı tahmin üretmez", () => {
   const report = fixture();
@@ -201,14 +226,13 @@ test.each([
   }
 });
 
-test("arşiv plan sınırları 0.25–24 saat/gün; seçili gün şartı ve ondalık hedef", () => {
+test("plan sınırları 0–16 saat/gün ve yarım saat adımlarıdır; tüm günler kapatılabilir", () => {
   expect(readPlanInput({ weekdays: [], hours: 40 })).toBeNull();
-  expect(readPlanInput({ weekdays: [0], dailyHours: 24 })).not.toBeNull();
-  expect(readPlanInput({ weekdays: [0], dailyHours: 24.01 })).toBeNull();
+  expect(readPlanInput({ weekdays: [0], dailyHours: 16 })).not.toBeNull();
+  expect(readPlanInput({ weekdays: [0], dailyHours: 16.5 })).toBeNull();
   expect(readPlanInput({ weekdays: [0, 0], hours: 8 })).toBeNull();
-  expect(
-    readPlanInput({ weekdays: [0, 1], dailyHours: 0.25 })!.goals.hours,
-  ).toBe(0.5);
+  expect(readPlanInput({ weekdays: [0, 1], dailyHours: 0.25 })).toBeNull();
+  expect(weeklyTarget(readDayPlan([0, 0, 0, 0, 0, 0, 0])!)).toBe(0);
 });
 test("notlar kişi bazında sabit, mevcut haftayla sınırlı, 8 Aralık ortak", () => {
   const notes = pofiNotesForWeek("2026-10-16", "fixture-person");
@@ -231,4 +255,78 @@ test("notlar kişi bazında sabit, mevcut haftayla sınırlı, 8 Aralık ortak",
     ),
   );
   expect(() => pofiNotesForWeek("2026-10-16", "")).toThrow();
+});
+
+test("45 dakika devirde günlük ve haftalık hedef aynı saniyede tamamlanır; hedef çıkış ve tablo ortak hedefi kullanır", () => {
+  const report = fixture();
+  report.passages[1].time = "16:30:00";
+  report.passages[3].time = "16:15:00";
+  report.passages = report.passages.filter(event => event.date !== "2026-10-16");
+  report.passages.push({ date: "2026-10-16", time: "08:00:00", direction: "in" });
+  const before = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T15:14:59+03:00"), false);
+  const at = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T15:15:00+03:00"), false);
+  expect(before.days[4].source.dailyGoalSeconds).toBe(26100);
+  expect(before.days[4].source.plannedGoalSeconds).toBe(28800);
+  expect(before.days[4].source.total).toBe(26099);
+  expect(summarizeWeek(before.days, "2026-10-16").totalSeconds).toBe(143999);
+  expect(at.days[4].source.total).toBe(26100);
+  expect(at.days[4].source.exitGoalSeconds).toBe(26100);
+  expect(at.days[4].source.goalSeconds).toBe(26100);
+  expect(summarizeWeek(at.days, "2026-10-16").totalSeconds).toBe(144000);
+  expect(at.days[4].source.pofi.percentage).toBe(100);
+  expect(at.days[4].source.pofi.state).toBe("working");
+  expect(at.plan).toEqual([480, 480, 480, 480, 480, 0, 0]);
+});
+
+test("tamamlanan gün özel hedefini korur; geçmiş raporda özgün plan kullanılır", () => {
+  const plan = readDayPlan([480, 480, 450, 510, 450, 0, 0])!;
+  const report = fixture();
+  report.passages.pop();
+  report.passages.at(-1)!.time = "15:30:00";
+  const current = presentReport(report, plan, now, false);
+  expect(current.days.map(day => day.source.plannedGoalSeconds)).toEqual([28800, 28800, 27000, 30600, 27000, 0, 0]);
+  expect(current.days[4].source.goalSeconds).toBe(27000);
+  const historical = presentReport(report, plan, Date.parse("2026-10-23T15:00:00+03:00"), false);
+  expect(historical.days[4].source.goalSeconds).toBe(27000);
+});
+
+test("devirle sıfırlanan hedef Pofi için tanımlı yüzde üretir; kayıt durumunu korur", () => {
+  const report = fixture();
+  for (const index of [1, 3, 5, 7]) report.passages[index].time = "18:00:00";
+  const live = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4];
+  expect(live.source.dailyGoalSeconds).toBe(0);
+  expect(live.source.exitGoalSeconds).toBe(0);
+  expect(live.source.pofi.percentage).toBe(100);
+  expect(live.source.pofi.state).toBe("working");
+  report.passages.pop();
+  const closed = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4];
+  expect(closed.source.pofi.percentage).toBe(100);
+  expect(closed.source.pofi.state).toBe("completed");
+});
+
+test("özel planın eksiği yalnız Cuma çıkışını uzatır; ara çıkış hedefi ötelemez", () => {
+  const report = fixture();
+  report.passages = [
+    { date: "2026-10-12", time: "08:00:00", direction: "in" },
+    { date: "2026-10-12", time: "13:30:00", direction: "out" },
+    { date: "2026-10-13", time: "08:00:00", direction: "in" },
+    { date: "2026-10-13", time: "18:00:00", direction: "out" },
+    ...["2026-10-14", "2026-10-15"].flatMap(date => [
+      { date, time: "08:00:00", direction: "in" as const },
+      { date, time: "16:00:00", direction: "out" as const },
+    ]),
+    { date: "2026-10-16", time: "08:00:00", direction: "in" },
+    { date: "2026-10-16", time: "12:00:00", direction: "out" },
+    { date: "2026-10-16", time: "13:00:00", direction: "in" },
+  ];
+  const plan = readDayPlan([360, 600, 480, 480, 480, 0, 0])!;
+  const tuesday = presentReport(report, plan, Date.parse("2026-10-13T15:00:00+03:00"), false);
+  expect(tuesday.days[1].source.exitGoalSeconds).toBe(36000);
+  const friday = presentReport(report, plan, now, false);
+  expect(friday.plan).toEqual([...plan]);
+  expect(friday.days[0].source.plannedGoalSeconds).toBe(21600);
+  expect(friday.days[4].source.plannedGoalSeconds).toBe(28800);
+  expect(friday.days[4].source.exitGoalSeconds).toBe(30600);
+  expect(friday.days[4].firstEntry! + friday.days[4].source.exitGoalSeconds! * 1000).toBe(Date.parse("2026-10-16T16:30:00+03:00"));
+  expect(friday.days[4].source.total).toBe(25200);
 });

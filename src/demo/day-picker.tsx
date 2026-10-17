@@ -79,9 +79,6 @@ export function DemoDayPicker({
             onExtraMinutesChange(Number(event.currentTarget.value))
           }
         />
-        <p id="demo-extra-time-help" className="demo-extra-time-help">
-          {unavailableReason ? ui.demo.controls.unavailable[unavailableReason] : ui.demo.controls.extraTimeHelp}
-        </p>
       </div>
     </div>
   );

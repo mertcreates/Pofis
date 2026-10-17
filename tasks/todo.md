@@ -5,6 +5,7 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 ## Gerçek PDKS kabulü
 
 - [ ] Son hareketi giriş olan gerçek günde kayıtlı süre, canlı tahmin ve hedefi birlikte kontrol et.
+- [ ] Gerçek PDKS haftasında tamamlanan günün kilidini ve saniyeli kaydını, özgün plana göre son uygun günden geriye devri ve kapasite bakiyesini, kayıtsız/belirsiz günün borç üretmemesini ve günlük/haftalık hedeflerin eşleşmesini kontrol et; yerel fixture kabulü bu kaynak kontrolünün yerine geçmez.
 - [ ] Gerçek hesapta eski rapor, kısa önbellek, kurtarma bekleme süresi, yeniden bağlantı ve 8 saatlik oturum bitişini doğrula.
 - [ ] İki gerçek hesap/tarayıcıyla kimlik, kaynak çerezi ve rapor ayrımını doğrula.
 - [ ] İstanbul gece yarısı, gün/hafta geçişi ve yeni kaynak hareketlerinin ekrana yansımasını kontrol et.
@@ -20,12 +21,11 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 
 ## Arayüz kabulü
 
-- [ ] Rapor hesaplama istisnasının ortak hata sınırına geçişini, 404 sahnesini, tema/plan depolama bildirimlerini, plan alan doğrulamasını ve eksik notta defter gezinmesini masaüstü/mobil tarayıcıda doğrula. Kod ve tür kontrolü tamamlandı; kullanıcının tarayıcıyı açmama tercihi nedeniyle görsel kabul bekliyor.
+- [ ] Rapor hesaplama istisnasının ortak hata sınırına geçişini, 404 sahnesini, tema depolama bildirimini ve eksik notta defter gezinmesini masaüstü/mobil tarayıcıda doğrula.
 
 - [ ] Pofi'nin canlı/kayıtlı `%114 → %115` geçişinde `overworked` görselini ve “Hedefin üzerindesin.” metnini tarayıcıda doğrula. Kural testleri geçti; yerel Playwright kabulünde Chrome bulunamadı ve Edge başlatılamadı.
 - [ ] Fiziksel mobil cihazda dokunmatik grafik ve modal tutamağından sürükleme davranışını kontrol et.
 - [ ] Safari, forced-colors ve ekran okuyucuyla temel gezinme, durum etiketleri ve dialog odağını kontrol et.
-- [ ] Tarayıcı depolaması yazmayı reddettiğinde plan kayıt hatasını ve son kayıtlı planın korunmasını tarayıcıda doğrula.
 - [ ] Çalışma zamanı hata sınırının yeniden deneme akışını kontrollü tarayıcı senaryosuyla doğrula.
 
 ## Sonraki ürün işleri

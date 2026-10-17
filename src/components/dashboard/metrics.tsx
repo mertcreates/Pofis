@@ -14,15 +14,17 @@ export function DashboardMetrics({
   plan,
   today,
   isCurrent,
+  targetSeconds,
 }: {
   days: DayReport[];
   plan: number[];
   today: string;
   isCurrent: boolean;
+  targetSeconds?: number;
 }) {
   const summary = summarizeWeek(days, today);
   const day = days.find((day) => day.date === today);
-  const target = weeklyTarget(plan);
+  const target = targetSeconds ?? weeklyTarget(plan);
   const todaySeconds = day ? displayedSeconds(day) : 0;
   const dailyGoal = day?.source.dailyGoalSeconds ?? 0;
   const exitGoal = day?.source.exitGoalSeconds ?? null;
@@ -31,10 +33,10 @@ export function DashboardMetrics({
       ? targetExitAt(day.firstEntry, exitGoal)
       : null;
   const percent =
-    day && day.firstEntry !== null && day.state !== "uncertain"
+    day && day.firstEntry !== null && day.state !== "uncertain" && day.source.plannedGoalSeconds > 0
       ? percentage(todaySeconds, dailyGoal)
       : null;
-  const weeklyPercent = percentage(summary.totalSeconds, target);
+  const weeklyPercent = target > 0 ? percentage(summary.totalSeconds, target) : null;
   const delta = exitGoal !== null ? todaySeconds - exitGoal : null;
   const hint =
     day?.state === "uncertain"
@@ -122,7 +124,7 @@ export function DashboardMetrics({
         </>
       )}
       <MetricCard
-        label={ui.weeklyTotal}
+        label={summary.estimatedSeconds > 0 ? ui.liveEstimate(ui.weeklyTotal) : ui.weeklyTotal}
         icon="bars"
         badge={
           weeklyPercent === null
@@ -171,8 +173,7 @@ export function DashboardMetrics({
             icon="target"
             foot={
               <>
-                {ui.dailyGoalPrefix}{" "}
-                <Duration seconds={days[0]?.source.dailyGoalSeconds ?? 0} />
+                {ui.planner.workingDayCount(plan.filter(minutes => minutes > 0).length)}
               </>
             }
           >

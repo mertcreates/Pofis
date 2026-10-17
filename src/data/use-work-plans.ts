@@ -1,27 +1,36 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { savePlans } from "@/lib/plan-storage.js";
 import { readWorkPlans, workPlanStorage, type PlanScope } from "./work-plans";
-import { DEFAULT_WORK_PLAN, type WorkPlan } from "@/domain/rules/work-plan";
+import {
+  emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, changeWeekPlan, changeDefaultPlan,
+  type WorkPlan, type WorkPlans,
+} from "@/domain/rules/work-plan";
 import { ui } from "@/lib/ui-text.js";
 
 export function useWorkPlans(week: string, scope: PlanScope = "live") {
-  const [plans, setPlans] = useState<Record<string, WorkPlan>>({});
+  const [plans, setPlans] = useState<WorkPlans>(emptyWorkPlans);
+  const latest = useRef(plans);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
+    setReady(false);
     try {
-      setPlans(readWorkPlans(workPlanStorage(localStorage, scope)));
+      const loaded = readWorkPlans(workPlanStorage(localStorage, scope));
+      latest.current = loaded;
+      setPlans(loaded);
       setReady(true);
-    } catch {
-      setError(ui.storageReadError);
+      setError("");
+    } catch (error) {
+      setError(error instanceof Error && error.message.includes("korunuyor") ? error.message : ui.storageReadError);
     }
   }, [scope]);
-  function save(plan: WorkPlan) {
+  function persist(update: (current: WorkPlans) => WorkPlans) {
     if (!ready) return false;
-    const next = { ...plans, [week]: plan };
+    const next = update(latest.current);
     try {
       savePlans(workPlanStorage(localStorage, scope), next);
+      latest.current = next;
       setPlans(next);
       setError("");
       return true;
@@ -31,10 +40,14 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
     }
   }
   return {
-    plan: plans[week] ?? DEFAULT_WORK_PLAN,
-    special: Boolean(plans[week]),
+    plan: resolveStoredPlan(plans, week),
+    targetSeconds: resolveStoredTarget(plans, week),
+    defaultPlan: plans.defaultPlan,
+    special: Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined),
     ready,
     error,
-    save,
+    save: (plan: WorkPlan, completed: readonly (number | null)[], targetSeconds?: number) => persist(current => changeWeekPlan(current, week, plan, completed, targetSeconds)),
+    saveDefault: (plan: WorkPlan, completed: readonly (number | null)[] = []) => persist(current => changeDefaultPlan(current, plan, week, completed)),
+    reset: (completed: readonly (number | null)[] = []) => persist(current => changeWeekPlan(current, week, null, completed)),
   };
 }

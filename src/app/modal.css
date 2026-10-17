@@ -115,9 +115,6 @@
     border: 1px solid var(--line);
     border-radius: 20px;
   }
-  .app-modal:has(.planner) {
-    width: min(520px, calc(100% - 48px));
-  }
   .app-modal[open] { animation-name: app-dialog-enter; }
   .app-modal-handle { display: none; }
   .app-modal-header { padding: 28px 28px 24px; }

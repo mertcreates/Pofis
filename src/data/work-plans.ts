@@ -1,5 +1,5 @@
 import { loadPlans } from "@/lib/plan-storage.js";
-import type { WorkPlan } from "@/domain/rules/work-plan";
+import type { WorkPlans } from "@/domain/rules/work-plan";
 
 export type PlanScope = "live" | "demo";
 type PlanStorage = Pick<Storage, "getItem" | "setItem">;
@@ -17,6 +17,6 @@ export function workPlanStorage(
 
 export function readWorkPlans(
   storage: Pick<Storage, "getItem">,
-): Record<string, WorkPlan> {
+): WorkPlans {
   return loadPlans(storage);
 }

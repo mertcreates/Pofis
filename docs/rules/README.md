@@ -37,6 +37,7 @@ flowchart TD
   R --> K
   D --> K
   K --> A
+  K --> W
   G[Hedef ilerlemesi] --> D
   C --> W[Mesai planı]
   R --> A[Rapor uyarlaması]

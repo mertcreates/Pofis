@@ -1,0 +1,228 @@
+.work-plan-modal { --plan-control-size: 32px; }
+.work-plan-modal button {
+  min-height: var(--plan-control-size);
+  appearance: none;
+  text-decoration: none !important;
+}
+.work-plan-modal .app-modal-header { align-items: center; }
+.work-plan-modal .app-modal-header h2 { font-size: 20px; font-weight: 650; }
+.work-plan-modal .app-modal-close {
+  flex: 0 0 var(--plan-control-size);
+  width: var(--plan-control-size);
+  height: var(--plan-control-size);
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface-subtle);
+}
+.work-planner { font-variant-numeric: tabular-nums; }
+.work-planner > .inline-notice { margin-bottom: 16px; }
+.work-plan-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 12px;
+  background: var(--surface-subtle);
+}
+.work-plan-tabs button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--secondary);
+  font-size: 13px;
+  line-height: 1.4;
+}
+.work-plan-tabs button[aria-pressed="true"] {
+  background: var(--paper);
+  color: var(--accent-text);
+  box-shadow: 0 2px 4px rgb(15 23 42 / 8%);
+  font-weight: 600;
+}
+.work-plan-dot {
+  display: inline-block;
+  flex: 0 0 6px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.work-plan-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 18px 0 10px;
+}
+.work-plan-heading h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.work-plan-total {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.work-plan-total-label { font-size: 12px; font-weight: 400; color: var(--secondary); }
+.work-plan-total s { font-size: 12px; color: var(--muted); font-weight: 400; }
+.work-plan-days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.work-plan-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 58px;
+  padding: 6px 2px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--sidebar);
+  color: light-dark(#64748b, #b8b3c6);
+  font-size: 12px;
+}
+.work-plan-day strong { font-size: 14px; font-weight: 600; }
+.work-plan-day > span { max-width: 100%; text-align: center; overflow-wrap: anywhere; line-height: 1.25; }
+.work-plan-day .work-plan-day-time { font-size: 12px; font-weight: 500; white-space: normal; letter-spacing: -.02em; }
+.work-plan-duration-part { white-space: nowrap; }
+.work-plan-day .work-plan-day-label { display: inline-flex; align-items: center; gap: 4px; }
+.work-plan-day-label svg { flex-shrink: 0; }
+.work-plan-recorded-time { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 650; white-space: nowrap; }
+.work-plan-recorded-label { font-size: 12px; font-weight: 400; color: var(--secondary); }
+.work-plan-day[data-open="true"] {
+  background: var(--paper);
+  border-color: var(--line);
+  color: var(--ink);
+}
+.work-plan-day[data-locked="true"] {
+  background: light-dark(#f6f4ff, #322a45);
+  border-color: light-dark(#ddd6fe, #655881);
+  color: var(--accent-text);
+}
+.work-plan-day:hover:not(:disabled) { border-color: var(--accent); }
+.work-plan-day[aria-pressed="true"],
+.work-plan-day[aria-pressed="true"][data-locked="true"],
+.work-plan-day[aria-pressed="true"]:is(:hover, :focus):not(:disabled) {
+  background: light-dark(#ede9fe, #44375f);
+  border: 1.5px solid var(--accent);
+  color: light-dark(#3b0764, #eee6ff);
+}
+.work-plan-day-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  margin: 14px 0 0;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--sidebar);
+}
+.work-plan-editor-top, .work-plan-editor-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.work-plan-day-title { display: flex; flex-direction: column; gap: 4px; }
+.work-plan-day-title strong { font-size: 15px; font-weight: 650; }
+.work-plan-day-title span { color: var(--muted); font-size: 12px; }
+.work-plan-stepper {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-subtle);
+}
+.work-plan-stepper button,
+.work-plan-stepper button:is(:hover, :focus):not(:disabled) {
+  width: var(--plan-control-size);
+  height: var(--plan-control-size);
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background: var(--surface-subtle);
+  color: var(--ink);
+  font-size: 18px;
+}
+.work-plan-stepper output { min-width: 64px; text-align: center; font-size: 13px; font-weight: 600; }
+.work-plan-presets { display: inline-flex; gap: 6px; }
+.work-plan-presets button, .work-plan-apply {
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.work-plan-presets button[aria-pressed="true"] {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+.work-plan-apply { border-color: transparent; background: transparent; color: var(--accent-text); }
+.work-plan-apply:hover:not(:disabled) { background: var(--accent-soft); border-color: transparent; }
+.work-plan-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 1px solid light-dark(#c4b5ee, #655881);
+  border-radius: 10px;
+  background: var(--accent-soft);
+  color: var(--secondary);
+  font-size: 13px;
+}
+.work-plan-actions > div { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-left: auto; max-width: 100%; }
+.work-plan-actions button {
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  color: var(--secondary);
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.work-plan-actions .work-plan-complete { background: var(--accent); color: var(--accent-content); border-color: var(--accent); }
+.work-plan-actions .work-plan-complete:is(:hover, :focus):not(:disabled) { background: var(--accent-hover); color: var(--accent-content); border-color: var(--accent-hover); }
+.work-plan-capacity { margin: 12px 0 0; font-size: 13px; color: var(--secondary); }
+.work-plan-modal button:focus-visible:not(:disabled) { box-shadow: inset 0 0 0 2px var(--accent); }
+.work-plan-actions .work-plan-complete:focus-visible:not(:disabled) { box-shadow: inset 0 0 0 2px var(--accent-content); }
+@media (pointer: coarse) {
+  .work-plan-modal { --plan-control-size: 44px; }
+}
+@media (min-width: 700px) {
+  .work-plan-modal { width: min(640px, calc(100% - 48px)); }
+  .work-plan-modal .app-modal-header { padding: 20px 24px; }
+  .work-plan-modal .app-modal-body { padding: 24px; }
+}
+@media (max-width: 480px) {
+  .work-plan-editor-top { flex-wrap: wrap; }
+  .work-plan-stepper { margin-left: auto; }
+  .work-plan-days { gap: 4px; }
+  .work-plan-day strong { font-size: 13px; }
+  .work-plan-day > .work-plan-day-time { white-space: normal; line-height: 1.1; }
+  .work-plan-tabs button { font-size: 12px; }
+  .work-plan-editor-bottom { flex-wrap: wrap; gap: 8px; }
+  .work-plan-editor-bottom .work-plan-apply { margin-left: auto; }
+}
+@media (max-width: 359px) {
+  .work-plan-total > span:first-of-type > .work-plan-total-label { display: none; }
+  .work-plan-day-title strong { font-size: 14px; }
+  .work-plan-stepper output { min-width: 64px; }
+}

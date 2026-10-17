@@ -12,6 +12,8 @@ Arayüz: `POFI_THRESHOLDS`, `POFI_ASSETS`, `stateForProgress`, `pofiNote`.
 
 İlerleme duration sahibinden alınır. Yedi durumun görselleri ve metinleri 1.0.0 Docker kaynak arşivinden gelir. Arşivde tanımlı olup seçiciye bağlanmamış `%115` overworked eşiği, 16 Ekim 2026 kullanıcı isteğiyle otomatik akışa eklenmiştir.
 
+Günlük hedef [plan sahibinin](work-plan.md) etkin hedefidir; son açık gündeki devir Pofi'ye de yansır. Devirle hedef sıfırsa geçerli süre %100 kabul edilir: açık girişte `working`, tamamlanmış kayıtta `completed`. Plan dışı gün öncelikli olarak `idle` kalır.
+
 | Koşul | Durum |
 | --- | --- |
 | Belirsiz özet/geçiş veya geçmiş günde açık giriş | `error` |

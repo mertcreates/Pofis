@@ -11,6 +11,7 @@ export function DashboardHeader({
   firstWeek,
   onSelect,
   onRefresh,
+  onEditPlan,
 }: {
   week: string;
   today: string;
@@ -20,6 +21,7 @@ export function DashboardHeader({
   firstWeek?: string;
   onSelect: (week: string) => void;
   onRefresh: () => void;
+  onEditPlan?: () => void;
 }) {
   return (
     <div className="dashboard-topbar">
@@ -37,6 +39,7 @@ export function DashboardHeader({
           firstWeek={firstWeek}
         />
         <div className="topbar-tools">
+          {onEditPlan && <button type="button" onClick={onEditPlan} disabled={busy}>{ui.planner.editSelectedWeek}</button>}
           <div className="report-updates">
             {fetchedAt && (
               <time dateTime={fetchedAt}>

@@ -1,7 +1,6 @@
 "use client";
 import { memo, useState } from "react";
 import Icon from "../ui-icon.js";
-import { effectiveTarget } from "@/domain/rules/work-plan";
 import { ui } from "@/lib/ui-text.js";
 import type { DayReport } from "@/domain/attendance";
 import {
@@ -28,7 +27,7 @@ const DayRow = memo(function DayRow({
   const id = `day-passages-${day.date}`;
   const label = formatDate(day.date);
   const delta =
-    working &&
+    (working || day.state === "recorded") &&
     day.state !== "uncertain" &&
     target !== null &&
     day.recordedSeconds !== null
@@ -143,7 +142,7 @@ export const ReportTable = memo(function ReportTable({
               day={day}
               today={today}
               working={plan[i] > 0}
-              target={effectiveTarget(i, plan, days, today).seconds}
+              target={day.source.goalSeconds}
             />
           ))}
         </tbody>

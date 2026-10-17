@@ -50,7 +50,9 @@ test("all five demo days share the real report rules without counting later reco
       false,
     );
     expect(days[i].recordedSeconds).toBe(expected[i]);
-    expect(days[i].source.goalSeconds).toBe(28800);
+    expect(days[i].source.plannedGoalSeconds).toBe(28800);
+    // 40 hours minus the four completed captured days = 9:58:59 on Friday.
+    expect(days[i].source.goalSeconds).toBe(i === 4 ? 35939 : 28800);
     expect(days[i].liveSeconds).toBeNull();
     expect(
       days

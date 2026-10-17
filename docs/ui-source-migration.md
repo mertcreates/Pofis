@@ -21,7 +21,7 @@ Arşiv SHA256: `555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca
 | `app/dashboard/pofi-note.js` | [PofiPanel](../src/components/dashboard/pofi-panel.tsx) | Durum rozeti, 156px görsel, metin, maskottan odayı açma |
 | `app/dashboard/pofi-room.js`, `pofi-notebook.js` | [oda](../src/components/pofi/room.js), [not defteri](../src/components/pofi/notebook.js), [bağlantı](../src/components/pofi-room-content.tsx) | Albüm, kart, mesai, notlar ve mevcut sürprizler |
 | `app/pofi-call.js`, `ui-icon.js` | [PofiCall](../src/components/pofi-call.js), [Icon](../src/components/ui-icon.js) | Klavyeyle Pofi çağırma ve ortak ikonlar |
-| `app/dashboard/work-plan.js`, `app/plan-controls.js` | [PlanEditor](../src/components/plan-editor.tsx), [PlanControls](../src/components/plan-controls.js) | Kaynak plan özeti/gün-saat kontrolleri; anında kayıt |
+| `app/dashboard/work-plan.js`, `app/plan-controls.js` | [PlanEditor](../src/components/plan-editor.tsx), [plan CSS](../src/components/plan-editor.css) | 17 Ekim 2026 plan düzenlemesi: varsayılan/özel hafta, gün başına süre, sınırlı dağıtım ve anında kayıt; [hesap sözleşmesi](rules/work-plan.md) |
 | `app/modal.js` | [Modal](../src/components/modal.js) | Native dialog, tipli prop arayüzü, varsayılan açık durum, odak dönüşü, Escape, mobil tutamaktan sürükleme |
 | `app/mesai.js` Connection | [Connection](../src/components/connection.tsx) | Kaynak giriş kartı ve maskot; mevcut oturum sınırları |
 | `app/request-error.js`, `loading-state.js` | [RequestError](../src/components/request-error.js), [LoadingState](../src/components/loading-state.js) | [Hata sözleşmesi](pdks-errors.md): beklenen giriş hatası formda ve teknik tanısızdır; eski rapor korunur, yeniden deneme ilgili işlemi çalıştırır |

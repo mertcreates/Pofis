@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DEFAULT_WORK_PLAN, type WorkPlan } from "@/domain/rules/work-plan";
+import { emptyWorkPlans, changeWeekPlan, changeDefaultPlan, resolveStoredPlan, resolveStoredTarget } from "@/domain/rules/work-plan";
 import { defaultNotebookDate, pofiNotebookDates } from "@/domain/rules/notebook-calendar";
 import { weekStart } from "@/domain/rules/calendar";
 import type { Report } from "@/domain/report";
@@ -14,7 +14,9 @@ export function DemoLocalPreview({ scenario, today, notes }: {
   notes: Report["pofiNotes"];
 }) {
   const [open, setOpen] = useState(false);
-  const [plan, setPlan] = useState<WorkPlan>(DEFAULT_WORK_PLAN);
+  const [plans, setPlans] = useState(emptyWorkPlans);
+  const week = weekStart(today);
+  const plan = resolveStoredPlan(plans, week);
   const text = ui.demo.notices;
   const notebook = scenario === "notebook";
   const notebookSection = ui.pofiRoom.sections.find(section => section.id === "notes")!;
@@ -32,11 +34,21 @@ export function DemoLocalPreview({ scenario, today, notes }: {
       className="pofi-room-modal" onClose={() => setOpen(false)}>
       <Notebook today={today} notes={notes?.filter(note => note.date !== unavailableDate)} />
     </Modal>
-      : <PlanEditor week={weekStart(today)} today={today} plan={plan} blocked={false}
+      : <PlanEditor week={week} today={today} plan={plan} defaultPlan={plans.defaultPlan} days={[]}
+        targetSeconds={resolveStoredTarget(plans, week)}
+        special={Boolean(plans.weekOverrides[week])} ready
         error={scenario === "plan-storage" ? ui.storageWriteError : ""}
-        onClose={() => setOpen(false)} onSave={next => {
+        onClose={() => setOpen(false)} onSave={(next, targetSeconds) => {
           if (scenario === "plan-storage") return false;
-          setPlan(next);
+          setPlans(current => changeWeekPlan(current, week, next, [], targetSeconds));
+          return true;
+        }} onSaveDefault={next => {
+          if (scenario === "plan-storage") return false;
+          setPlans(current => changeDefaultPlan(current, next));
+          return true;
+        }} onReset={() => {
+          if (scenario === "plan-storage") return false;
+          setPlans(current => changeWeekPlan(current, week, null));
           return true;
         }} />)}
   </>;

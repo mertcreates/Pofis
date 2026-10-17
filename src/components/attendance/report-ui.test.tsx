@@ -7,8 +7,9 @@ import { WeekChart } from "./week-chart";
 import { RecordIntervals } from "./records";
 import { ReportTable } from "./report-table";
 import { demoData } from "@/demo/report";
-import { DEFAULT_WORK_PLAN } from "@/domain/rules/work-plan";
+import { DEFAULT_WORK_PLAN, readDayPlan } from "@/domain/rules/work-plan";
 import { demoClock, previewDemoReport } from "@/demo/navigation";
+import { DashboardMetrics } from "../dashboard/metrics";
 
 test("live report keeps three-part day flow and source chart with recorded and live totals", () => {
   const date = "2026-10-16";
@@ -26,14 +27,14 @@ test("live report keeps three-part day flow and source chart with recorded and l
   };
   const { days, plan } = presentReport(
     report,
-    { goals: { hours: 40, days: 5, weekdays: [0, 1, 2, 3, 4] } },
+    DEFAULT_WORK_PLAN,
     now,
     false,
   );
   const day = days.find((day) => day.date === date)!;
   const flow = renderToStaticMarkup(<DayFlow day={day} target={28800} />);
   expect(flow).toContain(
-    "Kayda dayalı süre 4 sa 00 dk 00 sn; Anlık tahmin 3 sa 00 dk 00 sn; Hedef 8 sa 00 dk 00 sn",
+    "Kayda dayalı süre 4 sa; Anlık tahmin 3 sa; Hedef 8 sa",
   );
   expect(flow).toContain('style="width:50%"');
   expect(flow).toContain('style="width:37.5%"');
@@ -111,6 +112,45 @@ test("report status separates target deficit from uncertain passages and shares 
   expect(flow(".flow-status").text()).toBe(
     rows.eq(2).find(".report-status").text(),
   );
+});
+
+test("devirli gün kartları, çıkış saati ve tablonun hedef farkı aynı etkin hedefi gösterir", () => {
+  const report: Report = {
+    person: { id: "self", name: "Fixture", unit: "", title: "" },
+    from: "2026-10-12", to: "2026-10-18", fetchedAt: "2026-10-16T12:15:00Z",
+    passages: [12, 13, 14, 15, 16].flatMap((day, index) => [
+      { date: `2026-10-${day}`, time: "08:00:00", direction: "in" as const },
+      { date: `2026-10-${day}`, time: ["16:30:00", "16:15:00", "16:00:00", "16:00:00", "15:15:00"][index], direction: "out" as const },
+    ]),
+  };
+  const view = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T15:15:00+03:00"), false);
+  const metrics = load(renderToStaticMarkup(<DashboardMetrics days={view.days} plan={view.plan} today="2026-10-16" isCurrent />));
+  expect(metrics(".metric-tag").map((_, element) => metrics(element).text()).get()).toEqual(["%100", "%100"]);
+  expect(metrics('.metric-value time[title="15:15:00"]')).toHaveLength(1);
+  expect(metrics(".metric").first().find(".metric-facts dd").text()).toBe("7 sa 15 dk");
+  const table = load(renderToStaticMarkup(<ReportTable days={view.days} plan={view.plan} today="2026-10-16" />));
+  expect(table(".today-row .report-difference").text()).toBe("Hedefle aynı");
+  expect(table(".report-difference").first().text()).toBe("30 dk fazla");
+});
+
+test("tamamlanan günün tablo farkı özgün plandan gelir; kapalı gündeki mesai fazla görünür", () => {
+  const today = "2026-10-18";
+  const report: Report = {
+    person: { id: "self", name: "Fixture", unit: "", title: "" },
+    from: "2026-10-12", to: today, fetchedAt: `${today}T12:00:00Z`,
+    passages: [
+      { date: "2026-10-12", time: "08:00:00", direction: "in" },
+      { date: "2026-10-12", time: "16:30:17", direction: "out" },
+      { date: "2026-10-17", time: "08:00:00", direction: "in" },
+      { date: "2026-10-17", time: "09:20:00", direction: "out" },
+    ],
+  };
+  const view = presentReport(report, readDayPlan([240, 480, 480, 480, 480, 0, 0])!, Date.parse(`${today}T15:00:00+03:00`), false);
+  const table = load(renderToStaticMarkup(<ReportTable days={view.days} plan={view.plan} today={today} />));
+  expect(table(".report-difference").eq(0).text()).toBe("4 sa 30 dk 17 sn fazla");
+  expect(table(".report-difference").eq(5).text()).toBe("1 sa 20 dk fazla");
+  expect(view.days[0].source.goalSeconds).toBe(14400);
+  expect(view.days[5].source.goalSeconds).toBe(0);
 });
 
 test("stale open entry retains its last direction without claiming live work or a broken record", () => {

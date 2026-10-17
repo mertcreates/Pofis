@@ -1,178 +1,182 @@
-import type { DayReport } from "../attendance";
-import { weekday, isDateKey } from "./calendar";
-export type WorkPlan = {
-  readonly goals: {
-    readonly days: number;
-    readonly hours: number;
-    readonly weekdays: readonly number[];
-  };
-};
-export const PLAN_LIMITS = Object.freeze({
-  minHours: 0.25,
-  maxDailyHours: 24,
-  minDays: 1,
-  maxDays: 7,
-});
-export const DEFAULT_WORK_PLAN: WorkPlan = Object.freeze({
-  goals: Object.freeze({
-    days: 5,
-    hours: 40,
-    weekdays: Object.freeze([0, 1, 2, 3, 4]),
-  }),
-});
-export function planTargets(plan: WorkPlan) {
-  const weeklySeconds = plan.goals.hours * 3600;
-  const dayCount = plan.goals.weekdays.length;
-  const dailyHours = plan.goals.hours / dayCount;
-  return {
-    weeklySeconds,
-    dailySeconds: Math.ceil(weeklySeconds / dayCount),
-    dailyHours,
-    dayCount,
-  };
+import { weekday, isDateKey, weekStart, weekDates } from "./calendar";
+import type { DayState } from "./record-status";
+
+// Calendar-aligned minutes; Saturday and Sunday are always holidays.
+export type WorkPlan = readonly [number, number, number, number, number, 0, 0];
+export const WORKING_DAY_COUNT = 5;
+export type WorkPlans = { defaultPlan: WorkPlan; weekOverrides: Record<string, WorkPlan>; weekTargets?: Record<string, number> };
+export const PLAN_LIMITS = Object.freeze({ stepMinutes: 30, maxDailyMinutes: 960 });
+export const DEFAULT_WORK_PLAN: WorkPlan = Object.freeze([480, 480, 480, 480, 480, 0, 0]);
+
+export function emptyWorkPlans(): WorkPlans {
+  return { defaultPlan: DEFAULT_WORK_PLAN, weekOverrides: {} };
 }
 
-export function planMinutes(plan: WorkPlan): number[] {
-  const { dailyHours } = planTargets(plan);
-  return Array.from({ length: 7 }, (_, day) =>
-    plan.goals.weekdays.includes(day) ? dailyHours * 60 : 0,
-  );
+export function readDayPlan(value: unknown): WorkPlan | null {
+  const plan = readWeekPlan(value);
+  return plan && plan.every(minutes => Number.isInteger(minutes) && minutes % PLAN_LIMITS.stepMinutes === 0) ? plan : null;
 }
 
-export function readPlanInput(draft: {
-  weekdays?: unknown;
-  hours?: unknown;
-  dailyHours?: unknown;
-}): WorkPlan | null {
+export function readWeekPlan(value: unknown): WorkPlan | null {
+  if (!Array.isArray(value) || value.length !== 7 || Array.from(value).some((minutes, day) =>
+    (day >= WORKING_DAY_COUNT && minutes !== 0) ||
+    typeof minutes !== "number" || !Number.isFinite(minutes) || minutes < 0 || minutes > PLAN_LIMITS.maxDailyMinutes ||
+    Math.abs(minutes * 60 - Math.round(minutes * 60)) > 0.000001
+  )) return null;
+  return [...value] as unknown as WorkPlan;
+}
+
+// Previous equal-hours input, used only to read the current v1 storage format.
+export function readPlanInput(draft: { weekdays?: unknown; hours?: unknown; dailyHours?: unknown }): WorkPlan | null {
   const weekdays = draft.weekdays;
-  const daily =
-    draft.dailyHours === undefined ? null : Number(draft.dailyHours);
-  const hours =
-    daily === null
-      ? Number(draft.hours)
-      : daily * (Array.isArray(weekdays) ? weekdays.length : 0);
-  if (
-    !Array.isArray(weekdays) ||
-    weekdays.length < PLAN_LIMITS.minDays ||
-    weekdays.length > PLAN_LIMITS.maxDays ||
+  if (!Array.isArray(weekdays) || weekdays.length === 0 || weekdays.length > 7 ||
     new Set(weekdays).size !== weekdays.length ||
-    weekdays.some((day) => !Number.isInteger(day) || day < 0 || day > 6) ||
-    !Number.isFinite(hours) ||
-    hours < PLAN_LIMITS.minHours ||
-    hours > weekdays.length * PLAN_LIMITS.maxDailyHours ||
-    (daily !== null &&
-      (!Number.isFinite(daily) ||
-        daily < PLAN_LIMITS.minHours ||
-        daily > PLAN_LIMITS.maxDailyHours))
-  )
-    return null;
+    weekdays.some(day => !Number.isInteger(day) || day < 0 || day >= WORKING_DAY_COUNT)) return null;
+  const hours = draft.dailyHours === undefined ? Number(draft.hours) / weekdays.length : Number(draft.dailyHours);
+  if (!Number.isFinite(hours) || hours <= 0) return null;
+  return readDayPlan(Array.from({ length: 7 }, (_, day) => weekdays.includes(day) ? hours * 60 : 0));
+}
+
+export function samePlan(left: WorkPlan, right: WorkPlan): boolean {
+  return left.every((minutes, day) => minutes === right[day]);
+}
+
+export function resolveStoredPlan(plans: WorkPlans, week: string): WorkPlan {
+  return plans.weekOverrides[week] ?? plans.defaultPlan;
+}
+
+export function resolveStoredTarget(plans: WorkPlans, week: string): number {
+  return plans.weekTargets?.[week] ?? weeklyTarget(resolveStoredPlan(plans, week));
+}
+
+export function changeWeekPlan(plans: WorkPlans, week: string, plan: WorkPlan | null, completed: readonly (number | null)[] = [], targetSeconds?: number): WorkPlans {
+  if (!isPlanWeek(week) || (plan !== null && !readWeekPlan(plan)) ||
+    (targetSeconds !== undefined && (!Number.isSafeInteger(targetSeconds) || targetSeconds < 0))) throw new Error("Geçersiz mesai planı");
+  const previous = resolveStoredPlan(plans, week);
+  const reset = plan === null;
+  plan = preserveCompletedPlan(plan ?? plans.defaultPlan, previous, completed);
+  const weekOverrides = { ...plans.weekOverrides };
+  if (samePlan(plan, plans.defaultPlan)) delete weekOverrides[week];
+  else weekOverrides[week] = plan;
+  const nextTarget = targetSeconds ?? (reset ? weeklyTarget(plan)
+    : resolveStoredTarget(plans, week) + weeklyTarget(plan) - weeklyTarget(previous));
+  const weekTargets = { ...plans.weekTargets };
+  if (nextTarget === weeklyTarget(plan)) delete weekTargets[week];
+  else weekTargets[week] = nextTarget;
+  const { weekTargets: _, ...rest } = plans;
+  return { ...rest, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}) };
+}
+
+export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?: string, completed: readonly (number | null)[] = []): WorkPlans {
+  if (!readDayPlan(defaultPlan)) throw new Error("Geçersiz varsayılan plan");
+  const weekOverrides = { ...plans.weekOverrides };
+  const weekTargets = { ...plans.weekTargets };
+  if (week) {
+    const previous = resolveStoredPlan(plans, week);
+    const customRemainingDays = previous.some((minutes, day) => completed[day] == null && minutes !== plans.defaultPlan[day]);
+    if (!customRemainingDays) {
+      weekOverrides[week] = preserveCompletedPlan(defaultPlan, previous, completed);
+      if (weekTargets[week] !== undefined)
+        weekTargets[week] += weeklyTarget(weekOverrides[week]) - weeklyTarget(previous);
+    }
+  }
   return {
-    goals: {
-      days: weekdays.length,
-      hours: Number(hours.toFixed(10)),
-      weekdays: [...weekdays].sort((a, b) => a - b),
-    },
+    defaultPlan,
+    weekOverrides: Object.fromEntries(Object.entries(weekOverrides)
+      .filter(([, plan]) => !samePlan(plan, defaultPlan))),
+    ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
   };
 }
 
-export function remainingSelectedDays(
-  weekdays: readonly number[],
-  week: string,
-  today: string,
-) {
-  if (today < week) return weekdays.length;
-  const offset = Math.floor(
-    (Date.parse(`${today}T12:00:00Z`) - Date.parse(`${week}T12:00:00Z`)) /
-      86400000,
-  );
-  return weekdays.filter((day) => day >= offset).length;
+export function setDayMinutes(plan: WorkPlan, day: number, minutes: number): WorkPlan {
+  if (!Number.isInteger(day) || day < 0 || day >= WORKING_DAY_COUNT) throw new Error("Geçersiz plan günü");
+  const next = readWeekPlan(plan.map((value, index) => index === day ? minutes : value));
+  if (!next) throw new Error("Günlük süre 0–16 saat arasında, yarım saat adımlarla seçilmeli");
+  return next;
 }
 
-export function hasPlanBlockingRecords(
-  days: readonly { date: string; status: string }[],
-  weekdays: readonly number[],
-  through: string,
-) {
-  const selected = new Set(weekdays);
-  return days.some((day) => {
-    if (day.date > through) return false;
-    if (day.status === "incomplete") return true;
-    return (
-      selected.has(weekday(day.date)) &&
-      ["missing", "weekend"].includes(day.status)
-    );
-  });
+export function weeklyTarget(plan: readonly number[]): number {
+  return plan.reduce((sum, minutes) => sum + Math.round(minutes * 60), 0);
 }
 
-export function planDailyTarget(
-  week: { seconds: number; todaySeconds: number },
-  remainingDays: number,
-  weeklyTarget = planTargets(DEFAULT_WORK_PLAN).weeklySeconds,
-  dailyTarget = planTargets(DEFAULT_WORK_PLAN).dailySeconds,
-) {
-  if (remainingDays > 1) return dailyTarget;
-  const beforeToday = week.seconds - week.todaySeconds;
-  return Math.ceil(Math.max(0, weeklyTarget - beforeToday));
+export function planMinutes(plan: WorkPlan): number[] { return [...plan]; }
+
+function preserveCompletedPlan(plan: WorkPlan, previous: WorkPlan, completed: readonly (number | null)[]): WorkPlan {
+  return plan.map((minutes, day) => completed[day] != null ? previous[day] : minutes) as unknown as WorkPlan;
 }
 
 export function isPlanWeek(value: unknown): value is string {
   return isDateKey(value) && weekday(value) === 0;
 }
-export function targetExitAt(
-  firstEntry: number | null,
-  targetSeconds: number | null,
-): number | null {
-  return firstEntry !== null && targetSeconds !== null
-    ? firstEntry + targetSeconds * 1000
-    : null;
+
+export function targetExitAt(firstEntry: number | null, targetSeconds: number | null): number | null {
+  return firstEntry !== null && targetSeconds !== null ? firstEntry + targetSeconds * 1000 : null;
 }
 
-export function resolveWeekPlan(
-  summary: {
-    days: readonly { date: string; status: string }[];
-    weeks: {
-      start: string;
-      seconds: number;
-      todaySeconds: number;
-      partial: boolean;
-    }[];
-  },
-  plan: WorkPlan,
-  today: string,
-) {
-  const { weeklySeconds, dailySeconds } = planTargets(plan);
-  const week = summary.weeks[0];
-  const blocked = hasPlanBlockingRecords(
-    summary.days,
-    plan.goals.weekdays,
-    today,
-  );
-  const remaining = remainingSelectedDays(
-    plan.goals.weekdays,
-    week.start,
-    today,
-  );
-  const exitGoal =
-    !week.partial && !blocked && remaining > 0
-      ? planDailyTarget(week, remaining, weeklySeconds, dailySeconds)
-      : null;
-  return { weeklySeconds, dailySeconds, blocked, exitGoal };
+export type PlanDay = { date: string; state: DayState; recordedSeconds: number | null };
+
+export function completedDaySeconds(days: readonly PlanDay[], week: string, today: string): (number | null)[] {
+  const completed: (number | null)[] = Array(7).fill(null);
+  for (const day of days) {
+    if (weekStart(day.date) === week && day.date < today && day.state === "recorded" && day.recordedSeconds !== null)
+      completed[weekday(day.date)] = day.recordedSeconds;
+  }
+  return completed;
 }
 
-export function weeklyTarget(plan: readonly number[]): number {
-  return plan.reduce((sum, minutes) => sum + minutes, 0) * 60;
+export function planAdjustmentDays(days: readonly PlanDay[], plan: WorkPlan, week: string, today: string): boolean[] {
+  const completed = completedDaySeconds(days, week, today);
+  return weekDates(week).map((date, index) => date >= today && plan[index] > 0 && completed[index] === null &&
+    days.find(day => day.date === date)?.state !== "uncertain");
 }
 
-export function effectiveTarget(
-  index: number,
-  plan: readonly number[],
-  days: readonly DayReport[],
-  today: string,
-) {
-  const day = days[index];
-  return {
-    seconds:
-      day && day.date <= today ? day.source.goalSeconds : plan[index] * 60,
-    adjusted: false,
-  };
+export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today: string, partial = false, targetSeconds = weeklyTarget(plan)) {
+  const week = weekStart(days[0]?.date ?? today);
+  const completed = completedDaySeconds(days, week, today);
+  const eligible = planAdjustmentDays(days, plan, week, today);
+  const openDays = plan.flatMap((_, day) => eligible[day] ? [day] : []);
+  const lastWorkingDay = openDays.at(-1) ?? null;
+  const required = plan.map(minutes => Math.round(minutes * 60));
+  let unallocatedSeconds = completed.reduce<number>((sum, seconds, index) =>
+    seconds === null ? sum : sum + Math.round(plan[index] * 60) - seconds, targetSeconds - weeklyTarget(plan));
+  if (!partial) {
+    for (const index of [...openDays].reverse()) {
+      const next = Math.max(0, Math.min(PLAN_LIMITS.maxDailyMinutes * 60, required[index] + unallocatedSeconds));
+      unallocatedSeconds -= next - required[index];
+      required[index] = next;
+    }
+  }
+  const targets = days.map(day => required[weekday(day.date)]);
+  const todayIndex = days.findIndex(day => day.date === today);
+  const dailySeconds = todayIndex === -1 ? 0 : targets[todayIndex];
+  const blocked = days.some(day => day.date <= today && (day.state === "uncertain" || day.state === "missing"));
+  const exitGoal = !partial && todayIndex !== -1 && plan[weekday(today)] > 0 && days[todayIndex].state !== "uncertain"
+    ? dailySeconds : null;
+  const displaySeconds = plan.map((minutes, index) => {
+    if (completed[index] !== null) return completed[index]!;
+    const dayIndex = days.findIndex(day => weekStart(day.date) === week && weekday(day.date) === index);
+    return dayIndex === -1 ? Math.round(minutes * 60) : targets[dayIndex];
+  });
+  const projectedWeeklySeconds = displaySeconds.reduce((sum, seconds) => sum + seconds, 0);
+  return { targets, plan, completed, eligible, displaySeconds, unallocatedSeconds, projectedWeeklySeconds, lastWorkingDay, weeklySeconds: targetSeconds, dailySeconds, blocked, exitGoal };
+}
+
+export function completeWeekPlan(plan: WorkPlan, defaultPlan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, protectedDays: readonly boolean[]): WorkPlan | null {
+  const next = [...resolved.displaySeconds];
+  let difference = weeklyTarget(defaultPlan) - resolved.projectedWeeklySeconds;
+  const recipients = plan.flatMap((_, day) => resolved.eligible[day] && !protectedDays[day] ? [day] : []);
+  while (difference !== 0) {
+    let changed = false;
+    for (const day of recipients) {
+      const capacity = difference > 0 ? PLAN_LIMITS.maxDailyMinutes * 60 - next[day] : next[day];
+      const step = Math.sign(difference) * Math.min(Math.abs(difference), PLAN_LIMITS.stepMinutes * 60, capacity);
+      if (step === 0) continue;
+      next[day] += step;
+      difference -= step;
+      changed = true;
+      if (difference === 0) break;
+    }
+    if (!changed) return null;
+  }
+  return readWeekPlan(plan.map((minutes, day) => resolved.completed[day] !== null ? minutes : next[day] / 60));
 }

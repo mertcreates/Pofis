@@ -16,13 +16,30 @@ _Avoid_: Son girişten geçen süre
 Canlı toplamın kayıtlı süreyi aşan bölümü; süre çubuğunun açık tonlu parçası.
 _Avoid_: Canlı toplam, mola süresi
 
-**Normal günlük hedef**:
-Haftalık planın seçili günlere eşit dağıtılmasından doğan günlük hedef.
-_Avoid_: Çıkış hedefi
+**Planlanan günlük hedef**:
+Varsayılan veya özel hafta planında kullanıcının belirlediği süre; tamamlanan günün değeri korunur. Tamamla, kalan günleri güncel gereken süreleriyle yeniden planlayabilir. PDKS kayıtları varsayılan şablonu değiştirmez.
+_Avoid_: Etkin hedef, eşit pay
+
+**Etkin günlük hedef**:
+Güncel gereken süre: özgün planın tamamlanmış geçmiş kayıtların farkıyla dengelenmiş sonucu. Son uygun günden geriye dağıtılır; her gün 0–16 saat sınırındadır.
+_Avoid_: Saklanan plan
+
+**Devir**:
+Aynı haftanın geçerli tamamlanmış kayıtlarının kendi özgün günlük planlarına göre net farkı. Kayıtsız/belirsiz günler borç sayılmaz.
+_Avoid_: Otomatik plan değişikliği
+
+**Haftalık hedef**:
+İlk günlük plandan veya Tamamla eyleminden gelen toplam. Günlerin tamamlanmasıyla değişmez; Tamamla sonrasında kalan gerçek çalışma planından ayrı saklanır.
+
+**Gerçekleşen toplam**:
+PDKS günlük kayıt sürelerinin toplamı. Canlı ek tahmin dahilse ayrıca belirtilir.
+
+**Beklenen toplam**:
+Tamamlanan günlerin gerçekleşen süreleri ile tamamlanmamış günlerin güncel gereken sürelerinin toplamı.
 
 **Çıkış hedefi**:
-Bugünkü hedef çıkış saatinin hesaplanmasında kullanılan süre; haftalık farkı içerebilir.
-_Avoid_: Normal günlük hedef
+İlk girişe etkin günlük hedefin eklenmesiyle bulunan çıkış saati. Bugünkü kayıt belirsizse hesaplanmaz.
+_Avoid_: Planlanan günlük hedef
 
 **Açık giriş**:
 Ardından güvenilir bir çıkış bulunmayan son turnike girişi.

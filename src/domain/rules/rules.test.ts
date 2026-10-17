@@ -6,8 +6,7 @@ import { dailyDurationState, durationTotals } from "./duration.js";
 import { targetProgress, percentage, chartMaximum } from "./progress.js";
 import {
   readPlanInput,
-  planTargets,
-  resolveWeekPlan,
+  weeklyTarget,
   targetExitAt,
 } from "./work-plan";
 import { pofiNote } from "./pofi.js";
@@ -102,7 +101,7 @@ test("haftalık hedef değişikliği günlük hedef, tahmin, Pofi ve haftalık t
   const small = presentReport(report, shorter, at("15:00:00").getTime(), false);
   const large = presentReport(report, longer, at("15:00:00").getTime(), false);
   expect(small.dailySeconds).toBe(28800);
-  expect(large.dailySeconds).toBe(32400);
+  expect(large.dailySeconds).toBe(46800);
   expect(small.days[4].source.exitGoalSeconds).toBe(28800);
   expect(large.days[4].source.exitGoalSeconds).toBe(46800);
   expect(small.days[4].source.pofi.state).toBe("tired");
@@ -128,22 +127,26 @@ test("seçili gün, eksik kayıt ve son çalışma günü aynı plan sahibinden 
     "2026-10-18",
     today,
   );
-  expect(planTargets(plan)).toMatchObject({
-    weeklySeconds: 86400,
-    dailySeconds: 28800,
-  });
-  expect(resolveWeekPlan(summary, plan, today)).toMatchObject({
+  expect(weeklyTarget(plan)).toBe(86400);
+  const report: Report = {
+    person: { id: "self", name: "Fixture", title: "", unit: "" },
+    from: "2026-10-12", to: "2026-10-18", fetchedAt: at("15:00:00").toISOString(),
+    passages: summary.days.flatMap(day => day.firstEntry && day.lastExit ? [
+      { date: day.date, time: day.firstEntry, direction: "in" as const },
+      { date: day.date, time: day.lastExit, direction: "out" as const },
+    ] : []),
+  };
+  const view = presentReport(report, plan, at("15:00:00").getTime(), false);
+  expect(view).toMatchObject({
     blocked: false,
-    exitGoal: 25200,
   });
+  expect(view.days[4].source.exitGoalSeconds).toBe(25200);
   expect(targetExitAt(at("08:00:00").getTime(), 25200)).toBe(
     at("15:00:00").getTime(),
   );
-  const missing = summarize(passages, "2026-10-12", "2026-10-18", today);
-  expect(resolveWeekPlan(missing, plan, today)).toMatchObject({
-    blocked: true,
-    exitGoal: null,
-  });
+  const missing = presentReport({ ...report, passages: passages as Report["passages"] }, plan, at("15:00:00").getTime(), false);
+  expect(missing.blocked).toBe(true);
+  expect(missing.days[4].source.exitGoalSeconds).toBe(28800);
 });
 
 test("ilerleme ve grafik aynı yuvarlama/ölçek sahibini kullanır", () => {
@@ -153,7 +156,7 @@ test("ilerleme ve grafik aynı yuvarlama/ölçek sahibini kullanır", () => {
     excess: 0,
   });
   expect(percentage(29000, 28800)).toBe(101);
-  expect(percentage(0, 0)).toBeNull();
+  expect(percentage(0, 0)).toBe(100);
   expect(chartMaximum([0], [28800])).toBe(36000);
   expect(chartMaximum([45000], [28800])).toBe(50400);
 });

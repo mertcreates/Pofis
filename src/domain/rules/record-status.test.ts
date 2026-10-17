@@ -138,12 +138,9 @@ const cases: {
     state: "outside",
   },
 ];
-const offPlan: WorkPlan = {
-  goals: { hours: 32, days: 4, weekdays: [0, 1, 2, 3] },
-};
+const offPlan: WorkPlan = [480, 480, 480, 480, 0, 0, 0];
 for (const date of [today, "2026-10-15"]) {
-  const plan =
-    date === today ? offPlan : { goals: { hours: 8, days: 1, weekdays: [0] } };
+  const plan: WorkPlan = date === today ? offPlan : [480, 0, 0, 0, 0, 0, 0];
   cases.push(
     {
       name: `${date} plan dışı boş`,
@@ -214,7 +211,7 @@ test("belirsiz geçmiş kayıt tablo, haftalık bütünlük ve çıkış hedefin
   expect(view.days[3].recordedSeconds).toBe(14400);
   expect(view.days[3].source.pofi.state).toBe("error");
   expect(view.blocked).toBe(true);
-  expect(view.days[4].source.exitGoalSeconds).toBeNull();
+  expect(view.days[4].source.exitGoalSeconds).toBe(28800);
   expect(summarizeWeek(view.days, today).incomplete).toBe(true);
   expect(summarizeWeek(view.days, today).recordedSeconds).toBe(129600);
 });

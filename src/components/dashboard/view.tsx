@@ -5,6 +5,7 @@ import type { usePdks } from "@/data/use-pdks";
 import type { useWorkPlans } from "@/data/use-work-plans";
 import { prepareReport, type Report } from "@/domain/report";
 import { dateKey, weekStart } from "@/domain/rules/calendar";
+import { completedDaySeconds } from "@/domain/rules/work-plan";
 import { Connection } from "../connection";
 import AppShell from "../shell/app-shell.js";
 import LoadingState from "../loading-state.js";
@@ -68,8 +69,8 @@ export function DashboardView({
   const firstWeek = data.kind === "demo" ? data.firstWeek : undefined;
   const prepared = useMemo(() => {
     if (!source) return null;
-    return prepareReport(source, workPlans.plan, today, stale);
-  }, [source, workPlans.plan, today, stale]);
+    return prepareReport(source, workPlans.plan, today, stale, workPlans.targetSeconds);
+  }, [source, workPlans.plan, workPlans.targetSeconds, today, stale]);
   const presentation = useMemo(() => {
     return prepared ? prepared(now) : null;
   }, [prepared, now]);
@@ -112,9 +113,10 @@ export function DashboardView({
         section="overview"
         settingsOpen={dialog === "plan"}
         showNavigation={true}
-        onSection={(section: string) =>
-          section === "settings" ? setDialog("plan") : selectWeek(currentWeek)
-        }
+        onSection={(section: string) => {
+          selectWeek(currentWeek);
+          if (section === "settings") setDialog("plan");
+        }}
         onDisconnect={pdks ? () => void pdks.disconnect() : undefined}
       >
         {workPlans.error && dialog !== "plan" && (
@@ -152,6 +154,7 @@ export function DashboardView({
               firstWeek={firstWeek}
               onSelect={selectWeek}
               onRefresh={() => void refresh()}
+              onEditPlan={!isCurrent ? () => setDialog("plan") : undefined}
             />
             <div className="report-area" aria-busy={busy}>
               {stale && (
@@ -165,6 +168,7 @@ export function DashboardView({
                   aria-label={ui.personRecords(source.person.name)}
                 >
                   <DashboardMetrics
+                    targetSeconds={workPlans.targetSeconds}
                     days={days}
                     plan={plan}
                     today={today}
@@ -227,10 +231,15 @@ export function DashboardView({
             week={week}
             today={today}
             plan={workPlans.plan}
-            day={todayReport}
-            blocked={presentation?.blocked ?? false}
+            targetSeconds={workPlans.targetSeconds}
+            days={days}
+            defaultPlan={workPlans.defaultPlan}
+            special={workPlans.special}
+            ready={workPlans.ready && source?.from === week}
             error={workPlans.error}
-            onSave={workPlans.save}
+            onSave={(plan, targetSeconds) => workPlans.save(plan, completedDaySeconds(days, week, today), targetSeconds)}
+            onSaveDefault={plan => workPlans.saveDefault(plan, completedDaySeconds(days, week, today))}
+            onReset={() => workPlans.reset(completedDaySeconds(days, week, today))}
             onClose={() => setDialog(null)}
           />
         )}

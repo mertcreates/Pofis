@@ -48,7 +48,7 @@ test("geçersiz takvim gününü reddeder", () => {
 test("arşiv gibi hedef altında aşağı yuvarlar, hedef üstünü gizlemez", () => {
   expect(percentage(6998, 10000)).toBe(69);
   expect(percentage(102, 100)).toBe(102);
-  expect(percentage(0, 0)).toBeNull();
+  expect(percentage(0, 0)).toBe(100);
 });
 test("saniyeleri ve 24 saat üstü süreyi kaybetmez", () => {
   expect(durationClock(40 * 3600 + 31)).toBe("40:00:31");

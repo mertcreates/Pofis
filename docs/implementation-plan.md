@@ -7,7 +7,7 @@
 | Mesai verisi | Kişisel turnike listesinin bütün sayfaları; tek günlük özet, süre ve kayıt durumu sahipleri |
 | Mesaim | Kaynak ekran düzeni, hafta seçici, metrikler, gün akışı, grafik, ham kayıtlar ve plan modalı |
 | Demo | Aynı görünüm ve kurallar; dört haftalık yakalama, gün seçimi ve sanal ek süre |
-| Plan | Anında yerel kayıt; seçili günlere dağılım ve son çalışma gününde haftalık denge |
+| Plan | Varsayılan/özel hafta ve gün başına süre; anında yerel kayıt, gerçek kalan kapasiteyle saniye hassasiyetinde tamamlama, bağımsız haftalık hedef ve özgün plana göre son uygun günden geriye sınırlar içinde denge ve görünür bakiye |
 | Pofi | Kaynak durum görselleri, albüm, sürprizler ve tek havuzlu not yönetimi |
 | Oturum | Kullanıcı başına PDKS istemcisi, sabit TTL, JSON kalıcılığı ve kısa kişisel rapor önbelleği |
 | Dağıtım | Tek Bun süreci, standalone çıktı, Dockerfile ve kalıcı oturum dizini |

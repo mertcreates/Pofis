@@ -10,6 +10,7 @@ import { ui } from "@/lib/ui-text.js";
  *   title: string,
  *   description?: string,
  *   className?: string,
+ *   initialFocus?: 'close' | 'title',
  *   onClose: () => void,
  *   onBack?: () => void,
  *   backLabel?: string,
@@ -26,6 +27,7 @@ export default function Modal({
   onBack,
   backLabel,
   className = "",
+  initialFocus = "close",
   children,
 }) {
   const dialogRef = useRef(null);
@@ -55,7 +57,7 @@ export default function Modal({
       root.style.scrollbarGutter = "stable";
     root.style.overflow = "hidden";
     dialog.showModal();
-    closeRef.current.focus({ preventScroll: true });
+    (initialFocus === "title" ? titleRef : closeRef).current.focus({ preventScroll: true });
     return () => {
       dialog.close();
       Object.assign(root.style, previous);
@@ -92,7 +94,7 @@ export default function Modal({
         ].filter(
           (element) =>
             element.tabIndex >= 0 &&
-            !element.disabled &&
+            !element.matches(":disabled") &&
             element.getClientRects().length > 0,
         );
         const first = controls[0];
@@ -187,7 +189,7 @@ export default function Modal({
           className="app-modal-close"
           onClick={onClose}
           aria-label={ui.close}
-          autoFocus
+          autoFocus={initialFocus === "close"}
         >
           <Icon name="close" />
         </button>
