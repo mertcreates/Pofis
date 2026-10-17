@@ -8,6 +8,17 @@ import {
 } from "./pdks.js";
 
 const name = "Fixture Person";
+
+test.each(["bun", "node"])("%s DNS hatası kaynak erişim hatası olarak güvenli koduyla korunur", async (runtime) => {
+  const client = new PdksClient({ fetchImpl: async () => {
+    throw Object.assign(new TypeError("private transport message"), runtime === "bun"
+      ? { code: "ENOTFOUND" } : { cause: { code: "ENOTFOUND" } });
+  } });
+  await expect(client.request("/PizzyKurumWeb/Giris.aspx")).rejects.toMatchObject({
+    code: "CONNECTION_FAILED", status: 502,
+    details: { method: "GET", path: "/PizzyKurumWeb/Giris.aspx", causeCode: "ENOTFOUND", diagnostic: "PDKS sunucu adresi çözümlenemedi." },
+  });
+});
 const passageUrl = `${PDKS_ORIGIN}${PASSAGES_PATH}`;
 const form = (content) =>
   `<form action=""><input name="__VIEWSTATE" value="fixture-viewstate">${content}</form>`;

@@ -12,10 +12,18 @@ const LOGIN_PATH = "/PizzyKurumWeb/Giris.aspx";
 const PROFILE_PATH = "/PizzyKurumWeb/PizzyMain.aspx";
 const REPORT_RECOVERY_COOLDOWN_MS = SOURCE_POLICY.recoveryCooldownMs;
 const PASSAGES_GRID = "ASPxRoundPanel1_CBPItems_gridListe";
+const pdksErrorIdentity = Symbol.for("pofis.pdks-error");
 
 export class PdksError extends Error {
+  // Session clients survive Next dev module reloads; constructor identity does not.
+  static [Symbol.hasInstance](value) {
+    return value instanceof Error && value[pdksErrorIdentity] === true;
+  }
+
   constructor(message, code = "SOURCE_ERROR", status = 502, details = {}) {
     super(message);
+    Object.defineProperty(this, pdksErrorIdentity, { value: true });
+    this.name = "PdksError";
     this.code = code;
     this.status = status;
     this.details = details;
@@ -413,6 +421,8 @@ export class PdksClient {
         });
         html = await response.text();
       } catch (error) {
+        // Bun exposes transport codes directly; Node fetch uses Error.cause.
+        const causeCode = error.code ?? error.cause?.code;
         throw new PdksError(
           ui.sourceErrors.connectionFailed,
           "CONNECTION_FAILED",
@@ -421,7 +431,9 @@ export class PdksClient {
             method,
             path: url.pathname,
             diagnostic:
-              error.name === "TimeoutError"
+              causeCode === "ENOTFOUND"
+                ? ui.sourceErrors.connectionNameUnresolved
+                : error.name === "TimeoutError"
                 ? ui.sourceErrors.connectionTimeout
                 : ui.sourceErrors.connectionUnavailable,
             causeCode: [
@@ -431,8 +443,8 @@ export class PdksClient {
               "ETIMEDOUT",
               "CERT_HAS_EXPIRED",
               "UNABLE_TO_VERIFY_LEAF_SIGNATURE",
-            ].includes(error.cause?.code)
-              ? error.cause.code
+            ].includes(causeCode)
+              ? causeCode
               : undefined,
           },
         );

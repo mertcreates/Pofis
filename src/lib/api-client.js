@@ -1,4 +1,5 @@
 import { ui } from './ui-text.js';
+import { readDiagnosticDetails } from './pdks-failure';
 
 export class ApiError extends Error {
   constructor(message, status, code, details) {
@@ -10,6 +11,13 @@ export class ApiError extends Error {
   }
 }
 
+/** @typedef {(input: RequestInfo | URL, init?: RequestInit) => Promise<Response>} FetchRequest */
+
+/**
+ * @param {string} path
+ * @param {RequestInit} [options]
+ * @param {FetchRequest} [fetchImpl]
+ */
 export async function api(path, options = {}, fetchImpl = fetch) {
   const context = {
     apiPath: path.split('?')[0],
@@ -41,14 +49,25 @@ export async function api(path, options = {}, fetchImpl = fetch) {
     );
   }
   if (!response.ok) {
+    if (!result || typeof result !== 'object' || Array.isArray(result)
+      || typeof result.error !== 'string' || typeof result.code !== 'string'
+      || !/^[A-Z][A-Z0-9_]{0,63}$/.test(result.code)
+      || (result.details !== undefined && (!result.details || typeof result.details !== 'object' || Array.isArray(result.details)))) {
+      throw new ApiError(ui.apiErrors.responseUnreadable, response.status, 'INVALID_RESPONSE', {
+        ...context, diagnostic: ui.apiErrors.invalidErrorResponse,
+      });
+    }
     throw new ApiError(
-      typeof result?.error === 'string'
-        ? result.error
-        : ui.apiErrors.requestFailed,
+      result.error,
       response.status,
-      typeof result?.code === 'string' ? result.code : 'HTTP_ERROR',
-      { ...context, ...result?.details },
+      result.code,
+      { ...readDiagnosticDetails(result.details), ...context },
     );
+  }
+  if (!result || typeof result !== 'object' || Array.isArray(result)) {
+    throw new ApiError(ui.apiErrors.responseUnreadable, response.status, 'INVALID_RESPONSE', {
+      ...context, diagnostic: ui.apiErrors.invalidResponseShape,
+    });
   }
   return result;
 }
@@ -60,6 +79,11 @@ export function createLatestRequest() {
       active?.abort();
       active = undefined;
     },
+    /**
+     * @param {string} path
+     * @param {RequestInit} [options]
+     * @param {FetchRequest} [fetchImpl]
+     */
     async run(path, options = {}, fetchImpl = fetch) {
       active?.abort();
       const controller = new AbortController();

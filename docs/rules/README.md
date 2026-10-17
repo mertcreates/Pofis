@@ -62,6 +62,7 @@ Oklar bir kuralın sonucunun nerede kullanıldığını gösterir. Rapor uyarlam
 | Tema | [theme](../../src/lib/theme.js) tercih değerleri; [use-appearance](../../src/data/use-appearance.ts) işletim sistemi ve depolama olayları |
 | Metin ve marka | [ui-text](../../src/lib/ui-text.js), [ton rehberi](../brand/pofi-tone-guide.md) ve [görsel kaynaklar](../brand/assets.md) |
 | Kaynak tazeliği ve istek yaşamı | [use-pdks](../../src/data/use-pdks.ts): başarısız yenilemede eski rapor, geç kalan yanıtın ayrılması ve oturum bitişinde temizleme |
+| PDKS hata sözleşmesi | [pdks-failure](../../src/lib/pdks-failure.ts): ortak sınıflandırma ve toparlanma; [hata sözleşmesi](../pdks-errors.md) taşıma, durum ve sunum sahiplerini açıklar |
 | Demo verisi ve saati | [Demo rehberi](../demo.md): yakalama, gezinti ve istemci sahipleri; canlı görünümle ortak hesaplar |
 
 `prepareReport` günlük özetleri, hedefleri ve geçiş analizini bir kez hazırlar; dönen fonksiyon saat değişiminde bugünün süre/Pofi sonucunu günceller. [DashboardView](../../src/components/dashboard/view.tsx), rapor/plan/İstanbul tarihi/tazelik değiştiğinde hazırlığı yeniler. `presentReport` tek çağrıda aynı yolu kullanır. Sabit alanların korunması [rapor testleriyle](../../src/domain/report.test.ts) denetlenir.

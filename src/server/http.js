@@ -8,6 +8,7 @@ import {
   LEGACY_SESSION_COOKIE,
 } from "./session.js";
 import { ui } from "../lib/ui-text.js";
+import { readDiagnosticDetails } from "../lib/pdks-failure";
 
 export function json(data, status = 200) {
   return NextResponse.json(data, {
@@ -105,7 +106,9 @@ export async function failure(error, request) {
       details: {
         type: "PdksError",
         diagnostic: error.message,
-        ...error.details,
+        ...readDiagnosticDetails(error.details),
+        apiPath: request.nextUrl.pathname,
+        apiMethod: request.method,
         occurredAt: new Date().toISOString(),
       },
     },

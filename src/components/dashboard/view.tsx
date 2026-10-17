@@ -138,13 +138,12 @@ export function DashboardView({
             {appearance.error || workPlans.error}
           </p>
         )}
-        {pdks?.failure && (
+        {pdks?.failure && connected === true && (
           <RequestError
             error={pdks.failure}
+            variant={source ? "notice" : "page"}
             busy={busy}
-            onRetry={() =>
-              void (pdks.connected ? pdks.refresh() : pdks.checkSession())
-            }
+            onRetry={pdks.retryFailure}
           />
         )}
         {connected === null ? (
@@ -152,7 +151,13 @@ export function DashboardView({
             <LoadingState label={ui.checkingSession} />
           </div>
         ) : pdks && !connected ? (
-          <Connection busy={busy} onConnect={pdks.connect} />
+          <Connection
+            busy={busy}
+            error={pdks.failure}
+            onRetry={pdks.retryFailure}
+            onReturnToLogin={pdks.returnToLogin}
+            onConnect={pdks.connect}
+          />
         ) : (
           <>
             <DashboardHeader
@@ -235,7 +240,7 @@ export function DashboardView({
                 <p className="error" role="alert">
                   {presentation.error}
                 </p>
-              ) : busy ? (
+              ) : pdks?.failure ? null : busy ? (
                 <LoadingState label={ui.loadingSelf} />
               ) : (
                 <div className="empty report-empty">

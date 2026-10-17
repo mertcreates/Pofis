@@ -18,6 +18,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Uygulama durumu ve sonraki aşama | [Uygulama planı](implementation-plan.md) |
 | Bekleyen geliştirme ve kabul işleri | [Görev listesi](../tasks/todo.md) |
 | Doğrulama komutları ve kabul yöntemi | [Doğrulama rehberi](verification.md) |
+| PDKS istekleri, hata sınıfları ve toparlanma | [PDKS hata sözleşmesi](pdks-errors.md) |
 
 ## Belge bakımı
 

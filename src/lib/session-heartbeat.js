@@ -1,5 +1,6 @@
 import { SESSION_POLICY } from "../domain/rules/session-policy";
 import { api } from "./api-client.js";
+import { toRequestFailure } from "./pdks-failure";
 
 export function startSessionHeartbeat(onExpired, fetchImpl = fetch) {
   let stopped = false;
@@ -23,7 +24,7 @@ export function startSessionHeartbeat(onExpired, fetchImpl = fetch) {
         fetchImpl,
       );
     } catch (error) {
-      if (!stopped && error.status === 401) {
+      if (!stopped && toRequestFailure(error, "session").kind === "session-expired") {
         stop();
         onExpired(error);
       }

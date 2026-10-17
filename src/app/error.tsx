@@ -3,6 +3,7 @@ import AppShell from "@/components/shell/app-shell.js";
 import RequestError from "@/components/request-error.js";
 import { useAppearance } from "@/data/use-appearance";
 import { ui } from "@/lib/ui-text.js";
+import { toRequestFailure } from "@/lib/pdks-failure";
 
 export default function ErrorPage({
   error,
@@ -20,11 +21,10 @@ export default function ErrorPage({
       onSection={undefined}
     >
       <RequestError
-        error={{
-          code: error.digest || "RUNTIME_ERROR",
-          status: 0,
-          message: ui.requestFailed,
-        }}
+        error={toRequestFailure({
+          code: "RUNTIME_ERROR",
+          details: { diagnostic: error.digest || ui.apiErrors.unexpectedServerError },
+        }, "runtime")}
         onRetry={retry}
         busy={false}
       />

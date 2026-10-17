@@ -24,7 +24,7 @@ Arşiv SHA256: `555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca
 | `app/dashboard/work-plan.js`, `app/plan-controls.js` | [PlanEditor](../src/components/plan-editor.tsx), [PlanControls](../src/components/plan-controls.js) | Kaynak plan özeti/gün-saat kontrolleri; anında kayıt |
 | `app/modal.js` | [Modal](../src/components/modal.js), [typed interface](../src/components/archive-modal.tsx) | Native dialog, odak dönüşü, Escape, mobil tutamaktan sürükleme |
 | `app/mesai.js` Connection | [Connection](../src/components/connection.tsx) | Kaynak giriş kartı ve maskot; mevcut oturum sınırları |
-| `app/request-error.js`, `loading-state.js` | [RequestError](../src/components/request-error.js), [LoadingState](../src/components/loading-state.js) | Yeniden deneme, izinli tanı alanları, yükleme görünümü |
+| `app/request-error.js`, `loading-state.js` | [RequestError](../src/components/request-error.js), [LoadingState](../src/components/loading-state.js) | [Hata sözleşmesi](pdks-errors.md): beklenen giriş hatası formda ve teknik tanısızdır; eski rapor korunur, yeniden deneme ilgili işlemi çalıştırır |
 | `app/error.js`, `not-found.js`, `loading.js` | [error](../src/app/error.tsx), [not-found](../src/app/not-found.tsx), [loading](../src/app/loading.tsx) | Next 16 hata yeniden denemesi ve kaynak yardımcı ekranları |
 | `app/globals.css`, `pofis.css`, `modal.css`, `dashboard/pofi-room.css` | [globals](../src/app/globals.css), [pofis](../src/app/pofis.css), [modal](../src/app/modal.css), [oda CSS](../src/components/pofi/room.css) | Kaynak tema, boyutlar, duyarlı kırılımlar ve modal görünümleri |
 

@@ -23,7 +23,7 @@ Tek uygulama süreci, süreç belleğinde oturumlar ve yerel JSON dosyaları kul
 5. Dosya silme başarısızsa hata döner ve aynı süreç oturumu yeniden yüklemeyi engeller; silme yeniden denenebilir. Bu sınır, yeniden bağlantının geri alınmasındaki silme hatası için de geçerlidir. Silinemeyen kayıt süreç yeniden başlatılınca TTL sonuna kadar yeniden yüklenebilir; süreç içi iptal bilgisi kalıcı değildir. Dosya erişimi ve disk hatalarının izlenmesi işletim sorumluluğudur.
 6. Etkin bellek oturumları varken tek bakım zamanlayıcısı çalışır. Süresi dolan bellek kayıtları dakikalık kontrolde, soğuk dosyalar saatlik dizin taramasında temizlenir. Silme veya tarama hataları loglanır ve sağlıklı oturumların keepalive işleri sürer. Hatalı soğuk tarama sonraki saatlik aralıkta yeniden denenir. Süreç boşken zamanlayıcı durur; yeni oturumla bakım devam eder. Süresi geçmiş dosyalar erişimde reddedilir.
 
-Bozuk bir dosya diğer kullanıcıların yüklenmesini etkilemez; yeniden giriş gerekir. Kaynak çerezleri hassastır; oturum dizinine yalnız uygulama hesabı erişmelidir. Şifreler kaydedilmez. Plan ve tema mevcut tarayıcı depolamasını kullanmayı sürdürür.
+Bozuk bir dosya diğer kullanıcıların yüklenmesini etkilemez; yeniden giriş gerekir. Kaynak çerezleri hassastır; oturum dizinine yalnız uygulama hesabı erişmelidir. Şifreler kaydedilmez. Girişte şifre her denemeden sonra temizlenir; kullanıcı adı yalnız açık formda tekrar deneme için korunur ([hata sözleşmesi](../pdks-errors.md)). Plan ve tema mevcut tarayıcı depolamasını kullanmayı sürdürür.
 
 ## Kaynak istekleri
 

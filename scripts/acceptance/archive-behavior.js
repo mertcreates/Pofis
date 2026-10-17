@@ -14,7 +14,16 @@ async (page) => {
       if (request.method() === 'DELETE') connected = false;
       if (request.method() === 'POST') {
         attempts++;
-        if (attempts === 1) return respond({ error: 'Fixture: kullanıcı adı veya şifre yanlış.', code: 'AUTH_FAILED' }, 401);
+        if (attempts === 1) return respond({
+          error: 'Fixture: kullanıcı adı veya şifre yanlış.',
+          code: 'AUTH_FAILED',
+          details: {
+            apiPath: '/api/session',
+            apiMethod: 'POST',
+            diagnostic: 'Fixture: giriş hata ayrıntısı.',
+            occurredAt: '2026-10-16T12:00:00.000Z',
+          },
+        }, 401);
         connected = true;
       }
       return respond({ connected });
@@ -43,8 +52,14 @@ async (page) => {
   await page.getByRole('textbox', { name: 'Kullanıcı adı' }).fill('fixture-user');
   await page.getByRole('textbox', { name: 'Şifre' }).fill('fixture-password');
   await page.getByRole('button', { name: 'PDKS’ye bağlan', exact: true }).click();
-  await page.getByRole('alert').filter({ hasText: 'Fixture: kullanıcı adı' }).waitFor();
+  await page.getByRole('alert').filter({ hasText: 'Kullanıcı adı veya şifre yanlış.' }).waitFor();
+  await page.locator('.connection-field-error').waitFor();
+  if (await page.locator('.request-error').count()) throw new Error('Login failure was also rendered as a standalone request error');
+  if (await page.locator('.connection-error details').count()) throw new Error('Expected credential failure exposes technical diagnostics');
+  if (await page.locator('input[aria-invalid="true"]').count() !== 2) throw new Error('Credential fields are not associated with the failure');
   if (await page.getByRole('textbox', { name: 'Şifre' }).inputValue() !== '') throw new Error('Password was not cleared');
+  if (await page.getByRole('textbox', { name: 'Kullanıcı adı' }).inputValue() !== 'fixture-user') throw new Error('Username was not preserved');
+  if (!(await page.locator('input[name="password"]').evaluate(input => input === document.activeElement))) throw new Error('Password did not receive focus');
   await page.getByRole('textbox', { name: 'Kullanıcı adı' }).fill('fixture-user');
   await page.getByRole('textbox', { name: 'Şifre' }).fill('fixture-password');
   await page.getByRole('button', { name: 'PDKS’ye bağlan', exact: true }).click();
@@ -94,5 +109,5 @@ async (page) => {
   await page.getByRole('heading', { name: 'PDKS’ye bağlan' }).waitFor();
   if (await page.getByText('DOĞRULAMA KİŞİSİ', { exact: true }).count()) throw new Error('Previous person remained after disconnect');
   if (errors.length) throw new Error(errors.join('\n'));
-  return { passed: true, pageErrors: errors, fixturesOnly: true, checks: ['rejected login and password reset', 'login and 4h recorded + 3h estimate', 'plan autosave and reload', 'notebook dates, navigation bounds and mobile', 'album', 'mobile overflow', 'stale report', 'disconnect clears person'] };
+  return { passed: true, pageErrors: errors, fixturesOnly: true, checks: ['credential error stays in the form without technical diagnostics', 'rejected login and password reset', 'login and 4h recorded + 3h estimate', 'plan autosave and reload', 'notebook dates, navigation bounds and mobile', 'album', 'mobile overflow', 'stale report', 'disconnect clears person'] };
 }
