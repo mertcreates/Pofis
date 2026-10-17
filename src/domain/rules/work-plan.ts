@@ -174,11 +174,13 @@ export function editRequiredMinutes(plan: WorkPlan, resolved: ReturnType<typeof 
   return { plan: next, targetSeconds };
 }
 
-export function completeWeekPlan(plan: WorkPlan, defaultPlan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, protectedDays: readonly boolean[]): WorkPlan | null {
+export function completeWeekPlan(plan: WorkPlan, defaultPlan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, selectedDay: number | null = null): WorkPlan | null {
   const next = [...resolved.displaySeconds];
   let difference = weeklyTarget(defaultPlan) - resolved.projectedWeeklySeconds;
   const reducing = difference < 0;
-  const recipients = plan.flatMap((_, day) => resolved.eligible[day] && (reducing || !protectedDays[day]) ? [day] : []);
+  const eligible = plan.flatMap((_, day) => resolved.eligible[day] ? [day] : []);
+  const otherDays = eligible.filter(day => day !== selectedDay);
+  const recipients = otherDays.length > 0 ? otherDays : eligible;
   if (reducing) recipients.reverse();
   while (difference !== 0) {
     let changed = false;

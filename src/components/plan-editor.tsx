@@ -3,7 +3,7 @@ import { Fragment, useId, useState } from "react";
 import { LockKeyhole } from "lucide-react";
 import { ui } from "@/lib/ui-text.js";
 import {
-  completeWeekPlan, editRequiredMinutes, resolveWeekPlan, setDayMinutes, weeklyTarget, PLAN_LIMITS, WORKING_DAY_COUNT, type WorkPlan, type PlanDay,
+  completeWeekPlan, editRequiredMinutes, resolveWeekPlan, setDayMinutes, weeklyTarget, DEFAULT_WORK_PLAN, PLAN_LIMITS, WORKING_DAY_COUNT, type WorkPlan, type PlanDay,
 } from "@/domain/rules/work-plan";
 import { weekLabel, durationText } from "@/domain/time";
 import { weekday, weekStart } from "@/domain/rules/calendar";
@@ -34,7 +34,6 @@ export function PlanEditor({
   onClose: () => void;
 }) {
   const [scope, setScope] = useState<"default" | "week">("week");
-  const [editedDays, setEditedDays] = useState<boolean[]>(Array(7).fill(false));
   const [selectedDay, setSelectedDay] = useState(() =>
     plan[weekday(today)] > 0 ? weekday(today) : Math.max(0, plan.findLastIndex(minutes => minutes > 0)));
   const id = useId();
@@ -44,25 +43,19 @@ export function PlanEditor({
   const locked = scope === "week" && resolved.completed[selectedDay] !== null;
   const selectedSeconds = scope === "week" ? resolved.displaySeconds[selectedDay] : activePlan[selectedDay] * 60;
   const value = selectedSeconds / 60;
+  const closed = activePlan[selectedDay] === 0;
+  const reopenMinutes = defaultPlan[selectedDay] || DEFAULT_WORK_PLAN[selectedDay];
   const plannedTotal = scope === "week" ? targetSeconds : weeklyTarget(activePlan);
   const total = plannedTotal;
   const defaultTotal = weeklyTarget(defaultPlan);
   const different = scope === "week" && plannedTotal !== defaultTotal;
   const selectedDifferent = scope === "week" && plan[selectedDay] !== defaultPlan[selectedDay];
   const completedPlan = scope === "week" && different
-    ? completeWeekPlan(plan, defaultPlan, resolved, editedDays) : null;
-  const protectedNames = ui.weekdays.flatMap((day, index) => editedDays[index] && resolved.projectedWeeklySeconds < defaultTotal
-    ? [`${day.long} ${hours(resolved.displaySeconds[index] / 60)}`] : []);
-  const completionChanges = completedPlan?.flatMap((minutes, day) => resolved.completed[day] === null &&
-    Math.round(minutes * 60) !== resolved.displaySeconds[day] ? [day] : []) ?? [];
-  const changedDay = completionChanges.length === 1 ? completionChanges[0] : null;
-  const completeLabel = changedDay !== null && completedPlan
-    ? copy.adjustDay(changedDay, hours(Math.abs(completedPlan[changedDay] * 60 - resolved.displaySeconds[changedDay]) / 60), completedPlan[changedDay] * 60 > resolved.displaySeconds[changedDay])
-    : copy.complete((defaultTotal / 3600).toLocaleString("tr-TR"));
+    ? completeWeekPlan(plan, defaultPlan, resolved, selectedDay) : null;
   const canApplyToOtherDays = activePlan.some((minutes, day) => day !== selectedDay &&
     (scope === "week" ? resolved.eligible[day] : minutes > 0) &&
     (scope === "week" ? resolved.displaySeconds[day] / 60 : minutes) !== value);
-  const canReset = editedDays.some(Boolean) || targetSeconds !== weeklyTarget(plan) || plan.some((minutes, day) =>
+  const canReset = targetSeconds !== weeklyTarget(plan) || plan.some((minutes, day) =>
     resolved.completed[day] === null && minutes !== defaultPlan[day]);
   const weekTitle = `${week === weekStart(today) ? ui.currentWeek : copy.selectedWeek} · ${weekLabel(week, true, today)}`;
 
@@ -71,11 +64,11 @@ export function PlanEditor({
       onSaveDefault(updates.reduce((next, update) => setDayMinutes(next, update.day, update.minutes), defaultPlan));
       return;
     }
-    const changed = updates.filter(update => Math.round(update.minutes * 60) !== resolved.displaySeconds[update.day]);
+    const changed = updates.filter(update => Math.round(update.minutes * 60) !== resolved.displaySeconds[update.day] ||
+      (update.minutes === 0 && plan[update.day] > 0));
     if (!changed.length) return;
     const next = editRequiredMinutes(plan, resolved, changed);
-    if (onSave(next.plan, next.targetSeconds))
-      setEditedDays(previous => previous.map((edited, day) => edited || changed.some(update => update.day === day)));
+    onSave(next.plan, next.targetSeconds);
   }
 
   function applyToOpenDays() {
@@ -149,33 +142,30 @@ export function PlanEditor({
             </div>
           </div>
         ) : (
-        <fieldset className="work-plan-day-editor" disabled={!ready} aria-labelledby={`${id}-day`}>
+        <fieldset className="work-plan-day-editor work-plan-editable" disabled={!ready} aria-labelledby={`${id}-day`}>
           <legend className="visually-hidden">{copy.selectedDayDuration}</legend>
           <div className="work-plan-editor-top">
             <div className="work-plan-day-title">
               <strong id={`${id}-day`}>{ui.weekdays[selectedDay].long}</strong>
+              <button type="button" className="work-plan-day-action"
+                aria-label={copy.dayActionLabel(ui.weekdays[selectedDay].long, closed)}
+                onClick={() => saveManual([{ day: selectedDay, minutes: closed ? reopenMinutes : 0 }])}>
+                {closed ? copy.openDay : copy.closeDay}
+              </button>
             </div>
             <div className="work-plan-duration-control">
-            <span className="work-plan-control-label">{scope === "week" ? copy.effectiveTarget : copy.plannedLabel}</span>
-            <div className="work-plan-stepper" role="group" aria-label={`${ui.weekdays[selectedDay].long} ${copy.duration}`}>
-              <button type="button" aria-label={copy.decrease} disabled={value === 0}
-                onClick={() => saveManual([{ day: selectedDay, minutes: Math.max(0, value - PLAN_LIMITS.stepMinutes) }])}>−</button>
-              <output aria-live="polite">{scope === "week" ? hours(value) : planHours(value)}</output>
-              <button type="button" aria-label={copy.increase} disabled={value === PLAN_LIMITS.maxDailyMinutes}
-                onClick={() => saveManual([{ day: selectedDay, minutes: Math.min(PLAN_LIMITS.maxDailyMinutes, value + PLAN_LIMITS.stepMinutes) }])}>+</button>
+              {!closed && canApplyToOtherDays && <button type="button" className="work-plan-apply"
+                aria-label={copy.applyDurationToOpen(hours(value))} onClick={applyToOpenDays}>{copy.applyToOpen}</button>}
+              {closed ? <span className="work-plan-closed-status">{copy.closed}</span> : (
+                <div className="work-plan-stepper" role="group" aria-label={`${ui.weekdays[selectedDay].long} ${copy.duration}`}>
+                  <button type="button" aria-label={copy.decrease} disabled={value === 0}
+                    onClick={() => saveManual([{ day: selectedDay, minutes: Math.max(0, value - PLAN_LIMITS.stepMinutes) }])}>−</button>
+                  <output aria-live="polite">{scope === "week" ? hours(value) : planHours(value)}</output>
+                  <button type="button" aria-label={copy.increase} disabled={value === PLAN_LIMITS.maxDailyMinutes}
+                    onClick={() => saveManual([{ day: selectedDay, minutes: Math.min(PLAN_LIMITS.maxDailyMinutes, value + PLAN_LIMITS.stepMinutes) }])}>+</button>
+                </div>
+              )}
             </div>
-            </div>
-          </div>
-          <div className="work-plan-editor-bottom">
-            <div className="work-plan-presets" role="group" aria-label={copy.presets}>
-              {[0, 240, 480].map(minutes => (
-                <button key={minutes} type="button" aria-pressed={value === minutes}
-                  onClick={() => saveManual([{ day: selectedDay, minutes }])}>
-                  {minutes === 0 ? copy.closed : hours(minutes)}
-                </button>
-              ))}
-            </div>
-            {canApplyToOtherDays && <button type="button" className="work-plan-apply" onClick={applyToOpenDays}>{copy.applyToOpen(hours(value))}</button>}
           </div>
         </fieldset>
         )}
@@ -187,17 +177,13 @@ export function PlanEditor({
             <div>
               {different && <button type="button" className="work-plan-complete" disabled={!ready || !completedPlan}
                 aria-describedby={!completedPlan ? `${id}-capacity` : undefined}
-                onClick={() => { if (completedPlan) onSave(completedPlan, defaultTotal); }}>{completeLabel}</button>}
-              {canReset && <button type="button" className="work-plan-reset" disabled={!ready} onClick={() => {
-                if (onReset()) setEditedDays(Array(7).fill(false));
-              }}>{copy.reset}</button>}
+                onClick={() => { if (completedPlan) onSave(completedPlan, defaultTotal); }}>{copy.complete((defaultTotal / 3600).toLocaleString("tr-TR"))}</button>}
+              {canReset && <button type="button" className="work-plan-reset" disabled={!ready} onClick={onReset}>{copy.reset}</button>}
             </div>
           </div>
         )}
         {scope === "week" && different && !completedPlan &&
-          <p id={`${id}-capacity`} className="work-plan-capacity">{protectedNames.length > 0
-            ? copy.protectedCapacity(protectedNames.join(", "), (defaultTotal / 3600).toLocaleString("tr-TR"))
-            : copy.capacity}</p>}
+          <p id={`${id}-capacity`} className="work-plan-capacity">{copy.capacity}</p>}
       </div>
     </Modal>
   );

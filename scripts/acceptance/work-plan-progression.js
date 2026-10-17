@@ -46,7 +46,7 @@ async (page) => {
     for (let i = 0; i < 4; i++) await page.getByRole("button", { name: "Süreyi yarım saat azalt" }).click();
     await day("Salı").click();
     for (let i = 0; i < 4; i++) await page.getByRole("button", { name: "Süreyi yarım saat artır" }).click();
-    check(await target() === "Haftalık hedef 40 sa", "Initial custom plan is not 40 hours");
+    check(await target() === "Toplam 40 sa", "Initial custom plan is not 40 hours");
     check(await card("Cuma") === "8 sa", "Today's partial record was carried over");
     await page.keyboard.press("Escape");
     await page.clock.setFixedTime(new Date("2026-10-13T15:00:00+03:00"));
@@ -55,7 +55,7 @@ async (page) => {
     check((await exit.textContent()).replace(/\s/g, "") === "18:00:00", "Tuesday's 10 hour exit target changed");
     for (let i = 0; i < 2; i++) {
       await open();
-      check(await target() === "Haftalık hedef 40 sa", "Completion changed weekly target");
+      check(await target() === "Toplam 40 sa", "Completion changed weekly target");
       check(await card("Pazartesi") === "5 sa 30 dk", "Monday actual changed");
       check(await card("Salı") === "10 sa", "Tuesday plan changed");
       check(await card("Cuma") === "8 sa 30 dk", "Monday shortfall not allocated exactly once");
@@ -70,14 +70,15 @@ async (page) => {
     await open();
     await day("Cuma").click();
     await page.getByRole("button", { name: "Süreyi yarım saat azalt" }).click();
-    check(await target() === "Haftalık hedef 39 sa 30 dk", "Manual edit not reflected");
-    await page.getByRole("button", { name: "Salıya 30 dk ekle", exact: true }).click();
-    check(await target() === "Haftalık hedef 40 sa", "Complete did not reach target");
+    check(await target() === "Toplam 39 sa 30 dk", "Manual edit not reflected");
+    await page.getByRole("button", { name: "40 saate tamamla", exact: true }).click();
+    check(await target() === "Toplam 40 sa", "Complete did not reach target");
     // Restore the original future distribution explicitly; completed Monday stays fixed.
     await day("Salı").click();
     await page.getByRole("button", { name: "Süreyi yarım saat azalt" }).click();
     await day("Cuma").click();
-    await page.getByRole("button", { name: "8 sa", exact: true }).click();
+    await page.getByRole("button", { name: /gününü kapat$/ }).click();
+    await page.getByRole("button", { name: /gününü aç$/ }).click();
     await page.getByRole("button", { name: "Süreyi yarım saat artır" }).click();
     await page.keyboard.press("Escape");
     await page.getByRole("button", { name: "Önceki hafta", exact: true }).click();
@@ -85,20 +86,20 @@ async (page) => {
     await page.getByRole("button", { name: "Hafta planını düzenle", exact: true }).click();
     check(await page.getByRole("button", { name: /^Seçili hafta ·/ }).count() === 1, "Historical editing is unavailable");
     await day("Cuma").click();
-    await page.getByRole("button", { name: "4 sa", exact: true }).click();
+    for (let step = 0; step < 8; step++) await page.getByRole("button", { name: "Süreyi yarım saat azalt", exact: true }).click();
     await page.keyboard.press("Escape");
     await open();
     await page.getByRole("button", { name: /^Bu hafta ·/ }).waitFor();
     await day("Cuma").click();
     await page.getByRole("button", { name: "Süreyi yarım saat artır" }).waitFor({ state: "visible" });
     check(await card("Pazartesi") === "5 sa 30 dk", "Settings did not return to current week");
-    check(await target() === "Haftalık hedef 40 sa", "Historical edit leaked into current week");
+    check(await target() === "Toplam 40 sa", "Historical edit leaked into current week");
     await page.keyboard.press("Escape");
     final = true;
     await page.clock.setFixedTime(new Date("2026-10-17T15:00:00+03:00"));
     await reload();
     await open();
-    check(await target() === "Haftalık hedef 40 sa", "Finalization changed target");
+    check(await target() === "Toplam 40 sa", "Finalization changed target");
     check(await page.locator('.work-plan-day[data-locked="true"]').count() === 5, "Final working day not locked");
     check(await page.locator(".work-plan-modal .inline-notice").count() === 0, "Balanced week has unexplained residual");
     const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v2")));

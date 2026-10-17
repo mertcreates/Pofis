@@ -25,15 +25,15 @@ async (page) => {
     const stored = () => page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v2")));
     await open();
     await day("Çarşamba").click();
-    await page.getByRole("button", { name: "4 sa", exact: true }).click();
+    for (let step = 0; step < 8; step++) await page.getByRole("button", { name: "Süreyi yarım saat azalt", exact: true }).click();
     await day("Perşembe").click();
     await page.getByRole("button", { name: "40 saate tamamla", exact: true }).click();
-    check(JSON.stringify((await stored()).weekOverrides["2026-10-12"]) === JSON.stringify([480,480,240,600,600,0,0]),
-      "Manual Wednesday must stay at four hours after selection changes");
+    check(JSON.stringify((await stored()).weekOverrides["2026-10-12"]) === JSON.stringify([480,480,360,480,600,0,0]),
+      "Selected Thursday must stay at eight hours; Wednesday and Friday receive the difference");
     await day("Çarşamba").click();
-    check(await page.locator(".work-plan-stepper output").innerText() === "4 sa", "Manual duration changed");
-    await page.getByRole("button", { name: "Varsayılan plana dön", exact: true }).click();
-    // A newly opened saved custom plan has no transient manual protections.
+    check(await page.locator(".work-plan-stepper output").innerText() === "6 sa", "Recipient Wednesday did not receive two hours");
+    await page.getByRole("button", { name: "Sıfırla", exact: true }).click();
+    // Completion uses the current selection after reopening.
     await page.keyboard.press("Escape");
     await page.evaluate(() => localStorage.setItem("pofis:work-plans:v2", JSON.stringify({
       defaultPlan: [480,480,480,480,480,0,0], weekOverrides: { "2026-10-12": [480,480,240,480,480,0,0] },
@@ -43,9 +43,9 @@ async (page) => {
     await open();
     await day("Çarşamba").click();
     await page.getByRole("button", { name: "40 saate tamamla", exact: true }).click();
-    check(JSON.stringify((await stored()).weekOverrides["2026-10-12"]) === JSON.stringify([480,480,330,570,540,0,0]),
-      "Selecting Wednesday must not exclude it from distribution");
+    check(JSON.stringify((await stored()).weekOverrides["2026-10-12"]) === JSON.stringify([480,480,240,600,600,0,0]),
+      "Selecting Wednesday must exclude it while Thursday and Friday are eligible");
     await page.keyboard.press("Escape");
-    return { passed: true, fixturesOnly: true, checks: ["manual Wednesday preserved", "selection change retains protection", "selection alone participates"] };
+    return { passed: true, fixturesOnly: true, checks: ["selected Thursday preserved", "selection changes recipients", "selected Wednesday preserved after reload"] };
   } finally { await context.close(); }
 }

@@ -31,13 +31,13 @@ async (page) => {
     await page.getByText("KAPASİTE KABUL", { exact: true }).waitFor();
     await open();
     await day("Cuma").click();
-    await page.getByRole("button", { name: "Kapalı", exact: true }).click();
+    await page.getByRole("button", { name: /gününü kapat$/ }).click();
     check(await card("Perşembe") === "8 sa", "Closing Friday must preserve Thursday required time");
-    check(await target() === "Haftalık hedef 33 sa 10 dk", "Closing Friday target is wrong");
-    await page.getByRole("button", { name: "Perşembeye 6 sa 50 dk ekle", exact: true }).click();
+    check(await target() === "Toplam 33 sa 10 dk", "Closing Friday target is wrong");
+    await page.getByRole("button", { name: "40 saate tamamla", exact: true }).click();
     check(await card("Perşembe") === "14 sa 50 dk", "Thursday must have sufficient actual capacity");
     check(await card("Cuma") === "–", "Closed Friday was reopened");
-    check(await target() === "Haftalık hedef 40 sa", "Weekly target must reach 40 hours");
+    check(await target() === "Toplam 40 sa", "Weekly target must reach 40 hours");
     check(await page.locator(".work-plan-capacity").count() === 0, "False capacity warning remains");
     await day("Perşembe").click();
     check(await page.locator(".work-plan-stepper output").innerText() === "14 sa 50 dk", "Stepper must show a usable duration");
@@ -67,7 +67,7 @@ async (page) => {
       const exit = page.locator(".metric").filter({ hasText: "Bugünkü hedef çıkış" }).locator(".metric-value time");
       check((await exit.textContent()).replace(/\s/g, "") === "22:50:00", "Dashboard exit must use 14:50");
       await open();
-      check(await target() === "Haftalık hedef 40 sa" && await card("Perşembe") === "14 sa 50 dk", "Reload applied carryover twice or lost the weekly target");
+      check(await target() === "Toplam 40 sa" && await card("Perşembe") === "14 sa 50 dk", "Reload applied carryover twice or lost the weekly target");
       await page.keyboard.press("Escape");
     }
     await open();

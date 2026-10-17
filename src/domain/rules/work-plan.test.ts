@@ -7,9 +7,29 @@ import {
 import type { DayState } from "./record-status";
 import type { WorkPlan } from "./work-plan";
 
-function completeToDefaultTotal(plan: WorkPlan, defaultPlan: WorkPlan, eligible: readonly boolean[], protectedDays: readonly boolean[] = []) {
+test("tamamla önce seçili gün dışındaki uygun günlere dağıtır", () => {
+  const plan = readDayPlan([480,480,240,480,480,0,0])!;
+  const resolved = resolveWeekPlan(days([8,8,null,null,null,null,null]), plan, "2026-10-14");
+  expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, 2))
+    .toEqual([480,480,240,600,600,0,0]);
+});
+
+test("tek açık seçili Cuma 8 saatten 9:59'a tamamlanır; yeniden hesapta 40 saat kalır", () => {
+  const source = days([7.5,7.5,7.5,7.5 + 1/60,null,null,null]);
+  const target = 38 * 3600 + 60;
+  const resolved = resolveWeekPlan(source, DEFAULT_WORK_PLAN, "2026-10-16", false, target);
+  expect(resolved.displaySeconds[4]).toBe(8 * 3600);
+  const next = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, resolved, 4)!;
+  expect(next.slice(0,4)).toEqual([480,480,480,480]);
+  expect(Math.round(next[4] * 60)).toBe(9 * 3600 + 59 * 60);
+  const after = resolveWeekPlan(source, next, "2026-10-16", false, 144000);
+  expect(after.projectedWeeklySeconds).toBe(144000);
+  expect(after.displaySeconds[4]).toBe(9 * 3600 + 59 * 60);
+});
+
+function completeToDefaultTotal(plan: WorkPlan, defaultPlan: WorkPlan, eligible: readonly boolean[], selectedDay: number | null = null) {
   const resolved = resolveWeekPlan(days([null,null,null,null,null,null,null]), plan, "2026-10-12");
-  return completeWeekPlan(plan, defaultPlan, { ...resolved, eligible: eligible.map((value, day) => value && plan[day] > 0) }, protectedDays);
+  return completeWeekPlan(plan, defaultPlan, { ...resolved, eligible: eligible.map((value, day) => value && plan[day] > 0) }, selectedDay);
 }
 
 test("Tamamla eski baz yerine gereken kapasiteyi kullanır: Perşembe 5:20 → 14:50", () => {
@@ -17,7 +37,7 @@ test("Tamamla eski baz yerine gereken kapasiteyi kullanır: Perşembe 5:20 → 1
   const source = days([8,8,9 + 1/6,null,null,null,null]);
   const resolved = resolveWeekPlan(source, plan, "2026-10-15");
   expect(resolved.displaySeconds[3]).toBe(5 * 3600 + 20 * 60);
-  const next = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, [false,false,false,false,true,false,false])!;
+  const next = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, 4)!;
   expect(next).toEqual([480,480,390,890,0,0,0]);
   const saved = changeWeekPlan({ ...emptyWorkPlans(), weekOverrides: { "2026-10-12": plan } }, "2026-10-12", next, resolved.completed, 144000);
   expect(resolveStoredTarget(saved, "2026-10-12")).toBe(144000);
@@ -27,7 +47,7 @@ test("Tamamla eski baz yerine gereken kapasiteyi kullanır: Perşembe 5:20 → 1
     expect(after.projectedWeeklySeconds).toBe(144000);
     expect(after.unallocatedSeconds).toBe(0);
   }
-  expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, [false,false,false,true,true,false,false])).toBeNull();
+  expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, 3)).toEqual(next);
 });
 
 test("Tamamla saniyeli gerekeni saklar; kapasite yetmezse kısmi kayıt üretmez", () => {
@@ -35,39 +55,39 @@ test("Tamamla saniyeli gerekeni saklar; kapasite yetmezse kısmi kayıt üretmez
   const source = days([8,8,9 + 1/6,null,null,null,null]);
   source[0].recordedSeconds! += 17;
   const resolved = resolveWeekPlan(source, plan, "2026-10-15");
-  const next = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, [])!;
+  const next = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, null)!;
   expect(Math.round(next[3] * 60)).toBe(53383);
   const after = resolveWeekPlan(source, next, "2026-10-15", false, 144000);
   expect(after.projectedWeeklySeconds).toBe(144000);
   expect(after.targets[3]).toBe(53383);
   source[2].recordedSeconds = 0;
-  expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolveWeekPlan(source, plan, "2026-10-15"), [])).toBeNull();
+  expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolveWeekPlan(source, plan, "2026-10-15"), null)).toBeNull();
 });
 
-test("tamamla elle düzenlenen Çarşambayı korur; yalnız seçilen gün dağıtıma katılır", () => {
+test("tamamla seçili Çarşambayı korur; seçim yoksa tüm uygun günleri kullanır", () => {
   const plan = readDayPlan([480,480,240,480,480,0,0])!;
   const eligible = [false,false,true,true,true,false,false];
-  const protectedDays = [false,false,true,false,false,false,false];
-  expect(completeToDefaultTotal(plan, DEFAULT_WORK_PLAN, eligible, protectedDays))
+  const selectedDay = 2;
+  expect(completeToDefaultTotal(plan, DEFAULT_WORK_PLAN, eligible, selectedDay))
     .toEqual([480,480,240,600,600,0,0]);
   expect(completeToDefaultTotal(plan, DEFAULT_WORK_PLAN, eligible))
     .toEqual([480,480,330,570,540,0,0]);
   expect(plan).toEqual([480,480,240,480,480,0,0]);
 });
 
-test("tamamla ekleme sırasında korunan günün kapasitesini kullanmaz; fazlayı son günden azaltır", () => {
+test("tamamla diğer uygun günlerin kapasitesini kullanır; fazlayı bu günlerin sonundan azaltır", () => {
   const eligible = [false,false,true,true,true,false,false];
-  const protectedDays = [false,false,true,false,false,false,false];
+  const selectedDay = 2;
   const full = readDayPlan([480,480,240,960,960,0,0])!;
   const largerTarget = readDayPlan([480,480,480,960,960,0,0])!;
-  expect(completeToDefaultTotal(full, largerTarget, eligible, protectedDays)).toBeNull();
+  expect(completeToDefaultTotal(full, largerTarget, eligible, selectedDay)).toBeNull();
   expect(completeToDefaultTotal(full, largerTarget, eligible)).toEqual(largerTarget);
   const surplus = readDayPlan([480,480,720,480,480,0,0])!;
-  expect(completeToDefaultTotal(surplus, DEFAULT_WORK_PLAN, eligible, protectedDays))
+  expect(completeToDefaultTotal(surplus, DEFAULT_WORK_PLAN, eligible, selectedDay))
     .toEqual([480,480,720,480,240,0,0]);
 });
 
-test("41:09:17 hedefi azaltılırken elle düzenlenen Cuma önce kullanılır; Perşembe 8 saat kalır", () => {
+test("41:09:17 hedefi azaltılırken seçili Cuma korunur; fazla Perşembeden düşer", () => {
   const source = days([8,8,8,null,null,null,null]);
   source[0].recordedSeconds = 8 * 3600 + 3 * 60 + 31;
   source[1].recordedSeconds = 8 * 3600 + 42 * 60 + 29;
@@ -75,9 +95,9 @@ test("41:09:17 hedefi azaltılırken elle düzenlenen Cuma önce kullanılır; P
   const targetSeconds = 41 * 3600 + 9 * 60 + 17;
   const resolved = resolveWeekPlan(source, DEFAULT_WORK_PLAN, "2026-10-15", false, targetSeconds);
   expect(resolved.displaySeconds.slice(3,5)).toEqual([28800,28800]);
-  const next = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, resolved, [false,false,false,false,true])!;
-  expect(next[3]).toBe(480);
-  expect(Math.round(next[4] * 60)).toBe(6 * 3600 + 50 * 60 + 43);
+  const next = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, resolved, 4)!;
+  expect(next[4]).toBe(480);
+  expect(Math.round(next[3] * 60)).toBe(6 * 3600 + 50 * 60 + 43);
   const after = resolveWeekPlan(source, next, "2026-10-15", false, 144000);
   expect(after.projectedWeeklySeconds).toBe(144000);
   expect(after.displaySeconds.slice(0,3)).toEqual(resolved.displaySeconds.slice(0,3));
@@ -87,12 +107,12 @@ test("azaltma Cuma sıfıra indiğinde Perşembeye geçer; kapalı günleri ve k
   const plan = readDayPlan([480,480,480,480,60,0,0])!;
   const source = days([12,12,10,null,null,null,null]);
   const resolved = resolveWeekPlan(source, plan, "2026-10-15", false, 45 * 3600);
-  const next = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, [false,false,false,true,true])!;
+  const next = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, null)!;
   expect(next).toEqual([480,480,480,360,0,0,0]);
   expect(resolveWeekPlan(source, next, "2026-10-15", false, 144000).projectedWeeklySeconds).toBe(144000);
   const closed = readDayPlan([480,480,480,600,0,0,0])!;
   const closedResolved = resolveWeekPlan(source, closed, "2026-10-15", false, 44 * 3600);
-  expect(completeWeekPlan(closed, DEFAULT_WORK_PLAN, closedResolved, [false,false,false,true,true]))
+  expect(completeWeekPlan(closed, DEFAULT_WORK_PLAN, closedResolved, 3))
     .toEqual([480,480,480,360,0,0,0]);
 });
 

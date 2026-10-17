@@ -30,8 +30,8 @@ Beklenen davranışın sahibi [mesai planı sözleşmesidir](rules/work-plan.md)
 | Betik | Doğruladığı akış |
 | --- | --- |
 | [Plan kabulü](../scripts/acceptance/work-plan.js) | Kilitler, devir, hafta/şablon düzenleme, sıfırlama, yazma hatası, yeniden yükleme ve demo ayrımı |
-| [Gereken süre](../scripts/acceptance/work-plan-required.js) | Kart/stepper eşitliği, doğrudan düzenleme, toplu uygulama, süre eklemede koruma, kapatma/açma ve kalıcılık |
-| [Elle düzenleme](../scripts/acceptance/work-plan-manual.js) | Elle değişen günü süre eklemeden koruma ve seçim değişikliğinin etkisi |
+| [Gereken süre](../scripts/acceptance/work-plan-required.js) | Kart/stepper eşitliği, doğrudan düzenleme, toplu uygulama, seçili gün önceliği, kapatma/açma ve kalıcılık |
+| [Elle düzenleme](../scripts/acceptance/work-plan-manual.js) | Seçili günü dağıtım dışında tutma ve seçim değişikliğinin alıcılara etkisi |
 | [Hafta ilerlemesi](../scripts/acceptance/work-plan-progression.js) | Günlerin tamamlanması, özel hedefler, tekrar hesaplama, hedef çıkış ve hafta navigasyonu |
 | [Kapasite](../scripts/acceptance/work-plan-capacity.js) | Kalan günün kapasitesi, hedef çıkış, yeniden yükleme ve 16 saat sınırı |
 | [Görünüm](../scripts/acceptance/work-plan-style.js) | Açık/koyu tema kontrastı, 320px taşma, klavye seçimi ve dokunmatik kontroller |

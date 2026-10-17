@@ -60,9 +60,11 @@ Aynı plan, kayıt, tarih ve haftalık hedef aynı sonucu üretir. Otomatik hesa
 
 `editRequiredMinutes`, tamamlanmamış günlerin güncel gereken sürelerini yeni çalışma planına alır. Haftalık hedef, yalnız kullanıcının açıkça değiştirdiği günlerin gereken süre farkı kadar güncellenir. Diğer günlerin gereken süreleri ve tamamlanan günlerin kayıtlı planları korunur. Bağımsız haftalık hedef sonraki hesaplamada bu sürelerin aynı kalmasını sağlar.
 
-Toplu uygulama, seçili gereken süreyi diğer uygun açık günlere uygular. Başarılı kayıtta açıkça değişen günler, pencere açık kaldığı sürece Tamamla ile **süre eklemeden** korunur. Seçim değişikliği korumayı sürdürür; aynı değeri yeniden seçmek mevcut tercihi korur. Pencereyi kapatmak veya başarılı sıfırlama geçici korumayı temizler.
+Toplu uygulama, seçili gereken süreyi diğer uygun açık günlere uygular. Tamamla işleminin alıcıları güncel seçime göre belirlenir.
 
-Varsayılan plana dön, tamamlanmamış günleri şablona döndürür ve haftalık hedefi sonuç planının toplamına ayarlar. Tamamlanan günlerin kayıtlı planları korunur.
+Günü kapatma gereken süreyi sıfırlar; haftalık hedeften o günün gereken süresi çıkarılır. Yeniden açma, o günün varsayılan şablon süresini kullanır; şablonda kapalıysa ilk şablondaki 480 dakika uygulanır. Bu süre haftalık hedefe eklenir.
+
+Sıfırla, tamamlanmamış günleri şablona döndürür ve haftalık hedefi sonuç planının toplamına ayarlar. Tamamlanan günlerin kayıtlı planları korunur.
 
 Örnek: Pzt–Çar 26 sa 40 dk kayıt, Per 8 sa, Cum planı 7,5 sa → Cum gereken 4 sa 50 dk, haftalık hedef 39 sa 30 dk. Bu başlangıçtan:
 
@@ -73,18 +75,19 @@ Varsayılan plana dön, tamamlanmamış günleri şablona döndürür ve haftal�
 
 ## Varsayılan hafta toplamına tamamlama
 
-`completeWeekPlan`, beklenen toplamı varsayılan hafta toplamına getirir. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır.
+`completeWeekPlan`, beklenen toplamı varsayılan hafta toplamına getirir. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır. Öncelik seçili gün dışındaki uygun günlerdedir. Başka uygun gün bulunmadığında seçili uygun gün alıcı olur. Kilitli, kapalı, geçmiş veya belirsiz günler uygunluk kuralıyla korunur.
 
 | Yön | Dağıtım |
 | --- | --- |
-| Süre ekleme | Elle düzenlenen günleri koruyarak pazartesi–cuma sırasıyla en fazla 30 dakikalık turlar; son adım kalan saniye kadar |
-| Süre azaltma | Elle düzenlenen günler dahil, son uygun günden geriye; gün sıfıra inince önceki uygun güne geçiş |
+| Süre ekleme | Alıcı günlere pazartesi–cuma sırasıyla en fazla 30 dakikalık turlar; son adım kalan saniye kadar |
+| Süre azaltma | Alıcı günlerin sonundan geriye; gün sıfıra inince önceki alıcı güne geçiş |
 
-Başarılı işlem kalan gereken süreleri çalışma planına, varsayılan toplamını haftalık hedefe kaydeder. Kapasite yetersizse sonuç `null` olur; arayüz işlemi gerekçesiyle devre dışı gösterir ve mevcut kayıt korunur.
+Başarılı işlem kalan gereken süreleri çalışma planına, varsayılan toplamını haftalık hedefe kaydeder. Kapasite yetersizse sonuç `null` olur; arayüz işlemi kapasite açıklamasıyla devre dışı gösterir ve mevcut kayıt korunur. Diğer uygun günler varken bu günlerin kapasitesi yetmiyorsa seçili gün korunur.
 
 | Senaryo | Sonuç |
 | --- | --- |
-| Pzt–Çar 25 sa 9 dk 17 sn kayıt, Per/Cum 8’er saat gereken, hedef 41 sa 9 dk 17 sn | Per 8 sa, Cum 6 sa 50 dk 43 sn, hedef 40 sa; Cuma’nın elle düzenlenmiş olması azaltma sırasını korur |
+| Pzt–Çar 25 sa 9 dk 17 sn kayıt, Per/Cum 8’er saat gereken, Cuma seçili, hedef 41 sa 9 dk 17 sn | Per 6 sa 50 dk 43 sn, Cum 8 sa, hedef 40 sa |
+| Pzt–Per 30 sa 1 dk kayıt, yalnız Cuma açık/seçili ve gereken 8 sa, hedef 38 sa 1 dk | Cum 9 sa 59 dk, hedef 40 sa |
 | Pzt–Çar 25 sa 10 dk kayıt, Per gereken 5 sa 20 dk, Cum kapalı | Per 14 sa 50 dk, hedef 40 sa; Per ilk girişi 08.00 ise hedef çıkış 22.50 |
 
 ## Rapor ve arayüzün kullandığı sonuçlar
@@ -110,5 +113,6 @@ Ana Ayarlar mevcut haftanın planını, geçmiş hafta başlığındaki düzenle
 ## Doğrulama
 
 - [Plan testleri](../../src/domain/rules/work-plan.test.ts): bu belgedeki sayısal senaryolar, kilitler, sınırlar, bakiye, koruma ve tekrar hesaplama.
+- [Düzenleyici testleri](../../src/components/plan-editor.test.tsx): açık/kapalı/kilitli gün kontrolleri, süre etiketi ve toplu uygulama gösterimi.
 - Bağımlı sonuçlar: [rapor](../../src/domain/report.test.ts), [tablo](../../src/components/attendance/report-ui.test.tsx), [depolama](../../src/data/work-plans.test.ts), [kural mimarisi](../../src/domain/rules/rules.test.ts).
 - Kabul betikleri ve çalışma yöntemi: [doğrulama rehberi](../verification.md). Gerçek PDKS kabulünün durumu: [görev listesi](../../tasks/todo.md).
