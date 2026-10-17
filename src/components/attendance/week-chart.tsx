@@ -1,9 +1,5 @@
 import { ui } from "@/lib/ui-text.js";
-import {
-  displayedSeconds,
-  durationSegments,
-  type DayReport,
-} from "@/domain/attendance";
+import type { DayReport } from "@/domain/attendance";
 import { chartMaximum } from "@/domain/rules/progress.js";
 import {
   durationClock,
@@ -30,7 +26,7 @@ export function WeekChart({
     day =>
       day.source.workingDay || day.recordedSeconds !== null || day.liveSeconds !== null,
   );
-  const maximum = chartMaximum(visible.map(displayedSeconds), []);
+  const maximum = chartMaximum(visible.map(day => day.source.total));
   const hasLive = visible.some((day) => day.liveSeconds !== null);
   const column = useChartTooltip(
     visible.find((day) => day.liveSeconds !== null)?.date,
@@ -71,8 +67,7 @@ export function WeekChart({
           }}
         >
           {visible.map((day) => {
-            const { recorded, estimated } = durationSegments(day);
-            const total = displayedSeconds(day);
+            const { recorded, estimated, total } = day.source;
             const live = day.liveSeconds !== null;
             const label = `${formatDate(day.date)}: ${ui.recordedTime} ${day.recordedSeconds === null ? ui.noRecordedDuration : durationText(recorded)}${live ? `, ${ui.liveEstimateLabel} ${durationText(total)}` : ""}`;
             return (

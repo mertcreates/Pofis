@@ -35,17 +35,6 @@ export function readWeekPlan(value: unknown): WorkPlan | null {
   return [...value] as unknown as WorkPlan;
 }
 
-// Previous equal-hours input, used only to read the current v1 storage format.
-export function readPlanInput(draft: { weekdays?: unknown; hours?: unknown; dailyHours?: unknown }): WorkPlan | null {
-  const weekdays = draft.weekdays;
-  if (!Array.isArray(weekdays) || weekdays.length === 0 || weekdays.length > 7 ||
-    new Set(weekdays).size !== weekdays.length ||
-    weekdays.some(day => !Number.isInteger(day) || day < 0 || day >= WORKING_DAY_COUNT)) return null;
-  const hours = draft.dailyHours === undefined ? Number(draft.hours) / weekdays.length : Number(draft.dailyHours);
-  if (!Number.isFinite(hours) || hours <= 0) return null;
-  return readDayPlan(Array.from({ length: 7 }, (_, day) => weekdays.includes(day) ? hours * 60 : 0));
-}
-
 export function samePlan(left: WorkPlan, right: WorkPlan): boolean {
   return left.every((minutes, day) => minutes === right[day]);
 }
@@ -179,8 +168,6 @@ export function weeklyTarget(plan: readonly number[]): number {
   return plan.reduce((sum, minutes) => sum + Math.round(minutes * 60), 0);
 }
 
-export function planMinutes(plan: WorkPlan): number[] { return [...plan]; }
-
 function preserveCompletedPlan(plan: WorkPlan, previous: WorkPlan, completed: readonly (number | null)[]): WorkPlan {
   return plan.map((minutes, day) => completed[day] != null ? previous[day] : minutes) as unknown as WorkPlan;
 }
@@ -216,7 +203,6 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
   const workingDays = plan.map((_, day) => isOpenPlanDay(plan, day, zeroOpenDays));
   const eligible = planAdjustmentDays(days, plan, week, today, zeroOpenDays);
   const openDays = plan.flatMap((_, day) => eligible[day] ? [day] : []);
-  const lastWorkingDay = openDays.at(-1) ?? null;
   const required = plan.map(minutes => Math.round(minutes * 60));
   let unallocatedSeconds = completed.reduce<number>((sum, seconds, index) =>
     seconds === null ? sum : sum + Math.round(plan[index] * 60) - seconds, targetSeconds - weeklyTarget(plan));
@@ -239,7 +225,7 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
     return dayIndex === -1 ? Math.round(minutes * 60) : targets[dayIndex];
   });
   const projectedWeeklySeconds = displaySeconds.reduce((sum, seconds) => sum + seconds, 0);
-  return { targets, plan, workingDays, completed, eligible, displaySeconds, unallocatedSeconds, projectedWeeklySeconds, lastWorkingDay, weeklySeconds: targetSeconds, dailySeconds, blocked, exitGoal };
+  return { targets, plan, workingDays, completed, eligible, displaySeconds, unallocatedSeconds, projectedWeeklySeconds, weeklySeconds: targetSeconds, dailySeconds, blocked, exitGoal };
 }
 
 export function editRequiredMinutes(plan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, updates: readonly { day: number; minutes: number }[], defaultPlan = DEFAULT_WORK_PLAN, leaveDays: readonly number[] = []) {

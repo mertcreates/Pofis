@@ -16,7 +16,6 @@ export function summarizeWeek(days: readonly DayReport[], today: string) {
   }
   return {
     recordedSeconds: recorded,
-    liveExtraSeconds: estimatedSeconds,
     totalSeconds: recorded + estimatedSeconds,
     incomplete,
     recordedDays,

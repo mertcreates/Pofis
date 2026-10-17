@@ -3,7 +3,6 @@ import { useLayoutEffect, useRef, type CSSProperties } from "react";
 import { targetExitAt } from "@/domain/rules/work-plan";
 import { ui } from "@/lib/ui-text.js";
 import type { DayReport } from "@/domain/attendance";
-import { durationSegments, displayedSeconds } from "@/domain/attendance";
 import { durationText, formatClock, formatDate } from "@/domain/time";
 import { DurationTrack } from "../primitives";
 import Icon from "../ui-icon.js";
@@ -49,8 +48,7 @@ export function DayFlow({
   day: DayReport;
   target: number | null;
 }) {
-  const { recorded, estimated } = durationSegments(day);
-  const total = displayedSeconds(day);
+  const { recorded, estimated, total } = day.source;
   const targetAt = targetExitAt(day.firstEntry, target);
   const hasTarget =
     targetAt !== null && day.firstEntry !== null && targetAt > day.firstEntry;

@@ -6,7 +6,7 @@
 
 [src/domain/rules/report-access.ts](../../src/domain/rules/report-access.ts)
 
-Arayüz: `REPORT_ACCESS`, `isOwnReport`, `reportRangeIssue`.
+Arayüz: `isOwnReport`, `reportRangeIssue`.
 
 ## Sözleşme
 

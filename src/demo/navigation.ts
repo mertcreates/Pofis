@@ -5,11 +5,6 @@ import type { Report } from "@/domain/report";
 const EXTRA_TIME_STEP_MINUTES = 15;
 const EXTRA_TIME_STEP_MILLISECONDS = EXTRA_TIME_STEP_MINUTES * 60_000;
 
-export type DemoExtraTimeUnavailableReason =
-  | "no-records"
-  | "uncertain"
-  | "day-ended";
-
 function validateExtraMinutes(minutes: number, maximum: number) {
   if (
     !Number.isInteger(minutes) ||
@@ -58,15 +53,14 @@ export function previewDemoDay(
     .filter((event) => event.date === date)
     .toSorted((a, b) => a.time.localeCompare(b.time));
 
-  if (passages.length === 0)
+  if (passages.length === 0) {
     validateExtraMinutes(extraMinutes, 0);
-  if (passages.length === 0)
     return {
       report: preview,
       now: defaultNow,
       maxExtraMinutes: 0,
-      unavailableReason: "no-records" as const,
     };
+  }
 
   const last = passages[passages.length - 1];
   const addOpenEntry = last.direction === "out";
@@ -81,7 +75,6 @@ export function previewDemoDay(
       report: preview,
       now: defaultNow,
       maxExtraMinutes: 0,
-      unavailableReason: "uncertain" as const,
     };
   }
 
@@ -93,23 +86,12 @@ export function previewDemoDay(
       report: preview,
       now: defaultNow,
       maxExtraMinutes: 0,
-      unavailableReason: "uncertain" as const,
     };
   }
 
   const maxExtraMinutes =
     Math.floor((dayEnd - entryAt) / EXTRA_TIME_STEP_MILLISECONDS) *
     EXTRA_TIME_STEP_MINUTES;
-  if (maxExtraMinutes === 0) {
-    validateExtraMinutes(extraMinutes, 0);
-    return {
-      report: preview,
-      now: defaultNow,
-      maxExtraMinutes: 0,
-      unavailableReason: "day-ended" as const,
-    };
-  }
-
   validateExtraMinutes(extraMinutes, maxExtraMinutes);
 
   if (extraMinutes === 0)
@@ -117,7 +99,6 @@ export function previewDemoDay(
       report: preview,
       now: defaultNow,
       maxExtraMinutes,
-      unavailableReason: null,
     };
 
   return {
@@ -132,6 +113,5 @@ export function previewDemoDay(
     },
     now: entryAt + extraMinutes * 60_000,
     maxExtraMinutes,
-    unavailableReason: null,
   };
 }

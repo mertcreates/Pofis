@@ -170,7 +170,7 @@ export function readCallback(body) {
   );
 }
 
-export async function callback(client, form, id, argument, grid = false) {
+async function callback(client, form, id, argument, grid = false) {
   const fields = new URLSearchParams(form.fields);
   fields.set("__EVENTTARGET", "");
   fields.set("__EVENTARGUMENT", "");
@@ -200,7 +200,7 @@ export async function callback(client, form, id, argument, grid = false) {
   return readForm($.html(), response.url);
 }
 
-export async function callbackPage(client, form, id, index) {
+async function callbackPage(client, form, id, index) {
   const name = id.replaceAll("_", "$");
   const command = `8|GOTOPAGE${String(index).length}|${index}`;
   const arg = (key, value) => (value ? `${key}|${value.length};${value};` : "");
@@ -212,7 +212,7 @@ export async function callbackPage(client, form, id, index) {
   return callback(client, form, id, argument, true);
 }
 
-export function tableFor($, suffix) {
+function tableFor($, suffix) {
   const table = $(`table[id$="${suffix}_DXMainTable"]`).first();
   if (!table.length)
     throw new PdksError(
@@ -222,7 +222,7 @@ export function tableFor($, suffix) {
   return table;
 }
 
-export function headersFor($, table) {
+function headersFor($, table) {
   return table
     .find('tr[id*="DXHeadersRow"]')
     .first()
@@ -239,7 +239,7 @@ const normalize = (value) =>
     .replace(/[\u0300-\u036f]/g, "")
     .replace(/[^a-z0-9]/g, "");
 
-export function column(headers, names) {
+function column(headers, names) {
   const index = headers.findIndex((header) =>
     names.includes(normalize(header)),
   );

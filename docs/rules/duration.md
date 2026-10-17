@@ -24,7 +24,7 @@ Canlı toplam ilk girişten şimdiki İstanbul saatine kadar geçen süredir. Ya
 ## Kullanan yerler
 
 - [report.ts](../../src/domain/report.ts)
-- [attendance.ts](../../src/domain/attendance.ts)
+- [pofi.js](../../src/domain/rules/pofi.js)
 
 `report.ts` sabit rapor hazırlığını saat izdüşümünden ayırır. Saat güncellemelerinde yalnız bugünün `dailyDurationState` sonucu değerlendirilir; ek tahmin, hedef ilerlemesi ve Pofi kendi sahiplerinden gelir. Rapor, plan, İstanbul tarihi veya tazelik değiştiğinde hazırlık yeniden kurulur. [Orkestrasyon sahibi](README.md#diğer-tek-sahipler).
 

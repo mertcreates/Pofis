@@ -5,7 +5,7 @@ import { summaryRecord, summarize } from "./recorded-time.js";
 import { dailyDurationState, durationTotals } from "./duration.js";
 import { targetProgress, percentage, chartMaximum } from "./progress.js";
 import {
-  readPlanInput,
+  readDayPlan,
   weeklyTarget,
   targetExitAt,
 } from "./work-plan";
@@ -13,7 +13,6 @@ import { pofiNote } from "./pofi.js";
 import { pofiNotebookDates, defaultNotebookDate } from "./notebook-calendar";
 import { specialMinuteRemaining, nextSurpriseTap } from "./pofi-surprises";
 import { presentReport, type Report } from "../report";
-import { displayedSeconds } from "../attendance";
 import { summarizeWeek } from "./week";
 
 const today = "2026-10-16";
@@ -96,8 +95,8 @@ test("haftalık hedef değişikliği günlük hedef, tahmin, Pofi ve haftalık t
       ...(passages as Report["passages"]),
     ],
   };
-  const shorter = readPlanInput({ weekdays: [0, 1, 2, 3, 4], hours: 40 })!;
-  const longer = readPlanInput({ weekdays: [0, 1, 2, 3, 4], hours: 45 })!;
+  const shorter = readDayPlan([480, 480, 480, 480, 480, 0, 0])!;
+  const longer = readDayPlan([540, 540, 540, 540, 540, 0, 0])!;
   const small = presentReport(report, shorter, at("15:00:00").getTime(), false);
   const large = presentReport(report, longer, at("15:00:00").getTime(), false);
   expect(small.dailySeconds).toBe(28800);
@@ -107,14 +106,14 @@ test("haftalık hedef değişikliği günlük hedef, tahmin, Pofi ve haftalık t
   expect(small.days[4].source.pofi.state).toBe("tired");
   expect(large.days[4].source.pofi.state).toBe("working");
   for (const view of [small, large]) {
-    expect(displayedSeconds(view.days[4])).toBe(25200);
+    expect(view.days[4].source.total).toBe(25200);
     expect(view.days[4].source.estimated).toBe(10800);
     expect(summarizeWeek(view.days, today).totalSeconds).toBe(140400);
   }
 });
 
 test("seçili gün, eksik kayıt ve son çalışma günü aynı plan sahibinden çözülür", () => {
-  const plan = readPlanInput({ weekdays: [0, 2, 4], hours: 24 })!;
+  const plan = readDayPlan([480, 0, 480, 0, 480, 0, 0])!;
   const summary = summarize(
     [
       { date: "2026-10-12", time: "08:00:00", direction: "in" },
@@ -157,8 +156,9 @@ test("ilerleme ve grafik aynı yuvarlama/ölçek sahibini kullanır", () => {
   });
   expect(percentage(29000, 28800)).toBe(101);
   expect(percentage(0, 0)).toBe(100);
-  expect(chartMaximum([0], [28800])).toBe(36000);
-  expect(chartMaximum([45000], [28800])).toBe(50400);
+  expect(chartMaximum([])).toBe(36000);
+  expect(chartMaximum([0])).toBe(36000);
+  expect(chartMaximum([45000])).toBe(50400);
 });
 
 test("not defteri tarihleri ve sürprizler İstanbul takvimine bağlıdır", () => {

@@ -1,9 +1,6 @@
 :root {
   --duration-recorded: #8b7bff;
   --duration-estimated: light-dark(#c9c2f2, #514a73);
-  --subtle: var(--surface-subtle);
-  --text: var(--ink);
-  --border: var(--line);
 }
 .duration-track {
   position: relative;
@@ -24,12 +21,6 @@
 .duration-track-estimated {
   background: var(--duration-estimated);
 }
-.duration-track-vertical {
-  flex-direction: column-reverse;
-}
-.duration-track-vertical > span {
-  width: 100%;
-}
 .duration-track > .duration-track-target {
   position: absolute;
   top: 0;
@@ -37,13 +28,6 @@
   width: 2px;
   background: var(--secondary);
   transform: translateX(-100%);
-}
-.duration-track-vertical > .duration-track-target {
-  top: auto;
-  left: 0;
-  width: 100%;
-  height: 2px;
-  transform: translateY(100%);
 }
 .progress-track {
   height: 4px;
@@ -148,12 +132,6 @@
 .demo-extra-time input:disabled {
   cursor: not-allowed;
   opacity: 0.5;
-}
-.demo-extra-time-help {
-  max-width: 36ch;
-  margin: 0;
-  color: var(--secondary);
-  font-size: 12px;
 }
 button:focus-visible:not(:disabled) {
   box-shadow: inset 0 0 0 2px var(--accent);

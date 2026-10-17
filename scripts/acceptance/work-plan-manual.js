@@ -22,7 +22,7 @@ async (page) => {
     await page.getByText("ELLE PLAN KABUL", { exact: true }).waitFor();
     const open = () => page.getByRole("button", { name: "Ayarlar", exact: true }).click();
     const day = name => page.getByRole("button", { name: new RegExp("^" + name + ",") });
-    const stored = () => page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v2")));
+    const stored = () => page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v1")));
     await open();
     await day("Çarşamba").click();
     for (let step = 0; step < 8; step++) await page.getByRole("button", { name: "Süreyi yarım saat azalt", exact: true }).click();
@@ -35,7 +35,7 @@ async (page) => {
     await page.getByRole("button", { name: "Sıfırla", exact: true }).click();
     // Completion uses the current selection after reopening.
     await page.keyboard.press("Escape");
-    await page.evaluate(() => localStorage.setItem("pofis:work-plans:v2", JSON.stringify({
+    await page.evaluate(() => localStorage.setItem("pofis:work-plans:v1", JSON.stringify({
       defaultPlan: [480,480,480,480,480,0,0], weekOverrides: { "2026-10-12": [480,480,240,480,480,0,0] },
     })));
     await page.reload();
@@ -46,7 +46,7 @@ async (page) => {
     check(JSON.stringify((await stored()).weekOverrides["2026-10-12"]) === JSON.stringify([480,480,240,600,600,0,0]),
       "Selecting Wednesday must exclude it while Thursday and Friday are eligible");
     await page.keyboard.press("Escape");
-    await page.evaluate(() => localStorage.setItem("pofis:work-plans:v2", JSON.stringify({
+    await page.evaluate(() => localStorage.setItem("pofis:work-plans:v1", JSON.stringify({
       defaultPlan: [480,480,480,480,480,0,0], weekOverrides: { "2026-10-12": [480,480,480,480,540,0,0] },
     })));
     await page.reload();

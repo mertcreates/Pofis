@@ -1,5 +1,5 @@
 import { isDateKey } from "./calendar";
-export const REPORT_ACCESS = Object.freeze({ person: "self", maxDays: 93 });
+const REPORT_ACCESS = Object.freeze({ person: "self", maxDays: 93 });
 export function isOwnReport(person: unknown): boolean {
   return person === REPORT_ACCESS.person;
 }

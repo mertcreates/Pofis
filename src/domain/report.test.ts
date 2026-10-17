@@ -1,9 +1,8 @@
 import { expect, test } from "bun:test";
 import { prepareReport, presentReport, type Report } from "./report";
 import { DEFAULT_WORK_PLAN, emptyWorkPlans, changeDefaultPlan, changeWeekPlan, resolveStoredPlan, resolveStoredTarget, completedDaySeconds } from "./rules/work-plan";
-import { durationSegments } from "./attendance";
 import { summarizeWeek } from "@/domain/rules/week";
-import { readPlanInput, readDayPlan, weeklyTarget } from "@/domain/rules/work-plan";
+import { readDayPlan, weeklyTarget } from "@/domain/rules/work-plan";
 import { pofiNotesForWeek } from "@/server/pofi-notes.js";
 
 const now = Date.parse("2026-10-16T15:00:00+03:00");
@@ -193,7 +192,7 @@ test("a tick before the last entry becomes live once the clock catches up", () =
 });
 test("turnikeden 4 saat kayıtlı + 3 saat tahmin = 7 saat; mola düşülmez, haftada tekrar sayılmaz", () => {
   const { days } = presentReport(fixture(), DEFAULT_WORK_PLAN, now, false);
-  expect(durationSegments(days[4])).toEqual({
+  expect(days[4].source).toMatchObject({
     recorded: 4 * 3600,
     estimated: 3 * 3600,
   });
@@ -294,11 +293,10 @@ test.each([
 });
 
 test("plan sınırları 0–16 saat/gün ve yarım saat adımlarıdır; tüm günler kapatılabilir", () => {
-  expect(readPlanInput({ weekdays: [], hours: 40 })).toBeNull();
-  expect(readPlanInput({ weekdays: [0], dailyHours: 16 })).not.toBeNull();
-  expect(readPlanInput({ weekdays: [0], dailyHours: 16.5 })).toBeNull();
-  expect(readPlanInput({ weekdays: [0, 0], hours: 8 })).toBeNull();
-  expect(readPlanInput({ weekdays: [0, 1], dailyHours: 0.25 })).toBeNull();
+  expect(readDayPlan([960, 0, 0, 0, 0, 0, 0])).not.toBeNull();
+  expect(readDayPlan([990, 0, 0, 0, 0, 0, 0])).toBeNull();
+  expect(readDayPlan([480, 0, 0, 0, 0, 480, 0])).toBeNull();
+  expect(readDayPlan([15, 15, 0, 0, 0, 0, 0])).toBeNull();
   expect(weeklyTarget(readDayPlan([0, 0, 0, 0, 0, 0, 0])!)).toBe(0);
 });
 test("notlar kişi bazında sabit, mevcut haftayla sınırlı, 8 Aralık ortak", () => {
@@ -333,12 +331,12 @@ test("45 dakika devirde günlük ve haftalık hedef aynı saniyede tamamlanır; 
   const before = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T15:14:59+03:00"), false);
   const at = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T15:15:00+03:00"), false);
   expect(before.days[4].source.dailyGoalSeconds).toBe(26100);
-  expect(before.days[4].source.plannedGoalSeconds).toBe(28800);
+  expect(before.plan[4]).toBe(480);
   expect(before.days[4].source.total).toBe(26099);
   expect(summarizeWeek(before.days, "2026-10-16").totalSeconds).toBe(143999);
   expect(at.days[4].source.total).toBe(26100);
   expect(at.days[4].source.exitGoalSeconds).toBe(26100);
-  expect(at.days[4].source.goalSeconds).toBe(26100);
+  expect(at.days[4].source.dailyGoalSeconds).toBe(26100);
   expect(summarizeWeek(at.days, "2026-10-16").totalSeconds).toBe(144000);
   expect(at.days[4].source.pofi.percentage).toBe(100);
   expect(at.days[4].source.pofi.state).toBe("working");
@@ -351,10 +349,10 @@ test("tamamlanan gün özel hedefini korur; geçmiş raporda özgün plan kullan
   report.passages.pop();
   report.passages.at(-1)!.time = "15:30:00";
   const current = presentReport(report, plan, now, false);
-  expect(current.days.map(day => day.source.plannedGoalSeconds)).toEqual([28800, 28800, 27000, 30600, 27000, 0, 0]);
-  expect(current.days[4].source.goalSeconds).toBe(27000);
+  expect(current.plan).toEqual([480, 480, 450, 510, 450, 0, 0]);
+  expect(current.days[4].source.dailyGoalSeconds).toBe(27000);
   const historical = presentReport(report, plan, Date.parse("2026-10-23T15:00:00+03:00"), false);
-  expect(historical.days[4].source.goalSeconds).toBe(27000);
+  expect(historical.days[4].source.dailyGoalSeconds).toBe(27000);
 });
 
 test("devirle sıfırlanan hedef Pofi için tanımlı yüzde üretir; kayıt durumunu korur", () => {
@@ -391,8 +389,8 @@ test("özel planın eksiği yalnız Cuma çıkışını uzatır; ara çıkış h
   expect(tuesday.days[1].source.exitGoalSeconds).toBe(36000);
   const friday = presentReport(report, plan, now, false);
   expect(friday.plan).toEqual([...plan]);
-  expect(friday.days[0].source.plannedGoalSeconds).toBe(21600);
-  expect(friday.days[4].source.plannedGoalSeconds).toBe(28800);
+  expect(friday.plan[0]).toBe(360);
+  expect(friday.plan[4]).toBe(480);
   expect(friday.days[4].source.exitGoalSeconds).toBe(30600);
   expect(friday.days[4].firstEntry! + friday.days[4].source.exitGoalSeconds! * 1000).toBe(Date.parse("2026-10-16T16:30:00+03:00"));
   expect(friday.days[4].source.total).toBe(25200);

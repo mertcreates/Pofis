@@ -6,7 +6,7 @@ async (page) => {
     await page.clock.install({ time: new Date("2026-10-15T15:00:00+03:00") });
     await page.clock.setFixedTime(new Date("2026-10-15T15:00:00+03:00"));
     await page.addInitScript(() => {
-      if (!localStorage.getItem("pofis:work-plans:v2")) localStorage.setItem("pofis:work-plans:v2", JSON.stringify({
+      if (!localStorage.getItem("pofis:work-plans:v1")) localStorage.setItem("pofis:work-plans:v1", JSON.stringify({
         defaultPlan: [480,480,480,480,480,0,0], weekOverrides: { "2026-10-12": [480,480,480,480,450,0,0] },
       }));
     });
@@ -70,7 +70,7 @@ async (page) => {
     check(await target() === "Toplam 26 sa 40 dk", "Leave must deduct the eight-hour template allowance");
     await page.getByRole("button", { name: /iznini kaldır$/ }).click();
     check(await card("Cuma") === "8 sa" && await value() === "8 sa", "Reopened day must show exactly eight hours");
-    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v2")));
+    const stored = await page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v1")));
     check(JSON.stringify(stored.defaultPlan) === JSON.stringify([480,480,480,480,480,0,0]), "Direct week edits changed template");
     check(JSON.stringify(stored.weekOverrides["2026-10-12"].slice(0,3)) === JSON.stringify([480,480,480]), "Week edits changed completed plans");
     return { passed: true, checks: ["same card/control time", "direct increment", "separate working-day action", "selected day priority", "reload", "bulk required time", "close/reopen", "template and locks", "light/dark mobile/desktop"] };

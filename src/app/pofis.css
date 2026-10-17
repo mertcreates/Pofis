@@ -90,20 +90,6 @@
   letter-spacing: -0.3px;
   font-weight: 550;
 }
-.meter {
-  width: 100%;
-  height: 5px;
-  margin: 10px 0 9px;
-  border-radius: 20px;
-  background: var(--track);
-  overflow: hidden;
-}
-.meter-fill {
-  height: 100%;
-  border-radius: 20px;
-  background: var(--accent);
-  transition: width 0.18s ease;
-}
 .metric-foot {
   font-size: 11px;
   color: var(--secondary);
@@ -123,7 +109,6 @@
 }
 .metric-reading { min-height: 86px; }
 .metric-value { margin-bottom: 12px; }
-.metric .meter { margin-top: 0; margin-bottom: 12px; }
 .metric-details .metric-hint,
 .metric-details .metric-foot {
   margin: 0;
@@ -439,7 +424,6 @@
 .record-pair dd > span { color: var(--secondary); font-size: 12px; font-weight: 400; }
 .record-intervals > li > small { display: block; margin-top: 6px; color: var(--secondary); font-size: 11px; }
 .record-intervals > li[data-kind="unmatched"] .record-pair { grid-template-columns: 1fr; }
-.record-day-summary { margin-top: 16px; }
 .record-details-modal .record-intervals { margin-top: 0; }
 @media (min-width: 700px) {
   .app-modal.record-details-modal { width: min(620px, calc(100% - 48px)); }
@@ -848,11 +832,6 @@ body {
   gap: 12px;
   padding-top: 9px;
 }
-.topbar-identity {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
 .report-updates {
   display: flex;
   align-items: center;
@@ -1010,11 +989,6 @@ body {
 .previous-arrow {
   transform: rotate(180deg);
 }
-.pending-week {
-  display: flex;
-  justify-content: flex-end;
-  padding: 16px;
-}
 .dashboard .metric-value {
   line-height: 1.3;
 }
@@ -1031,9 +1005,6 @@ body {
   font-size: 20px;
   white-space: normal;
   letter-spacing: -0.5px;
-}
-.exit-suffix {
-  display: block;
 }
 .exit-seconds {
   font-size: 0.65em;
@@ -1115,93 +1086,11 @@ body {
   border-radius: 5px;
   background: var(--track);
 }
-.time-work {
-  background: var(--accent-visual);
-  border-radius: 4px;
-  min-width: 0;
-  max-width: 100%;
-}
-.passage-bar {
-  display: block;
-  container-type: inline-size;
-}
-.passage-segment {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  cursor: default;
-}
-.passage-segment::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: max(100%, 24px);
-  height: 44px;
-  transform: translate(-50%, -50%);
-}
-.passage-segment:focus,
-.passage-segment:hover { z-index: 2; }
-.passage-outside {
-  border-radius: 2px;
-  background: var(--control);
-  z-index: 1;
-}
 .dot.outside {
   background: var(--control);
 }
-.passage-estimate,
 .dot.estimated {
   background: var(--duration-estimated);
-}
-.passage-segment:focus-visible {
-  outline: none;
-  background: var(--accent-text);
-}
-.passage-tooltip {
-  display: none;
-  pointer-events: none;
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: clamp(calc(-1 * var(--tooltip-offset)), 0px, calc(100cqw - var(--tooltip-offset) - min(220px, 100cqw)));
-  z-index: 3;
-  width: min(220px, 100cqw);
-  padding: 10px 12px;
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: var(--paper);
-  color: var(--ink);
-  font-size: 11px;
-  line-height: 1.5;
-  font-variant-numeric: tabular-nums;
-  box-shadow: var(--card-shadow);
-}
-.passage-tooltip-heading {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 2px 10px;
-}
-.passage-tooltip-heading strong { font-weight: 650; }
-.passage-tooltip-heading > span { color: var(--secondary); }
-.passage-tooltip-range {
-  display: block;
-  margin-top: 4px;
-  color: var(--secondary);
-  font-size: 10px;
-  white-space: nowrap;
-}
-.passage-segment:focus .passage-tooltip {
-  display: block;
-}
-@media (hover: hover) {
-  .passage-segment:hover .passage-tooltip {
-    display: block;
-  }
-}
-.timeline:has(.passage-bar) + .time-details {
-  margin-top: 28px;
 }
 .daily-report-table th,
 .daily-report-table td {
@@ -1732,9 +1621,6 @@ body {
   .metrics.metrics-today { grid-template-columns: 1fr; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .meter-fill {
-    transition: none;
-  }
   .chart-tooltip {
     transition: visibility 0s;
   }
@@ -2007,9 +1893,6 @@ body {
     padding-top: 0;
     align-items: stretch;
   }
-  .topbar-identity {
-    justify-content: space-between;
-  }
   .report-updates {
     margin-top: -4px;
   }
@@ -2027,11 +1910,6 @@ textarea:focus-visible {
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
-}
-@media (max-width: 700px) {
-  .topbar-identity {
-    gap: 8px;
-  }
 }
 
 .topbar-profile {

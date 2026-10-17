@@ -10,7 +10,6 @@
 .demo-control-select { display: grid; gap: 6px; color: var(--secondary); font-size: 12px; }
 .demo-control-select select { min-width: 210px; min-height: 38px; font-size: 13px; }
 .demo-preset-row .demo-notice { margin: 0; }
-.demo-extra-time-help { margin: 6px 0 0; color: var(--secondary); font-size: 12px; max-width: 32ch; }
 @media(max-width: 480px) {
   .demo-controls-heading { gap: 4px; }
   .demo-view-switch { gap: 0; }

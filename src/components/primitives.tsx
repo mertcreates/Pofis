@@ -1,6 +1,5 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { durationClock, durationParts, durationText } from "@/domain/time";
 import { percentage } from "@/domain/rules/progress.js";
 
@@ -31,17 +30,11 @@ export function DurationTrack({
   estimated = 0,
   total,
   target = null,
-  vertical = false,
-  className = "",
-  style,
 }: {
   recorded: number;
   estimated?: number;
   total: number;
   target?: number | null;
-  vertical?: boolean;
-  className?: string;
-  style?: CSSProperties;
 }) {
   const recordedPercent =
     total > 0 ? Math.max(0, Math.min(100, (recorded / total) * 100)) : 0;
@@ -49,7 +42,6 @@ export function DurationTrack({
     total > 0
       ? Math.max(0, Math.min(100 - recordedPercent, (estimated / total) * 100))
       : 0;
-  const dimension = vertical ? "height" : "width";
   const targetPercent =
     target !== null && target > 0 && total > 0
       ? Math.min(100, (target / total) * 100)
@@ -57,21 +49,20 @@ export function DurationTrack({
   return (
     <span
       aria-hidden="true"
-      className={`duration-track ${vertical ? "duration-track-vertical" : ""} ${className}`}
-      style={style}
+      className="duration-track"
     >
       <span
         className="duration-track-recorded"
-        style={{ [dimension]: `${recordedPercent}%` }}
+        style={{ width: `${recordedPercent}%` }}
       />
       <span
         className="duration-track-estimated"
-        style={{ [dimension]: `${estimatedPercent}%` }}
+        style={{ width: `${estimatedPercent}%` }}
       />
       {targetPercent !== null && (
         <span
           className="duration-track-target"
-          style={{ [vertical ? "bottom" : "left"]: `${targetPercent}%` }}
+          style={{ left: `${targetPercent}%` }}
         />
       )}
     </span>

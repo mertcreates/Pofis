@@ -2,7 +2,6 @@ import { targetExitAt, weeklyTarget } from "@/domain/rules/work-plan";
 import { summarizeWeek } from "@/domain/rules/week";
 import { percentage } from "@/domain/rules/progress.js";
 import type { DayReport } from "@/domain/attendance";
-import { displayedSeconds } from "@/domain/attendance";
 import { formatClock, formatDate } from "@/domain/time";
 import { dateKey } from "@/domain/rules/calendar";
 import { ui } from "@/lib/ui-text.js";
@@ -25,7 +24,7 @@ export function DashboardMetrics({
   const summary = summarizeWeek(days, today);
   const day = days.find((day) => day.date === today);
   const target = targetSeconds ?? weeklyTarget(plan);
-  const todaySeconds = day ? displayedSeconds(day) : 0;
+  const todaySeconds = day?.source.total ?? 0;
   const dailyGoal = day?.source.dailyGoalSeconds ?? 0;
   const exitGoal = day?.source.exitGoalSeconds ?? null;
   const targetAt =

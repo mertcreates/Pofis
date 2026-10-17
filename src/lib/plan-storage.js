@@ -1,27 +1,13 @@
 import {
-  readPlanInput, readDayPlan, readWeekPlan, readLeaveDays, isPlanWeek, emptyWorkPlans, samePlan,
+  readDayPlan, readWeekPlan, readLeaveDays, isPlanWeek, emptyWorkPlans, samePlan,
 } from "../domain/rules/work-plan";
 
-export const PLAN_STORAGE_KEY = "pofis:work-plans:v2";
-const PREVIOUS_STORAGE_KEY = "pofis:work-plans:v1";
+export const PLAN_STORAGE_KEY = "pofis:work-plans:v1";
 
 /** @param {Pick<Storage, 'getItem'>} storage */
 export function loadPlans(storage) {
-  const current = storage.getItem(PLAN_STORAGE_KEY);
-  if (current !== null) return readStoredPlans(current);
-  const previous = storage.getItem(PREVIOUS_STORAGE_KEY);
-  if (previous === null) return emptyWorkPlans();
-  const stored = JSON.parse(previous);
-  if (!stored || typeof stored !== "object" || Array.isArray(stored))
-    throw new Error("Kayıtlı mesai planı okunamıyor. Eski kayıt korunuyor.");
-  const plans = emptyWorkPlans();
-  for (const [week, value] of Object.entries(stored)) {
-    if (!isPlanWeek(week)) continue;
-    const plan = value && typeof value === "object" ? readPlanInput(value) : null;
-    if (!plan) throw new Error("Eski mesai planı yeni 0–16 saat ve yarım saat adımıyla uyumlu değil. Eski kayıt korunuyor.");
-    if (!samePlan(plan, plans.defaultPlan)) plans.weekOverrides[week] = plan;
-  }
-  return plans;
+  const stored = storage.getItem(PLAN_STORAGE_KEY);
+  return stored === null ? emptyWorkPlans() : readStoredPlans(stored);
 }
 
 /** @param {Pick<Storage, 'setItem'>} storage

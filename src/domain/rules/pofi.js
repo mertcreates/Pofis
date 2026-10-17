@@ -3,7 +3,7 @@ import { formatShortDuration } from "../../lib/duration-format.js";
 import { passageDay } from "./passages.js";
 import { ui } from "../../lib/ui-text.js";
 
-export const POFI_THRESHOLDS = Object.freeze({
+const POFI_THRESHOLDS = Object.freeze({
   tired: 80,
   overworked: 115,
 });
@@ -18,7 +18,7 @@ export const POFI_ASSETS = Object.freeze({
   error: "/pofi/states/error.webp",
 });
 
-export const pofiStates = Object.freeze(
+const pofiStates = Object.freeze(
   Object.fromEntries(
     Object.entries(ui.pofi.states).map(([state, copy]) => [
       state,
@@ -31,7 +31,7 @@ export const pofiStates = Object.freeze(
   ),
 );
 
-export function stateForProgress(progress, { isOpen = false } = {}) {
+function stateForProgress(progress, { isOpen = false } = {}) {
   if (!progress || !Number.isFinite(progress.percentage)) {
     return isOpen ? "working" : "idle";
   }
@@ -46,13 +46,7 @@ export function stateForProgress(progress, { isOpen = false } = {}) {
   return "working";
 }
 
-export function resolvePofiProgress(input) {
-  const duration = dailyDurationState(input);
-  if (duration.basis === "unknown") return null;
-  return { ...duration, elapsed: duration.seconds };
-}
-
-export function resolveBreakContext({ passages, day, today, isToday }) {
+function resolveBreakContext({ passages, day, today, isToday }) {
   if (!Array.isArray(passages) || !day?.date) {
     return { uncertain: false, onBreak: false, lastExit: null };
   }
@@ -120,7 +114,7 @@ export function pofiNote({
     return buildResult("idle", { badge: ui.awaitingEntry });
   }
 
-  const progress = resolvePofiProgress({
+  const progress = dailyDurationState({
     day,
     dailySeconds,
     isToday,

@@ -102,7 +102,7 @@ async (page) => {
     check(await target() === "Toplam 40 sa", "Finalization changed target");
     check(await page.locator('.work-plan-day[data-locked="true"]').count() === 5, "Final working day not locked");
     check(await page.locator(".work-plan-modal .inline-notice").count() === 0, "Balanced week has unexplained residual");
-    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v2")));
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v1")));
     check(JSON.stringify(saved.weekOverrides["2026-10-12"]) === JSON.stringify([360,600,480,480,510,0,0]), "The final required schedule did not survive the week");
     await page.keyboard.press("Escape");
     check((await page.locator(".metric").filter({ hasText: "Gerçekleşen toplam" }).locator(".metric-value").innerText()).replace(/\s/g, "") === "40sa", "Final actual total is wrong");

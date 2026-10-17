@@ -32,7 +32,7 @@ async (page) => {
         from, to, fetchedAt: "2026-10-16T12:14:59Z", passages });
     });
     const check = (condition, message) => { if (!condition) throw new Error(message); };
-    const stored = () => page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v2")));
+    const stored = () => page.evaluate(() => JSON.parse(localStorage.getItem("pofis:work-plans:v1")));
     const day = name => page.getByRole("button", { name: new RegExp("^" + name + ",") });
     const open = async () => {
       await page.getByRole("button", { name: "Ayarlar", exact: true }).click();
@@ -196,7 +196,7 @@ async (page) => {
     await page.evaluate(() => {
       window.__planOriginalSetter = Storage.prototype.setItem;
       Storage.prototype.setItem = function(key, value) {
-        if (key === "pofis:work-plans:v2") throw new DOMException("fixture quota", "QuotaExceededError");
+        if (key === "pofis:work-plans:v1") throw new DOMException("fixture quota", "QuotaExceededError");
         return window.__planOriginalSetter.call(this, key, value);
       };
     });
@@ -214,7 +214,7 @@ async (page) => {
     check(await page.locator(".work-plan-modal .inline-notice").count() === 1, "Remaining debt without open days must be shown");
     await page.getByRole("button", { name: "Sıfırla", exact: true }).click();
     await page.keyboard.press("Escape");
-    await page.evaluate(() => localStorage.removeItem("pofis:work-plans:v2"));
+    await page.evaluate(() => localStorage.removeItem("pofis:work-plans:v1"));
     await page.clock.setFixedTime(new Date("2026-10-14T15:00:00+03:00"));
     await page.reload();
     await page.getByText("PLAN KABUL", { exact: true }).waitFor();

@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { savePlans } from "@/lib/plan-storage.js";
-import { readWorkPlans, workPlanStorage, type PlanScope } from "./work-plans";
+import { loadPlans, savePlans } from "@/lib/plan-storage.js";
+import { workPlanStorage, type PlanScope } from "./work-plans";
 import {
   emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, changeWeekPlan, changeDefaultPlan,
   type WorkPlan, type WorkPlans,
@@ -16,7 +16,7 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
   useEffect(() => {
     setReady(false);
     try {
-      const loaded = readWorkPlans(workPlanStorage(localStorage, scope));
+      const loaded = loadPlans(workPlanStorage(localStorage, scope));
       latest.current = loaded;
       setPlans(loaded);
       setReady(true);

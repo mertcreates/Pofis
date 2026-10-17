@@ -125,7 +125,6 @@ export function DemoDashboard({
           capturedAt={capturedAt}
           extraMinutes={extraMinutes}
           maxExtraMinutes={report.maxExtraMinutes}
-          unavailableReason={report.unavailableReason}
           onExtraMinutesChange={setExtraMinutes}
           onSelect={selectDate}
         />

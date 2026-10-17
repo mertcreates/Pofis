@@ -1,5 +1,5 @@
 import { summarize } from "./rules/recorded-time.js";
-import { resolveWeekPlan, isOpenPlanDay, planMinutes, weeklyTarget, type WorkPlan } from "./rules/work-plan";
+import { resolveWeekPlan, isOpenPlanDay, weeklyTarget, type WorkPlan } from "./rules/work-plan";
 import { dailyDurationState, durationTotals } from "./rules/duration.js";
 import { passageDay, passageRecordRows } from "./rules/passages.js";
 import { dailyRecordStatus } from "./rules/record-status";
@@ -47,7 +47,6 @@ export function prepareReport(
     targetSeconds,
     zeroOpenDays,
   );
-  const timestamp = sourceTimestamp;
   const prepared = sourceDays.map(({ row, passage, statusInput }, index) => {
     const selected = isOpenPlanDay(resolvedPlan, weekday(row.date), zeroOpenDays);
     const input = {
@@ -57,11 +56,11 @@ export function prepareReport(
       stale,
       passages: passage.events,
     };
-    const firstEntry = timestamp(row.date, row.firstEntry);
-    const lastExit = timestamp(row.date, row.lastExit);
+    const firstEntry = sourceTimestamp(row.date, row.firstEntry);
+    const lastExit = sourceTimestamp(row.date, row.lastExit);
     const records = (passage.events as SourcePassage[]).map((event, i) => ({
       id: `${row.date}:${i}`,
-      at: new Date(timestamp(row.date, event.time)!).toISOString(),
+      at: new Date(sourceTimestamp(row.date, event.time)!).toISOString(),
       direction:
         event.direction === "in" ? ("entry" as const) : ("exit" as const),
     }));
@@ -77,19 +76,19 @@ export function prepareReport(
             return {
               entry:
                 record.event.direction === "in"
-                  ? timestamp(row.date, record.event.time)
+                  ? sourceTimestamp(row.date, record.event.time)
                   : null,
               exit:
                 record.event.direction === "out"
-                  ? timestamp(row.date, record.event.time)
+                  ? sourceTimestamp(row.date, record.event.time)
                   : null,
               unmatched: true,
             };
           return {
-            entry: timestamp(row.date, record.entry.time),
+            entry: sourceTimestamp(row.date, record.entry.time),
             exit:
               record.type === "interval"
-                ? timestamp(row.date, record.exit.time)
+                ? sourceTimestamp(row.date, record.exit.time)
                 : null,
           };
         },
@@ -97,11 +96,8 @@ export function prepareReport(
     };
     const goals = {
       workingDay: selected,
-      plannedGoalSeconds: resolvedPlan[weekday(row.date)] * 60,
-      goalSeconds: targets[index],
       dailyGoalSeconds: targets[index],
       exitGoalSeconds: selected && row.date === today ? exitGoal : null,
-      stale,
     };
     const initialDuration = dailyDurationState({ ...input, now: startOfDay });
     function project(duration: typeof initialDuration, now: Date): DayReport {
@@ -112,10 +108,6 @@ export function prepareReport(
       return {
         ...fixed,
         state,
-        issues:
-          state === "uncertain"
-            ? ["Eksik veya tutarsız giriş–çıkış kaydı"]
-            : [],
         liveSeconds: duration.basis === "live" ? duration.seconds : null,
         source: {
           ...goals,
@@ -143,7 +135,7 @@ export function prepareReport(
     days: prepared.map(({ day }) => day),
     blocked,
     dailySeconds,
-    plan: planMinutes(resolvedPlan),
+    plan: [...resolvedPlan],
   };
   const todayIndex = presentation.days.findIndex((day) => day.date === today);
   return (now: number) => {

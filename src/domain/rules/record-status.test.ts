@@ -176,7 +176,6 @@ test.each(cases)(
     );
     const day = view.days.find((day) => day.date === date)!;
     expect(day.state).toBe(state);
-    expect(day.issues.length > 0).toBe(state === "uncertain");
     expect(day.liveSeconds !== null).toBe(state === "ongoing");
   },
 );

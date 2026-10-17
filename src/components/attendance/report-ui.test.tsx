@@ -47,7 +47,7 @@ test("live report keeps three-part day flow and source chart with recorded and l
       { date, time: "13:00:00", direction: "in" },
     ],
   };
-  const { days, plan } = presentReport(
+  const { days } = presentReport(
     report,
     DEFAULT_WORK_PLAN,
     now,
@@ -104,7 +104,7 @@ test("live report keeps three-part day flow and source chart with recorded and l
 
 test("report status separates target deficit from uncertain passages and shares the day flow label", () => {
   const { now, reports } = demoData();
-  const { days, plan } = presentReport(
+  const { days } = presentReport(
     reports[2],
     DEFAULT_WORK_PLAN,
     now,
@@ -170,8 +170,8 @@ test("tamamlanan günün tablo farkı özgün plandan gelir; kapalı gündeki me
   const table = load(renderToStaticMarkup(<ReportTable days={view.days} today={today} />));
   expect(table(".report-difference").eq(0).text()).toBe("4 sa 30 dk 17 sn fazla");
   expect(table(".report-difference").eq(5).text()).toBe("1 sa 20 dk fazla");
-  expect(view.days[0].source.goalSeconds).toBe(14400);
-  expect(view.days[5].source.goalSeconds).toBe(0);
+  expect(view.days[0].source.dailyGoalSeconds).toBe(14400);
+  expect(view.days[5].source.dailyGoalSeconds).toBe(0);
 });
 
 test("stale open entry retains its last direction without claiming live work or a broken record", () => {
@@ -183,7 +183,7 @@ test("stale open entry retains its last direction without claiming live work or 
     fetchedAt: `${date}T12:00:00Z`,
     passages: [{ date, time: "08:00:00", direction: "in" }],
   };
-  const { days, plan } = presentReport(
+  const { days } = presentReport(
     report,
     DEFAULT_WORK_PLAN,
     Date.parse(`${date}T15:00:00+03:00`),
@@ -204,7 +204,7 @@ test("stale open entry retains its last direction without claiming live work or 
 
 test("source chart retains captured durations, empty days and record notice without scaling by goals", () => {
   const { now, reports } = demoData();
-  const { days, plan } = presentReport(
+  const { days } = presentReport(
     reports[3],
     DEFAULT_WORK_PLAN,
     now,

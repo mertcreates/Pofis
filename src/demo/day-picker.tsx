@@ -1,7 +1,6 @@
 import { formatClock, formatDate } from "@/domain/time";
 import { dateKey } from "@/domain/rules/calendar";
 import { ui } from "@/lib/ui-text.js";
-import type { DemoExtraTimeUnavailableReason } from "./navigation";
 
 export function DemoDayPicker({
   dates,
@@ -10,7 +9,6 @@ export function DemoDayPicker({
   capturedAt,
   extraMinutes,
   maxExtraMinutes,
-  unavailableReason,
   onExtraMinutesChange,
   onSelect,
 }: {
@@ -20,7 +18,6 @@ export function DemoDayPicker({
   capturedAt: number;
   extraMinutes: number;
   maxExtraMinutes: number;
-  unavailableReason: DemoExtraTimeUnavailableReason | null;
   onExtraMinutesChange: (minutes: number) => void;
   onSelect: (date: string) => void;
 }) {
@@ -73,7 +70,6 @@ export function DemoDayPicker({
           step={15}
           value={extraMinutes}
           aria-valuetext={extraTimeLabel}
-          aria-describedby="demo-extra-time-help"
           disabled={maxExtraMinutes === 0}
           onChange={(event) =>
             onExtraMinutesChange(Number(event.currentTarget.value))

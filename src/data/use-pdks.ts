@@ -9,8 +9,6 @@ import { addDays } from "@/domain/rules/calendar";
 import { readReportResponse } from "./report-response";
 import { initialPdksState, pdksReducer } from "./pdks-state";
 
-export type { RequestFailure } from "@/lib/pdks-failure";
-
 export function usePdks(week: string) {
   const [state, dispatch] = useReducer(pdksReducer, initialPdksState);
   const { connected, report } = state;

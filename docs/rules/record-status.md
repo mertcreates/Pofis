@@ -37,7 +37,7 @@ Eski rapor canlı süre üretmez. Son açık giriş bilgisi korunur, `open` gös
 
 ## Bağlı sonuçlar
 
-- [Rapor uyarlaması](../../src/domain/report.ts) durumu bir kez hazırlanan geçiş analizi ve süre sonucundan üretir. Belirsiz kayıt `issues` listesine yansır.
+- [Rapor uyarlaması](../../src/domain/report.ts) durumu bir kez hazırlanan geçiş analizi ve süre sonucundan üretir. Belirsiz kayıt `state: "uncertain"` sonucuyla aktarılır.
 - `recorded` gün haftalık plan düzenlemesinde kayıtlı süresiyle kilitlenir. Bugünün `outside` durumu tekrar giriş olabileceğinden kilit oluşturmaz; hedef farkı ve devir [plan sözleşmesinden](work-plan.md) gelir.
 - Belirsiz gün [plan sahibine](work-plan.md) `uncertain` olarak aktarılır. Geçmişteyse devre katılmaz; bugünün kendi kaydı belirsizse bugünkü çıkış hedefi engellenir. Kayıtsız geçmiş gün de son güne borç eklemez.
 - [Haftalık toplam](week.md), `uncertain` veya `missing` günlerde mevcut kayıtların toplamı olarak sunulur. Bilinen ilk giriş–son çıkış süresi korunur; belirsiz günün tabloda hedef farkı gösterilmez.

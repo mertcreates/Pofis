@@ -140,7 +140,7 @@ export const ReportTable = memo(function ReportTable({
               day={day}
               today={today}
               working={day.source.workingDay}
-              target={day.source.goalSeconds}
+              target={day.source.dailyGoalSeconds}
             />
           ))}
         </tbody>

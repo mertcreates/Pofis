@@ -76,6 +76,6 @@ _Avoid_: PDKS kaydı
 Giriş, gelişme ve kapanış metin parçalarını bir araya getiren içerik ailesi.
 _Avoid_: Arayüz renk teması
 
-**Not yayını**:
-Bir pazartesiden itibaren geçerli normal not kimlikleri, seçim adımları ve özel günlerin tarihli listesi. Metin kopyası tutmaz; geçmişi korumak için yayımlanmış içerik kimlikleri ve metinleri korunur.
-_Avoid_: Deploy, sürüm yayını
+**Not havuzu**:
+Tüm tarihlerde günlük seçim için kullanılan güncel normal Pofi notlarının bütünü.
+_Avoid_: Tarihli not yayını, arşiv havuzu

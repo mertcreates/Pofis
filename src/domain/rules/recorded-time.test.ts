@@ -6,7 +6,6 @@ import {
 } from "./recorded-time.js";
 import { presentReport, type SourcePassage } from "../report";
 import { DEFAULT_WORK_PLAN } from "./work-plan";
-import { durationSegments } from "../attendance";
 
 const passage = (
   time: string,
@@ -74,7 +73,7 @@ test("tek kaynak 4 saat kayıtlı + 3 saat tahmin üretir; son çıkış ve eski
   };
   const now = Date.parse("2026-10-16T15:00:00+03:00");
   const day = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4];
-  expect(durationSegments(day)).toEqual({ recorded: 4 * 3600, estimated: 3 * 3600 });
+  expect(day.source).toMatchObject({ recorded: 4 * 3600, estimated: 3 * 3600 });
   expect(day.records).toHaveLength(3);
   expect(day.source!.dailyGoalSeconds).toBe(8 * 3600);
   expect(presentReport(report, DEFAULT_WORK_PLAN, now, true).days[4].liveSeconds).toBeNull();

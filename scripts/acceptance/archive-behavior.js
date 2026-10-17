@@ -79,7 +79,7 @@ async (page) => {
     await page.getByRole('button', { name: 'Kapat', exact: true }).click();
     await page.reload();
     await page.getByText('DOĞRULAMA KİŞİSİ', { exact: true }).waitFor();
-    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('pofis:work-plans:v2')));
+    const saved = await page.evaluate(() => JSON.parse(localStorage.getItem('pofis:work-plans:v1')));
     if (JSON.stringify(saved.weekOverrides['2026-10-12']) !== JSON.stringify([480,480,480,480,420,0,0])) throw new Error('Plan persistence or completed-day protection failed');
     await page.getByRole('button', { name: 'Pofi’nin odasını aç' }).first().click();
 

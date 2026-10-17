@@ -6,7 +6,7 @@ async (page) => {
     await page.clock.install({ time: new Date("2026-10-15T15:00:00+03:00") });
     await page.clock.setFixedTime(new Date("2026-10-15T15:00:00+03:00"));
     await page.addInitScript(() => {
-      if (!localStorage.getItem("pofis:work-plans:v2")) localStorage.setItem("pofis:work-plans:v2", JSON.stringify({
+      if (!localStorage.getItem("pofis:work-plans:v1")) localStorage.setItem("pofis:work-plans:v1", JSON.stringify({
         defaultPlan: [480,480,480,480,480,0,0], weekOverrides: { "2026-10-12": [480,480,390,480,480,0,0] },
       }));
     });

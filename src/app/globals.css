@@ -122,11 +122,6 @@ summary:focus {
   color: var(--accent-hover);
   text-decoration: underline;
 }
-.report-toolbar h1 {
-  font-size: var(--page-title-size);
-}
-
-
 .button-link {
   display: inline-flex;
   align-items: center;
@@ -142,10 +137,6 @@ summary:focus {
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-@media (max-width: 820px) {
-}
-@media (max-width: 580px) {
 }
 input,
 select,
@@ -220,12 +211,6 @@ small {
   padding-inline: 8px;
   background: transparent;
 }
-.section-label {
-  font-size: 13px;
-  color: var(--accent);
-  font-weight: 650;
-  margin-bottom: 12px;
-}
 .connection {
   max-width: 980px;
   margin: 55px auto 70px;
@@ -274,48 +259,12 @@ summary {
 details p {
   margin-top: 8px;
 }
-.report-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin-bottom: var(--section-gap);
-}
-.report-toolbar .section-label {
-  margin-bottom: 4px;
-}
 .unit {
   color: var(--muted);
   font-size: 12px;
   margin-top: 4px;
   overflow-wrap: anywhere;
   max-width: 550px;
-}
-.report-filters {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 4px 24px;
-  border-bottom: 1px solid var(--line);
-  padding-bottom: 8px;
-  margin-bottom: 18px;
-}
-.week-navigation {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto auto;
-  align-items: center;
-  gap: 8px;
-}
-.week-navigation strong {
-  font-size: 17px;
-  font-weight: 650;
-}
-.week-navigation button {
-  font-size: 13px;
-}
-.week-navigation .current-week {
-  border-color: transparent;
-  color: var(--accent);
 }
 .report-updates {
   display: flex;
@@ -325,14 +274,6 @@ details p {
 }
 .report-updates button {
   font-size: 13px;
-}
-.data-timestamp {
-  font-size: 12px;
-  color: var(--muted);
-}
-.data-timestamp span,
-.data-timestamp time {
-  display: block;
 }
 .empty {
   padding: 24px 20px;
@@ -351,7 +292,6 @@ details p {
   color: var(--ink);
   margin-bottom: 14px;
 }
-.today-heading h2,
 .records-title h2 {
   font-size: var(--section-title-size);
   line-height: 1.5;
@@ -409,9 +349,6 @@ tbody small {
   td {
     padding-inline: 8px;
   }
-  .report-filters {
-    grid-template-columns: 1fr;
-  }
   .report-updates {
     justify-content: space-between;
   }
@@ -419,19 +356,6 @@ tbody small {
 @media (max-width: 820px) {
   .connection {
     gap: 30px;
-  }
-  .report-toolbar {
-    align-items: start;
-  }
-  .week-navigation {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-  .week-navigation strong {
-    grid-column: 1 / -1;
-    margin-bottom: 8px;
-  }
-  .week-navigation .current-week {
-    margin-left: 0;
   }
   .report-empty {
     padding: 60px 24px;
@@ -448,14 +372,6 @@ tbody small {
   }
   .connection-form {
     padding: 20px;
-  }
-  .report-toolbar {
-    flex-direction: column;
-    gap: 18px;
-  }
-  .week-navigation button {
-    font-size: 12px;
-    padding-inline: 6px;
   }
   .records-title {
     padding-inline: 18px;

@@ -20,7 +20,6 @@ function manager() {
 }
 export const sessionFor = (request) => manager().sessionFor(request);
 export const requireSession = (request) => manager().requireSession(request);
-export const connect = (body) => manager().connect(body);
 export const replaceSession = (request, body) =>
   manager().replaceSession(request, body);
 export const disconnect = (request) => manager().disconnect(request);

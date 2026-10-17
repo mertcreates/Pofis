@@ -22,17 +22,16 @@ export function percentage(seconds, target) {
   return targetProgress(seconds, target)?.percentage ?? null;
 }
 
-export const CHART_SCALE = Object.freeze({
+const CHART_SCALE = Object.freeze({
   minimumSeconds: 10 * 3600,
   stepSeconds: 2 * 3600,
 });
-export function chartMaximum(durations, targets) {
+export function chartMaximum(durations) {
   return (
     Math.ceil(
       Math.max(
         CHART_SCALE.minimumSeconds,
         ...durations,
-        ...targets.map((target) => target ?? 0),
       ) / CHART_SCALE.stepSeconds,
     ) * CHART_SCALE.stepSeconds
   );

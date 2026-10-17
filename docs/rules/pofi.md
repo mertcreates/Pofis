@@ -6,7 +6,7 @@
 
 [src/domain/rules/pofi.js](../../src/domain/rules/pofi.js)
 
-Arayüz: `POFI_THRESHOLDS`, `POFI_ASSETS`, `stateForProgress`, `pofiNote`.
+Arayüz: `POFI_ASSETS`, `pofiNote`.
 
 ## Sözleşme
 

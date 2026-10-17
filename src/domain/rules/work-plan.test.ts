@@ -102,7 +102,7 @@ test("tüm günler tamamlandıysa yeni şablon hedefi alınır; gerçekleşenler
   const result = resolveWeekPlan(source, resolveStoredPlan(changed, week), "2026-10-17", false, resolveStoredTarget(changed, week));
   expect(result.weeklySeconds).toBe(162000);
   expect(result.displaySeconds).toEqual([28800,28800,28800,28800,28800,0,0]);
-  expect(result.lastWorkingDay).toBeNull();
+  expect(result.eligible).toEqual(Array(7).fill(false));
   expect(result.unallocatedSeconds).toBe(18000);
 });
 
@@ -301,7 +301,7 @@ test("Cuma kapalıysa hedef 32 saat, dengeleme Perşembe; sonraki kayıtlar Per�
   const plan = readDayPlan([480, 480, 480, 480, 0, 0, 0])!;
   const result = resolveWeekPlan(days([8.5, 8.25, 8, null, 10, null, null]), plan, "2026-10-15");
   expect(result.weeklySeconds).toBe(115200);
-  expect(result.lastWorkingDay).toBe(3);
+  expect(result.eligible).toEqual([false, false, false, true, false, false, false]);
   expect(result.exitGoal).toBe(26100);
 });
 
@@ -335,7 +335,7 @@ test("tek kalan güne devir uygulanır; tamamlanan günün özgün hedefi korunu
   const source = days([10, 10, 10, 10, null, null, null]);
   expect(resolveWeekPlan(source, readDayPlan([0, 0, 0, 0, 480, 0, 0])!, "2026-10-16").exitGoal).toBe(0);
   const result = resolveWeekPlan(source, readDayPlan([0, 0, 0, 0, 0, 0, 0])!, "2026-10-16");
-  expect(result.lastWorkingDay).toBeNull();
+  expect(result.eligible).toEqual(Array(7).fill(false));
   expect(result.exitGoal).toBeNull();
   expect(result.weeklySeconds).toBe(0);
   expect(result.targets).toEqual([0, 0, 0, 0, 0, 0, 0]);
@@ -473,7 +473,7 @@ test("yeni varsayılan geçmişe uygulanır, kilitli gerçekleşen süre değiş
   expect(after.targets.slice(0, 5)).toEqual(Array(5).fill(25200));
   expect(after.weeklySeconds).toBe(126000);
   expect(after.projectedWeeklySeconds).toBe(147600);
-  expect(after.lastWorkingDay).toBeNull();
+  expect(after.eligible).toEqual(Array(7).fill(false));
   expect(Object.keys(changeDefaultPlan(emptyWorkPlans(), shorter))).toEqual(["defaultPlan", "weekOverrides"]);
 });
 
@@ -528,11 +528,11 @@ test("kapalı veya belirsiz son gün atlanır; son planlı gün Cuma olmak zorun
   const plan = readDayPlan([360, 600, 480, 480, 480, 0, 0])!;
   source[4].state = "uncertain";
   const thursday = resolveWeekPlan(source, plan, "2026-10-13");
-  expect(thursday.lastWorkingDay).toBe(3);
+  expect(thursday.eligible).toEqual([false, true, true, true, false, false, false]);
   expect(thursday.targets[3]).toBe(30600);
   source[3].state = "uncertain";
   const wednesday = resolveWeekPlan(source, plan, "2026-10-13");
-  expect(wednesday.lastWorkingDay).toBe(2);
+  expect(wednesday.eligible).toEqual([false, true, true, false, false, false, false]);
   expect(wednesday.targets[2]).toBe(30600);
   const thursdayPlan = readDayPlan([360, 600, 480, 480, 0, 0, 0])!;
   const shortened = resolveWeekPlan(days([5.5, null, null, null, null, null, null]), thursdayPlan, "2026-10-13");
@@ -544,7 +544,6 @@ test("bütün mesai günleri tamamlandığında hedef sabittir; bakiye görünü
   const plan = readDayPlan([360, 600, 480, 480, 480, 0, 0])!;
   const result = resolveWeekPlan(days([5.5, 10, 8, 8, 8, null, null]), plan, "2026-10-17");
   expect(result.eligible).toEqual(Array(7).fill(false));
-  expect(result.lastWorkingDay).toBeNull();
   expect(result.targets).toEqual([21600, 36000, 28800, 28800, 28800, 0, 0]);
   expect(result.weeklySeconds).toBe(144000);
   expect(result.projectedWeeklySeconds).toBe(142200);

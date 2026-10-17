@@ -43,16 +43,16 @@ test("all five demo days share the real report rules without counting later reco
   const expected = [29011, 31341, 30197, 17512, null];
   for (const [i, date] of dates.entries()) {
     const preview = previewDemoReport(report, date);
-    const { days } = presentReport(
+    const { days, plan } = presentReport(
       preview,
       DEFAULT_WORK_PLAN,
       demoClock(date, now),
       false,
     );
     expect(days[i].recordedSeconds).toBe(expected[i]);
-    expect(days[i].source.plannedGoalSeconds).toBe(28800);
+    expect(plan[i]).toBe(480);
     // 40 hours minus the four completed captured days = 9:58:59 on Friday.
-    expect(days[i].source.goalSeconds).toBe(i === 4 ? 35939 : 28800);
+    expect(days[i].source.dailyGoalSeconds).toBe(i === 4 ? 35939 : 28800);
     expect(days[i].liveSeconds).toBeNull();
     expect(
       days
@@ -114,7 +114,6 @@ test("demo extra time simulates an open entry and keeps the captured report unch
 
   expect(simulated.now).toBe(Date.parse("2026-10-15T13:38:46+03:00"));
   expect(simulated.maxExtraMinutes).toBeGreaterThanOrEqual(120);
-  expect(simulated.unavailableReason).toBeNull();
   expect(simulated.report.passages).toHaveLength(
     regular.report.passages.length + 1,
   );
@@ -143,11 +142,32 @@ test("demo extra time is unavailable for empty and ambiguous days", () => {
   const { now, reports } = demoData();
   const capturedDay = previewDemoDay(reports[3], "2026-10-16", now);
   expect(capturedDay.maxExtraMinutes).toBe(0);
-  expect(capturedDay.unavailableReason).toBe("no-records");
   expect(() => previewDemoDay(reports[3], "2026-10-16", now, 15)).toThrow();
 
   const ambiguousDay = previewDemoDay(reports[2], "2026-10-07", now);
   expect(ambiguousDay.maxExtraMinutes).toBe(0);
-  expect(ambiguousDay.unavailableReason).toBe("uncertain");
   expect(() => previewDemoDay(reports[2], "2026-10-07", now, 15)).toThrow();
+});
+
+test.each([
+  { time: "23:44:59", maximum: 15 },
+  { time: "23:45:00", maximum: 0 },
+  { time: "23:59:59", maximum: 0 },
+])("demo extra time stops at day-end for an entry at $time", ({ time, maximum }) => {
+  const date = "2026-10-16";
+  const dayEnd = Date.parse(`${date}T23:59:59+03:00`);
+  const report = {
+    ...demoData().reports[3],
+    passages: [{ date, time, direction: "in" as const }],
+  };
+  const original = structuredClone(report);
+  const regular = previewDemoDay(report, date, dayEnd);
+  expect(regular.now).toBe(dayEnd);
+  expect(regular.maxExtraMinutes).toBe(maximum);
+  const simulated = previewDemoDay(report, date, dayEnd, maximum);
+  expect(simulated.now).toBe(dayEnd);
+  expect(simulated.report).toEqual(report);
+  for (const minutes of [-15, 0.5, 1, maximum + 15])
+    expect(() => previewDemoDay(report, date, dayEnd, minutes)).toThrow();
+  expect(report).toEqual(original);
 });
