@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { readWorkPlans, workPlanStorage } from "./work-plans";
-import { readPlanInput, emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, changeWeekPlan, changeDefaultPlan, readDayPlan, readWeekPlan } from "@/domain/rules/work-plan";
+import { readPlanInput, emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, changeWeekPlan, changeDefaultPlan, readDayPlan, readWeekPlan, resolveWeekPlan } from "@/domain/rules/work-plan";
 import { savePlans, PLAN_STORAGE_KEY } from "@/lib/plan-storage.js";
 import { readReportResponse } from "./report-response";
 import type { Report } from "@/domain/report";
@@ -16,6 +16,31 @@ function storage(initial: Record<string, string> = {}) {
   };
 }
 
+test("kilit koruması yeniden yüklemeden sonra da şablonu izler; diğer özel haftalar korunur", () => {
+  const store = storage();
+  const week = "2026-10-12";
+  const otherWeek = "2026-10-19";
+  const completed = [32400,32400,31200,null,null,null,null];
+  const source = completed.map((recordedSeconds, day) => ({
+    date: `2026-10-${12 + day}`, state: recordedSeconds === null ? "awaiting-entry" as const : "recorded" as const, recordedSeconds,
+  }));
+  const custom = readDayPlan([480,480,480,240,480,0,0])!;
+  const initial = changeWeekPlan(emptyWorkPlans(), otherWeek, custom, [], 37 * 3600);
+  savePlans(store, changeDefaultPlan(initial, readDayPlan([540,540,540,540,540,0,0])!, week, completed));
+  const loaded = readWorkPlans(store);
+  expect(resolveStoredTarget(loaded, week)).toBe(162000);
+  expect(resolveWeekPlan(source, resolveStoredPlan(loaded, week), "2026-10-15", false, resolveStoredTarget(loaded, week)).displaySeconds)
+    .toEqual([32400,32400,31200,32400,33600,0,0]);
+  savePlans(store, changeDefaultPlan(loaded, readDayPlan([600,600,600,600,600,0,0])!, week, completed));
+  const reloaded = readWorkPlans(store);
+  expect(resolveStoredTarget(reloaded, week)).toBe(180000);
+  expect(resolveStoredPlan(reloaded, week)).toEqual([480,480,480,600,600,0,0]);
+  expect(resolveStoredPlan(reloaded, otherWeek)).toEqual(custom);
+  expect(resolveStoredTarget(reloaded, otherWeek)).toBe(133200);
+  expect(resolveStoredPlan(reloaded, "2026-10-05")).toEqual([600,600,600,600,600,0,0]);
+  expect(resolveStoredTarget(reloaded, "2026-10-05")).toBe(180000);
+});
+
 test("saniyeli kalan plan ve bağımsız hafta hedefi yeniden yüklenir; elle düzenleme ve sıfırlama tutarlıdır", () => {
   const store = storage();
   const week = "2026-10-12";
@@ -27,8 +52,11 @@ test("saniyeli kalan plan ve bağımsız hafta hedefi yeniden yüklenir; elle d�
   const edited = readWeekPlan([480,480,390,(53383 - 1800) / 60,0,0,0])!;
   expect(resolveStoredTarget(changeWeekPlan(loaded, week, edited), week)).toBe(142200);
   const reset = changeWeekPlan(loaded, week, null, [28800,28800,33000,null,null,null,null]);
-  expect(resolveStoredTarget(reset, week)).toBe(138600);
-  expect(reset.weekTargets).toBeUndefined();
+  expect(resolveStoredTarget(reset, week)).toBe(144000);
+  expect(reset.weekTargets).toEqual({ [week]: 144000 });
+  savePlans(store, reset);
+  expect(resolveStoredTarget(readWorkPlans(store), week)).toBe(144000);
+  expect(resolveStoredPlan(readWorkPlans(store), week)).toEqual([480,480,390,480,480,0,0]);
   const template = changeDefaultPlan(loaded, readDayPlan([420,420,420,420,420,0,0])!, week, [28800,28800,33000,null,null,null,null]);
   expect(resolveStoredTarget(template, week)).toBe(144000);
   for (const weekTargets of [[], null, { [week]: -1 }, { [week]: 0.5 }, { "2026-10-13": 144000 }]) {

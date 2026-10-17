@@ -24,7 +24,22 @@
 - İlk şablon pazartesi–cuma 480’er dakika, toplam 40 saattir. Şablonu kullanıcı düzenler; PDKS kayıtları gerçekleşen süreyi sağlar.
 - Şablon 30 dakika adımlarını kullanır. Haftalık gereken süreler ve bunların düzenlenmesi saniye hassasiyetini korur; stepper 30 dakikalık artış/azalış yapar ve sınırdaki son adımda 0 veya 16 saate ulaşır.
 - Haftanın planı özel hafta kaydından, böyle bir kayıt bulunmadığında varsayılan şablondan gelir. Şablon değişikliği onu miras alan geçmiş haftalara da uygulanır.
-- Düzenlenen haftada tamamlanan günlerin kayıtlı plan değerleri korunur. Kalan günlerde özel düzenleme varsa o hafta planı kullanılır; diğer durumda kalan günler yeni şablonu miras alır.
+- Düzenlenen haftada tamamlanan günlerin kayıtlı plan değerleri korunur. Haftanın şablonu izleme ve özel düzenlemeyi koruma koşulları aşağıdaki tabloda tanımlıdır.
+
+### Varsayılan şablon değişikliği
+
+`changeDefaultPlan`, düzenlenen haftanın kalan günlük planlarını ve haftalık hedefini birlikte değerlendirir:
+
+| Haftanın durumu | Şablon değiştiğinde sonuç |
+| --- | --- |
+| Tamamlanmamış günlerin planları eski şablonla, haftalık hedef de eski şablon toplamıyla aynı | Tamamlanmamış günler yeni şablonu, haftalık hedef yeni şablon toplamını devralır |
+| Tamamlanmamış bir günün planı veya haftalık hedef özel | Haftanın mevcut günlük planı ve haftalık hedefi korunur |
+
+Kilitli günleri korumak için oluşmuş hafta kaydı, yukarıdaki ilk koşul sağlandığında şablonu izlemeye devam eder. Yeni haftalık hedef yeni şablonun bütün hafta toplamıdır. Gereken süreler bu hedef ve gerçekleşen kayıtlarla otomatik dengelenir.
+
+Örnek: Özel düzenlemesi olmayan haftada Pzt–Çar gerçekleşen toplamı 26 sa 40 dk iken şablon 8 × 5'ten 9 × 5'e değiştirilirse haftalık hedef 45 sa, Per 9 sa ve Cum 9 sa 20 dk olur. Şablon ardından 10 × 5'e çıkarılırsa hedef 50 sa olur. Gerçekleşen süreler her iki işlemde korunur.
+
+Günlük plan toplamından farklı hedef `weekTargets` içinde saklanır. Plan ve hedef şablonla yeniden eşleştiğinde ilgili ek kayıtlar kaldırılır. Yeniden yükleme aynı miras davranışını sürdürür. Kalan günlerin kapasitesi yetmediğinde veya gerçekleşen toplam yeni hedefi aştığında bakiye, otomatik devir sözleşmesindeki sınırlarla görünür kalır.
 
 ## Süreler ve tamamlanan günler
 
@@ -33,7 +48,7 @@
 | Planlanan günlük süre | Varsayılan veya özel hafta kaydındaki günlük hedef |
 | Gerçekleşen günlük süre | [Kayıtlı süre sahibinin](recorded-time.md) ilk giriş–son çıkış sonucu |
 | Gereken günlük süre | Günlük planın, haftalık hedef ve tamamlanan günlerin farklarıyla dengelenmiş sonucu |
-| Haftalık hedef | Başlangıçta günlük planların toplamı; elle düzenlemede gereken süre farkıyla, Tamamla işleminde varsayılan hafta toplamıyla güncellenen hedef |
+| Haftalık hedef | Şablonu izleyen haftalarda şablon toplamı; elle düzenlemede gereken süre farkıyla, Sıfırla ve Tamamla işlemlerinde varsayılan hafta toplamıyla güncellenen hedef |
 | Beklenen toplam | Tamamlanan günlerin gerçekleşen süreleri + kalan günlerin gereken süreleri |
 
 Tamamlanan gün, aynı haftada bugünden önceki bir tarihe ait, durumu `recorded` ve kayıtlı süresi tanımlı gündür. Tutarlı sıfır süreli kayıt da bu kapsamdadır. Bugünün süreleri [canlı tahmin sözleşmesiyle](duration.md), kayıt bütünlüğü [kayıt durumu sözleşmesiyle](record-status.md) değerlendirilir.
@@ -64,7 +79,7 @@ Toplu uygulama, seçili gereken süreyi diğer uygun açık günlere uygular. Ta
 
 Günü kapatma gereken süreyi sıfırlar; haftalık hedeften o günün gereken süresi çıkarılır. Yeniden açma, o günün varsayılan şablon süresini kullanır; şablonda kapalıysa ilk şablondaki 480 dakika uygulanır. Bu süre haftalık hedefe eklenir.
 
-Sıfırla, tamamlanmamış günleri şablona döndürür ve haftalık hedefi sonuç planının toplamına ayarlar. Tamamlanan günlerin kayıtlı planları korunur.
+Sıfırla, tamamlanmamış günleri şablona döndürür ve haftalık hedefi güncel varsayılan şablonun toplamına ayarlar. Tamamlanan günlerin kayıtlı planları ve gerçekleşen süreleri korunur. Otomatik devir, açık günlerin gereken sürelerini bu hedefe göre yeniden hesaplar; seçili gün sıfırlama sonucunu etkilemez. Günlük plan toplamıyla haftalık hedef farklıysa bağımsız hafta hedefi saklanır. Aynı şablon ve kayıtlarla tekrar sıfırlama aynı sonucu verir.
 
 Örnek: Pzt–Çar 26 sa 40 dk kayıt, Per 8 sa, Cum planı 7,5 sa → Cum gereken 4 sa 50 dk, haftalık hedef 39 sa 30 dk. Bu başlangıçtan:
 
@@ -112,7 +127,7 @@ Ana Ayarlar mevcut haftanın planını, geçmiş hafta başlığındaki düzenle
 
 ## Doğrulama
 
-- [Plan testleri](../../src/domain/rules/work-plan.test.ts): bu belgedeki sayısal senaryolar, kilitler, sınırlar, bakiye, koruma ve tekrar hesaplama.
+- [Plan testleri](../../src/domain/rules/work-plan.test.ts): bu belgedeki sayısal senaryolar, şablon mirası/özel hedef ayrımı, kilitler, sınırlar, bakiye, koruma ve tekrar hesaplama.
 - [Düzenleyici testleri](../../src/components/plan-editor.test.tsx): açık/kapalı/kilitli gün kontrolleri, süre etiketi ve toplu uygulama gösterimi.
 - Bağımlı sonuçlar: [rapor](../../src/domain/report.test.ts), [tablo](../../src/components/attendance/report-ui.test.tsx), [depolama](../../src/data/work-plans.test.ts), [kural mimarisi](../../src/domain/rules/rules.test.ts).
 - Kabul betikleri ve çalışma yöntemi: [doğrulama rehberi](../verification.md). Gerçek PDKS kabulünün durumu: [görev listesi](../../tasks/todo.md).

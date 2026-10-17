@@ -55,7 +55,7 @@ export function PlanEditor({
   const canApplyToOtherDays = activePlan.some((minutes, day) => day !== selectedDay &&
     (scope === "week" ? resolved.eligible[day] : minutes > 0) &&
     (scope === "week" ? resolved.displaySeconds[day] / 60 : minutes) !== value);
-  const canReset = targetSeconds !== weeklyTarget(plan) || plan.some((minutes, day) =>
+  const canReset = targetSeconds !== defaultTotal || plan.some((minutes, day) =>
     resolved.completed[day] === null && minutes !== defaultPlan[day]);
   const weekTitle = `${week === weekStart(today) ? ui.currentWeek : copy.selectedWeek} · ${weekLabel(week, true, today)}`;
 
@@ -169,7 +169,7 @@ export function PlanEditor({
           </div>
         </fieldset>
         )}
-        {scope === "week" && special && (
+        {scope === "week" && special && (different || canReset) && (
           <div className="work-plan-actions">
             <span>{different
               ? copy.difference(durationText(defaultTotal, false), durationText(Math.abs(plannedTotal - defaultTotal), false), plannedTotal < defaultTotal)

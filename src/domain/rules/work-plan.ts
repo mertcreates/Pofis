@@ -58,7 +58,7 @@ export function changeWeekPlan(plans: WorkPlans, week: string, plan: WorkPlan | 
   const weekOverrides = { ...plans.weekOverrides };
   if (samePlan(plan, plans.defaultPlan)) delete weekOverrides[week];
   else weekOverrides[week] = plan;
-  const nextTarget = targetSeconds ?? (reset ? weeklyTarget(plan)
+  const nextTarget = targetSeconds ?? (reset ? weeklyTarget(plans.defaultPlan)
     : resolveStoredTarget(plans, week) + weeklyTarget(plan) - weeklyTarget(previous));
   const weekTargets = { ...plans.weekTargets };
   if (nextTarget === weeklyTarget(plan)) delete weekTargets[week];
@@ -74,10 +74,17 @@ export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?
   if (week) {
     const previous = resolveStoredPlan(plans, week);
     const customRemainingDays = previous.some((minutes, day) => completed[day] == null && minutes !== plans.defaultPlan[day]);
-    if (!customRemainingDays) {
+    const previousTarget = resolveStoredTarget(plans, week);
+    const customTarget = previousTarget !== weeklyTarget(plans.defaultPlan);
+    if (!customRemainingDays && !customTarget) {
       weekOverrides[week] = preserveCompletedPlan(defaultPlan, previous, completed);
-      if (weekTargets[week] !== undefined)
-        weekTargets[week] += weeklyTarget(weekOverrides[week]) - weeklyTarget(previous);
+      const nextTarget = weeklyTarget(defaultPlan);
+      if (nextTarget === weeklyTarget(weekOverrides[week])) delete weekTargets[week];
+      else weekTargets[week] = nextTarget;
+    } else {
+      weekOverrides[week] = previous;
+      if (previousTarget === weeklyTarget(previous)) delete weekTargets[week];
+      else weekTargets[week] = previousTarget;
     }
   }
   return {

@@ -7,6 +7,130 @@ import {
 import type { DayState } from "./record-status";
 import type { WorkPlan } from "./work-plan";
 
+test("Sıfırla 9×5 şablonunun 45 saatini esas alır; kilitli eski planlar ve gerçekleşenler korunur", () => {
+  const week = "2026-10-12";
+  const source = days([9,9,8,null,null,null,null]);
+  source[2].recordedSeconds = 8 * 3600 + 40 * 60;
+  const completed = completedDaySeconds(source, week, "2026-10-15");
+  const template = readDayPlan([540,540,540,540,540,0,0])!;
+  const previous = changeWeekPlan({ defaultPlan: template, weekOverrides: {} }, week,
+    readDayPlan([480,480,480,540,540,0,0])!, [], 42 * 3600);
+  const before = resolveWeekPlan(source, resolveStoredPlan(previous, week), "2026-10-15", false, resolveStoredTarget(previous, week));
+  expect(before.displaySeconds.slice(3,5)).toEqual([9 * 3600, 6 * 3600 + 20 * 60]);
+  const reset = changeWeekPlan(previous, week, null, completed);
+  expect(resolveStoredTarget(reset, week)).toBe(45 * 3600);
+  expect(resolveStoredPlan(reset, week)).toEqual([480,480,480,540,540,0,0]);
+  const after = resolveWeekPlan(source, resolveStoredPlan(reset, week), "2026-10-15", false, resolveStoredTarget(reset, week));
+  expect(after.displaySeconds.slice(0,3)).toEqual(before.displaySeconds.slice(0,3));
+  expect(after.displaySeconds.slice(3,5)).toEqual([9 * 3600, 9 * 3600 + 20 * 60]);
+  expect(after.projectedWeeklySeconds).toBe(45 * 3600);
+  expect(after.unallocatedSeconds).toBe(0);
+  expect(reset.defaultPlan).toEqual(template);
+  expect(changeWeekPlan(reset, week, null, completed)).toEqual(reset);
+  expect(completeWeekPlan(resolveStoredPlan(reset, week), template, after, 3)).toEqual(
+    completeWeekPlan(resolveStoredPlan(reset, week), template, after, 4));
+});
+
+test("özel plan yokken varsayılan değişikliği açık günleri ve haftalık hedefi birlikte günceller", () => {
+  const week = "2026-10-12";
+  const source = days([9,9,8,null,null,null,null]);
+  source[2].recordedSeconds = 8 * 3600 + 40 * 60 + 17;
+  const completed = completedDaySeconds(source, week, "2026-10-15");
+  const initial = emptyWorkPlans();
+  const template = readDayPlan([540,540,540,540,540,0,0])!;
+  const changed = changeDefaultPlan(initial, template, week, completed);
+  expect(resolveStoredPlan(changed, week)).toEqual([480,480,480,540,540,0,0]);
+  expect(resolveStoredTarget(changed, week)).toBe(45 * 3600);
+  const result = resolveWeekPlan(source, resolveStoredPlan(changed, week), "2026-10-15", false, resolveStoredTarget(changed, week));
+  expect(result.displaySeconds).toEqual([32400,32400,31217,32400,33583,0,0]);
+  expect(result.projectedWeeklySeconds).toBe(45 * 3600);
+  expect(result.unallocatedSeconds).toBe(0);
+  expect(result.completed).toEqual(completed);
+  expect(changeWeekPlan(changed, week, null, completed)).toEqual(changed);
+  expect(initial).toEqual(emptyWorkPlans());
+});
+
+test("otomatik kilit koruması sonraki şablonu da izler; eski şablona dönüş fazladan kayıt bırakmaz", () => {
+  const week = "2026-10-12";
+  const completed = [32400,32400,31200,null,null,null,null];
+  const nine = readDayPlan([540,540,540,540,540,0,0])!;
+  const ten = readDayPlan([600,600,600,600,600,0,0])!;
+  const first = changeDefaultPlan(emptyWorkPlans(), nine, week, completed);
+  const second = changeDefaultPlan(first, ten, week, completed);
+  expect(resolveStoredPlan(second, week)).toEqual([480,480,480,600,600,0,0]);
+  expect(resolveStoredTarget(second, week)).toBe(50 * 3600);
+  expect(changeDefaultPlan(second, ten, week, completed)).toEqual(second);
+  expect(changeDefaultPlan(second, DEFAULT_WORK_PLAN, week, completed)).toEqual(emptyWorkPlans());
+});
+
+test.each([
+  { name: "kilit yok", completed: [], template: [540,540,540,540,540,0,0], expected: [540,540,540,540,540,0,0], target: 45 },
+  { name: "yalnız kilitli günün şablonu değişti", completed: [28800], template: [540,480,480,480,480,0,0], expected: [480,480,480,480,480,0,0], target: 41 },
+  { name: "sıfır süreli tamamlanan gün", completed: [0], template: [540,540,540,540,540,0,0], expected: [480,540,540,540,540,0,0], target: 45 },
+  { name: "yeni şablon Cuma'yı kapatıyor", completed: [32400,32400,31200], template: [540,540,540,540,0,0,0], expected: [480,480,480,540,0,0,0], target: 36 },
+])("şablon mirası: $name", ({ completed, template, expected, target }) => {
+  const week = "2026-10-12";
+  const changed = changeDefaultPlan(emptyWorkPlans(), readDayPlan(template)!, week, completed);
+  expect(resolveStoredPlan(changed, week)).toEqual(expected);
+  expect(resolveStoredTarget(changed, week)).toBe(target * 3600);
+});
+
+test.each([
+  { name: "16 saat kapasitesi", template: [960,960,960,960,960,0,0], remaining: [57600,57600], target: 288000, balance: 76800 },
+  { name: "gerçekleşen yeni toplamı aşmış", template: [240,240,240,240,240,0,0], remaining: [0,0], target: 72000, balance: -24000 },
+  { name: "bütün günler kapalı", template: [0,0,0,0,0,0,0], remaining: [0,0], target: 0, balance: -96000 },
+  { name: "Cuma kapalı; devir Perşembeye", template: [540,540,540,540,0,0,0], remaining: [33600,0], target: 129600, balance: 0 },
+])("şablon değişiminde sınırlar: $name", ({ template, remaining, target, balance }) => {
+  const week = "2026-10-12";
+  const source = days([9,9,8,null,null,null,null]);
+  source[2].recordedSeconds = 31200;
+  const changed = changeDefaultPlan(emptyWorkPlans(), readDayPlan(template)!, week,
+    completedDaySeconds(source, week, "2026-10-15"));
+  const result = resolveWeekPlan(source, resolveStoredPlan(changed, week), "2026-10-15", false, resolveStoredTarget(changed, week));
+  expect(result.weeklySeconds).toBe(target);
+  expect(result.displaySeconds.slice(0,3)).toEqual([32400,32400,31200]);
+  expect(result.displaySeconds.slice(3,5)).toEqual([...remaining]);
+  expect(result.unallocatedSeconds).toBe(balance);
+  expect(result.projectedWeeklySeconds + result.unallocatedSeconds).toBe(target);
+});
+
+test("tüm günler tamamlandıysa yeni şablon hedefi alınır; gerçekleşenler yeniden dağıtılmaz", () => {
+  const week = "2026-10-12";
+  const source = days([8,8,8,8,8,null,null]);
+  const changed = changeDefaultPlan(emptyWorkPlans(), readDayPlan([540,540,540,540,540,0,0])!, week,
+    completedDaySeconds(source, week, "2026-10-17"));
+  const result = resolveWeekPlan(source, resolveStoredPlan(changed, week), "2026-10-17", false, resolveStoredTarget(changed, week));
+  expect(result.weeklySeconds).toBe(162000);
+  expect(result.displaySeconds).toEqual([28800,28800,28800,28800,28800,0,0]);
+  expect(result.lastWorkingDay).toBeNull();
+  expect(result.unallocatedSeconds).toBe(18000);
+});
+
+test.each([
+  { minutes: [480,480,480,240,480,0,0], target: 129600 },
+  { minutes: [480,480,480,480,0,0,0], target: 115200 },
+  { minutes: [480,480,480,450,510,0,0], target: 144000 },
+])("özel kalan gün dağılımı yeni şablondan korunur: $minutes", ({ minutes, target }) => {
+  const week = "2026-10-12";
+  const plan = readDayPlan(minutes)!;
+  const initial = changeWeekPlan(emptyWorkPlans(), week, plan);
+  const changed = changeDefaultPlan(initial, readDayPlan([540,540,540,540,540,0,0])!, week, [28800,28800,28800]);
+  expect(resolveStoredPlan(changed, week)).toEqual(plan);
+  expect(resolveStoredTarget(changed, week)).toBe(target);
+});
+
+test("yalnız bağımsız haftalık hedef varsa özel hafta planı ve hedefi korunur", () => {
+  const week = "2026-10-12";
+  const initial = changeWeekPlan(emptyWorkPlans(), week, DEFAULT_WORK_PLAN, [], 39 * 3600);
+  expect(initial.weekOverrides).toEqual({});
+  const template = readDayPlan([540,540,540,540,540,0,0])!;
+  const changed = changeDefaultPlan(initial, template, week, [28800,28800,28800]);
+  expect(resolveStoredPlan(changed, week)).toEqual(DEFAULT_WORK_PLAN);
+  expect(resolveStoredTarget(changed, week)).toBe(39 * 3600);
+  expect(changed.defaultPlan).toEqual(template);
+  expect(changeWeekPlan(changed, week, null, [28800,28800,28800]).weekTargets?.[week]).toBe(45 * 3600);
+});
+
 test("tamamla önce seçili gün dışındaki uygun günlere dağıtır", () => {
   const plan = readDayPlan([480,480,240,480,480,0,0])!;
   const resolved = resolveWeekPlan(days([8,8,null,null,null,null,null]), plan, "2026-10-14");

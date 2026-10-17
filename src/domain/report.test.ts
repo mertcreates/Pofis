@@ -1,12 +1,37 @@
 import { expect, test } from "bun:test";
 import { prepareReport, presentReport, type Report } from "./report";
-import { DEFAULT_WORK_PLAN } from "./rules/work-plan";
+import { DEFAULT_WORK_PLAN, emptyWorkPlans, changeDefaultPlan, resolveStoredPlan, resolveStoredTarget, completedDaySeconds } from "./rules/work-plan";
 import { durationSegments } from "./attendance";
 import { summarizeWeek } from "@/domain/rules/week";
 import { readPlanInput, readDayPlan, weeklyTarget } from "@/domain/rules/work-plan";
 import { pofiNotesForWeek } from "@/server/pofi-notes.js";
 
 const now = Date.parse("2026-10-16T15:00:00+03:00");
+
+test("şablon değişikliği miras alınan haftanın hedefini rapora ve Cuma çıkışına taşır", () => {
+  const report = fixture();
+  const thursday = Date.parse("2026-10-15T15:00:00+03:00");
+  report.passages = ["17:00:00", "17:00:00", "16:40:17"].flatMap((time, index) => [
+    { date: `2026-10-${12 + index}`, time: "08:00:00", direction: "in" as const },
+    { date: `2026-10-${12 + index}`, time, direction: "out" as const },
+  ]);
+  const before = presentReport(report, DEFAULT_WORK_PLAN, thursday, false);
+  const changed = changeDefaultPlan(emptyWorkPlans(), readDayPlan([540,540,540,540,540,0,0])!, report.from,
+    completedDaySeconds(before.days, report.from, "2026-10-15"));
+  const after = presentReport(report, resolveStoredPlan(changed, report.from), thursday, false, resolveStoredTarget(changed, report.from));
+  expect(resolveStoredTarget(changed, report.from)).toBe(162000);
+  expect(after.days.slice(0,3).map(day => day.recordedSeconds)).toEqual([32400,32400,31217]);
+  expect(after.days[3].source.dailyGoalSeconds).toBe(32400);
+  expect(after.days[4].source.dailyGoalSeconds).toBe(33583);
+  report.passages.push({ date: "2026-10-15", time: "08:00:00", direction: "in" },
+    { date: "2026-10-15", time: "17:00:00", direction: "out" },
+    { date: "2026-10-16", time: "08:00:00", direction: "in" });
+  const friday = presentReport(report, resolveStoredPlan(changed, report.from), now, false, resolveStoredTarget(changed, report.from));
+  expect(friday.dailySeconds).toBe(33583);
+  expect(friday.days[4].source.exitGoalSeconds).toBe(33583);
+  expect(friday.days[4].firstEntry! + friday.days[4].source.exitGoalSeconds! * 1000)
+    .toBe(Date.parse("2026-10-16T17:19:43+03:00"));
+});
 
 test("hafta sonu kayıtları raporda ve gerçekleşen toplamda kalır; plan hedefi hafta içidir", () => {
   const report = fixture();
