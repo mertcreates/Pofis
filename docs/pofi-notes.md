@@ -24,7 +24,7 @@ Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kıs
 
 Tarih bazlı yayın kaydı veya eski havuz seçimi yoktur. İçerik eklemek ya da düzenlemek mevcut tek havuzu günceller ve her tarihteki seçimi etkileyebilir. Proje yayımlanmadığı için geçmiş seçimler dondurulmaz. Özel tarihler yalnız `special-days.ts` içinde tanımlanır; varyantlar `specials.js` kataloğundan alınır. 8 Aralık `little-star:v1` herkes için ortaktır.
 
-Kaynak ZIP'ten alınan tema ve özel not metinleri [içerik fixture'ındaki](../src/lib/pofi-notes/fixtures/archive-content.json) hash'lerle izlenir. Tema sırası ve havuz sırası seçim sonucunu etkiler; bunları değiştirirken [önizleme](#yerel-komutlar) ile sonuçları inceleyin.
+Güncel tema ve özel not metinleri [içerik fixture'ındaki](../src/lib/pofi-notes/fixtures/current-content.json) hash'lerle izlenir; başlangıç kaynağının ZIP hash'i ayrıca korunur. Ton düzenlemelerinde yalnız incelenen metinlerin hash'lerini ve etkilenen seçim referanslarını güncelleyin. Tema sırası ve havuz sırası seçim sonucunu etkiler; bunları değiştirirken [önizleme](#yerel-komutlar) ile sonuçları inceleyin.
 
 ## Tema veya metin eklemek
 

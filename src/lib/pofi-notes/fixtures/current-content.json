@@ -1,5 +1,6 @@
 {
-  "zipSha256": "555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca",
+  "sourceZipSha256": "555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca",
+  "contentRevision": "2026-10-17-tone-review",
   "themes": {
     "chair": {
       "sha256": "ac6a92e50c574e33996a123aeb68c1e8b8e8fb9d01d11baf3e5189b6bb46e22d",
@@ -99,12 +100,12 @@
       "paragraphs": 12
     },
     "paper-boat-moves": {
-      "sha256": "5b8f2f57e14ed65f0eda26bb8687cb502eb85b240be683e0b926c8f942a467b9",
+      "sha256": "875740c5d44732f9a4718d94ec367214017f567cd0428c648fa5ec30d2da605c",
       "variants": 4,
       "paragraphs": 12
     },
     "paper-boat-returns": {
-      "sha256": "b785976ca14f216862cd142bb5bad2695e00fc162b75ae02afb9e57ed01fb713",
+      "sha256": "a3b77451fbdf34923232155fc2208c11f95f0ab4059a719bf5b307d075f0ed42",
       "variants": 4,
       "paragraphs": 12
     },
@@ -114,7 +115,7 @@
       "paragraphs": 12
     },
     "april-fools": {
-      "sha256": "1b16e552738f9278c23834cf3a48583af204d6e44ca3e63afb94b27b0745604e",
+      "sha256": "0737ef779d259ca4f8e4e590dd8e6c7ebf02cc298bfbf6ab81e64c6ef72639d6",
       "variants": 4,
       "paragraphs": 12
     },
@@ -134,7 +135,7 @@
       "paragraphs": 12
     },
     "year-end": {
-      "sha256": "46bafe3c2004622822940f21aeaaddc71d5bd604633d972da8a37b5c73c34abd",
+      "sha256": "7affb2bc278772e15b8feb695af10aa83a239bc18252577865816731860604d3",
       "variants": 4,
       "paragraphs": 12
     }

@@ -5,7 +5,7 @@ import { createPofiNotebook } from "./notebook";
 import { pofiNoteCatalogue, pofiNotebook } from "./index";
 import { POFI_NOTE_THEMES } from "./themes/index.js";
 import { POFI_SPECIAL_NOTES } from "./specials.js";
-import contentFixture from "./fixtures/archive-content.json";
+import contentFixture from "./fixtures/current-content.json";
 import selectionFixture from "./fixtures/selections.json";
 import type { NoteTheme, DatedNote } from "./types";
 
@@ -20,7 +20,7 @@ function canonical(value: unknown): string {
 }
 const sha = (value: string) => createHash("sha256").update(value).digest("hex");
 
-test("kaynak ZIP'teki tema ve özel not metinleri aynen korunur", () => {
+test("güncel tema ve özel not metinleri içerik referansıyla eşleşir", () => {
   for (const [id, reference] of Object.entries(contentFixture.themes)) {
     const theme = POFI_NOTE_THEMES.find((theme) => theme.id === id);
     expect(theme).toBeDefined();

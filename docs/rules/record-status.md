@@ -16,13 +16,13 @@ Girdiler günlük ilk giriş/son çıkış özeti, geçiş analizi, raporun İst
 | --- | --- | --- |
 | Tarih raporun bugün değerinden ileride | `future` | Gelecek gün |
 | Günlük özet veya geçiş eşleşmesi belirsiz | `uncertain` | Kayıtlarda belirsizlik var |
-| Hareket yok, plan dışı | `non-working` | Çalışma günü değil |
-| Hareket yok, bugün ve planlı | `awaiting-entry` | Giriş bekleniyor |
+| Hareket yok, plan dışı | `non-working` | Planlı mesai yok |
+| Hareket yok, bugün ve planlı | `awaiting-entry` | Henüz giriş kaydı yok |
 | Hareket yok, geçmiş ve planlı | `missing` | Kayıt bulunamadı |
 | Açık giriş var, geçmiş tarih | `uncertain` | Kayıtlarda belirsizlik var |
 | Açık giriş var, bugün ve güvenilir canlı süre üretiliyor | `ongoing` | Mesai devam ediyor |
-| Açık giriş var, bugün ve canlı süre üretilemiyor | `open` | Son hareket giriş kaydı |
-| Giriş/çıkış kaydı tutarlı, bugün | `outside` | Son hareket çıkış kaydı |
+| Açık giriş var, bugün ve canlı süre üretilemiyor | `open` | Son hareket: giriş |
+| Giriş/çıkış kaydı tutarlı, bugün | `outside` | Son hareket: çıkış |
 | Giriş/çıkış kaydı tutarlı, geçmiş | `recorded` | Giriş–çıkış kaydı var |
 
 Tekrarlanan yön, eşleşmeyen çıkış ve geçmiş güne açık giriş kalması geçiş sahibinin belirsizlik sonucunu kullanır. İlk giriş ve son çıkış bulunması ara geçişlerdeki belirsizliği gidermez. Plan dışı günlerde de mevcut kayıt değerlendirilir; tabloda plan dışı olduğu ayrıca belirtilir. Gelecek gün, plan durumundan önce gelir.

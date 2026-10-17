@@ -307,7 +307,7 @@ test.each([
   expect(pofi.asset).toBe(`/pofi/states/${scenario.state}.webp`);
   if (scenario.message) expect(pofi.message).toBe(scenario.message);
   if (scenario.state === "overworked") {
-    expect(pofi.title).toBe("Süre hedefin üzerinde.");
+    expect(pofi.title).toBe("Hedefin üzerinde.");
     expect(pofi.message).toBe("Farkı bir kenara not ettim.");
   }
 });

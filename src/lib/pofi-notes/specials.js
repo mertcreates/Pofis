@@ -80,7 +80,7 @@ export const POFI_SPECIAL_NOTES = {
       "v1": [
         "Masamdaki kâğıt gemiyi pencereye yaklaştırdım.",
         "Gölgesi biraz büyüdü.",
-        "Kendisini uyarmadım."
+        "Gölgesinin yanına kalemimi koydum."
       ],
       "v2": [
         "Kâğıt gemi bugün masanın öbür ucundaydı.",
@@ -110,12 +110,12 @@ export const POFI_SPECIAL_NOTES = {
       "v2": [
         "Masamdaki küçük gemiyi göremedim.",
         "Bir kâğıdın altında kalmış.",
-        "Üstündeki kâğıdı kaldırdım. Hepsi bu."
+        "Üstündeki kâğıdı kaldırdım."
       ],
       "v3": [
         "Kâğıt geminin bir katı açılmış.",
         "Tekrar katladım.",
-        "Bana teşekkür etmedi. Gemi sonuçta."
+        "Masaya koyunca dik durdu."
       ],
       "v4": [
         "Küçük kâğıt gemiyi başka bir yere koydum.",
@@ -163,9 +163,9 @@ export const POFI_SPECIAL_NOTES = {
         "Kimse fark etmedi."
       ],
       "v3": [
-        "Birine küçük bir şaka hazırladım.",
-        "Hazırlarken kendim güldüm.",
-        "Söylemeyi unuttum."
+        "Masama bir çift kâğıt göz yapıştırmışlar.",
+        "Defterimi açınca biri altında kaldı.",
+        "Defteri biraz yana çektim."
       ],
       "v4": [
         "Bugün biri bana inanmadı.",
@@ -265,7 +265,7 @@ export const POFI_SPECIAL_NOTES = {
       "v3": [
         "Takvimdeki son kutuya baktım.",
         "Küçücük bir kutuydu.",
-        "Bir yıl sığmış içine."
+        "İçine bugünün tarihini yazdım."
       ],
       "v4": [
         "Yıl bitmeden bir şey yapmak istedim.",
