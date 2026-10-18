@@ -1,4 +1,4 @@
-.request-error.request-error-page { display: block; width: 100%; max-width: 920px; min-height: 0; margin: 36px auto 56px; padding: 0; text-align: left; background: transparent; border: 0; box-shadow: none; }
+.request-error.request-error-page { display: block; width: 100%; max-width: var(--public-content-width, 920px); min-height: 0; margin: 36px auto 56px; padding: 0; text-align: left; background: transparent; border: 0; box-shadow: none; }
 .request-error-hero { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); align-items: center; min-height: 360px; border-radius: 12px; background: var(--accent-soft); padding: 44px 40px 44px 48px; gap: 24px; }
 .request-error-message { min-width: 0; }
 .request-error-page .request-error-heading { align-items: flex-start; gap: 0; }

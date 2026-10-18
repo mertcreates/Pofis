@@ -68,6 +68,8 @@ Geist Sans yerel paketten gelir. Sayısal süreler tabular gösterilir; saat/dak
 
 ## Yerleşim
 
+Bağlantı öncesindeki giriş ve hata ekranları ortak 920px içerik genişliğini kullanır. Üstteki marka ve içerik aynı sol/sağ kenarlara hizalanır; ortak kapsayıcının kenar boşluğu masaüstünde 32px, 780px altında 16px olur.
+
 Masaüstünde 230px sol menü, en fazla 1530px ana içerik alanı vardır. Güncel haftanın üst satırında gün akışı ve haftalık toplam bulunur. Ardından 1,65:1 oranında akordeon giriş–çıkış raporu/Pofi satırı gelir. Pofi kartı üstte hizalanır ve raporun yüksekliğine esnemez. Güncel haftada grafik ve ikinci bir rapor bulunmaz. Geçmiş haftada dört metrik ve alt alta haftalık grafik/rapor tablosu gösterilir.
 
 1170px altında orta/alt satırlar tek sütuna iner. 1000px altında sol menü üstte açılır menüye dönüşür. 700px altında güncel hafta metrikleri tek sütundur; metrik kartları ve sayı alanları sabit asgari yükseklik ayırmaz, içeriklerine göre boyutlanır. Mobilde gün akışının lejantı sığdığı sürece yan yana kalır. 600px altında rapor tablosu etiketli gün kartlarına dönüşür. Diğer kırılımların ve boşlukların yürütülen kaynağı CSS'dir.
