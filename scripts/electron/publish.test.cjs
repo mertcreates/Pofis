@@ -1,8 +1,11 @@
 const { test, expect } = require("bun:test");
 const { createHash } = require("node:crypto");
+const { mkdtemp, mkdir, writeFile, rm } = require("node:fs/promises");
+const { tmpdir } = require("node:os");
+const { join } = require("node:path");
 const { assertVersion } = require("./ci-build.cjs");
 const { assertManifest, assertPublicChanges, assertNoDowngrade, verifyDownload, targetFor,
-  readAsset, recover, releaseBody, assertRelease, cleanupDraft } = require("./publish.cjs");
+  readAsset, recover, releaseBody, assertRelease, cleanupDraft, verifyLiveOnce } = require("./publish.cjs");
 
 test("yayın sürümü kaynak sürümüyle tam eşleşir", () => {
   expect(() => assertVersion("1.2.3", "1.2.3")).not.toThrow();
@@ -168,5 +171,45 @@ test("başarısız build yalnız aynı kaynak commit'in draft release'ini siler"
     globalThis.fetch = previousFetch;
     if (token === undefined) delete process.env.GH_TOKEN; else process.env.GH_TOKEN = token;
     if (sha === undefined) delete process.env.GITHUB_SHA; else process.env.GITHUB_SHA = sha;
+  }
+});
+
+test("HTTPS kontrolü CRLF/LF farkını kabul eder; değişen içerik ve eksik başlıkları reddeder", async () => {
+  const site = await mkdtemp(join(tmpdir(), "pofis-live-"));
+  const previousFetch = globalThis.fetch;
+  const manifests = new Map();
+  let installer = "Write-Output 'Pofis'\n";
+  let cache = "no-store";
+  try {
+    for (const id of ["win32-x64", "darwin-arm64", "darwin-x64"]) {
+      const target = targetFor(id);
+      const path = `releases/${target.releaseDirectory.replaceAll("\\", "/")}/latest.json`;
+      const manifest = { schemaVersion: 1, platform: target.platform, arch: target.arch, version: "1.2.3",
+        size: 50, sha256: "a".repeat(64),
+        url: `https://github.com/mertcreates/pofis-landing/releases/download/v1.2.3/Pofis-1.2.3-${id}.zip` };
+      manifests.set(path, manifest);
+      await mkdir(join(site, "public", "releases", target.releaseDirectory), { recursive: true });
+      await writeFile(join(site, "public", path), JSON.stringify(manifest));
+    }
+    await writeFile(join(site, "public/install.ps1"), "Write-Output 'Pofis'\r\n");
+    await writeFile(join(site, "public/install.sh"), "#!/bin/bash\necho Pofis\n");
+    globalThis.fetch = async url => {
+      const path = new URL(url).pathname.slice(1);
+      if (manifests.has(path)) return Response.json(manifests.get(path), { headers: { "Cache-Control": "no-store" } });
+      if (path === "") return new Response("<html></html>", { headers: { "Content-Type": "text/html" } });
+      if (path === "install.ps1" || path === "install.sh") return new Response(
+        path === "install.ps1" ? installer : "#!/bin/bash\necho Pofis\n",
+        { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": cache } });
+      throw new Error(`Beklenmeyen adres: ${url}`);
+    };
+    await verifyLiveOnce(site, "1.2.3");
+    installer = "Write-Output 'Başka içerik'\n";
+    await expect(verifyLiveOnce(site, "1.2.3")).rejects.toThrow("içeriği farklı: install.ps1");
+    installer = "Write-Output 'Pofis'\n";
+    cache = "public, max-age=3600";
+    await expect(verifyLiveOnce(site, "1.2.3")).rejects.toThrow("HTTP başlıkları hazır değil: install.ps1");
+  } finally {
+    globalThis.fetch = previousFetch;
+    await rm(site, { recursive: true, force: true });
   }
 });

@@ -2,7 +2,7 @@ const { createHash } = require("node:crypto");
 const { readFile, writeFile, appendFile, mkdir, open, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
-const { prepareSite } = require("./prepare-site.cjs");
+const { prepareSite, normalizeInstaller } = require("./prepare-site.cjs");
 const { checkVersion, run } = require("./ci-build.cjs");
 
 const REPOSITORY = "mertcreates/pofis-landing";
@@ -140,8 +140,8 @@ async function recover(version, id, release, allowCleanup = true) {
   await writeFile(join(directory, "latest.json"), JSON.stringify(local, null, 2) + "\n");
   {
     const response = await readAsset(release, installerAsset(id), true);
-    const installer = await response.text();
-    const canonical = (await readFile(join(__dirname, installerFile(id)), "utf8")).replace(/^\uFEFF/, "");
+    const installer = normalizeInstaller(await response.text());
+    const canonical = normalizeInstaller(await readFile(join(__dirname, installerFile(id)), "utf8"));
     if (installer !== canonical) throw new Error("Kurulum betiği kaynak commit ile eşleşmiyor.");
     await writeFile(join(directory, installerFile(id)), installer);
   }
@@ -230,11 +230,37 @@ async function publish(site, version) {
   }
   if (!paths.length) { console.log("Site bu sürümde güncel"); return; }
   await run("git", ["add", "--", ...paths], site);
-  await run("git", ["-c", "user.name=Pofis Release", "-c", "user.email=release@pofis.app", "commit", "-m", `Pofis ${version}`], site);
+  await run("git", ["-c", "user.name=Mert Ercan", "-c", "user.email=me@mertercan.com", "commit", "-m", `Pofis ${version}`], site);
   const auth = Buffer.from(`x-access-token:${process.env.GH_TOKEN}`).toString("base64");
   await run("git", ["push", "origin", "HEAD:main"], site, { ...process.env,
     GIT_CONFIG_COUNT: "2", GIT_CONFIG_KEY_0: "credential.helper", GIT_CONFIG_VALUE_0: "",
     GIT_CONFIG_KEY_1: "http.https://github.com/.extraheader", GIT_CONFIG_VALUE_1: `AUTHORIZATION: basic ${auth}` });
+}
+
+async function verifyLiveOnce(site, version) {
+  for (const id of TARGETS) {
+    const path = `releases/${targetFor(id).releaseDirectory.replaceAll("\\", "/")}/latest.json`;
+    const response = await fetch(`https://pofis.app/${path}`, { cache: "no-store", signal: AbortSignal.timeout(10000) });
+    if (!response.ok || !response.headers.get("content-type")?.includes("application/json") ||
+        !response.headers.get("cache-control")?.includes("no-store")) throw new Error(`Canlı manifest/başlıklar hazır değil: ${id}`);
+    const actual = await response.json();
+    assertManifest(actual, version, id);
+    const expected = JSON.parse(await readFile(join(site, "public", path), "utf8"));
+    if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error(`Canlı manifest farklı: ${id}`);
+  }
+  for (const name of ["install.ps1", "install.sh"]) {
+    const expected = normalizeInstaller(await readFile(join(site, "public", name), "utf8"));
+    const installer = await fetch(`https://pofis.app/${name}`, { cache: "no-store", signal: AbortSignal.timeout(10000) });
+    if (!installer.ok || !installer.headers.get("content-type")?.includes("text/plain") ||
+        !installer.headers.get("cache-control")?.includes("no-store")) {
+      throw new Error(`Kurulum betiği HTTP başlıkları hazır değil: ${name} (HTTP ${installer.status}, Content-Type: ${installer.headers.get("content-type")}, Cache-Control: ${installer.headers.get("cache-control")})`);
+    }
+    if (normalizeInstaller(await installer.text()) !== expected) {
+      throw new Error(`Yayındaki kurulum betiğinin içeriği farklı: ${name}`);
+    }
+  }
+  const page = await fetch("https://pofis.app/", { signal: AbortSignal.timeout(10000) });
+  if (!page.ok || !page.headers.get("content-type")?.includes("text/html")) throw new Error("Tanıtım sayfası henüz hazır değil.");
 }
 
 async function verifyLive(site, version) {
@@ -242,29 +268,13 @@ async function verifyLive(site, version) {
   let last = "Workers yayını bekleniyor.";
   while (Date.now() < until) {
     try {
-      for (const id of TARGETS) {
-        const path = `releases/${targetFor(id).releaseDirectory.replaceAll("\\", "/")}/latest.json`;
-        const response = await fetch(`https://pofis.app/${path}`, { cache: "no-store", signal: AbortSignal.timeout(10000) });
-        if (!response.ok || !response.headers.get("content-type")?.includes("application/json") ||
-            !response.headers.get("cache-control")?.includes("no-store")) throw new Error(`Canlı manifest/başlıklar hazır değil: ${id}`);
-        const actual = await response.json();
-        assertManifest(actual, version, id);
-        const expected = JSON.parse(await readFile(join(site, "public", path), "utf8"));
-        if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error(`Canlı manifest farklı: ${id}`);
-      }
-      for (const name of ["install.ps1", "install.sh"]) {
-        const expected = await readFile(join(site, "public", name), "utf8");
-        const installer = await fetch(`https://pofis.app/${name}`, { cache: "no-store", signal: AbortSignal.timeout(10000) });
-        if (!installer.ok || !installer.headers.get("content-type")?.includes("text/plain") ||
-            !installer.headers.get("cache-control")?.includes("no-store") || await installer.text() !== expected) {
-          throw new Error(`Yayındaki kurulum betiğinin içeriği veya HTTP başlıkları farklı: ${name}`);
-        }
-      }
-      const page = await fetch("https://pofis.app/", { signal: AbortSignal.timeout(10000) });
-      if (!page.ok || !page.headers.get("content-type")?.includes("text/html")) throw new Error("Tanıtım sayfası henüz hazır değil.");
+      await verifyLiveOnce(site, version);
       console.log(`Pofis ${version}: canlı HTTPS dağıtımı doğrulandı.`);
       return;
-    } catch (error) { last = error.message; }
+    } catch (error) {
+      last = error.message;
+      console.log(`Workers yayını bekleniyor: ${last}`);
+    }
     await delay(10000);
   }
   throw new Error(`Workers yayını 5 dakikada doğrulanamadı: ${last}`);
@@ -305,4 +315,4 @@ async function main() {
 
 if (require.main === module) main().catch(error => { console.error(error.message); process.exitCode = 1; });
 module.exports = { assertManifest, assertPublicChanges, assertNoDowngrade, verifyDownload, targetFor,
-  readAsset, recover, releaseBody, assertRelease, cleanupDraft };
+  readAsset, recover, releaseBody, assertRelease, cleanupDraft, verifyLiveOnce };

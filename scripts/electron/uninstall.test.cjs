@@ -10,7 +10,9 @@ const quote = text => "'" + text.replaceAll("'", "''") + "'";
 const helper = resolve(__dirname, "../../electron/uninstall.ps1");
 const powershell = join(process.env.SystemRoot || "", "System32/WindowsPowerShell/v1.0/powershell.exe");
 const run = script => execute(powershell, ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command",
-  "$ErrorActionPreference='Stop'; . " + quote(helper) + "; " + script]);
+  "$ErrorActionPreference='Stop'; . " + quote(helper) + "; " + script], { timeout: 15000, windowsHide: true });
+// Allow two bounded PowerShell invocations plus fixture setup/cleanup on Windows runners.
+const testTimeout = 40000;
 
 windowsTest("sürüm temizliği yalnız etkin sürümü bırakır; kullanıcı verilerine dokunmaz", async () => {
   const temp = await mkdtemp(join(tmpdir(), "pofis-cleanup-"));
@@ -27,7 +29,7 @@ windowsTest("sürüm temizliği yalnız etkin sürümü bırakır; kullanıcı v
     expect(await readdir(join(root, "versions"))).toEqual([keep]);
     expect(await readFile(profile, "utf8")).toBe("session");
   } finally { await rm(temp, { recursive: true, force: true }); }
-});
+}, testTimeout);
 
 windowsTest("sürüm temizliği dışarı yönlenen junction ve bilinmeyen klasörü silmez", async () => {
   const temp = await mkdtemp(join(tmpdir(), "pofis-cleanup-"));
@@ -39,14 +41,14 @@ windowsTest("sürüm temizliği dışarı yönlenen junction ve bilinmeyen klas�
     await writeFile(join(outside, "keep.txt"), "keep");
     const candidate = join(root, "versions", "c".repeat(32));
     await symlink(outside, candidate, "junction");
-    await expect(run(`Remove-PofisVersions ${quote(root)} ''`)).rejects.toThrow();
+    await expect(run(`Remove-PofisVersions ${quote(root)} ''`)).rejects.toThrow("Kurulum dizini");
     expect(await readFile(join(outside, "keep.txt"), "utf8")).toBe("keep");
     await rm(candidate);
     await mkdir(join(root, "versions", "unknown"));
-    await expect(run(`Remove-PofisVersions ${quote(root)} ''`)).rejects.toThrow();
+    await expect(run(`Remove-PofisVersions ${quote(root)} ''`)).rejects.toThrow("beklenmeyen dosya");
     expect(await readdir(join(root, "versions"))).toEqual(["unknown"]);
   } finally { await rm(temp, { recursive: true, force: true }); }
-});
+}, testTimeout);
 
 windowsTest("kaldırıcı değiştirilmiş kısayolu görünce uygulama dosyalarını silmez", async () => {
   const temp = await mkdtemp(join(tmpdir(), "pofis-uninstall-"));
@@ -61,7 +63,7 @@ windowsTest("kaldırıcı değiştirilmiş kısayolu görünce uygulama dosyalar
       installRoot: root, shortcutPath: shortcut,
       registryPath: 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Pofis-' + version }));
     await run(`$shell=New-Object -ComObject WScript.Shell; $link=$shell.CreateShortcut(${quote(shortcut)}); $link.TargetPath=$PSHOME+'\\powershell.exe'; $link.Save(); [void][Runtime.InteropServices.Marshal]::ReleaseComObject($shell)`);
-    await expect(run(`Uninstall-Pofis ${quote(root)} -Confirmed`)).rejects.toThrow();
+    await expect(run(`Uninstall-Pofis ${quote(root)} -Confirmed`)).rejects.toThrow("bir uygulamaya ait");
     expect(await readFile(marker, "utf8")).toBe("keep");
   } finally { await rm(temp, { recursive: true, force: true }); }
-});
+}, testTimeout);

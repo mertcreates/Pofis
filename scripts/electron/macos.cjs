@@ -11,6 +11,7 @@ async function configureBundle(bundle, executable, identifier, version) {
     CFBundleExecutable: executable, CFBundleIdentifier: identifier,
     CFBundleShortVersionString: version, CFBundleVersion: version,
     CFBundleIconFile: "Pofis.icns",
+    NSHumanReadableCopyright: "© Mert Ercan",
   })) {
     // Delete/Add also handles optional fields absent from Electron's template.
     await execute("/usr/libexec/PlistBuddy", ["-c", `Delete :${key}`, plist]).catch(error => {

@@ -78,6 +78,10 @@ if (!app.requestSingleInstanceLock()) {
   });
   app.whenReady().then(async () => {
     const icon = join(__dirname, "..", "public", "pofi", "pofi-mark-256.png");
+    if (target.platform === "darwin") app.setAboutPanelOptions({
+      applicationName: "Pofis", applicationVersion: app.getVersion(),
+      copyright: "© Mert Ercan", credits: "https://pofis.app",
+    });
     if (app.dock) app.dock.setIcon(icon);
     Menu.setApplicationMenu(target.platform === "darwin" ? Menu.buildFromTemplate([
       { label: "Pofis", submenu: [

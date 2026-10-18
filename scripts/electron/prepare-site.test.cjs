@@ -22,7 +22,7 @@ test("yalnız doğrulanmış paketin public manifestini ve installer'ını aktar
       size: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex"),
       url: "1.2.3/Pofis-1.2.3-win32-x64.zip", privateField: "aktarılmamalı" };
     await writeFile(join(releaseDirectory, "latest.json"), JSON.stringify(manifest));
-    await writeFile(installerPath, "\uFEFFinstaller kaynağı");
+    await writeFile(installerPath, "\uFEFFinstaller kaynağı\r\nikinci satır\r\n");
     const options = { siteDirectory, releaseDirectory, installerPath };
     await prepareSite(options);
     const publishedPath = join(siteDirectory, "public/releases/windows/latest.json");
@@ -30,7 +30,7 @@ test("yalnız doğrulanmış paketin public manifestini ve installer'ını aktar
     expect(JSON.parse(published)).toEqual({ schemaVersion: 1, platform: "win32", arch: "x64",
       version: "1.2.3", size: bytes.length, sha256: manifest.sha256,
       url: "https://github.com/example/pofis-landing/releases/download/v1.2.3/Pofis-1.2.3-win32-x64.zip" });
-    expect(await readFile(join(siteDirectory, "public/install.ps1"), "utf8")).toBe("installer kaynağı");
+    expect(await readFile(join(siteDirectory, "public/install.ps1"), "utf8")).toBe("installer kaynağı\nikinci satır\n");
     await writeFile(archive, Buffer.alloc(bytes.length));
     await expect(prepareSite(options)).rejects.toThrow("SHA-256");
     expect(await readFile(publishedPath, "utf8")).toBe(published);

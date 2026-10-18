@@ -4,6 +4,10 @@ const { readFile, writeFile, mkdir, stat } = require("node:fs/promises");
 const { resolve, join } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
 
+function normalizeInstaller(text) {
+  return text.replace(/^\uFEFF/, "").replaceAll("\r\n", "\n");
+}
+
 async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
   const site = resolve(siteDirectory);
   const packageJson = JSON.parse(await readFile(join(site, "package.json"), "utf8"));
@@ -26,7 +30,7 @@ async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
   if (hash.digest("hex") !== manifest.sha256) throw new Error("Paket SHA-256 değeri manifestle eşleşmiyor.");
   // HTTP supplies charset=utf-8; omit the file BOM so irm | iex receives plain PowerShell.
   const installerName = target.platform === "win32" ? "install.ps1" : "install.sh";
-  const installer = (await readFile(installerPath || join(__dirname, installerName), "utf8")).replace(/^\uFEFF/, "");
+  const installer = normalizeInstaller(await readFile(installerPath || join(__dirname, installerName), "utf8"));
   const publicManifest = {
     schemaVersion: 1, platform: target.platform, arch: target.arch, version: manifest.version,
     size: manifest.size, sha256: manifest.sha256,
@@ -58,4 +62,4 @@ if (require.main === module) {
     }).catch(error => { console.error(error.message); process.exitCode = 1; });
   }
 }
-module.exports = { prepareSite };
+module.exports = { prepareSite, normalizeInstaller };

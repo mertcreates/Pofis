@@ -22,8 +22,8 @@ async function until(check, timeout = 20000) {
   while (Date.now() < end) { const value = await check(); if (value) return value; await Bun.sleep(100); }
   throw Error("Dağıtım kabul kontrolü zaman aşımı.");
 }
-function ps(code) {
-  const child = spawn(powershell, ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command",
+function ps(code, policy = "Bypass") {
+  const child = spawn(powershell, ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", policy, "-Command",
     "[Console]::OutputEncoding = [Text.UTF8Encoding]::new(); $ErrorActionPreference='Stop'; " + code],
     { env, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
   let output = "";
@@ -101,7 +101,7 @@ async function run() {
   const installer = bootstrap => ps(bootstrap
     ? siteCommand ? siteCommand.replace("https://pofis.app/install.ps1", base + "/install.ps1")
       : `& ([scriptblock]::Create((Invoke-RestMethod ${quote(base + "/install.ps1")}).TrimStart([char]0xFEFF))) ${flags}`
-    : `& ${quote(join(__dirname, "install.ps1"))} ${flags}`);
+    : `& ${quote(join(__dirname, "install.ps1"))} ${flags}`, bootstrap ? "Restricted" : "Bypass");
   const state = async () => JSON.parse(await readFile(join(install, "installed.json"), "utf8"));
   const executable = async () => join(install, "versions", (await state()).directory, "Pofis.exe");
   const healthy = async () => fetch(`${ORIGIN}/api/health`, { signal: AbortSignal.timeout(500) })
@@ -147,22 +147,25 @@ async function run() {
       const variants = await ps(`& ${quote(join(__dirname, "fixtures/release-variants.ps1"))} -SourceArchive ${quote(join(releases, first.url))} -OutputDirectory ${quote(directory)} -BaseVersion ${quote(first.version)}`).done;
       assert.equal(variants.code, 0, variants.output);
     }
+    const policy = await ps("Get-ExecutionPolicy", "Restricted").done;
+    assert.equal(policy.code, 0, policy.output);
+    assert.equal(policy.output.trim(), "Restricted");
     await expectInstall(true, true);
     assert.equal((await state()).version, first.version);
     assert.equal(await healthy(), true);
-    passed("ilk kurulum, HTTP bootstrap ve otomatik pencere açılışı");
+    passed("Restricted politikası altında ilk kurulum, HTTP bootstrap ve otomatik pencere açılışı");
     const registration = await ps(`(Get-ItemProperty -LiteralPath ${quote(registry)}).DisplayName`).done;
     assert.equal(registration.code, 0, registration.output);
     assert.equal(registration.output.trim(), 'Pofis');
+    const initial = await state();
+    const count = zipRequests;
+    const healthToken = (await fetch(`${ORIGIN}/api/health`)).headers.get("X-Pofis-Desktop");
+    await expectInstall(true, true);
+    assert.equal(zipRequests, count);
+    assert.equal((await state()).directory, initial.directory);
+    assert.equal((await fetch(`${ORIGIN}/api/health`)).headers.get("X-Pofis-Desktop"), healthToken);
+    passed("Restricted politikası altında aynı sürüm tekrar indirilmiyor; çalışan tek örnek korunuyor");
     if (!startupOnly) {
-      const initial = await state();
-      const count = zipRequests;
-      const healthToken = (await fetch(`${ORIGIN}/api/health`)).headers.get("X-Pofis-Desktop");
-      await expectInstall(true);
-      assert.equal(zipRequests, count);
-      assert.equal((await state()).directory, initial.directory);
-      assert.equal((await fetch(`${ORIGIN}/api/health`)).headers.get("X-Pofis-Desktop"), healthToken);
-      passed("aynı sürüm tekrar indirilmiyor; çalışan tek örnek korunuyor");
       await close();
       const shortcutLaunch = await ps(`Start-Process -FilePath ${quote(shortcut)} -WindowStyle Normal`).done;
       assert.equal(shortcutLaunch.code, 0, shortcutLaunch.output);
