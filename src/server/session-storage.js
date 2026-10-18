@@ -8,7 +8,7 @@ import {
   rm,
   opendir,
 } from "node:fs/promises";
-import { join } from "node:path";
+import { join, format } from "node:path";
 import { randomBytes } from "node:crypto";
 
 export const validSessionId = (id) =>
@@ -19,6 +19,9 @@ export const validSessionId = (id) =>
 export function createSessionStorage(directory) {
   const pending = new Map();
   let ready;
+  // These JSON files are runtime state. A dynamic path.join(..., `${id}.json`)
+  // is treated as a project-wide JSON asset glob by Turbopack.
+  const sessionFile = (id) => format({ dir: directory, name: id, ext: ".json" });
   function serialize(id, action) {
     if (!validSessionId(id))
       return Promise.reject(new Error("Invalid session id"));
@@ -46,7 +49,7 @@ export function createSessionStorage(directory) {
       return serialize(id, async () => {
         let text;
         try {
-          text = await readFile(join(directory, `${id}.json`), "utf8");
+          text = await readFile(sessionFile(id), "utf8");
         } catch (error) {
           if (error.code === "ENOENT") return null;
           throw error;
@@ -81,7 +84,7 @@ export function createSessionStorage(directory) {
         );
         try {
           await writeFile(temporary, text, { mode: 0o600, flag: "wx" });
-          await rename(temporary, join(directory, `${id}.json`));
+          await rename(temporary, sessionFile(id));
         } finally {
           await rm(temporary, { force: true });
         }
@@ -107,7 +110,7 @@ export function createSessionStorage(directory) {
     async remove(id) {
       if (directory && validSessionId(id))
         return serialize(id, () =>
-          rm(join(directory, `${id}.json`), { force: true }),
+          rm(sessionFile(id), { force: true }),
         );
     },
   };
