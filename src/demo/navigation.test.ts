@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
 import {
+  advanceDemoClock,
   demoClock,
   demoDays,
   previewDemoDay,
@@ -10,6 +11,22 @@ import { presentReport } from "@/domain/report";
 import { DEFAULT_WORK_PLAN } from "@/domain/rules/work-plan";
 import { dateKey } from "@/domain/rules/calendar";
 import { summarizeWeek } from "@/domain/rules/week";
+
+test("demo running clock advances shared counters while preserving recorded time", () => {
+  const { now, reports } = demoData();
+  const preview = previewDemoDay(reports[3], "2026-10-15", now, 120);
+  const later = advanceDemoClock(preview.now, 5000);
+  const day = presentReport(preview.report, DEFAULT_WORK_PLAN, later, false)
+    .days.find((row) => row.date === "2026-10-15")!;
+  expect(later).toBe(Date.parse("2026-10-15T13:38:51+03:00"));
+  expect(day.recordedSeconds).toBe(17512);
+  expect(day.liveSeconds).toBe(24717);
+  expect(day.source.estimated).toBe(7205);
+  expect(advanceDemoClock(preview.now, -5000)).toBe(preview.now);
+  const dayEnd = Date.parse("2026-10-15T23:59:59+03:00");
+  expect(advanceDemoClock(dayEnd - 1000, 5000)).toBe(dayEnd);
+  expect(advanceDemoClock(dayEnd, 86_400_000)).toBe(dayEnd);
+});
 
 test("demo clock preserves capture time and uses Istanbul day-end for earlier dates", () => {
   const { now } = demoData();

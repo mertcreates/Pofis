@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useReducer, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useState, type ReactNode } from "react";
 import { DashboardView } from "@/components/dashboard/view";
 import { useWorkPlans } from "@/data/use-work-plans";
 import { addDays, dateKey, weekday, weekStart } from "@/domain/rules/calendar";
 import type { demoData } from "./report";
-import { demoDays, previewDemoDay } from "./navigation";
+import { advanceDemoClock, demoDays, previewDemoDay } from "./navigation";
 import { DemoDayPicker } from "./day-picker";
 import { DemoControls, initialErrorPreview, type DemoView, type ErrorPreviewState } from "./controls";
 import { DemoNoticeControls, DemoNoticePreview, initialNoticePreview, type NoticePreviewState } from "./notice-preview";
@@ -55,6 +55,31 @@ export function DemoDashboard({
       throw new Error("Seçilen hafta örnek veri aralığında bulunmuyor.");
     return previewDemoDay(captured, date, capturedAt, extraMinutes);
   }, [reports, week, date, capturedAt, extraMinutes, revision]);
+  const [clock, setClock] = useState({ baseNow: report.now, now: report.now });
+  useEffect(() => {
+    if (extraMinutes === 0) return;
+    const baseNow = report.now;
+    const startedAt = Date.now();
+    const update = () => setClock({
+      baseNow,
+      now: advanceDemoClock(baseNow, Date.now() - startedAt),
+    });
+    update();
+    const timer = setInterval(() => {
+      if (document.visibilityState === "visible") update();
+    }, 1000);
+    const wake = () => {
+      if (document.visibilityState === "visible") update();
+    };
+    document.addEventListener("visibilitychange", wake);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", wake);
+    };
+  }, [report.now, extraMinutes]);
+  const now = extraMinutes > 0 && clock.baseNow === report.now
+    ? clock.now
+    : report.now;
   function selectDate(next: string) {
     const nextWeek = weekStart(next);
     if (
@@ -86,7 +111,7 @@ export function DemoDashboard({
 
   return (
     <DashboardView
-      now={report.now}
+      now={now}
       week={week}
       onWeekChange={selectWeek}
       data={{
@@ -121,7 +146,7 @@ export function DemoDashboard({
         <DemoDayPicker
           dates={dates}
           selected={date}
-          now={report.now}
+          now={now}
           capturedAt={capturedAt}
           extraMinutes={extraMinutes}
           maxExtraMinutes={report.maxExtraMinutes}

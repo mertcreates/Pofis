@@ -12,6 +12,7 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 
 ## Kurum dağıtımı
 
+- [ ] Windows'ta `bun run build` standalone paketlemesini doğrula: derleme, tür kontrolü ve statik sayfalar tamamlandı; `.next/standalone` altına dosya kopyalarken `EPERM: operation not permitted, mkdir` hatası oluştu.
 - [ ] Docker imajını hedef ortamda derle ve çalıştır; TZ, dinleme adresi ve volume izinlerini kontrol et.
 - [ ] Dış HTTPS/ingress üzerinden giriş → rapor → yenileme → çıkış zincirini ve çerez niteliklerini doğrula.
 - [ ] Süreç/pod yeniden başlatmasında kalıcı oturumla devamı; disk hatalarının ve izinlerin işletim davranışını doğrula.

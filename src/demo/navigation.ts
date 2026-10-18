@@ -31,6 +31,12 @@ export function demoClock(date: string, capturedAt: number) {
   return at;
 }
 
+export function advanceDemoClock(now: number, elapsedMilliseconds: number) {
+  const dayEnd = sourceTimestamp(dateKey(now), "23:59:59");
+  if (dayEnd === null) throw new Error("Geçersiz demo saati.");
+  return Math.min(now + Math.max(0, elapsedMilliseconds), dayEnd);
+}
+
 export function previewDemoReport(report: Report, date: string): Report {
   if (date < report.from || date > report.to)
     throw new Error("Demo günü seçili rapor haftasında olmalı.");
