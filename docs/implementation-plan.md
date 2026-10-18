@@ -10,7 +10,7 @@
 | Plan | Varsayılan şablon, gereken süre üzerinden hafta düzenleme ve yerel kayıt; hesap ve dağıtım ayrıntıları [plan sözleşmesinde](rules/work-plan.md) |
 | Pofi | Kaynak durum görselleri, albüm, sürprizler ve tek havuzlu not yönetimi |
 | Oturum | Kullanıcı başına PDKS istemcisi, sabit TTL, JSON kalıcılığı ve kısa kişisel rapor önbelleği |
-| Dağıtım | Tek Bun süreci, standalone çıktı, Dockerfile ve kalıcı oturum dizini |
+| Dağıtım | Yerelde standart Next komutları; Docker'da tek Bun süreci, standalone çıktı ve kalıcı oturum dizini |
 
 [Kural sahipleri](rules/README.md) · [Arayüz sahipleri](ui-source-migration.md) · [Oturum mimarisi](architecture/multi-user-sessions.md).
 

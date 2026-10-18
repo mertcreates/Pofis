@@ -14,7 +14,7 @@ Arşiv SHA256: `555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca
 | `app/dashboard/week-selector.js`, `week-navigation.js` | [WeekPicker](../src/components/dashboard/week-picker.tsx), [week-calendar](../src/components/dashboard/week-calendar.ts) | Aylık popover, kesişen haftalar, önceki/sonraki hafta, bugüne dönüş |
 | `app/dashboard/metric-card.js`, `exit-card.js` | [metrics](../src/components/dashboard/metrics.tsx), [MetricCard](../src/components/dashboard/metric-card.tsx), [Duration / Progress](../src/components/primitives.tsx) | Güncel haftada üç, geçmişte dört metrik |
 | `app/dashboard/daily-timeline.js` | [DayFlow](../src/components/attendance/day-flow.tsx) | Saat ekseni, hedef, son kayıt/şimdi işaretlerinin çakışma yerleşimi |
-| `app/dashboard/weekly-chart.js` | [WeekChart](../src/components/attendance/week-chart.tsx), [tooltip](../src/components/attendance/use-chart-tooltip.ts) | Ölçek çizgileri, sütunlar, canlı tahmin detayı, Escape ile kapatma |
+| `app/dashboard/weekly-chart.js` | [WeekChart](../src/components/attendance/week-chart.tsx), ortak [Tooltip](../src/components/tooltip.tsx) | Ölçek çizgileri, sütunlar, canlı tahmin detayı, Escape ile kapatma |
 | `app/dashboard/recent-records.js` | [DailyRecords / RecordsDialog](../src/components/attendance/records.tsx) | Bugünün son dört aralığı; dolu günde tüm kayıtlar modalı |
 | `app/dashboard/daily-records.js` | [ReportTable](../src/components/attendance/report-table.tsx), [RawPassages](../src/components/attendance/records.tsx) | Altı sütun; bağımsız açılan kronolojik ham hareketler; mobil kartlar; [kayıt durumu iyileştirmesi](rules/record-status.md) |
 | `app/dashboard/panel-heading.js` | Kartların `panel-heading` bölgeleri | Aynı başlık yapısı ve kaynak CSS sınıfları |

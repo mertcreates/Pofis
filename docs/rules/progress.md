@@ -23,6 +23,7 @@ Başka ürün kuralına bağlı değildir.
 - [primitives.tsx](../../src/components/primitives.tsx)
 - [week-chart.tsx](../../src/components/attendance/week-chart.tsx)
 - [metrics.tsx](../../src/components/dashboard/metrics.tsx)
+- [weekly-total.tsx](../../src/components/dashboard/weekly-total.tsx): haftalık yüzde toplam hedefi, günlük çubuklar rapordaki etkin günlük hedefleri kullanır.
 
 ## Testler
 

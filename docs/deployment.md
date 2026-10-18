@@ -8,7 +8,7 @@ Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Her kullanıc
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `TZ`                  | `Europe/Istanbul`; Dockerfile içinde TZ ve tzdata kurulumu tanımlı                                                                                                           |
 | `HOSTNAME`            | Docker standalone sunucusunda `0.0.0.0`                                                                                                                                      |
-| `POFIS_HOSTNAME`      | Docker dışında `bun run start` dinleme adresi; varsayılan `127.0.0.1`                                                                                                        |
+| `POFIS_STANDALONE`    | Dockerfile derleme adımında `1`; Next standalone çıktısını açar. Yerel derlemede ayarlanmaz.                                                                                   |
 | `PORT`                | Varsayılan `3000`                                                                                                                                                            |
 | `POFIS_SESSION_DIR`   | Docker'da `/var/lib/pofis/sessions`; uygulama kullanıcısının yazabildiği kalıcı volume                                                                                       |
 
@@ -27,6 +27,10 @@ Haftalık mesai raporu kişisel turnike listesinin bütün sayfalarını toplar.
 Kaynak erişim kabulünde bağlantı/DNS hatası (`CONNECTION_FAILED`) ile PDKS HTTP hata yanıtını (`SOURCE_ERROR`) ayrı doğrulayın. `ENOTFOUND` DNS çözümlemesinin başarısız olduğunu belirtir; tek başına VPN durumunu belirlemez. Kaynağın `403/429/5xx` hata sayfası oturumu düşürmemelidir. [Hata sözleşmesi](pdks-errors.md).
 
 ## Docker
+
+Yerelde `bun run build` standart Next çıktısı üretir; `bun run start` bunu `next start --hostname 127.0.0.1` ile çalıştırır. Başka bir dinleme adresi için `bun run start --hostname 0.0.0.0` kullanılır. İki komutun `bun --bun` öneki Next'i Bun çalışma zamanıyla çalıştırır.
+
+Dockerfile derleme sırasında `POFIS_STANDALONE=1` ayarlar. Çalışma imajına standalone sunucuyu, `public` ve `.next/static` dizinlerini ayrı ayrı kopyalar; sunucu `bun server.js` ile başlar.
 
 `/demo` statik sayfası aynı derlemeye dahildir ve oturum gerektirmez. Yakalanan veride kişi adı/kimliği çıkarılmış, gerçek geçiş tarihleri/saatleri korunmuştur. `noindex, nofollow` erişim kontrolü değildir. [Veri kapsamı ve sahipliği](demo.md).
 

@@ -169,13 +169,7 @@ export function DashboardView({
                   />
                   {isCurrent && todayReport && (
                     <div className="middle-grid">
-                      <WeekChart
-                        days={days}
-                        today={today}
-                        start={week}
-                        current={isCurrent}
-                        blocked={presentation.blocked}
-                      />
+                      <ReportTable days={days} today={today} compact />
                       <PofiPanel
                         key={today}
                         day={todayReport}
@@ -196,7 +190,7 @@ export function DashboardView({
                       <ReportTable days={days} today={today} />
                     </div>
                   )}
-                  {isCurrent && (
+                  {isCurrent && !todayReport && (
                     <ReportTable days={days} today={today} />
                   )}
                 </section>

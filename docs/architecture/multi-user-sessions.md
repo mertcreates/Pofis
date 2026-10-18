@@ -33,7 +33,7 @@ Farklı kullanıcıların istekleri ortak bir sıra beklemeden başlar. Aynı ot
 
 Kaynak HTTP hatası gövdesinde giriş formu bulunsa da oturum korunur. API temizliği, kaynak kontrolü ve keepalive ortak kod/durum doğrulamasını kullanır; istemci de başarılı oturum yanıtını işlemine göre doğrular. [Hata sözleşmesi](../pdks-errors.md).
 
-[Tek pod, TZ ve ingress ayarları](../deployment.md).
+Yerel üretim önizlemesi standart `next start`, Docker dağıtımı standalone `server.js` kullanır; iki yöntem de tek uygulama süreci çalıştırır. [Tek pod, derleme, TZ ve ingress ayarları](../deployment.md).
 
 ## İşletim sınırları
 

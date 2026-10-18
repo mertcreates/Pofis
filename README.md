@@ -26,7 +26,7 @@ bun run build
 bun run start
 ```
 
-Build, statik varlıkları standalone çıktısına taşır. Start varsayılan olarak `127.0.0.1` dinler; `POFIS_HOSTNAME` ile değiştirilebilir. Docker dağıtımı tek Bun süreci ve kalıcı oturum dizini kullanır. [Ortam ayarları ve dağıtım kabulü](docs/deployment.md).
+Yerelde `build` doğrudan `next build`, `start` ise `next start --hostname 127.0.0.1` çalıştırır. Komutlardaki `bun --bun` öneki Next'i Bun çalışma zamanıyla çalıştırır. Dinleme adresi `bun run start --hostname 0.0.0.0` ile değiştirilebilir. Dockerfile standalone çıktıyı üretir, statik dosyaları imaja kopyalar ve `bun server.js` ile başlatır. Docker dağıtımı tek Bun süreci ve kalıcı oturum dizini kullanır. [Ortam ayarları ve dağıtım kabulü](docs/deployment.md).
 
 ## Belgeler
 

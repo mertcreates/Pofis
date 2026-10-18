@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY . .
-RUN bun run build
+RUN POFIS_STANDALONE=1 bun run build
 
 FROM oven/bun:1.4.3 AS runtime
 ENV NODE_ENV=production \
@@ -18,6 +18,8 @@ RUN apt-get update \
     && chown -R bun:bun /var/lib/pofis
 WORKDIR /app
 COPY --from=build --chown=bun:bun /app/.next/standalone ./
+COPY --from=build --chown=bun:bun /app/public ./public
+COPY --from=build --chown=bun:bun /app/.next/static ./.next/static
 USER bun
 EXPOSE 3000
 CMD ["bun", "server.js"]

@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const config: NextConfig = {
-  output: "standalone",
+  output: process.env.POFIS_STANDALONE === "1" ? "standalone" : undefined,
   poweredByHeader: false,
   devIndicators: false,
   images: { unoptimized: true },

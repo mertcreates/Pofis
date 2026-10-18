@@ -8,7 +8,7 @@ import {
   weekLabel,
 } from "@/domain/time";
 import { weekday } from "@/domain/rules/calendar";
-import { useChartTooltip } from "./use-chart-tooltip";
+import { Tooltip } from "../tooltip";
 export function WeekChart({
   days,
   today,
@@ -28,9 +28,6 @@ export function WeekChart({
   );
   const maximum = chartMaximum(visible.map(day => day.source.total));
   const hasLive = visible.some((day) => day.liveSeconds !== null);
-  const column = useChartTooltip(
-    visible.find((day) => day.liveSeconds !== null)?.date,
-  );
   return (
     <section
       className="dashboard-card chart-panel"
@@ -71,26 +68,15 @@ export function WeekChart({
             const live = day.liveSeconds !== null;
             const label = `${formatDate(day.date)}: ${day.recordedSeconds === null ? ui.noRecordedDuration : `${ui.recordedTime} ${durationText(recorded)}`}${live ? `, ${ui.liveTotalLabel} ${durationText(total)}` : ""}`;
             return (
-              <div
+              <Tooltip
                 key={day.date}
                 className={`chart-column ${day.date === today ? "today" : ""} ${live ? "live" : ""}`}
-                tabIndex={live ? 0 : undefined}
-                aria-label={label}
-                ref={live ? column : undefined}
-                onPointerEnter={
-                  live
-                    ? (event) => {
-                        delete event.currentTarget.dataset.tooltipDismissed;
-                      }
-                    : undefined
-                }
-                onFocus={
-                  live
-                    ? (event) => {
-                        delete event.currentTarget.dataset.tooltipDismissed;
-                      }
-                    : undefined
-                }
+                label={label}
+                anchorSelector=".chart-estimate"
+                content={live ? <>
+                  <span>{ui.recordedTime}<b>{day.recordedSeconds === null ? ui.noRecordedDuration : durationClock(recorded)}</b></span>
+                  <span>{ui.liveTotalLabel}<b>{durationClock(total)}</b></span>
+                </> : null}
               >
                 <div className="bar-area" aria-hidden="true">
                   <div
@@ -114,23 +100,7 @@ export function WeekChart({
                 </strong>
                 <small>{ui.weekdays[weekday(day.date)].short}</small>
                 {live && <span className="chart-live-label">{ui.live}</span>}
-                {live && (
-                  <span className="chart-tooltip" aria-hidden="true">
-                    <span>
-                      {ui.recordedTime}
-                      <b>
-                        {day.recordedSeconds === null
-                          ? ui.noRecordedDuration
-                          : durationClock(recorded)}
-                      </b>
-                    </span>
-                    <span>
-                      {ui.liveTotalLabel}
-                      <b>{durationClock(total)}</b>
-                    </span>
-                  </span>
-                )}
-              </div>
+              </Tooltip>
             );
           })}
         </div>
