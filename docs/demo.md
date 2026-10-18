@@ -6,6 +6,8 @@ Yerleşim ve bileşen görünümleri [kaynak arayüzden](ui-source-migration.md)
 
 ## Demo kontrolleri
 
+### Mesaim önizlemesi
+
 Sıfırdan büyük ek süre seçildiğinde sanal saat seçilen andan başlayarak saniyede bir ilerler; günlük sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Kayıtlı süre sabit kalır. Gün veya ek süre değişince saat yeni seçimden başlar; sıfır ek süre ve “Başlangıca dön” çalışan saati durdurur. Sekme yeniden görünür olduğunda geçen süre saate yansır. Saat İstanbul'da seçilen günün 23:59:59 sınırında durur.
 
 Üstteki Mesaim, Hata ekranları ve Bildirimler sekmeleri ekranlar arasında geçiş sağlar. Hazır senaryolar mevcut veri ve ortak hesap sahiplerini kullanır: Eksik mesai 15 Ekim'i, Belirsiz kayıt 7 Ekim'i, Kayıtsız gün 9 Ekim'i açar; Devam eden mesai 15 Ekim'e 120 dakika sanal ek süre ekler. Hedef farkı kayıtlı demo mesai planına göre hesaplanır. Gün veya süre elle değiştiğinde eşleşen senaryo seçilir; eşleşme yoksa “Özel seçim” görünür.
@@ -58,7 +60,7 @@ Dört hafta arasında gezinilir; ilk yakalama haftasından önceki ve yakalama t
 - 7 Ekim: 09:15:58 bilinen kayıtlı süre; geçiş belirsizliği nedeniyle hedef farkı gösterilmez.
 - 28 Eylül: eşleşmeyen ara hareketler; ham hareketler ve ilk giriş–son çıkış özeti birlikte korunuyor.
 - 14 Ekim: 05:57:32 erken giriş; İstanbul saatinde gösteriliyor.
-- 15 Ekim: 2 saatlik ek süre seçimi 04:51:52 kayıtlı süreyi korur ve 02:00:00 ek tahmin üretir.
+- 15 Ekim: 2 saatlik ek süre seçimi 04:51:52 kayıtlı süreyi korur ve 02:00:00 anlık tahmin üretir.
 - 16 Ekim: henüz giriş yok; 17–18 Ekim gelecek gün.
 
 Yakalanan veride gerçek son hareketi giriş olan gün bulunmuyor. Demo ek süre seçeneği son hareket saatinde sanal açık giriş kurarak ortak süre hesabını örnekler; canlı PDKS açık girişi, eskimiş rapor, ağ hatası ve oturum bitişi kabulü değildir. İlgili kural/oturum testleri ayrı kanıttır.

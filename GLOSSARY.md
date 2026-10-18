@@ -12,7 +12,7 @@ _Avoid_: İçeride kalınan süre, geçiş çiftleri toplamı
 Güncel ve güvenilir açık giriş bulunduğunda, ilk girişten şimdiki ana kadar uzanan toplam süre.
 _Avoid_: Son girişten geçen süre
 
-**Ek tahmin**:
+**Anlık tahmin**:
 Canlı toplamın kayıtlı süreyi aşan bölümü; süre çubuğunun açık tonlu parçası.
 _Avoid_: Canlı toplam, mola süresi
 
@@ -35,7 +35,7 @@ Kullanıcının haftalık planda izin olarak kapattığı gün. Haftalık hedeft
 Varsayılan şablonun toplamından izinli günlerin şablon süreleri çıkarıldıktan sonra kalan hedef. Tamamla eylemi bu toplamı kullanır.
 
 **Gerçekleşen toplam**:
-PDKS günlük kayıt sürelerinin toplamı. Canlı ek tahmin dahilse ayrıca belirtilir.
+PDKS günlük kayıt sürelerinin toplamı. Canlı anlık tahmin dahilse ayrıca belirtilir.
 
 **Beklenen toplam**:
 Tamamlanan günlerin gerçekleşen süreleri ile tamamlanmamış günlerin güncel gereken sürelerinin toplamı.

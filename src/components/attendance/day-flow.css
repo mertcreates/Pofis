@@ -1,0 +1,41 @@
+.day-flow-rail { container-type: inline-size; }
+.day-flow-rail .panel-heading { align-items: center; }
+.rail-heading-text { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; }
+.rail-date { font-size: 12px; color: var(--secondary); white-space: nowrap; }
+.rail-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--secondary); }
+.rail-status i { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: var(--control); }
+.rail-chart { margin-top: 56px; }
+.rail-track { position: relative; height: 12px; }
+.rail-end-marker { position: absolute; left: var(--rail-position); top: -18px; height: 36px; width: 0; border-left: 1px dashed var(--accent); }
+.rail-marker-label {
+  position: absolute;
+  bottom: 30px;
+  left: var(--rail-position);
+  width: max-content;
+  transform: translateX(clamp(calc(-1 * var(--rail-position)), -50%, calc(100cqw - var(--rail-position) - 100%)));
+  max-width: 100%;
+  font-weight: 600;
+  text-align: center;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  color: var(--accent-text);
+}
+.rail-marker-label > span { display: inline-block; padding: 5px 8px; border-radius: 6px; background: var(--accent-soft); }
+.rail-target-line { position: absolute; left: var(--rail-target-position); top: 12px; height: 38px; border-left: 1px dashed var(--accent); }
+.rail-target-row { position: relative; height: 56px; margin-top: 8px; }
+.rail-target-label { position: absolute; top: 0; left: var(--rail-target-position); width: max-content; max-width: 100%; transform: translateX(clamp(calc(-1 * var(--rail-target-position)), -50%, calc(100cqw - var(--rail-target-position) - 100%))); text-align: center; font-size: 11px; font-weight: 600; color: var(--accent-text); }
+.rail-target-label > span { display: inline-block; padding: 5px 8px; background: var(--accent-soft); border-radius: 6px; }
+.rail-target-label time { display: block; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.rail-axis { display: flex; justify-content: space-between; gap: 12px; margin-top: 12px; font-size: 12px; color: var(--secondary); font-variant-numeric: tabular-nums; }
+.rail-axis > span { position: relative; background: var(--paper); box-shadow: 3px 0 var(--paper), -3px 0 var(--paper); }
+.rail-axis > :last-child { text-align: right; }
+.rail-legend { display: flex; flex-wrap: wrap; gap: 12px 26px; margin: 26px 0 0; font-size: 12px; color: var(--secondary); }
+.rail-legend > span { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+.rail-legend i { width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; background: var(--duration-recorded); }
+.rail-legend > :nth-child(2) i { background: var(--duration-estimated); }
+@container (max-width: 420px) {
+  .rail-legend { flex-direction: column; }
+}
+@container (max-width: 360px) {
+  .day-flow-rail .panel-heading { flex-direction: column; align-items: flex-start; gap: 8px; }
+}
