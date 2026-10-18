@@ -43,7 +43,7 @@ async function run() {
   delete env.ELECTRON_RUN_AS_NODE;
   const install = () => {
     const script = command.replace("https://pofis.app/install.sh", `${base}/install.sh`) +
-      ' --manifest-url "$MANIFEST_URL" --install-root "$INSTALL_ROOT" --app-path "$APP_PATH" --user-data-dir "$USER_DATA"';
+      ' -s -- --manifest-url "$MANIFEST_URL" --install-root "$INSTALL_ROOT" --app-path "$APP_PATH" --user-data-dir "$USER_DATA"';
     const child = spawn("/bin/bash", ["-o", "pipefail", "-c", script], { env: { ...env,
       MANIFEST_URL: `${base}/latest.json`, INSTALL_ROOT: installRoot, APP_PATH: appPath, USER_DATA: profile },
       stdio: ["ignore", "pipe", "pipe"] });

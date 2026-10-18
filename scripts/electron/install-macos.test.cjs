@@ -42,27 +42,11 @@ shellTest("macOS installer ağ isteğinden önce güvensiz adresleri reddeder", 
   }
 });
 
-shellTest("kurulum komutu gerçek HTTP indirme hatasını başarısız raporlar", async () => {
-  const host = Bun.serve({ hostname: "127.0.0.1", port: 0,
-    fetch: () => new Response("unavailable", { status: 503 }) });
-  try {
-    const script = MAC_INSTALL_COMMAND.replace("https://pofis.app/install.sh", `http://127.0.0.1:${host.port}/install.sh`);
-    const error = await execute(bash, ["-c", localCommand(script)]).then(() => null, error => error);
-    expect(error?.code).toBe(22);
-    expect(error?.stderr).toContain("503");
-  } finally { host.stop(true); }
-});
-
-shellTest("kısmi indirme çalıştırılmaz; installer argümanları ve hata kodu korunur", async () => {
-  // Exported Bash functions isolate a download interrupted after receiving some script bytes.
-  const partial = 'curl() { printf \'printf SHOULD_NOT_RUN\'; return 22; }; export -f curl; ' + MAC_INSTALL_COMMAND;
-  const error = await execute(bash, ["-c", localCommand(partial)]).then(() => null, error => error);
-  expect(error?.code).toBe(22);
-  expect(error?.stdout).toBe("");
+shellTest("kısa kurulum komutu installer argümanlarını ve hata kodunu korur", async () => {
   const host = Bun.serve({ hostname: "127.0.0.1", port: 0,
     fetch: () => new Response('printf "%s" "$1"; exit 23\n') });
   try {
-    const script = MAC_INSTALL_COMMAND.replace("https://pofis.app/install.sh", `http://127.0.0.1:${host.port}/install.sh`) + ' "iki kelime"';
+    const script = MAC_INSTALL_COMMAND.replace("https://pofis.app/install.sh", `http://127.0.0.1:${host.port}/install.sh`) + ' -s -- "iki kelime"';
     const failure = await execute(bash, ["-c", localCommand(script)]).then(() => null, error => error);
     expect(failure?.code).toBe(23);
     expect(failure?.stdout).toBe("iki kelime");
