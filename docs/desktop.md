@@ -61,7 +61,7 @@ irm https://pofis.app/install.ps1 | iex
 
 ## pofis.app yayın hazırlığı
 
-Landing bu depodan ayrılmıştır; varsayılan yerleşim yan yana `Pofis/` ve `pofis-landing/` klasörleridir. Ana uygulama deposu private kalır. Public hedef `mertcreates/pofis-landing`, landing kaynaklarını, installer kopyasını ve manifestleri içerir; ZIP'ler bu deponun GitHub Releases asset'leridir. Git geçmişine veya Pages çıktısına ZIP eklenmez. Ayrı projenin README'si Cloudflare ayarlarını ve yayın sırasını yönetir.
+Landing bu depodan ayrılmıştır; varsayılan yerleşim yan yana `Pofis/` ve `pofis-landing/` klasörleridir. Ana uygulama deposu private kalır. Public hedef `mertcreates/pofis-landing`, landing kaynaklarını, installer kopyasını ve manifestleri içerir; ZIP'ler bu deponun GitHub Releases asset'leridir. Git geçmişine veya Pages çıktısına ZIP eklenmez. Public README, Pofis'i kısa bir ürün tanıtımı ve site bağlantısıyla sunar. Cloudflare ayarları ve yayın sırası bu depodaki [sürüm rehberinde](release.md) yönetilir.
 
 Yerel release üretildikten sonra bu depoda:
 
@@ -74,7 +74,7 @@ bun test ./scripts/electron/prepare-site.test.cjs
 
 [Hazırlama aracı](../scripts/electron/prepare-site.cjs), yerel manifestin gerçek ZIP boyutunu ve SHA-256 değerini doğrular. Hedef public depo adresini landing `package.json` içindeki `repository.url` alanından okur; göreli ZIP adresini `https://github.com/<hesap>/<repo>/releases/download/v<sürüm>/<dosya>.zip` yapar. Yalnız ilgili platformun `public/releases/<hedef>/latest.json` dosyasını ve Windows'ta tek kaynak sahibi [installer'ın](../scripts/electron/install.ps1) `public/install.ps1` kopyasını yazar. Ana kaynaklar ve ZIP kopyalanmaz; hiçbir ağ yayını yapılmaz. Ortak platform tanımı macOS manifest yollarını da belirler; macOS installer kabulü ayrıca bekler.
 
-Landing projesinin README'si Cloudflare build ayarlarını, kurulum kartını, cache başlıklarını ve DNS/HTTPS kabulünü yönetir. Yayın sırası: önce GitHub Release ZIP'i ve anonim indirme kabulü; ardından installer/manifest ile Pages sitesi. ZIP dosyaları Git geçmişine veya Pages çıktısına eklenmez. Yerel hazırlık canlı paket, build ortamı veya alan adı kabulünü kanıtlamaz; yayın ve DNS değişiklikleri ayrıca kullanıcı yetkisi gerektirir. Açık işler [görev listesinde](../tasks/todo.md) tutulur.
+[Otomatik sürüm yayını](release.md), Cloudflare build ayarlarının, cache başlıklarının ve DNS/HTTPS kabulünün sahibidir. Windows x64 ve macOS Apple Silicon/Intel native build'lerini aynı release altında toplar: ortak paket kabulü → draft asset'leri → üç paket hazır olduğunda release → anonim indirme doğrulaması → landing commit'i → Pages HTTPS doğrulaması. ZIP dosyaları Git geçmişine veya Pages çıktısına eklenmez. Yerel hazırlık canlı paket, build ortamı veya alan adı kabulünü kanıtlamaz; yayın ve DNS değişiklikleri ayrıca kullanıcı yetkisi gerektirir. Açık işler [görev listesinde](../tasks/todo.md) tutulur.
 
 ## Depo ve çıktı yerleşimi
 

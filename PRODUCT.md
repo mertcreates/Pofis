@@ -6,7 +6,7 @@
 
 web
 
-Web uygulaması, Windows x64 ve macOS Apple Silicon/Intel için ortak Electron kabuğuyla da çalışır. Paketleme ve dağıtım kapsamı [masaüstü rehberinde](docs/desktop.md), bekleyen cihaz ve yayın kabulü [görev listesinde](tasks/todo.md) tutulur.
+Web uygulaması, Windows x64 ve macOS Apple Silicon/Intel için ortak Electron kabuğuyla da çalışır. Paketleme kapsamı [masaüstü rehberinde](docs/desktop.md), üç hedefin otomatik dağıtımı [sürüm yayınında](docs/release.md), bekleyen cihaz ve yayın kabulü [görev listesinde](tasks/todo.md) tutulur.
 
 ## Stack
 

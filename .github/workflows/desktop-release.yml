@@ -1,0 +1,136 @@
+name: Pofis sürümünü yayımla
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'package.json ile aynı sürüm (örnek: 1.0.1)'
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: pofis-production-release
+  cancel-in-progress: false
+jobs:
+  begin:
+    if: github.ref == 'refs/heads/main'
+    runs-on: windows-2022
+    timeout-minutes: 10
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+      - name: Sürümü kontrol et
+        run: bun scripts/electron/ci-build.cjs check
+      - name: Landing deposunu al
+        shell: pwsh
+        run: |
+          $siteDirectory = Join-Path $env:RUNNER_TEMP 'pofis-landing'
+          "SITE_DIRECTORY=$siteDirectory" >> $env:GITHUB_ENV
+          git clone --depth 1 --branch main https://github.com/mertcreates/pofis-landing.git "$siteDirectory"
+      - name: Draft release'i hazırla
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+        run: bun scripts/electron/publish.cjs begin
+  build:
+    needs: begin
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: win32-x64
+            runner: windows-2022
+          - target: darwin-arm64
+            runner: macos-15
+          - target: darwin-x64
+            runner: macos-15-intel
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 45
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_TARGET: ${{ matrix.target }}
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+      - name: Landing deposunu al
+        shell: pwsh
+        run: |
+          $siteDirectory = Join-Path $env:RUNNER_TEMP 'pofis-landing'
+          "SITE_DIRECTORY=$siteDirectory" >> $env:GITHUB_ENV
+          git clone --depth 1 --branch main https://github.com/mertcreates/pofis-landing.git "$siteDirectory"
+      - name: Tamamlanmış platform paketinden devam et
+        id: recover
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+        run: bun scripts/electron/publish.cjs recover
+      - name: Kilitli bağımlılıkları kur
+        if: steps.recover.outputs.reuse != 'true'
+        run: bun install --frozen-lockfile
+      - name: Türleri doğrula
+        if: steps.recover.outputs.reuse != 'true'
+        run: bun run typecheck
+      - name: Testleri çalıştır
+        if: steps.recover.outputs.reuse != 'true'
+        run: bun test
+      - name: Yerel platform paketini üret ve gerçek uygulamayı sına
+        if: steps.recover.outputs.reuse != 'true'
+        run: bun scripts/electron/ci-build.cjs build
+      - name: Doğrulanmış paketi draft release'e aktar
+        if: steps.recover.outputs.reuse != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+        run: bun scripts/electron/publish.cjs stage
+  publish:
+    needs: build
+    runs-on: windows-2022
+    timeout-minutes: 30
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+      - name: Landing deposunu al
+        shell: pwsh
+        run: |
+          $siteDirectory = Join-Path $env:RUNNER_TEMP 'pofis-landing'
+          "SITE_DIRECTORY=$siteDirectory" >> $env:GITHUB_ENV
+          git clone --depth 1 --branch main https://github.com/mertcreates/pofis-landing.git "$siteDirectory"
+      - name: Üç paketi doğrula ve public dosyaları hazırla
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+        run: bun scripts/electron/publish.cjs prepare
+      - name: Landing çıktısını doğrula
+        working-directory: ${{ env.SITE_DIRECTORY }}
+        run: |
+          bun install --frozen-lockfile
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          bun run typecheck
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          bun run build
+      - name: Release'i ve landing değişikliğini yayımla
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+        run: bun scripts/electron/publish.cjs publish
+      - name: Canlı HTTPS dağıtımını doğrula
+        run: bun scripts/electron/publish.cjs verify
+      - name: Sonucu özetle
+        if: always()
+        env:
+          RELEASE_RESULT: ${{ job.status }}
+        run: |
+          "## Pofis $env:RELEASE_VERSION`nSonuç: $env:RELEASE_RESULT`n`nWindows x64 · macOS Apple Silicon · macOS Intel`n`nhttps://pofis.app`n`nHatalı adımı inceleyip aynı sürümle yeniden çalıştırabilirsiniz. Tamamlanmış platform paketleri yeniden üretilmez." >> $env:GITHUB_STEP_SUMMARY

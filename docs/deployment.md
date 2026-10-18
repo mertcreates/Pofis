@@ -1,6 +1,6 @@
 # Tek pod / tek süreç dağıtımı
 
-Bu rehber kurum sunucusundaki Docker/ingress dağıtımını yönetir. Electron paketleri, Windows kurulumu ve bağımsız landing yayını [masaüstü rehberindedir](desktop.md).
+Bu rehber kurum sunucusundaki Docker/ingress dağıtımını yönetir. Electron paketleri ve Windows kurulumu [masaüstü rehberinde](desktop.md), GitHub Actions/Pages otomasyonu [sürüm yayınında](release.md) açıklanır.
 
 Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Her kullanıcı kendi PDKS istemcisi, CookieJar ve kısa rapor önbelleğine sahiptir. Kubernetes'te bir replica kullanılır; güncellemede eski pod durduktan sonra yenisi başlatılır (`Recreate`). Aynı dizini iki süreçten kullanmak için ortak kilit/iptal koordinasyonu henüz yoktur.
 

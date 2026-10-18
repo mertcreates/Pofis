@@ -68,7 +68,7 @@ async function run() {
   }
   const releases = join(root, "dist/releases/windows");
   const first = JSON.parse(await readFile(join(releases, "latest.json"), "utf8"));
-  assert.equal(first.version, "1.0.0", "Kabul başlangıcı 1.0.0 dağıtımını gerektirir.");
+  if (!startupOnly) assert.equal(first.version, "1.0.0", "Tam güncelleme fixture'ları 1.0.0 dağıtımını gerektirir.");
   let active = first;
   let delayManifest = false;
   let manifestRequests = 0;
@@ -144,7 +144,7 @@ async function run() {
       assert.equal(variants.code, 0, variants.output);
     }
     await expectInstall(true, true);
-    assert.equal((await state()).version, "1.0.0");
+    assert.equal((await state()).version, first.version);
     assert.equal(await healthy(), true);
     passed("ilk kurulum, HTTP bootstrap ve otomatik pencere açılışı");
     if (!startupOnly) {

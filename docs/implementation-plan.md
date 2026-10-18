@@ -11,7 +11,7 @@
 | Pofi | Kaynak durum görselleri, albüm, sürprizler ve tek havuzlu not yönetimi |
 | Oturum | Kullanıcı başına PDKS istemcisi, sabit TTL, JSON kalıcılığı ve kısa kişisel rapor önbelleği |
 | Dağıtım | Yerelde standart Next komutları; Docker'da tek Bun süreci, standalone çıktı ve kalıcı oturum dizini |
-| Masaüstü | [Ortak Electron kabuğu, paketleme, kurulum/güncelleme ve landing hazırlığı](desktop.md); açık platform/yayın kabulü görev listesinde |
+| Masaüstü | [Ortak Electron kabuğu, paketleme ve kurulum/güncelleme](desktop.md); [üç hedefli release otomasyonu](release.md) yerelde hazır, native CI/canlı yayın kabulü görev listesinde |
 
 [Kural sahipleri](rules/README.md) · [Arayüz sahipleri](ui-source-migration.md) · [Oturum mimarisi](architecture/multi-user-sessions.md).
 

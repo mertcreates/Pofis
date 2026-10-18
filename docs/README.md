@@ -12,6 +12,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Oturum yaşam döngüsü ve tek süreç sınırları | [Çok kullanıcılı yapı](architecture/multi-user-sessions.md) |
 | Çalışma ortamı, proxy ve Docker | [Dağıtım](deployment.md) |
 | Ortak Windows/macOS Electron altyapısı, paketleme ve Windows kurulumu | [Masaüstü](desktop.md) |
+| Üç platformlu GitHub Actions release, Cloudflare Pages ayarları ve HTTPS kabulü | [Sürüm yayını](release.md) |
 | Demo verisi, saat ve gezinme | [Mesaim demosu](demo.md) |
 | Pofi içeriği ve tek havuz seçimi | [Pofi notları](pofi-notes.md) |
 | Pofi dili ve görselleri | [Ton rehberi](brand/pofi-tone-guide.md), [görsel kaynaklar](brand/assets.md) |
@@ -22,6 +23,8 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | PDKS istekleri, hata sınıfları ve toparlanma | [PDKS hata sözleşmesi](pdks-errors.md) |
 
 ## Belge bakımı
+
+Public `pofis-landing` README'si kısa ürün tanıtımı, slogan ve site bağlantısı içerir. Geliştirme, build ve dağıtım ayrıntılarının sahibi bu depodaki teknik rehberlerdir.
 
 Davranış değiştiğinde ilgili sözleşmeyi ve bağımlı testleri birlikte güncelleyin. Tamamlanan doğrulamanın sonucunu kullanıcıya bildirin; tamamlanmış audit raporlarını, ekran görüntülerini ve ölçüm çıktılarını temizleyin. Geçerli kararlar konu sahibinde, çözülmemiş bulgular görev listesinde tutulur. Davranış testleri korunur; arayüz kabulü doğrulama rehberine göre demoda yapılır.
 
