@@ -158,16 +158,6 @@ test("güncel plan tek v1 anahtarına yazılır ve aynı şemayla yeniden okunur
   expect(loadPlans(store)).toEqual(plans);
 });
 
-test("eski eşit saat şeması içe aktarılmaz; geçersiz kayıt korunarak hata verilir", () => {
-  for (const hours of [8, 0.25, 24, 8.1]) {
-    const raw = JSON.stringify({ "2026-10-12": { weekdays: [0], hours } });
-    const store = storage({ "pofis:work-plans:v1": raw });
-    expect(() => loadPlans(store)).toThrow("Kayıt korunuyor");
-    expect(store.getItem("pofis:work-plans:v1")).toBe(raw);
-    expect(store.values.size).toBe(1);
-  }
-});
-
 test("varsayılan ve özel dağılım yeniden okunur; geçmiş hafta mirası ve sıfırlama korunur", () => {
   const store = storage();
   const defaultPlan = readDayPlan([480, 480, 480, 480, 0, 0, 0])!;
@@ -181,7 +171,8 @@ test("varsayılan ve özel dağılım yeniden okunur; geçmiş hafta mirası ve 
 });
 
 test("geçersiz güncel şema hata verir; bozuk kaydı varsayılan başarı gibi sunmaz", () => {
-  for (const raw of ["{", "null", JSON.stringify({ defaultPlan: [480], weekOverrides: {} }),
+  for (const raw of ["{", "null", JSON.stringify({ "2026-10-12": { weekdays: [0], hours: 8 } }),
+    JSON.stringify({ defaultPlan: [480], weekOverrides: {} }),
     JSON.stringify({ ...emptyWorkPlans(), weekOverrides: { "2026-10-13": [480, 480, 480, 480, 480, 0, 0] } })]) {
     const store = storage({ [PLAN_STORAGE_KEY]: raw });
     expect(() => loadPlans(store)).toThrow();

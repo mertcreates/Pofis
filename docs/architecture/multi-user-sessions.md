@@ -2,6 +2,8 @@
 
 16 Ekim 2026 kullanıcı kararı: arşivin tek sunucu yöntemini koru; toplam oturum kotasını kaldır, disk işlemlerini iyileştir, PDKS isteklerini kullanıcılar arasında bağımsız çalıştır ve yerel yük ölçümü yap.
 
+pofis.app statik landing/installer/manifest dosyaları bağımsız public projede hazırlanır; kullanıcı profili veya PDKS oturumları bu projeye aktarılmaz. Masaüstü sürüm/profil ayrımı ve yayın sorumluluğu [masaüstü sözleşmesindedir](../desktop.md).
+
 ## Uygulanan yapı
 
 Tek uygulama süreci, süreç belleğinde oturumlar ve yerel JSON dosyaları kullanılır. Her oturum kendi `PdksClient`, CookieJar ve doğrulanmış kişi kimliğiyle çalışır. Sabit toplam oturum kotası yoktur. Sabit 8 saat TTL korunur.

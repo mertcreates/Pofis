@@ -54,10 +54,31 @@ Bu komut mevcut Windows hesabına gerçek kurulum yapar ve Pofis'i açar. Sonrak
 Hosting yayımlandıktan sonra kullanılabilecek adres (şu an canlı olduğu varsayılmaz):
 
 ```powershell
-& ([scriptblock]::Create((irm https://pofis.app/install.ps1).TrimStart([char]0xFEFF)))
+irm https://pofis.app/install.ps1 | iex
 ```
 
-`install.ps1`, `releases/windows/latest.json` ve manifestin gösterdiği ZIP adresleri yayımlanmalıdır. GitHub Releases/Cloudflare seçimi ve landing komutunun etkinleştirilmesi yayın aşamasıdır. İmzasız paketlerde SmartScreen/işletim sistemi uyarıları temiz cihazda ayrıca doğrulanır. SHA-256 indirme bütünlüğünü doğrular; manifestin kaynağı için HTTPS ve yayın hesabının güvenliği gerekir, ücretli kod imzası zorunlu değildir.
+`install.ps1`, `releases/windows/latest.json` ve manifestin gösterdiği ZIP adresleri yayımlanmalıdır. Cloudflare Pages + GitHub Releases için yerel hazırlık aşağıdadır. İmzasız paketlerde SmartScreen/işletim sistemi uyarıları temiz cihazda ayrıca doğrulanır. SHA-256 indirme bütünlüğünü doğrular; manifestin kaynağı için HTTPS ve yayın hesabının güvenliği gerekir, ücretli kod imzası zorunlu değildir.
+
+## pofis.app yayın hazırlığı
+
+Landing bu depodan ayrılmıştır; varsayılan yerleşim yan yana `Pofis/` ve `pofis-landing/` klasörleridir. Ana uygulama deposu private kalır. Public hedef `mertcreates/pofis-landing`, landing kaynaklarını, installer kopyasını ve manifestleri içerir; ZIP'ler bu deponun GitHub Releases asset'leridir. Git geçmişine veya Pages çıktısına ZIP eklenmez. Ayrı projenin README'si Cloudflare ayarlarını ve yayın sırasını yönetir.
+
+Yerel release üretildikten sonra bu depoda:
+
+```powershell
+bun run desktop:site
+# Farklı landing konumu:
+bun run desktop:site --site C:\Projeler\Mert\pofis-landing
+bun test ./scripts/electron/prepare-site.test.cjs
+```
+
+[Hazırlama aracı](../scripts/electron/prepare-site.cjs), yerel manifestin gerçek ZIP boyutunu ve SHA-256 değerini doğrular. Hedef public depo adresini landing `package.json` içindeki `repository.url` alanından okur; göreli ZIP adresini `https://github.com/<hesap>/<repo>/releases/download/v<sürüm>/<dosya>.zip` yapar. Yalnız ilgili platformun `public/releases/<hedef>/latest.json` dosyasını ve Windows'ta tek kaynak sahibi [installer'ın](../scripts/electron/install.ps1) `public/install.ps1` kopyasını yazar. Ana kaynaklar ve ZIP kopyalanmaz; hiçbir ağ yayını yapılmaz. Ortak platform tanımı macOS manifest yollarını da belirler; macOS installer kabulü ayrıca bekler.
+
+Landing'de `bun install --frozen-lockfile`, `bun run typecheck` ve `bun run build` çalıştırılır. Build manifest/installer girdilerini ve statik çıktıyı kontrol eder; büyük paketlerin, `.env` dosyalarının ve `node_modules` ağacının siteye eklenmesini reddeder. Footer sürümü manifestten alınır. Kurulum kartı varsayılan macOS ve ikinci Windows PowerShell sekmelerini sunar. macOS installer hazır olana kadar durum metni gösterilir. Windows komutu `irm https://pofis.app/install.ps1 | iex` biçimindedir; HTTP installer kopyası UTF-8 BOM olmadan yazılır, charset=utf-8 başlığıyla sunulur.
+
+Yayın sırası: önce `v<sürüm>` GitHub release asset'i yayımlanır ve anonim indirme doğrulanır; ardından güncel installer/manifest ile Pages sitesi yayımlanır. Pages `out/` dizinini sunar. `public/_headers`, `/install.ps1` ve `/releases/*` için `Cache-Control: no-store` tanımlar. Bu yolları örten başka CDN önbellek kuralı eklenmez. Yerel hazırlık GitHub paketinin varlığını, Cloudflare build ortamını veya HTTPS/DNS kabulünü kanıtlamaz. GitHub/Pages yayını ve DNS değişiklikleri ayrı kullanıcı yetkisi gerektirir.
+
+Pages apex `pofis.app` bağlantısı Cloudflare zone ve nameserver ayarı gerektirir; mevcut DNS kayıtları korunarak ayrı yayın adımında yapılır. Canlı kabulde script/manifestin HTML yerine doğru içeriği döndürdüğü, cache başlıkları, anonim ZIP hash'i ve gerçek Windows kurulum/açılış/güncelleme zinciri doğrulanır. [Pages ayarları](https://developers.cloudflare.com/pages/configuration/build-configuration/), [özel başlıklar](https://developers.cloudflare.com/pages/configuration/headers/), [apex domain koşulları](https://developers.cloudflare.com/pages/configuration/custom-domains/).
 
 ## Depo ve çıktı yerleşimi
 
@@ -113,6 +134,8 @@ Node integration kapalı, context isolation/sandbox açıktır. Origin dışı �
 bun run test:desktop
 bun run test:desktop:smoke
 bun run test:desktop:distribution
+# Landing'deki gerçek PowerShell komutu ve public installer kopyası:
+bun run test:desktop:distribution --startup-only --site ../pofis-landing
 ```
 
 [Süreç testleri](../electron/server.test.cjs) izole fixture süreçleriyle timeout/kimlik/port/iptal/temizleme yollarını sınar. [Paket kabulü](../scripts/electron/smoke.cjs) gerçek Electron/Next standalone üzerinde giriş formu, oturum API'si, demo, tek örnek, gezinme sınırı ve profil kalıcılığını kontrol eder; `--source` kaynak kabuğunu açar.
@@ -120,6 +143,8 @@ bun run test:desktop:distribution
 [Platform testleri](../electron/platform.test.cjs) üç hedefin yollarını/manifestlerini ve POSIX süreç grubuna gönderilecek sinyal/hata politikasını kontrol eder. Windows'taki bu testler macOS üzerinde gerçekten `.app`, `PlistBuddy`, `codesign`, `ditto` veya Dock çalıştırıldığı anlamına gelmez. Aynı paket kabul betiği macOS'ta da çalıştırılmalıdır.
 
 [Dağıtım kabulü](../scripts/electron/distribution-test.cjs) Windows PowerShell 5.1, Node/Bun içermeyen PATH, geçici kurulum/profil/kısayol ve gerçek ZIP kullanır. İlk kurulum, otomatik açılış, kısayol, ikinci açılış, aynı sürüm, sürüm yükseltme, açık uygulamada güncelleme, bozuk/eksik indirme, port çakışması, gerçek Node sunucusu başlangıç hatası ve geri dönüş, ana süreç çökmesi, normal kapanış ve veri korumasını sınar. Güncelleme fixture'ları gerçek paketin sürümünü değiştirir; hata fixture'ında gerçek sunucu giriş noktası hata koduyla çıkar. Başarı yanıtı taklidi yapılmaz. Testler gerçek kullanıcı profilini kullanmaz.
+
+`--site` seçeneği landing içeriğindeki Windows komutunu ve public installer kopyasını okur. Public kopyanın canonical installer ile yalnız BOM farkı taşıdığını doğrular. Komutun adresi loopback test sunucusuna çevrilir; indirilen betikte yalnız dört parametrenin varsayılanı izole manifest/kurulum/kısayol/profil yollarıyla değiştirilir. Installer iş akışı ve gerçek ZIP korunur. `--startup-only` ilk kurulum/açılış, port çakışması/ikinci açılış, kurulum kilidi ve kapanışı sınar; tam sürüm yükseltme/geri dönüş kabulü normal komuttadır. Canlı GitHub/HTTPS indirmesi ayrıca doğrulanır.
 
 Gerçek hesapla **PDKS giriş → rapor → yenileme → çıkış**, temiz Windows cihazında ilk kurulum/SmartScreen ve gerçek oturumun sürüm yükseltmede korunması ayrıca [görev listesinde](../tasks/todo.md) doğrulanır. Sentetik oturum dosyasının korunması gerçek hesabın kabulü değildir.
 

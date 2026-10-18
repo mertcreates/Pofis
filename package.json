@@ -14,6 +14,7 @@
     "desktop:prepare": "bun run desktop:install && bun scripts/electron/build.cjs",
     "desktop:package": "bun run desktop:prepare && bun scripts/electron/package.cjs",
     "desktop:release": "bun scripts/electron/release.cjs",
+    "desktop:site": "bun scripts/electron/prepare-site.cjs",
     "test:desktop": "bun test ./electron/server.test.cjs ./electron/startup.test.cjs ./electron/platform.test.cjs",
     "desktop:serve": "bun scripts/electron/serve-releases.cjs",
     "test:desktop:distribution": "bun scripts/electron/distribution-test.cjs",

@@ -43,6 +43,29 @@ async function run() {
   const install = join(directory, "installed");
   const profile = join(directory, "profile");
   const shortcut = join(directory, "Pofis.lnk");
+  const siteIndex = process.argv.indexOf("--site");
+  let siteCommand;
+  let siteInstaller;
+  if (siteIndex !== -1) {
+    assert.ok(process.argv[siteIndex + 1], "--site landing klasörünü gerektirir.");
+    const site = resolve(process.argv[siteIndex + 1]);
+    const { content } = require(join(site, "src/content.ts"));
+    siteCommand = content.install.platforms.find(item => item.id === "windows")?.command;
+    assert.equal(siteCommand, "irm https://pofis.app/install.ps1 | iex");
+    siteInstaller = await readFile(join(site, "public/install.ps1"), "utf8");
+    assert.equal(siteInstaller, (await readFile(join(__dirname, "install.ps1"), "utf8")).replace(/^\uFEFF/, ""));
+    // Exercise the public command without writing to the real user's profile or Start menu.
+    // Only the four parameter defaults differ; the downloaded installer body is unchanged.
+    for (const [original, replacement] of [
+      ["[string]$ManifestUrl = 'https://pofis.app/releases/windows/latest.json'", "[string]$ManifestUrl = '__LOCAL_MANIFEST__'"],
+      ["[string]$InstallRoot = (Join-Path $env:LOCALAPPDATA 'Programs\\Pofis')", `[string]$InstallRoot = ${quote(install)}`],
+      ["[string]$ShortcutPath = (Join-Path ([Environment]::GetFolderPath('Programs')) 'Pofis.lnk')", `[string]$ShortcutPath = ${quote(shortcut)}`],
+      ["[string]$UserDataDir = (Join-Path $env:APPDATA 'Pofis')", `[string]$UserDataDir = ${quote(profile)}`],
+    ]) {
+      assert.ok(siteInstaller.includes(original), "İzole installer parametresi bulunamadı.");
+      siteInstaller = siteInstaller.replace(original, replacement);
+    }
+  }
   const releases = join(root, "dist/releases/windows");
   const first = JSON.parse(await readFile(join(releases, "latest.json"), "utf8"));
   assert.equal(first.version, "1.0.0", "Kabul başlangıcı 1.0.0 dağıtımını gerektirir.");
@@ -54,7 +77,9 @@ async function run() {
   let debugChild;
   const host = Bun.serve({ hostname: "127.0.0.1", port: 0, async fetch(request) {
     const path = decodeURIComponent(new URL(request.url).pathname);
-    if (path === "/install.ps1") return new Response(Bun.file(join(__dirname, "install.ps1")), { headers: { "Content-Type": "text/plain; charset=utf-8" } });
+    if (path === "/install.ps1") return new Response(siteInstaller
+      ? siteInstaller.replace("__LOCAL_MANIFEST__", base + "/latest.json")
+      : Bun.file(join(__dirname, "install.ps1")), { headers: { "Content-Type": "text/plain; charset=utf-8" } });
     if (path === "/latest.json") {
       manifestRequests++;
       if (delayManifest) await Bun.sleep(2000);
@@ -70,7 +95,8 @@ async function run() {
   const base = `http://127.0.0.1:${host.port}`;
   const flags = `-ManifestUrl ${quote(base + "/latest.json")} -InstallRoot ${quote(install)} -ShortcutPath ${quote(shortcut)} -UserDataDir ${quote(profile)}`;
   const installer = bootstrap => ps(bootstrap
-    ? `& ([scriptblock]::Create((Invoke-RestMethod ${quote(base + "/install.ps1")}).TrimStart([char]0xFEFF))) ${flags}`
+    ? siteCommand ? siteCommand.replace("https://pofis.app/install.ps1", base + "/install.ps1")
+      : `& ([scriptblock]::Create((Invoke-RestMethod ${quote(base + "/install.ps1")}).TrimStart([char]0xFEFF))) ${flags}`
     : `& ${quote(join(__dirname, "install.ps1"))} ${flags}`);
   const state = async () => JSON.parse(await readFile(join(install, "installed.json"), "utf8"));
   const executable = async () => join(install, "versions", (await state()).directory, "Pofis.exe");

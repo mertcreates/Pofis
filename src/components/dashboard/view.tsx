@@ -1,5 +1,4 @@
 "use client";
-import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { usePdks } from "@/data/use-pdks";
 import type { useWorkPlans } from "@/data/use-work-plans";
@@ -13,17 +12,11 @@ import RequestError from "../request-error.js";
 import { InlineNotice } from "../inline-notice";
 import { useAppearance } from "@/data/use-appearance";
 import { DashboardHeader } from "./header";
-import { DashboardMetrics } from "./metrics";
-import { WeekChart } from "../attendance/week-chart";
-import { ReportTable } from "../attendance/report-table";
-import { PofiPanel } from "./pofi-panel";
+import { ReportContent } from "./report-content";
 import PofiCall from "../pofi-call.js";
 import { ui } from "@/lib/ui-text.js";
 import { PlanEditor } from "../plan-editor";
-const PofiRoom = dynamic(
-  () => import("../pofi-room-content").then((module) => module.PofiRoom),
-  { ssr: false },
-);
+import { PofiRoom } from "../pofi-room-content";
 
 type Source =
   | { kind: "pdks"; state: ReturnType<typeof usePdks> }
@@ -73,7 +66,6 @@ export function DashboardView({
     return prepared ? prepared(now) : null;
   }, [prepared, now]);
   const days = presentation?.days ?? [];
-  const todayReport = days.find((day) => day.date === today);
   useEffect(() => {
     if (!connected) {
       setDialog(null);
@@ -156,44 +148,19 @@ export function DashboardView({
                   {ui.staleReport}
                 </InlineNotice>
               )}
-              {source && presentation ? (
-                <section
-                  className="dashboard"
-                  aria-label={ui.personRecords(source.person.name)}
-                >
-                  <DashboardMetrics
-                    targetSeconds={workPlans.targetSeconds}
-                    days={days}
-                    today={today}
-                    isCurrent={isCurrent}
-                  />
-                  {isCurrent && todayReport && (
-                    <div className="middle-grid">
-                      <ReportTable days={days} today={today} compact />
-                      <PofiPanel
-                        key={today}
-                        day={todayReport}
-                        now={now}
-                        onOpen={() => setDialog("room")}
-                      />
-                    </div>
-                  )}
-                  {!isCurrent && (
-                    <div className="weekly-chart-list">
-                      <WeekChart
-                        days={days}
-                        today={today}
-                        start={week}
-                        current={isCurrent}
-                        blocked={presentation.blocked}
-                      />
-                      <ReportTable days={days} today={today} />
-                    </div>
-                  )}
-                  {isCurrent && !todayReport && (
-                    <ReportTable days={days} today={today} />
-                  )}
-                </section>
+              {source && prepared ? (
+                <ReportContent
+                  key={week}
+                  prepared={prepared}
+                  initialNow={now}
+                  today={today}
+                  isCurrent={isCurrent}
+                  liveClock={liveClock}
+                  week={week}
+                  owner={source.person.name}
+                  targetSeconds={workPlans.targetSeconds}
+                  onOpenRoom={() => setDialog("room")}
+                />
               ) : pdks?.failure ? null : busy ? (
                 <LoadingState label={ui.loadingSelf} />
               ) : (

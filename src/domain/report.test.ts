@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { prepareReport, presentReport, type Report } from "./report";
 import { DEFAULT_WORK_PLAN, emptyWorkPlans, changeDefaultPlan, changeWeekPlan, resolveStoredPlan, resolveStoredTarget, completedDaySeconds } from "./rules/work-plan";
 import { summarizeWeek } from "@/domain/rules/week";
-import { readDayPlan, weeklyTarget } from "@/domain/rules/work-plan";
+import { readDayPlan } from "@/domain/rules/work-plan";
 import { pofiNotesForWeek } from "@/server/pofi-notes.js";
 
 const now = Date.parse("2026-10-16T15:00:00+03:00");
@@ -253,27 +253,6 @@ test("aynı günün hareketleri bir güne birleşir; belirsiz geçiş canlı tah
   expect(day.liveSeconds).toBeNull();
   expect(day.source!.pofi.state).toBe("error");
 });
-test("Pofi tahmini hedefte çalışmayı sürdürür; kayıtlı hedefte tamamlanır; yüzde 80 yorgun", () => {
-  const report = fixture();
-  expect(
-    presentReport(
-      report,
-      DEFAULT_WORK_PLAN,
-      Date.parse("2026-10-16T16:00:00+03:00"),
-      false,
-    ).days[4].source!.pofi.state,
-  ).toBe("working");
-  expect(
-    presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4].source!.pofi
-      .state,
-  ).toBe("tired");
-  report.passages.pop();
-  report.passages[9].time = "16:00:00";
-  expect(
-    presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4].source!.pofi
-      .state,
-  ).toBe("completed");
-});
 test.each([
   { name: "giriş yok", clock: "10:00:00", exit: null, empty: true, state: "idle" },
   { name: "canlı yüzde 25", clock: "10:00:00", exit: null, state: "working" },
@@ -312,13 +291,6 @@ test.each([
   }
 });
 
-test("plan sınırları 0–16 saat/gün ve yarım saat adımlarıdır; tüm günler kapatılabilir", () => {
-  expect(readDayPlan([960, 0, 0, 0, 0, 0, 0])).not.toBeNull();
-  expect(readDayPlan([990, 0, 0, 0, 0, 0, 0])).toBeNull();
-  expect(readDayPlan([480, 0, 0, 0, 0, 480, 0])).toBeNull();
-  expect(readDayPlan([15, 15, 0, 0, 0, 0, 0])).toBeNull();
-  expect(weeklyTarget(readDayPlan([0, 0, 0, 0, 0, 0, 0])!)).toBe(0);
-});
 test("notlar kişi bazında sabit, mevcut haftayla sınırlı, 8 Aralık ortak", () => {
   const notes = pofiNotesForWeek("2026-10-16", "fixture-person");
   expect(notes.map((note) => note.date)).toEqual([

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { loadPlans, savePlans } from "@/lib/plan-storage.js";
 import { workPlanStorage, type PlanScope } from "./work-plans";
 import {
@@ -13,6 +13,7 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
   const latest = useRef(plans);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
+  const plan = useMemo(() => resolveStoredPlan(plans, week), [plans, week]);
   useEffect(() => {
     setReady(false);
     try {
@@ -40,7 +41,7 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
     }
   }
   return {
-    plan: resolveStoredPlan(plans, week),
+    plan,
     targetSeconds: resolveStoredTarget(plans, week),
     defaultPlan: plans.defaultPlan,
     leaveDays: resolveLeaveDays(plans, week),

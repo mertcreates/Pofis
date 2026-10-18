@@ -16,6 +16,7 @@ export function Tooltip({ children, content, className, label, anchorSelector }:
   const id = useId();
   const anchor = useRef<HTMLDivElement>(null);
   const tip = useRef<HTMLDivElement>(null);
+  const updatePosition = useRef<(() => void) | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const focused = useRef(false);
   const hovered = useRef(false);
@@ -55,8 +56,10 @@ export function Tooltip({ children, content, className, label, anchorSelector }:
         close();
         return;
       }
-      setPosition(tooltipPosition(bounds, tip.current.getBoundingClientRect(), viewport));
+      const next = tooltipPosition(bounds, tip.current.getBoundingClientRect(), viewport);
+      setPosition(current => current?.left === next.left && current.top === next.top && current.side === next.side ? current : next);
     }
+    updatePosition.current = update;
     update();
     const observer = new ResizeObserver(update);
     if (positionAnchor) observer.observe(positionAnchor);
@@ -64,11 +67,15 @@ export function Tooltip({ children, content, className, label, anchorSelector }:
     window.addEventListener("resize", update);
     window.addEventListener("scroll", update, true);
     return () => {
+      updatePosition.current = null;
       observer.disconnect();
       window.removeEventListener("resize", update);
       window.removeEventListener("scroll", update, true);
     };
-  }, [open, enabled, content, anchorSelector]);
+  }, [open, enabled, anchorSelector]);
+  useLayoutEffect(() => {
+    updatePosition.current?.();
+  }, [content, children]);
   useEffect(() => {
     if (!open) return;
     document.dispatchEvent(new CustomEvent("pofis:tooltip-open", { detail: id }));

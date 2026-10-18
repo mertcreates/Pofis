@@ -1,5 +1,7 @@
 # Tek pod / tek süreç dağıtımı
 
+pofis.app landing ve public dağıtım dosyaları bağımsız `pofis-landing` projesinde Cloudflare Pages, ZIP'ler GitHub Releases için hazırlanır. Ana kaynak deposu private kalır. [Yerel yayın hazırlığı ve canlı kabul](desktop.md#pofisapp-yayın-hazırlığı).
+
 Masaüstünde Windows/macOS ortak Electron kabuğu aynı Next standalone uygulamasını dahili Node.js UtilityProcess ile çalıştırır; paket ve SHA-256 manifesti aynı araçlarla üretilir. Son kullanıcıda Node/Bun kurulumu gerekmez. Windows tek komut kurulum/güncellemesi yerelde doğrulanmıştır; macOS native paket/cihaz kabulü ve macOS kurulum betiği bekler. Hosting henüz yayımlanmamıştır. [Platform komutları, veri dizini ve geri dönüş sözleşmesi](desktop.md).
 
 Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Her kullanıcı kendi PDKS istemcisi, CookieJar ve kısa rapor önbelleğine sahiptir. Kubernetes'te bir replica kullanılır; güncellemede eski pod durduktan sonra yenisi başlatılır (`Recreate`). Aynı dizini iki süreçten kullanmak için ortak kilit/iptal koordinasyonu henüz yoktur.

@@ -16,7 +16,7 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 - [ ] Node/Bun kurulmamış temiz Windows x64 cihazında tek komutla kurulum, simgeden açılış, imzasız ZIP/EXE için SmartScreen uyarıları, güncelleme ve normal çıkışta süreç temizliğini doğrula. PATH kısıtlı yerel kabul temiz cihaz testinin yerine geçmez.
 - [ ] Gerçek PDKS oturumunun sürüm güncellemesinde mevcut TTL içinde korunduğunu doğrula.
 - [ ] Gerçek PDKS oturumuyla 3210 başka uygulamadayken açılışı ve port değişiminden sonra oturum devamını doğrula. Yerel paket kabulü boş port, ayar kalıcılığı ve HttpOnly çerez temizleme yolunu kapsar.
-- [ ] Hosting sahibini seç; HTTPS script/manifest/ZIP adreslerini yayımlayıp pofis.app kurulum komutunu Windows akışına bağla. Mevcut landing Linux/macOS komutu bu dağıtımın canlı giriş noktası değildir.
+- [ ] Yerelde hazırlanan bağımsız `pofis-landing` projesini `mertcreates/pofis-landing` public deposunda yayımla; önce GitHub Release ZIP'ini, ardından Cloudflare Pages sitesi/installer/manifestini etkinleştir. `pofis.app` DNS/HTTPS bağlantısını, cache başlıklarını ve anonim indirmeyle gerçek Windows tek komut kurulum/güncellemesini doğrula. [Hazırlık ve yayın sırası](../docs/desktop.md#pofisapp-yayın-hazırlığı).
 - [ ] macOS Apple Silicon ve Intel cihazlarında ortak `desktop:prepare/package/release` ile `.app`, helper adları, ad-hoc imza, izin/symlink koruması, tek örnek/Dock/Command-Q ve Node UtilityProcess temizliğini doğrula; aynı `test:desktop:smoke` betiğini çalıştır.
 - [ ] macOS tek komut kurulum/güncelleme betiğini ortak manifest ve başlangıç sonucu sözleşmesine bağla; indirilen gerçek pakette Gatekeeper kabulünü tamamla.
 

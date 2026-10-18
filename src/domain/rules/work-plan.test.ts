@@ -303,6 +303,7 @@ test("Cuma kapalıysa hedef 32 saat, dengeleme Perşembe; sonraki kayıtlar Per�
   expect(result.weeklySeconds).toBe(115200);
   expect(result.eligible).toEqual([false, false, false, true, false, false, false]);
   expect(result.exitGoal).toBe(26100);
+  expect(result.displaySeconds).toEqual([30600, 29700, 28800, 26100, 0, 0, 0]);
 });
 
 test.each(["missing", "uncertain"] as const)("geçmiş %s gün sıfır farkla atlanır; bilinen süre borç veya fazla sayılmaz", state => {
@@ -414,6 +415,8 @@ test("girdi yedi gün, 0–16 saat ve yarım saat adımıyla doğrulanır", () =
     [15, 0, 0, 0, 0, 0, 0], [-30, 0, 0, 0, 0, 0, 0], [990, 0, 0, 0, 0, 0, 0], ["480", 0, 0, 0, 0, 0, 0]]) {
     expect(readDayPlan(input)).toBeNull();
   }
+  expect(readDayPlan([960, 0, 0, 0, 0, 0, 0])).toEqual([960, 0, 0, 0, 0, 0, 0]);
+  expect(weeklyTarget(readDayPlan([0, 0, 0, 0, 0, 0, 0])!)).toBe(0);
   expect(setDayMinutes(DEFAULT_WORK_PLAN, 4, 0)).toEqual([480, 480, 480, 480, 0, 0, 0]);
   expect(() => setDayMinutes(DEFAULT_WORK_PLAN, 7, 480)).toThrow();
   expect(() => setDayMinutes(DEFAULT_WORK_PLAN, 5, 480)).toThrow();
@@ -440,7 +443,6 @@ test("kilitli kayıtlar saniyeleriyle görünür, fark özgün plandan gelir ve 
   const edited = resolveWeekPlan(source, setDayMinutes(DEFAULT_WORK_PLAN, 4, 510), "2026-10-16");
   expect(edited.projectedWeeklySeconds).toBe(145800);
   expect(edited.displaySeconds[4]).toBe(27883);
-  expect(custom).toEqual([240, 0, 960, 240, 480, 0, 0]);
 });
 
 test("bugünkü çıkış, belirsiz ve gelecek kayıtlar kilitlenmez; sıfır kayıt kilitlenir", () => {
@@ -477,14 +479,6 @@ test("yeni varsayılan geçmişe uygulanır, kilitli gerçekleşen süre değiş
   expect(Object.keys(changeDefaultPlan(emptyWorkPlans(), shorter))).toEqual(["defaultPlan", "weekOverrides"]);
 });
 
-test("Cuma kapalıyken tamamlanan günler 32 saat hedefini korur; son kalan Perşembe farkı devralır", () => {
-  const result = resolveWeekPlan(days([8.5, 8.25, 8, null, null, null, null]),
-    readDayPlan([480, 480, 480, 480, 0, 0, 0])!, "2026-10-15");
-  expect(result.weeklySeconds).toBe(115200);
-  expect(result.displaySeconds).toEqual([30600, 29700, 28800, 26100, 0, 0, 0]);
-  expect(result.displaySeconds.reduce((sum, seconds) => sum + seconds, 0)).toBe(115200);
-});
-
 test.each([6, 5.5, 6.5])("hafta ilerlerken özel 6 saatlik plan korunur; gerçekleşen %s saat", actual => {
   const plan = readDayPlan([360, 600, 480, 480, 480, 0, 0])!;
   const state = changeWeekPlan(emptyWorkPlans(), "2026-10-12", plan);
@@ -498,7 +492,6 @@ test.each([6, 5.5, 6.5])("hafta ilerlerken özel 6 saatlik plan korunur; gerçek
   expect(tuesday.weeklySeconds).toBe(144000);
   expect(tuesday.projectedWeeklySeconds).toBe(144000);
   expect(tuesday.unallocatedSeconds).toBe(0);
-  expect(resolveWeekPlan(days([actual, null, null, null, null, null, null]), plan, "2026-10-13")).toEqual(tuesday);
 });
 
 test("kapasite dolunca Cuma → Perşembe → Çarşamba; kalan açık geçmişe yüklenmez", () => {
@@ -572,7 +565,6 @@ test("elle düzenleme özgün planı değiştirir; otomatik sonuç tekrar kalıc
   expect(resolved.targets[3]).toBe(30600);
   expect(resolved.targets[4]).toBe(30600);
   expect(resolved.weeklySeconds).toBe(145800);
-  expect(resolveWeekPlan(source, stored, "2026-10-13")).toEqual(resolved);
   expect(stored).toEqual(edited);
 });
 

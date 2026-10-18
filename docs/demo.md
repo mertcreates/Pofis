@@ -77,6 +77,6 @@ Yakalanan veride gerçek son hareketi giriş olan gün bulunmuyor. Demo ek süre
 
 ## Veriyi güncelleme
 
-Onaylı yeni yakalamada fixture'ın `from`, `to`, `capturedAt` ve hareketlerini birlikte değiştirin. Hareketleri tarih/saat sırasıyla, aynı üç alanla koruyun. Ekrandaki tarih açıklamasını [metin sahibinde](../src/lib/ui-text.js), bağımsız beklenen haftalık toplamları ve senaryoları [demo testlerinde](../src/demo/report.test.ts) güncelleyin. Ardından test, tür kontrolü, üretim derlemesi ve tarayıcıda hafta/kayıt/plan kabulünü çalıştırın.
+Onaylı yeni yakalamada fixture'ın `from`, `to`, `capturedAt` ve hareketlerini birlikte değiştirin. Hareketleri tarih/saat sırasıyla, aynı üç alanla koruyun. Ekrandaki tarih açıklamasını [metin sahibinde](../src/lib/ui-text.js), değişen simülasyon senaryolarını [demo davranış testlerinde](../src/demo/navigation.test.ts) güncelleyin. Ardından test, tür kontrolü, üretim derlemesi ve tarayıcıda hafta/kayıt/plan kabulünü çalıştırın.
 
 [Doğrulama rehberi](verification.md) · [Gezinti testleri](../src/demo/navigation.test.ts)

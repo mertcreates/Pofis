@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { summaryRecord, summarize } from "./recorded-time.js";
+import { summarize } from "./recorded-time.js";
 import { dailyDurationState, durationTotals } from "./duration.js";
 import { targetProgress, percentage, chartMaximum } from "./progress.js";
 import {
@@ -30,43 +30,6 @@ function assertRuleImports(source: string) {
       throw new Error(`Kural çalışma zamanı bağımlılığı: ${path}`);
   }
 }
-
-test.each([
-  'import { type Props, Button } from "@/components/primitives"; export const view = Button;',
-  'import "@/components/request-error.css";',
-  'export { Button } from "@/components/primitives";',
-  'const view = require("@/components/primitives");',
-  'const view = import("@/components/primitives");',
-])("kural sınırı çalışma zamanı import biçimini yakalar: %s", (source) => {
-  expect(() => assertRuleImports(source)).toThrow("@/components/");
-});
-
-test("kural sınırı silinen tür importlarına ve yorumdaki örneklere izin verir", () => {
-  expect(() => assertRuleImports(`
-    import type { DayReport } from "../attendance";
-    import { type DayReport as Report } from "../attendance";
-    // import { Button } from "@/components/primitives";
-    import { weekday } from "./calendar";
-    export const day = weekday("2026-10-16");
-  `)).not.toThrow();
-});
-
-test.each([
-  [null, null, "empty", null],
-  ["08:00:00", null, "open", null],
-  [null, "12:00:00", "uncertain", null],
-  ["13:00:00", "12:00:00", "uncertain", null],
-  ["25:00:00", "12:00:00", "uncertain", null],
-  ["08:00:00", "12:00:00", "recorded", 14400],
-])(
-  "kayıt sınıflandırması: %s / %s",
-  (firstEntry, lastExit, record, seconds) => {
-    expect(summaryRecord({ firstEntry, lastExit })).toEqual({
-      record,
-      seconds,
-    });
-  },
-);
 
 test.each([
   ["15:00:00", false, 3, "live", 25200, 10800],

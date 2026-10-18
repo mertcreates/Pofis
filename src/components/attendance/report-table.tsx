@@ -26,6 +26,7 @@ const DayRow = memo(function DayRow({
   compact: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [detailsLoaded, setDetailsLoaded] = useState(false);
   const id = `day-passages-${day.date}`;
   const label = formatDate(day.date);
   const delta =
@@ -44,7 +45,8 @@ const DayRow = memo(function DayRow({
     const live = day.liveSeconds !== null;
     const seconds = live ? day.source.total : day.recordedSeconds;
     return (
-      <details className={`report-accordion-day${day.date === today ? " is-today" : ""}${day.date > today ? " future-row" : ""}`}>
+      <details className={`report-accordion-day${day.date === today ? " is-today" : ""}${day.date > today ? " future-row" : ""}`}
+        onToggle={event => { if (event.currentTarget.open) setDetailsLoaded(true); }}>
         <summary>
           <span className="report-accordion-heading">
             <span className="report-accordion-date">{label} <small>{formatDate(day.date, { weekday: "long" })}{day.date === today && <> · {ui.today}</>}</small></span>
@@ -63,7 +65,7 @@ const DayRow = memo(function DayRow({
             <div><dt>{ui.targetDifference}</dt><dd>{difference}</dd></div>
             <div><dt>{ui.recordStatus}</dt><dd>{stateLabel(day)}{!working && day.records.length > 0 && <small>{ui.nonWorkingDay}</small>}</dd></div>
           </dl>
-          {day.records.length > 0 && <div className="day-passages"><h3>{ui.recordsForDate(label)}</h3><RawPassages day={day} /></div>}
+          {detailsLoaded && day.records.length > 0 && <div className="day-passages"><h3>{ui.recordsForDate(label)}</h3><RawPassages day={day} /></div>}
         </div>
       </details>
     );

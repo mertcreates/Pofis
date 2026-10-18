@@ -15,6 +15,8 @@
 
 [Kural sahipleri](rules/README.md) · [Arayüz sahipleri](ui-source-migration.md) · [Oturum mimarisi](architecture/multi-user-sessions.md).
 
+Landing bağımsız `pofis-landing` projesine ayrılmıştır. Cloudflare Pages + GitHub Releases için doğrulanmış manifest/installer aktarımı yerelde hazırdır; canlı yayın ve DNS/HTTPS kabulü bekler. [Dağıtım sahipliği](desktop.md#pofisapp-yayın-hazırlığı).
+
 ## Sonraki aşama
 
 Gerçek kaynakta açık giriş ve oturum yaşam döngüsünü, ardından kurum ortamında dağıtım ve kapasiteyi doğrulayın. Tek süreç başlangıç noktasıdır; ortak depo ve çoklu replica ihtiyacı ölçüm veya yüksek erişilebilirlik gereksinimine göre değerlendirilir.

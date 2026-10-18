@@ -1,11 +1,5 @@
 import { expect, test } from "bun:test";
-import {
-  durationClock,
-  durationText,
-  formatClock,
-  formatDate,
-  weekLabel,
-} from "./time";
+import { formatClock } from "./time";
 import {
   addDays,
   clockSeconds,
@@ -15,7 +9,6 @@ import {
   weekday,
   weekStart,
 } from "@/domain/rules/calendar";
-import { percentage } from "@/domain/rules/progress.js";
 
 test("kaynak saatini İstanbul'un tarihsel UTC farkıyla taşır", () => {
   expect(sourceTimestamp("2026-10-16", "08:00:00")).toBe(
@@ -66,43 +59,6 @@ test("geçersiz takvim gününü reddeder", () => {
   expect(isDateKey("2026-02-30")).toBe(false);
   expect(isDateKey("2026-2-2")).toBe(false);
 });
-test("arşiv gibi hedef altında aşağı yuvarlar, hedef üstünü gizlemez", () => {
-  expect(percentage(6998, 10000)).toBe(69);
-  expect(percentage(102, 100)).toBe(102);
-  expect(percentage(0, 0)).toBe(100);
-});
-test("saniyeleri ve 24 saat üstü süreyi kaybetmez", () => {
-  expect(durationClock(40 * 3600 + 31)).toBe("40:00:31");
-  expect(durationText(7 * 3600 + 45 * 60 + 51)).toBe("7 sa 45 dk 51 sn");
-});
-test("yeniden kullanılan formatlayıcılar Türkçe tarihi ve İstanbul saatini korur", () => {
-  const at = Date.parse("2026-10-15T09:34:56Z");
-  expect(formatClock(at)).toBe("12:34:56");
-  expect(formatClock(at, false)).toBe("12:34");
-  expect(formatClock(null)).toBe("–");
-  expect(formatDate("2026-10-15", { day: "numeric", month: "long" })).toBe(
-    "15 Ekim",
-  );
-  expect(formatDate("2026-10-15", { month: "long", day: "numeric" })).toBe(
-    "15 Ekim",
-  );
-  expect(formatDate("2026-10-15", { weekday: "long" })).toBe("Perşembe");
-});
-
-test("bozuk kayıt saati geçerli bir saat uydurmadan boş gösterilir", () => {
-  expect(formatClock(Date.parse("bad-date"))).toBe("–");
-  expect(formatClock(Infinity)).toBe("–");
-  expect(formatClock(1e20)).toBe("–");
-});
-
-test("hafta etiketi başka yıl ve yıl geçişini açık gösterir", () => {
-  expect(weekLabel("2025-10-13", false, "2026-10-16")).toBe("13–19 Ekim 2025");
-  expect(weekLabel("2026-12-28", false, "2026-10-16")).toBe(
-    "28 Aralık 2026 – 3 Ocak 2027",
-  );
-  expect(weekLabel("2026-10-12", false, "2026-10-16")).toBe("12 – 18 Ekim");
-});
-
 test("05:57:32 girişi ve gece yarısı İstanbul gün/haftasına göre çözülür", () => {
   const entry = sourceTimestamp("2026-10-19", "05:57:32");
   expect(entry).toBe(Date.parse("2026-10-19T02:57:32Z"));

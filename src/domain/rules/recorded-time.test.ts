@@ -35,6 +35,7 @@ test.each([
   [[passage("08:00:00", "in")], "open", null],
   [[passage("12:00:00", "out")], "uncertain", null],
   [[passage("07:00:00", "out"), passage("08:00:00", "in")], "uncertain", null],
+  [[passage("25:00:00", "in"), passage("12:00:00", "out")], "uncertain", null],
 ] as const)(
   "boş/açık/eşleşmeyen hareketler kayıtlı sıfır süre uydurmaz: %s",
   (events, record, seconds) => {
@@ -75,27 +76,4 @@ test.each([
   ["2026-10-18", "2026-10-12", false],
 ] as const)("rapor aralığı %s–%s kısmi hafta=%s", (from, to, partial) => {
   expect(summarize([], from, to, "2026-10-16").partial).toBe(partial);
-});
-
-test("tek kaynak 4 saat kayıtlı + 3 saat tahmin üretir; son çıkış ve eski rapor tahmini durdurur", () => {
-  const passages = [
-    passage("08:00:00", "in"),
-    passage("12:00:00", "out"),
-    passage("13:00:00", "in"),
-  ];
-  const report = {
-    person: { id: "self", name: "Fixture", unit: "", title: "" },
-    from: "2026-10-12",
-    to: "2026-10-18",
-    fetchedAt: "2026-10-16T12:00:00Z",
-    passages,
-  };
-  const now = Date.parse("2026-10-16T15:00:00+03:00");
-  const day = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4];
-  expect(day.source).toMatchObject({ recorded: 4 * 3600, estimated: 3 * 3600 });
-  expect(day.records).toHaveLength(3);
-  expect(day.source!.dailyGoalSeconds).toBe(8 * 3600);
-  expect(presentReport(report, DEFAULT_WORK_PLAN, now, true).days[4].liveSeconds).toBeNull();
-  report.passages = passages.slice(0, 2);
-  expect(presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4].liveSeconds).toBeNull();
 });

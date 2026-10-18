@@ -29,4 +29,3 @@ Başka ürün kuralına bağlı değildir.
 ## Testler
 
 - [time.test.ts](../../src/domain/time.test.ts)
-- [week-calendar.test.ts](../../src/components/dashboard/week-calendar.test.ts)
