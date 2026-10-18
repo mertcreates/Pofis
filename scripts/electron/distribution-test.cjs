@@ -1,11 +1,12 @@
 // All successful startup checks below use the packaged Electron/Next standalone application.
 const { spawn } = require("node:child_process");
-const { mkdir, mkdtemp, readFile, writeFile, rm } = require("node:fs/promises");
+const { mkdir, mkdtemp, readFile, writeFile, rm, readdir, access } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const assert = require("node:assert/strict");
 const { randomBytes } = require("node:crypto");
 const { connect } = require("./cdp.cjs");
 const { ORIGIN, stopProcessTree } = require("../../electron/server.cjs");
+const { readStoredPlans } = require("../../src/lib/plan-storage.js");
 
 const root = resolve(__dirname, "../..");
 if (process.platform !== "win32") {
@@ -43,6 +44,7 @@ async function run() {
   const install = join(directory, "installed");
   const profile = join(directory, "profile");
   const shortcut = join(directory, "Pofis.lnk");
+  const registry = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Pofis-' + randomBytes(16).toString('hex');
   const siteIndex = process.argv.indexOf("--site");
   let siteCommand;
   let siteInstaller;
@@ -61,6 +63,7 @@ async function run() {
       ["[string]$InstallRoot = (Join-Path $env:LOCALAPPDATA 'Programs\\Pofis')", `[string]$InstallRoot = ${quote(install)}`],
       ["[string]$ShortcutPath = (Join-Path ([Environment]::GetFolderPath('Programs')) 'Pofis.lnk')", `[string]$ShortcutPath = ${quote(shortcut)}`],
       ["[string]$UserDataDir = (Join-Path $env:APPDATA 'Pofis')", `[string]$UserDataDir = ${quote(profile)}`],
+      ["[string]$RegistryPath = 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Pofis'", `[string]$RegistryPath = ${quote(registry)}`],
     ]) {
       assert.ok(siteInstaller.includes(original), "İzole kurulum parametresi bulunamadı.");
       siteInstaller = siteInstaller.replace(original, replacement);
@@ -87,13 +90,13 @@ async function run() {
     }
     if (path === "/broken.zip") return new Response("corrupt archive");
     if (path.endsWith(".zip")) zipRequests++;
-    const local = path === "/1.0.1.zip" || path === "/1.0.2.zip"
+    const local = ["/1.0.1.zip", "/1.0.2.zip", "/1.0.3.zip"].includes(path)
       ? join(directory, path.slice(1)) : resolve(releases, `.${path}`);
     if (!local.startsWith(directory) && !local.startsWith(releases)) return new Response("", { status: 404 });
     return await Bun.file(local).exists() ? new Response(Bun.file(local)) : new Response("", { status: 404 });
   } });
   const base = `http://127.0.0.1:${host.port}`;
-  const flags = `-ManifestUrl ${quote(base + "/latest.json")} -InstallRoot ${quote(install)} -ShortcutPath ${quote(shortcut)} -UserDataDir ${quote(profile)}`;
+  const flags = `-ManifestUrl ${quote(base + "/latest.json")} -InstallRoot ${quote(install)} -ShortcutPath ${quote(shortcut)} -UserDataDir ${quote(profile)} -RegistryPath ${quote(registry)}`;
   const installer = bootstrap => ps(bootstrap
     ? siteCommand ? siteCommand.replace("https://pofis.app/install.ps1", base + "/install.ps1")
       : `& ([scriptblock]::Create((Invoke-RestMethod ${quote(base + "/install.ps1")}).TrimStart([char]0xFEFF))) ${flags}`
@@ -147,6 +150,9 @@ async function run() {
     assert.equal((await state()).version, first.version);
     assert.equal(await healthy(), true);
     passed("ilk kurulum, HTTP bootstrap ve otomatik pencere açılışı");
+    const registration = await ps(`(Get-ItemProperty -LiteralPath ${quote(registry)}).DisplayName`).done;
+    assert.equal(registration.code, 0, registration.output);
+    assert.equal(registration.output.trim(), 'Pofis');
     if (!startupOnly) {
       const initial = await state();
       const count = zipRequests;
@@ -163,7 +169,8 @@ async function run() {
       passed("normal uygulama simgesinden açılış");
       await close();
       await debugOpen();
-      const plan = JSON.stringify({ defaultPlan: [28800, 28800, 28800, 28800, 25200, 0, 0], weekOverrides: {} });
+      const plan = JSON.stringify({ defaultPlan: [480, 480, 480, 480, 420, 0, 0], weekOverrides: {} });
+      readStoredPlans(plan);
       await evaluate(`localStorage.setItem('pofis:theme:v1','dark'); localStorage.setItem('pofis:work-plans:v1',${JSON.stringify(plan)}); true`);
       await mkdir(join(profile, "sessions"), { recursive: true });
       await writeFile(join(profile, "sessions/preservation-fixture.txt"), "fixture-session-preserved");
@@ -183,10 +190,16 @@ async function run() {
       await expectInstall(true);
       assert.equal((await state()).version, "1.0.1");
       assert.notEqual((await state()).directory, initial.directory);
+      assert.deepEqual(await readdir(join(install, 'versions')), [(await state()).directory]);
       await close();
       await debugOpen();
       assert.equal(await evaluate("localStorage.getItem('pofis:theme:v1')"), "dark");
-      assert.equal(await evaluate("localStorage.getItem('pofis:work-plans:v1')"), plan);
+      const restoredPlan = await evaluate("localStorage.getItem('pofis:work-plans:v1')");
+      assert.equal(restoredPlan, plan);
+      const { defaultPlan } = readStoredPlans(restoredPlan);
+      assert.equal(defaultPlan[0], 8 * 60);
+      assert.equal(defaultPlan[4], 7 * 60);
+      assert.equal(defaultPlan.reduce((total, minutes) => total + minutes, 0), 39 * 60);
       assert.equal(await readFile(join(profile, "sessions/preservation-fixture.txt"), "utf8"), "fixture-session-preserved");
       passed("yeni sürüm, tema/plan ve oturum dosyalarının korunması");
       // Kill only our main PID. The owned Node utility process must exit when its main PID disappears.
@@ -199,19 +212,21 @@ async function run() {
       active = JSON.parse((await readFile(join(directory, "1.0.2.json"), "utf8")).replace(/^\uFEFF/, ""));
       const failed = await expectInstall(false);
       assert.match(failed.output, /42/);
-      assert.equal((await state()).version, "1.0.1");
-      assert.equal(await healthy(), true);
-      passed("gerçek Node sunucusu başlatma hatasında önceki çalışan sürüme dönüş");
-      await close();
+      assert.equal((await state()).version, "1.0.2");
+      assert.equal(await healthy(), false);
+      assert.deepEqual(await readdir(join(install, 'versions')), [(await state()).directory]);
+      passed("gerçek başlangıç hatası raporlanır; eski sürümler açılışı beklemeden kaldırılır");
       const previousState = await state();
-      active = { ...active, url: "missing.zip" };
+      active = { ...active, version: "1.0.3", url: "missing.zip" };
       await expectInstall(false);
       assert.deepEqual(await state(), previousState);
       active = { ...active, url: "broken.zip" };
       await expectInstall(false);
       assert.deepEqual(await state(), previousState);
       passed("başarısız indirme ve bozuk pakette kurulumun korunması");
-      active = JSON.parse((await readFile(join(directory, "1.0.1.json"), "utf8")).replace(/^\uFEFF/, ""));
+      active = JSON.parse((await readFile(join(directory, "1.0.3.json"), "utf8")).replace(/^\uFEFF/, ""));
+      await expectInstall(true);
+      await close();
     } else {
       await close();
     }
@@ -236,15 +251,29 @@ async function run() {
     passed("eşzamanlı iki kurulumda tek sahip kilidi");
     await close();
     passed("normal kapanış ve yeniden başlatma");
+    await writeFile(join(profile, 'uninstall-preserve.txt'), 'preserve');
+    await expectInstall(true);
+    const blockedRemoval = await ps(`& ${quote(join(install, 'uninstall.ps1'))} -Confirmed`).done;
+    assert.notEqual(blockedRemoval.code, 0);
+    assert.match(blockedRemoval.output, /Pofis açık/);
+    await close();
+    const removal = await ps(`& ${quote(join(install, 'uninstall.ps1'))} -Confirmed`).done;
+    assert.equal(removal.code, 0, removal.output);
+    await assert.rejects(access(install));
+    await assert.rejects(access(shortcut));
+    assert.equal((await ps(`Test-Path -LiteralPath ${quote(registry)}`).done).output.trim(), 'False');
+    assert.equal(await readFile(join(profile, 'uninstall-preserve.txt'), 'utf8'), 'preserve');
+    passed("kaldırma kaydı, açıkken kaldırmanın reddi, uygulama/kısayol/kayıt temizliği ve profil koruması");
     console.log("Dağıtım kabulü tamamlandı. Gerçek PDKS hesabı ve temiz cihaz/SmartScreen kabulü ayrıca yapılmalı.");
   } catch (error) {
     console.error("Kabul hatası:", error);
     throw error;
   } finally {
     cdp?.close();
-    await close().catch(() => {});
+    // Uninstall may already have removed the entire installation.
     await stopProcessTree(debugChild);
     await ps(`Get-Process | Where-Object { $_.Path -like ${quote(install + "\\versions\\*")} } | Stop-Process -Force`).done;
+    await ps(`if (Test-Path -LiteralPath ${quote(registry)}) { Remove-Item -LiteralPath ${quote(registry)} -Recurse -Force }`).done;
     host.stop(true);
     // Only this test's generated install/profile/archives are removed.
     await rm(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });

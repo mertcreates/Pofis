@@ -85,14 +85,35 @@ assert_links() {
 }
 
 running_pids() {
-  /bin/ps -ww -axo pid=,comm= | /usr/bin/awk -v prefix="$install_root/versions/" \
-    '{pid=$1; sub(/^[[:space:]]*[0-9]+[[:space:]]+/, ""); if (index($0,prefix)==1) print pid}'
+  /bin/ps -ww -axo pid=,comm= | /usr/bin/awk -v app="$app_path/Contents/" \
+    '{pid=$1; sub(/^[[:space:]]*[0-9]+[[:space:]]+/, ""); if (index($0,app)==1) print pid}'
 }
 
 activate() {
-  # BSD mv -h replaces the symlink itself, never follows its .app directory target.
-  /bin/ln -s "$1" "$pointer"
-  /bin/mv -fh "$pointer" "$app_path"
+  local backup="$stage/previous.app"
+  switching=true
+  if [[ -d "$app_path" ]]; then /bin/mv "$app_path" "$backup"; fi
+  if ! /bin/mv "$stage/Pofis.app" "$app_path"; then
+    [[ ! -d "$backup" ]] || /bin/mv "$backup" "$app_path"
+    die 'Pofis uygulama klasörüne taşınamadı. Mevcut kurulum korundu.'; return 1
+  fi
+  if ! /bin/mv -f "$work/manifest.json" "$install_root/installed.json"; then
+    /bin/mv "$app_path" "$stage/Pofis.app"
+    [[ ! -d "$backup" ]] || /bin/mv "$backup" "$app_path"
+    die 'Kurulum kaydı yazılamadı. Mevcut kurulum korundu.'; return 1
+  fi
+  switching=false
+}
+
+clear_staging_versions() {
+  local candidate name
+  [[ -d "$install_root/versions" && ! -L "$install_root/versions" ]] || { die 'Sürüm dizini doğrulanamadı.'; return 1; }
+  for candidate in "$install_root/versions/"*; do
+    [[ -e "$candidate" || -L "$candidate" ]] || continue
+    name="${candidate##*/}"
+    [[ "$name" =~ ^[a-f0-9]{32}$ && -d "$candidate" && ! -L "$candidate" ]] || { die 'Sürüm dizininde beklenmeyen dosya var.'; return 1; }
+    /bin/rm -rf "$candidate"
+  done
 }
 
 assert_startup_result() {
@@ -139,27 +160,20 @@ launch() {
 }
 
 cleanup() {
-  local result=$? pid command deadline
+  local result=$?
   trap - EXIT INT TERM HUP
-  if [[ "$activated" == true && "$result" != 0 ]]; then
-    printf 'Açılış başarısız; önceki kurulum geri yükleniyor…\n' >&2
-    # Only this new immutable version belongs to the failed installation attempt.
-    for pid in $(running_pids); do
-      command="$(/bin/ps -ww -p "$pid" -o comm= || true)"
-      if [[ "$command" == "$stage/Pofis.app/Contents/MacOS/Pofis" ]]; then /bin/kill -TERM "$pid" 2>/dev/null || true; fi
-    done
-    deadline=$((SECONDS + 10))
-    while [[ -n "$(running_pids)" ]] && (( SECONDS < deadline )); do /bin/sleep 0.2; done
-    if [[ -n "$previous" ]]; then
-      activate "$previous" || printf 'Önceki uygulama simgesi geri yüklenemedi.\n' >&2
-      launch "$previous" "$previous_version" || printf 'Önceki sürüm korunuyor; uygulama simgesinden yeniden aç.\n' >&2
-    else
-      if [[ -L "$app_path" && "$(/usr/bin/readlink "$app_path")" == "$stage/Pofis.app" ]]; then /bin/rm "$app_path"; fi
+  if [[ "$switching" == true && -n "$stage" ]]; then
+    # An interruption during the two renames must not discard the previous bundle.
+    if [[ ! -d "$stage/Pofis.app" && -d "$app_path" ]]; then /bin/mv "$app_path" "$stage/Pofis.app"; fi
+    if [[ -d "$stage/previous.app" ]]; then
+      if ! /bin/mv "$stage/previous.app" "$app_path"; then
+        printf 'Önceki uygulama %s konumunda korundu.\n' "$stage/previous.app" >&2
+        stage=''
+      fi
     fi
   fi
-  [[ -z "$pointer" || ! -L "$pointer" ]] || /bin/rm -f "$pointer"
   if [[ -n "$work" && "$work" == "$install_root"/download.* ]]; then /bin/rm -rf "$work"; fi
-  # Failed versions are retained for diagnosis/rollback; user profiles are never removed.
+  if [[ -n "$stage" && "$stage" == "$install_root/versions/"* ]]; then /bin/rm -rf "$stage"; fi
   if [[ "$locked" == true ]]; then /bin/rm -f "$install_root/install.lock/pid"; /bin/rmdir "$install_root/install.lock"; fi
   exit "$result"
 }
@@ -196,8 +210,10 @@ main() {
   case "$user_data/" in "$install_root/"*) die 'Profil kurulum dosyalarından ayrı tutulmalı.'; return 1 ;; esac
   case "$install_root/" in "$user_data/"*) die 'Kurulum dosyaları profilin dışında tutulmalı.'; return 1 ;; esac
   case "$app_path" in "$install_root"/*) die 'Uygulama simgesi sürüm dizininden ayrı tutulmalı.'; return 1 ;; esac
+  case "$app_path/" in "$user_data/"*) die 'Uygulama kullanıcı verilerinden ayrı tutulmalı.'; return 1 ;; esac
+  case "$user_data/" in "$app_path/"*) die 'Kullanıcı verileri uygulamanın dışında tutulmalı.'; return 1 ;; esac
   /bin/chmod 700 "$install_root"
-  locked=false activated=false previous='' previous_version='' stage='' work='' pointer=''
+  locked=false switching=false previous_version='' stage='' work=''
   if ! /bin/mkdir "$install_root/install.lock" 2>/dev/null; then
     die "Başka bir Pofis kurulumu çalışıyor veya yarım kalmış. Kurulum çalışmıyorsa $install_root/install.lock dizinini kaldırıp yeniden dene."; return 1
   fi
@@ -207,7 +223,6 @@ main() {
   trap 'exit 143' TERM HUP
   printf '%s\n' "$$" > "$install_root/install.lock/pid"
   work="$(/usr/bin/mktemp -d "$install_root/download.XXXXXX")"
-  pointer="$(/usr/bin/dirname "$app_path")/.pofis-link-$(/usr/bin/uuidgen)"
   download "$manifest_url" "$work/manifest.json"
   local version sha size url directory record old_sha
   version="$(json "$work/manifest.json" version)"
@@ -219,22 +234,21 @@ main() {
     [[ ! "$sha" =~ ^[a-f0-9]{64}$ || ! "$size" =~ ^[1-9][0-9]{0,9}$ ]] || (( size >= 2147483648 )); then
     die 'Dağıtım manifesti geçersiz.'; return 1
   fi
-  if [[ -L "$app_path" ]]; then
-    previous="$(/usr/bin/readlink "$app_path")"
-    directory="${previous#"$install_root/versions/"}"; directory="${directory%/Pofis.app}"
-    [[ "$directory" =~ ^[a-f0-9]{32}$ && "$previous" == "$install_root/versions/$directory/Pofis.app" ]] || { die 'Uygulama simgesi bu kurulum tarafından yönetilmiyor.'; return 1; }
-    record="$install_root/versions/$directory/install.json"
+  if [[ -L "$app_path" ]]; then die 'Uygulama konumu sembolik bağlantı olamaz.'; return 1
+  elif [[ -e "$app_path" ]]; then
+    [[ -d "$app_path" && -f "$install_root/installed.json" ]] || { die 'Bu konumda kurulumun yönetmediği bir uygulama var; üzerine yazılmadı.'; return 1; }
+    record="$install_root/installed.json"
     previous_version="$(json "$record" version)"; old_sha="$(json "$record" sha256)"
     valid_version "$previous_version" && [[ "$old_sha" =~ ^[a-f0-9]{64}$ ]] || { die 'Mevcut kurulum kaydı geçersiz.'; return 1; }
+    assert_bundle "$app_path" "$previous_version"
     if older "$version" "$previous_version"; then die 'Sürüm düşürülmedi; mevcut kurulum korundu.'; return 1; fi
     if [[ "$version" == "$previous_version" ]]; then
       [[ "$sha" == "$old_sha" ]] || { die 'Aynı sürümün paket içeriği değişmiş. Yeni sürüm gerekli.'; return 1; }
-      assert_bundle "$previous" "$version"
       printf 'Pofis güncel (%s)\n' "$version"
-      launch "$previous" "$version"
+      clear_staging_versions
+      launch "$app_path" "$version"
       return
     fi
-  elif [[ -e "$app_path" ]]; then die 'Bu konumda kurulumun yönetmediği bir uygulama var; üzerine yazılmadı.'; return 1
   fi
   case "$url" in
     "$version/Pofis-$version-darwin-$arch.zip") url="${manifest_url%/*}/$url" ;;
@@ -253,12 +267,11 @@ main() {
   /usr/bin/tar -xf "$work/package.zip" -C "$stage"
   assert_links "$stage/Pofis.app"
   assert_bundle "$stage/Pofis.app" "$version"
-  /bin/cp "$work/manifest.json" "$stage/install.json"
   [[ -z "$(running_pids)" ]] || { die 'Pofis açık. Uygulamayı kapatıp aynı komutu yeniden çalıştır.'; return 1; }
-  activate "$stage/Pofis.app"
-  activated=true
-  launch "$stage/Pofis.app" "$version"
-  activated=false
+  activate
+  clear_staging_versions
+  stage=''
+  launch "$app_path" "$version"
   printf 'Kurulum tamamlandı · Pofis %s\n' "$version"
 }
 

@@ -1,7 +1,7 @@
 const { test, expect } = require("bun:test");
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
-const { mkdtemp, writeFile, rm } = require("node:fs/promises");
+const { mkdtemp, writeFile, readFile, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { tmpdir } = require("node:os");
 const execute = promisify(execFile);
@@ -76,4 +76,27 @@ shellTest("açılış hatası gerçek mesajı taşır; yabancı istek sonucunu k
   expect(failure?.stderr).toContain("Pofis sunucusu kapandı (kod: 23)");
   expect(failure?.code).toBe(1);
   await expect(command(fields + 'assert_startup_result ignored other 1.2.3')).rejects.toThrow("açılış sonucu doğrulanamadı");
+});
+
+shellTest("macOS temizliği geçici sürümleri kaldırır; bilinmeyen klasörü korur", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-mac-cleanup-"));
+  try {
+    const keep = "a".repeat(32), old = "b".repeat(32);
+    // Use shell-native paths on Windows's Git shell too.
+    await command('install_root="$2"; mkdir -p "$install_root/versions/$3" "$install_root/versions/$4"; clear_staging_versions; [[ ! -e "$install_root/versions/$3" && ! -e "$install_root/versions/$4" ]]', [directory.replaceAll("\\", "/"), keep, old]);
+    await command('install_root="$2"; mkdir "$install_root/versions/unknown"; ! clear_staging_versions; [[ -d "$install_root/versions/unknown" ]]', [directory.replaceAll("\\", "/")]);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+shellTest("macOS yeni gerçek app paketini yerleştirir; kayıt yazılamazsa mevcut paketi korur", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-mac-activate-"));
+  try {
+    const setup = 'install_root="$2"; work="$2/download"; stage="$2/versions/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"; app_path="$2/Applications/Pofis.app"; mkdir -p "$work" "$stage/Pofis.app" "$app_path"; echo old > "$app_path/version"; echo new > "$stage/Pofis.app/version"; echo manifest > "$work/manifest.json"; ';
+    await command(setup + 'activate; [[ "$(cat "$app_path/version")" == new && "$(cat "$stage/previous.app/version")" == old && "$switching" == false ]]; clear_staging_versions; [[ ! -e "$stage" && ! -L "$app_path" ]]', [directory.replaceAll("\\", "/")]);
+    // A nonexistent record parent produces a real filesystem failure after the bundle moves.
+    await command(setup + 'install_root="$2/missing"; ! activate; [[ "$(cat "$app_path/version")" == old && "$(cat "$stage/Pofis.app/version")" == new ]]', [directory.replaceAll("\\", "/")]);
+    const interrupted = await command(setup + 'locked=false; switching=true; mv "$app_path" "$stage/previous.app"; mv "$stage/Pofis.app" "$app_path"; trap cleanup EXIT; exit 143', [directory.replaceAll("\\", "/")]).then(() => null, error => error);
+    expect(interrupted?.code).toBe(143);
+    expect((await readFile(join(directory, "Applications/Pofis.app/version"), "utf8")).trim()).toBe("old");
+  } finally { await rm(directory, { recursive: true, force: true }); }
 });

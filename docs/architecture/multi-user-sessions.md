@@ -37,6 +37,8 @@ Yerel üretim önizlemesi standart `next start`, Docker dağıtımı standalone 
 
 [Windows/macOS masaüstü kabuğu](../desktop.md) aynı oturum yöneticisini Electron’un Node.js UtilityProcess’iyle kullanır. Profil ve sunucu oturumları sürüm dosyalarından, dış tarayıcıdan ve kurum sunucusundan ayrıdır; dizinler ve güncelleme davranışı masaüstü rehberinde yönetilir. Normal pencere kapanışı sunucuyu kapatır; PDKS çıkışı sayılmaz. Yeniden açılışta mevcut sabit TTL uygulanır.
 
+Masaüstü sürüm temizliği ve uygulama kaldırma kullanıcı profilini silmez. Yeniden kurulum mevcut profili ve oturumların sabit TTL kuralını kullanır; kaldırma ayrıntıları [masaüstü rehberindedir](../desktop.md#kaldırma).
+
 Dağıtım tek uygulama süreci ve kalıcı yerel oturum diziniyle yapılmalıdır. Bellek kullanımı yüklenen oturum sayısıyla büyür; aynı dizini paylaşan birden fazla süreç için kilit ve iptal koordinasyonu yoktur. Kurum ağı, TLS, yeniden başlatma, disk izinleri/yedekleri ve gerçek hesap kabulü dağıtım ortamında doğrulanır.
 
 Yerel fixture ve sentetik yük kontrolleri gerçek PDKS kapasitesini belirlemez. Bekleyen kurum kabulü [görev listesinde](../../tasks/todo.md), kontrol yöntemi [doğrulama rehberinde](../verification.md) tutulur.

@@ -2,7 +2,7 @@ param([string]$SourceArchive, [string]$OutputDirectory)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 Add-Type -AssemblyName System.IO.Compression
-foreach ($version in @('1.0.1', '1.0.2')) {
+foreach ($version in @('1.0.1', '1.0.2', '1.0.3')) {
     $path = Join-Path $OutputDirectory "$version.zip"
     Copy-Item -LiteralPath $SourceArchive -Destination $path
     $zip = [IO.Compression.ZipFile]::Open($path, [IO.Compression.ZipArchiveMode]::Update)

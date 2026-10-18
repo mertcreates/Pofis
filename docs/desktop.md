@@ -97,7 +97,7 @@ bun test ./scripts/electron/prepare-site.test.cjs
 - Uygulama `%LOCALAPPDATA%/Programs/Pofis/versions/<kimlik>/` altına kurulur; etkin sürüm `installed.json` ile belirlenir. `install.lock` aynı kökte eşzamanlı işlemleri engeller.
 - Güncel sürüm yeniden indirilmez/kurulmaz; dosyaları kontrol edilir, kısayolu onarılır, uygulama açılır veya mevcut pencere öne gelir. Sürüm düşürülmez; aynı sürümün farklı hash taşıması reddedilir.
 - Yeni paket `versions/<kimlik>/` altında pasif dizinde hazırlanır. Tüm doğrulamalar geçtikten sonra atomik `installed.json` kaydıyla etkinleştirilir; derin Next dosya yollarını içeren dizin taşınmaz. Pofis çalışıyorsa kullanıcıdan kapatıp komutu tekrar çalıştırması istenir; süreç zorla kapatılmaz, etkin sürüm değiştirilmez.
-- Etkinleştirme sonrasında gerçek pencere açılışı doğrulanır. Başarısız açılışta önceki kurulum kaydı/kısayol geri getirilir ve önceki sürüm açılmaya çalışılır. İlk kurulum başarısızsa etkin kurulum kaydı bırakılmaz. Önceki ve hatalı sürüm klasörleri tanı/geri dönüş için korunur; disk temizliği otomatik yapılmaz.
+- Paket doğrulanıp açık Pofis kapatıldıktan sonra yeni sürüm etkinleştirilir; eski sürüm klasörleri pencere açılışını beklemeden kaldırılır. Açılış hatası bildirilir; otomatik sürüm geri dönüşü yoktur. İndirme veya bütünlük hatası mevcut kurulumu değiştirmez.
 - Profil `%APPDATA%/Pofis/`, sunucu oturumları `sessions/` altındadır. Sürüm dosyalarından bağımsızdır.
 
 Kurulum parametreleri `-ManifestUrl`, `-InstallRoot`, `-ShortcutPath`, `-UserDataDir` izole testlerde kullanılabilir. Profil kurulum kökünün içinde olamaz. Profil ve oturumlar hassastır; Windows kullanıcı izinleriyle korunur.
@@ -110,15 +110,21 @@ pofis=$(curl -fsSL https://pofis.app/install.sh) && /bin/bash -c "$pofis" --
 
 [Installer](../scripts/electron/install.sh) macOS'un Bash 3.2 ve sistem araçlarını kullanır; Node/Bun, Homebrew, Xcode veya sudo istemez. Kurulum komutu betiğin tamamını indirdikten sonra çalıştırır; indirme hatasında curl hatasını ve başarısız çıkış kodunu korur, kısmi betiği çalıştırmaz. Rosetta altında da Apple Silicon donanımını tanır; Intel için x64 manifestini seçer. Sistem/paket sürümü ve mimarisi, gerekli dosyalar, ad-hoc imza, ZIP boyutu/SHA-256, arşiv yolları ve `.app` içi sembolik bağlantılar doğrulanır. Sistem `bsdtar` arşivden dizin dışına veya güvensiz bağlantı üzerinden yazmayı reddeder. Quarantine nitelikleri kaldırılmaz.
 
-- Sürümler `~/Library/Application Support/Pofis Installer/versions/<kimlik>/Pofis.app` altındadır; yanında doğrulanmış `install.json` manifesti bulunur. `~/Applications/Pofis.app`, etkin sürüme işaret eden atomik değiştirilen bir sembolik bağlantıdır. Finder'dan açılır; Dock'a eklenebilir. Installer'ın yönetmediği mevcut uygulamanın üzerine yazılmaz.
+- Gerçek uygulama paketi `~/Applications/Pofis.app` konumundadır; sembolik bağlantı kullanılmaz. Kurulum kaydı `~/Library/Application Support/Pofis Installer/installed.json` dosyasıdır. Yeni paket geçici `versions/<kimlik>/` dizininde doğrulanır, uygulama konumuna taşınır ve eski paket açılış beklenmeden temizlenir. Installer'ın yönetmediği mevcut uygulamanın üzerine yazılmaz.
 - Profil ve oturumlar `~/Library/Application Support/Pofis/` altında kalır. Güncelleme bu dizini taşımaz veya silmez. Profil ve kurulum dizinleri birbirinin içinde olamaz.
 - Aynı sürüm/hash yeniden indirilmez; paket ve pencere doğrulanıp mevcut Pofis öne getirilir. Sürüm düşürme ve aynı sürümde farklı hash reddedilir.
 - Güncelleme ayrı dizinde hazırlanır. Bu kurulumun Pofis/yardımcı süreçleri açıksa kapatıp komutu yeniden çalıştırma mesajı verilir. Kontroller tamamlandığında uygulama simgesi yeni sürüme çevrilir.
 - `open -n` istek kimliğini Electron'a ulaştırır; tek örnek kilidi ikinci sunucuyu engeller. Installer 45 saniye içinde gerçek sürüm/PID/executable ve görünür pencere sonucunu doğrular. Electron hata sonucu döndürürse istek kimliği ve sürümü doğrulandıktan sonra özgün hata mesajı gösterilir; kurulum başarısız çıkar. Yalnız port dinlenmesi yeterli değildir.
-- Yeni sürüm açılmazsa yalnız bu denemenin yeni main sürecine TERM gönderilir; bağlantı önceki sürüme çevrilir ve eski sürüm açılmaya çalışılır. İlk kurulum başarısızsa etkin uygulama simgesi kaldırılır. Önceki/hatalı sürümler tanı için tutulur; kullanıcı verileri korunur.
+- Dosya taşıma veya kurulum kaydını yazma başarısızsa mevcut uygulama geri yerleştirilir. Yeni sürüm etkinleştikten sonra açılış hatası açıkça bildirilir; eski paket saklanmaz ve otomatik sürüm geri dönüşü yapılmaz. Kullanıcı verileri korunur.
 - Atomik `install.lock` dizini eşzamanlı installer'ları engeller; normal hata/sinyalde kaldırılır. Installer SIGKILL veya sistem çökmesiyle durduysa, başka kurulum çalışmadığı doğrulandıktan sonra mesajda verilen kilit dizini elle kaldırılır. Normal uygulama açılışı bu kilidi kullanmaz.
 
 İzole kabul için `--manifest-url`, `--install-root`, `--app-path`, `--user-data-dir` kullanılabilir; yerel testte loopback HTTP desteklenir. Gatekeeper açılışı engellerse anlaşılır hata verilir; sistem güvenliği otomatik aşılmaz. İki native CI runner'ı [macOS dağıtım kabulünü](../scripts/electron/macos-distribution-test.cjs) gerçek ZIP ve gerçek Electron/Next süreçleriyle çalıştırır; yerel Windows doğrulaması bu kabulün yerine geçmez.
+
+## Kaldırma
+
+- Windows: **Ayarlar → Uygulamalar → Yüklü uygulamalar → Pofis → Kaldır**. Kullanıcı başına kayıt `HKCU` altında oluşturulur; yönetici yetkisi istenmez. Kaldırıcı onay ister, açık Pofis varsa kapatılmasını söyler ve yalnız yönettiği sürüm dosyalarını, Başlat menüsü kısayolunu ve kaldırma kaydını temizler.
+- macOS: Pofis'ten çıkıp Finder'da `~/Applications/Pofis.app` uygulamasını **Çöp Sepeti’ne taşı**. Gerçek `.app` bütün Electron/Next dosyalarını içerir; sürüm arşivi bırakılmaz. Küçük installer kaydı kullanıcı Library dizininde kalabilir; aynı komutla yeniden kurulum desteklenir.
+- İki platformda da kullanıcı ayarları, tarayıcı profili ve oturum dosyaları korunur. Uygulama menüsünde kaldırma seçeneği bulunmaz.
 
 ## Yaşam döngüsü ve sorumluluklar
 
@@ -156,9 +162,9 @@ bun run test:desktop:distribution --startup-only --site ../pofis-landing
 
 [Platform testleri](../electron/platform.test.cjs) üç hedefin yollarını/manifestlerini ve POSIX süreç grubuna gönderilecek sinyal/hata politikasını kontrol eder. Windows'taki bu testler macOS üzerinde gerçekten `.app`, `PlistBuddy`, `codesign`, `ditto` veya Dock çalıştırıldığı anlamına gelmez. Aynı paket kabul betiği macOS'ta da çalıştırılmalıdır.
 
-[Dağıtım kabulü](../scripts/electron/distribution-test.cjs) Windows PowerShell 5.1, Node/Bun içermeyen PATH, geçici kurulum/profil/kısayol ve gerçek ZIP kullanır. İlk kurulum, otomatik açılış, kısayol, ikinci açılış, aynı sürüm, sürüm yükseltme, açık uygulamada güncelleme, bozuk/eksik indirme, port çakışması, gerçek Node sunucusu başlangıç hatası ve geri dönüş, ana süreç çökmesi, normal kapanış ve veri korumasını sınar. Güncelleme fixture'ları gerçek paketin sürümünü değiştirir; hata fixture'ında gerçek sunucu giriş noktası hata koduyla çıkar. Başarı yanıtı taklidi yapılmaz. Testler gerçek kullanıcı profilini kullanmaz.
+[Dağıtım kabulü](../scripts/electron/distribution-test.cjs) Windows PowerShell 5.1, Node/Bun içermeyen PATH, geçici kurulum/profil/kısayol ve gerçek ZIP kullanır. İlk kurulum, otomatik açılış, kısayol, ikinci açılış, aynı sürüm, sürüm yükseltme, açık uygulamada güncelleme, bozuk/eksik indirme, port çakışması, gerçek Node sunucusu başlangıç hatası, eski sürüm temizliği ve kaldırma, ana süreç çökmesi, normal kapanış ve veri korumasını sınar. Güncelleme fixture'ları gerçek paketin sürümünü değiştirir; hata fixture'ında gerçek sunucu giriş noktası hata koduyla çıkar. Başarı yanıtı taklidi yapılmaz. Testler gerçek kullanıcı profilini kullanmaz.
 
-`--site` seçeneği landing içeriğindeki Windows komutunu ve public installer kopyasını okur. Public kopyanın canonical installer ile yalnız BOM farkı taşıdığını doğrular. Komutun adresi loopback test sunucusuna çevrilir; indirilen betikte yalnız dört parametrenin varsayılanı izole manifest/kurulum/kısayol/profil yollarıyla değiştirilir. Installer iş akışı ve gerçek ZIP korunur. `--startup-only` ilk kurulum/açılış, port çakışması/ikinci açılış, kurulum kilidi ve kapanışı sınar; tam sürüm yükseltme/geri dönüş kabulü normal komuttadır. Canlı GitHub/HTTPS indirmesi ayrıca doğrulanır.
+`--site` seçeneği landing içeriğindeki Windows komutunu ve public installer kopyasını okur. Public kopyanın canonical installer ile yalnız BOM farkı taşıdığını doğrular. Komutun adresi loopback test sunucusuna çevrilir; indirilen betikte yalnız beş parametrenin varsayılanı izole manifest/kurulum/kısayol/profil yollarıyla değiştirilir. Installer iş akışı ve gerçek ZIP korunur. `--startup-only` ilk kurulum/açılış, port çakışması/ikinci açılış, kurulum kilidi ve kapanışı sınar; tam sürüm yükseltme/temizlik kabulü normal komuttadır. Canlı GitHub/HTTPS indirmesi ayrıca doğrulanır.
 
 Gerçek hesapla **PDKS giriş → rapor → yenileme → çıkış**, temiz Windows cihazında ilk kurulum/SmartScreen ve gerçek oturumun sürüm yükseltmede korunması ayrıca [görev listesinde](../tasks/todo.md) doğrulanır. Sentetik oturum dosyasının korunması gerçek hesabın kabulü değildir.
 
@@ -166,3 +172,5 @@ macOS Apple Silicon/Intel üzerinde ortak paketleyici ve installer'ın native CI
 
 API referansları: [Electron app](https://www.electronjs.org/docs/latest/api/app), [Electron paketleme ve macOS bundle düzeni](https://www.electronjs.org/docs/latest/tutorial/application-distribution), [Electron UtilityProcess](https://www.electronjs.org/docs/latest/api/utility-process), [Get-FileHash](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-5.1).
 ft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-5.1).
+
+Kaldırma referansları: [Apple: Mac uygulamalarını kaldırma](https://support.apple.com/en-us/102610), [Microsoft: kaldırma kaydı alanları](https://learn.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key).

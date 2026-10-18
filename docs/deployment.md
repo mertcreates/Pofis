@@ -2,6 +2,8 @@
 
 Bu rehber kurum sunucusundaki Docker/ingress dağıtımını yönetir. Electron paketleri ve Windows kurulumu [masaüstü rehberinde](desktop.md), GitHub Actions/Pages otomasyonu [sürüm yayınında](release.md) açıklanır.
 
+Masaüstü güncellemesinde eski paketlerin temizlenmesi ve Windows/macOS kaldırma davranışı [masaüstü rehberinde](desktop.md#kaldırma) yönetilir; kullanıcı profili uygulama dosyalarından bağımsız korunur.
+
 Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Her kullanıcı kendi PDKS istemcisi, CookieJar ve kısa rapor önbelleğine sahiptir. Kubernetes'te bir replica kullanılır; güncellemede eski pod durduktan sonra yenisi başlatılır (`Recreate`). Aynı dizini iki süreçten kullanmak için ortak kilit/iptal koordinasyonu henüz yoktur.
 
 ## Çalışma zamanı ayarları

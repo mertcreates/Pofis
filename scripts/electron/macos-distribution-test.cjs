@@ -3,7 +3,7 @@ const assert = require("node:assert/strict");
 const { spawn } = require("node:child_process");
 const { promisify } = require("node:util");
 const { execFile } = require("node:child_process");
-const { mkdtemp, mkdir, readFile, writeFile, cp, readlink, rm, realpath } = require("node:fs/promises");
+const { mkdtemp, mkdir, readFile, writeFile, cp, rm, realpath, readdir, access, lstat } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
 const { join, resolve } = require("node:path");
 const { createHash } = require("node:crypto");
@@ -59,7 +59,7 @@ async function run() {
   const pids = async () => {
     const { stdout } = await execute("/bin/ps", ["-ww", "-axo", "pid=,comm="]);
     return stdout.split("\n").map(line => line.trim().match(/^(\d+)\s+(.*)$/)).filter(Boolean)
-      .filter(([, , path]) => path.startsWith(installRoot + "/versions/") && path.endsWith("/Contents/MacOS/Pofis"))
+      .filter(([, , path]) => path === appPath + "/Contents/MacOS/Pofis")
       .map(([, pid]) => Number(pid));
   };
   const close = async () => {
@@ -107,7 +107,9 @@ async function run() {
     } });
     base = `http://127.0.0.1:${host.port}`;
     await expectInstall();
-    bundle = await readlink(appPath);
+    bundle = appPath;
+    assert.equal((await lstat(appPath)).isSymbolicLink(), false);
+    assert.deepEqual(await readdir(join(installRoot, 'versions')), []);
     const initialPid = (await pids())[0];
     assert.ok(initialPid);
     await writeFile(marker, "settings/session-file boundary preserved");
@@ -133,30 +135,32 @@ async function run() {
     await expectFailure(/İndirme tamamlanamadı/);
     active = { ...first, url: `${base}/corrupt.zip`, version: "999.0.0" };
     await expectFailure(/SHA-256/);
-    assert.equal(await readlink(appPath), bundle);
+    assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, first.version);
     const [a, b, c] = first.version.split(".").map(Number);
     const next = await fixture(`${a}.${b}.${c + 1}`);
     const broken = await fixture(`${a}.${b}.${c + 2}`, true);
+    const repaired = await fixture(`${a}.${b}.${c + 3}`);
     active = first;
     await expectInstall();
     active = next;
     await expectFailure(/Pofis açık/);
-    assert.equal(await readlink(appPath), bundle);
+    assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, first.version);
     await close();
     await expectInstall();
-    const updated = await readlink(appPath);
-    assert.notEqual(updated, bundle);
+    assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, next.version);
+    assert.deepEqual(await readdir(join(installRoot, 'versions')), []);
     assert.equal(await readFile(marker, "utf8"), "settings/session-file boundary preserved");
     await close();
     console.log("PASS: bozuk/eksik indirme, açıkken güncelleme reddi, gerçek sürüm yükseltme ve profil korunması");
     active = broken;
     await expectFailure(/Pofis sunucusu kapandı \(kod: 23\)/);
-    assert.equal(await readlink(appPath), updated);
-    assert.equal((await pids()).length, 1);
+    assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, broken.version);
+    assert.equal((await pids()).length, 0);
+    assert.deepEqual(await readdir(join(installRoot, 'versions')), []);
     assert.equal(await readFile(marker, "utf8"), "settings/session-file boundary preserved");
     await close();
-    console.log("PASS: gerçek sunucu başlangıç hatasında önceki sürüm geri yüklenir ve açılır");
-    active = next; slow = true;
+    console.log("PASS: gerçek başlangıç hatası raporlanır; eski sürümler açılışı beklemeden kaldırılır");
+    active = repaired; slow = true;
     const before = manifestRequests;
     const one = install();
     await until(() => manifestRequests > before);
@@ -172,6 +176,16 @@ async function run() {
     await expectInstall();
     await close();
     console.log(`PASS: ${target.id}; kurulum kilidi, beklenmedik kapanış, yeniden başlatma ve normal kapanış`);
+    // Remove only the test bundle. Finder/Trash interaction remains real-device acceptance.
+    await rm(appPath, { recursive: true });
+    await assert.rejects(access(appPath));
+    assert.deepEqual(await readdir(join(installRoot, 'versions')), []);
+    assert.equal(await readFile(marker, 'utf8'), 'settings/session-file boundary preserved');
+    console.log('PASS: gerçek macOS paketini kaldırma, gizli sürüm paketi bırakmama ve profil koruması');
+    await expectInstall();
+    await close();
+    assert.equal(await readFile(marker, 'utf8'), 'settings/session-file boundary preserved');
+    console.log('PASS: paket kaldırıldıktan sonra aynı komutla yeniden kurulum');
     console.log("Gerçek PDKS hesabı ve indirilen uygulamanın Gatekeeper kabulü ayrıca bekler.");
   } finally {
     await close().catch(() => {});

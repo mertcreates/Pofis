@@ -45,6 +45,7 @@ async function prepare() {
   for (const file of ["main.cjs", "server.cjs", "server-entry.cjs", "startup.cjs", "platform.cjs"]) {
     await copyFile(join(root, "electron", file), join(payload, "electron", file));
   }
+  if (target.platform === "win32") await copyFile(join(root, "electron", "uninstall.ps1"), join(payload, "electron", "uninstall.ps1"));
   // Dereference Next's Windows junctions so the package is relocatable.
   await cp(standalone, join(payload, "server"), { recursive: true, dereference: true,
     filter: path => !/^\.env(?:\.|$)/.test(basename(path)) });

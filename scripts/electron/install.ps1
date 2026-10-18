@@ -3,7 +3,8 @@ param(
     [string]$ManifestUrl = 'https://pofis.app/releases/windows/latest.json',
     [string]$InstallRoot = (Join-Path $env:LOCALAPPDATA 'Programs\Pofis'),
     [string]$ShortcutPath = (Join-Path ([Environment]::GetFolderPath('Programs')) 'Pofis.lnk'),
-    [string]$UserDataDir = (Join-Path $env:APPDATA 'Pofis')
+    [string]$UserDataDir = (Join-Path $env:APPDATA 'Pofis'),
+    [string]$RegistryPath = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\Pofis'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -34,14 +35,17 @@ function Save-Download([Uri]$Uri, [string]$Target) {
 function Write-AtomicJson([string]$Path, $Value) {
     $temporary = "$Path.$([Guid]::NewGuid().ToString('N')).tmp"
     [IO.File]::WriteAllText($temporary, ($Value | ConvertTo-Json -Depth 8), [Text.UTF8Encoding]::new($false))
-    if (Test-Path -LiteralPath $Path) { [IO.File]::Replace($temporary, $Path, [NullString]::Value) }
-    else { [IO.File]::Move($temporary, $Path) }
+    try {
+        if (Test-Path -LiteralPath $Path) { [IO.File]::Replace($temporary, $Path, [NullString]::Value) }
+        else { [IO.File]::Move($temporary, $Path) }
+    } catch { throw "Kurulum kaydı yenilenemedi ($([IO.Path]::GetFileName($Path))): $($_.Exception.Message)" }
 }
 
 function Assert-RequiredFiles([string]$Directory, [string]$Version) {
     foreach ($relative in @('Pofis.exe', 'resources\app\package.json',
         'resources\app\electron\main.cjs', 'resources\app\electron\server-entry.cjs',
         'resources\app\electron\server.cjs', 'resources\app\electron\startup.cjs', 'resources\app\electron\platform.cjs',
+        'resources\app\electron\uninstall.ps1',
         'resources\app\server\.next\BUILD_ID', 'resources\app\server\server.js',
         'resources\app\server\node_modules\next\package.json', 'release.json')) {
         if (-not [IO.File]::Exists((Join-Path $Directory $relative))) { throw "Paket eksik: $relative" }
@@ -136,9 +140,27 @@ function Start-VerifiedPofis([string]$Executable, [string]$Version) {
         }
         throw 'Pofis penceresi 45 saniye içinde hazır olmadı. Açık Pofis pencerelerini kapatıp yeniden dene.'
     } finally {
-        # Allow Electron to release its single-instance lock before rollback.
+        # Allow a failed Electron process to release its single-instance lock before retry.
         if (-not $verified) { $null = $process.WaitForExit(10000) }
         if (Test-Path -LiteralPath $resultPath) { Remove-Item -LiteralPath $resultPath -Force }
+    }
+}
+
+function Register-Pofis([string]$Directory, [string]$Version) {
+    $uninstaller = Join-Path $InstallRoot 'uninstall.ps1'
+    # Windows PowerShell 5.1 reads local scripts using the system code page without a BOM.
+    [IO.File]::WriteAllText($uninstaller, [IO.File]::ReadAllText((Join-Path $Directory 'resources\app\electron\uninstall.ps1')), [Text.UTF8Encoding]::new($true))
+    $powershell = Join-Path $env:SystemRoot 'System32\WindowsPowerShell\v1.0\powershell.exe'
+    $command = '"' + $powershell + '" -NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "' + $uninstaller + '"'
+    New-Item -Path $RegistryPath -Force | Out-Null
+    foreach ($entry in @{
+        DisplayName = 'Pofis'; DisplayVersion = $Version; Publisher = 'Pofis';
+        InstallLocation = $InstallRoot; DisplayIcon = (Join-Path $Directory 'Pofis.exe'); UninstallString = $command
+    }.GetEnumerator()) {
+        New-ItemProperty -LiteralPath $RegistryPath -Name $entry.Key -Value $entry.Value -PropertyType String -Force | Out-Null
+    }
+    foreach ($name in @('NoModify', 'NoRepair')) {
+        New-ItemProperty -LiteralPath $RegistryPath -Name $name -Value 1 -PropertyType DWord -Force | Out-Null
     }
 }
 
@@ -146,7 +168,6 @@ $lock = $null
 $stage = $null
 $archive = $null
 $manifestFile = $null
-$activated = $false
 $previous = $null
 $exitCode = 0
 try {
@@ -159,6 +180,9 @@ try {
     $InstallRoot = [IO.Path]::GetFullPath($InstallRoot)
     $UserDataDir = [IO.Path]::GetFullPath($UserDataDir)
     $ShortcutPath = [IO.Path]::GetFullPath($ShortcutPath)
+    if ($RegistryPath -notmatch '^HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Pofis(?:-[a-f0-9]{32})?$') {
+        throw 'Kaldırma kaydı geçersiz.'
+    }
     if ($UserDataDir.StartsWith($InstallRoot.TrimEnd('\') + '\', [StringComparison]::OrdinalIgnoreCase) -or $UserDataDir -eq $InstallRoot) {
         throw 'Kullanıcı verileri kurulum dizininden ayrı tutulmalı.'
     }
@@ -187,6 +211,9 @@ try {
             Assert-RequiredFiles $current $previous.version
             Write-Host "Pofis güncel ($($previous.version))"
             Set-PofisShortcut (Join-Path $current 'Pofis.exe')
+            Register-Pofis $current $previous.version
+            . (Join-Path $InstallRoot 'uninstall.ps1')
+            Remove-PofisVersions $InstallRoot $previous.directory
             Start-VerifiedPofis (Join-Path $current 'Pofis.exe') $previous.version
             return
         }
@@ -206,29 +233,19 @@ try {
     Assert-RequiredFiles $stage $manifest.version
     if (@(Get-InstalledProcess).Count -gt 0) { throw 'Pofis açık. Uygulamayı kapatıp aynı kurulum komutunu yeniden çalıştır.' }
     $target = $stage
-    $state = @{ schemaVersion = 1; version = $manifest.version; sha256 = $manifest.sha256; directory = $directory }
+    $state = @{ schemaVersion = 1; version = $manifest.version; sha256 = $manifest.sha256; directory = $directory
+        installRoot = $InstallRoot; shortcutPath = $ShortcutPath; registryPath = $RegistryPath }
     Write-AtomicJson $statePath $state
-    $activated = $true
     $stage = $null
     Set-PofisShortcut (Join-Path $target 'Pofis.exe')
+    Register-Pofis $target $manifest.version
+    . (Join-Path $InstallRoot 'uninstall.ps1')
+    Remove-PofisVersions $InstallRoot $directory
     Start-VerifiedPofis (Join-Path $target 'Pofis.exe') $manifest.version
     Write-Host "Kurulum tamamlandı · Pofis $($manifest.version)"
 } catch {
     $exitCode = 1
     Write-Host "Pofis: $($_.Exception.Message)" -ForegroundColor Red
-    if ($activated) {
-        # The failed release remains available for diagnosis; user data is never removed.
-        if ($previous) {
-            Write-AtomicJson $statePath $previous
-            $oldExecutable = Join-Path (Join-Path $versions $previous.directory) 'Pofis.exe'
-            Set-PofisShortcut $oldExecutable
-            Write-Host "Önceki sürüm korundu: $($previous.version)."
-            try { Start-VerifiedPofis $oldExecutable $previous.version } catch { Write-Host "Önceki sürüm açılamadı: $($_.Exception.Message)" }
-        } else {
-            if (Test-Path -LiteralPath $statePath) { Remove-Item -LiteralPath $statePath -Force }
-            if (Test-Path -LiteralPath $ShortcutPath) { Remove-Item -LiteralPath $ShortcutPath -Force }
-        }
-    }
 } finally {
     foreach ($temporary in @($archive, $manifestFile, $stage)) {
         if ($temporary -and (Test-Path -LiteralPath $temporary)) {
