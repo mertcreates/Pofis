@@ -1,23 +1,23 @@
 export default {
-  "id": "sticky-note",
-  "title": "Yapışkan not",
-  "premise": "Pofi unutmamak için küçük bir not bırakıyor; not artık kendi başına bir nesneye dönüşüyor.",
-  "intros": {
-    "i1": "Unutmamak için sarı bir kâğıda kısa bir not yazdım.",
-    "i2": "Masamdaki yapışkan notlardan birine birkaç kelime yazdım.",
-    "i3": "Aklımdaki işi küçük bir not kâğıdına geçirdim.",
-    "i4": "Yapışkan notlardan birini ayırıp üstüne tek bir kelime yazdım."
+  id: "sticky-note",
+  title: "Yapışkan not",
+  premise: "Pofi, unutmamak istediği bir işi yazıp notunu görebileceği bir yere yapıştırır.",
+  intros: {
+    i1: "Unutmamak için küçük bir işi yapışkan nota yazdım.",
+    i2: "Sabah aklımdaki hatırlatmayı sarı bir nota yazdım.",
+    i3: "Yapacağım işi bir yapışkan kâğıda not ettim.",
+    i4: "Masama oturunca unutmamam gereken şeyi bir nota yazdım.",
   },
-  "developments": {
-    "d1": "Notu monitörün alt kenarına yapıştırdım.",
-    "d2": "Yazdığımı bir kez okuyup masanın köşesine iliştirdim.",
-    "d3": "Ekranın yanına yapıştırdım. Hafifçe eğri durdu.",
-    "d4": "Masaya yapıştırdım. Bir köşesi hemen yukarı kalktı."
+  developments: {
+    d1: "Notu ekranın alt köşesine yapıştırdım.",
+    d2: "Önce masaya koydum. Sonra daha görünür bir yere yapıştırdım.",
+    d3: "Biraz eğri yapıştırdım. Düzeltip tekrar bastırdım.",
+    d4: "Notu masamın kenarına yapıştırdım. Köşesi kalkınca yeniden bastırdım.",
   },
-  "endings": {
-    "e1": "Artık unutmamam gereken şeyin de bir yeri vardı.",
-    "e2": "Düşmesin diye ucuna hafifçe bastırdım.",
-    "e3": "Arada bir yerinde duruyor mu diye baktım.",
-    "e4": "Bir süre yan yana çalıştık."
-  }
+  endings: {
+    e1: "Sonra işime döndüm. Not gözümün önündeydi.",
+    e2: "Bir süre sonra gözüm yine nota takıldı.",
+    e3: "Notun altına küçük bir çizgi çektim.",
+    e4: "İşi bitirince kaldırırım diye düşündüm. Şimdilik orada kaldı.",
+  },
 };

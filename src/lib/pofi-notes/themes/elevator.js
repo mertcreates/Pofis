@@ -1,23 +1,23 @@
 export default {
-  "id": "elevator",
-  "title": "Asansör",
-  "premise": "Pofi asansöre biner; kısa yolculukta dikkatini küçük, beklenmedik bir ayrıntı çeker.",
-  "intros": {
-    "i1": "Üst kata çıkmak için asansöre bindim.",
-    "i2": "Sabah asansöre binip kapının yanında durdum.",
-    "i3": "Asansörün kapısı açılınca içeri geçtim.",
-    "i4": "Bir dosya götürmek için asansöre bindim."
+  id: "elevator",
+  title: "Asansör",
+  premise: "Pofi, asansör yolculuğunda küçük durakları ve karşılaşmaları fark eder.",
+  intros: {
+    i1: "Asansöre binip kapının yanına geçtim.",
+    i2: "Üst kata çıkmak için asansöre bindim.",
+    i3: "Elimde bir dosyayla asansöre bindim.",
+    i4: "Asansörde boş bir köşe bulup oraya geçtim.",
   },
-  "developments": {
-    "d1": "Kapı kapanırken yeniden açıldı. Dışarıda kimse yoktu.",
-    "d2": "Aynada kendime baktım. Personel kartım ters dönmüştü.",
-    "d3": "Asansör ara katta durdu. Kapı açıldı, koridor boştu.",
-    "d4": "Yanımdaki biri benim gideceğim kata bastı. Elimi geri çektim."
+  developments: {
+    d1: "Kapı bir katta açıldı. Kimse binmedi.",
+    d2: "Yanımdaki biri benim gideceğim katın düğmesine bastı.",
+    d3: "Aynada yaka kartımın ters döndüğünü gördüm. Düzelttim.",
+    d4: "Biri yetişsin diye kapının açma düğmesine bastım. Yetişti.",
   },
-  "endings": {
-    "e1": "Kendi katıma gelince indim.",
-    "e2": "İnmeden önce düğmelere son bir kez baktım.",
-    "e3": "Kat numaralarının değişmesini izledim.",
-    "e4": "Ben inince asansör yoluna devam etti."
-  }
+  endings: {
+    e1: "Katıma gelince indim.",
+    e2: "Ben çıkarken koridordan biri geldi. Kapıyı onun için tuttum.",
+    e3: "Kapı arkamdan kapandı. Ben yürümeye başladım.",
+    e4: "Koridora çıkınca nereye gideceğimi biliyordum.",
+  },
 };

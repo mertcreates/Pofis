@@ -1,23 +1,23 @@
 export default {
-  "id": "computer",
-  "title": "Bilgisayar",
-  "premise": "Pofi bilgisayarda küçük bir işe başlarken ekranda beklemediği bir ayrıntıyla karşılaşır.",
-  "intros": {
-    "i1": "Sabah bilgisayarın başına geçtim.",
-    "i2": "Bilgisayarımı açıp bekleyen işlerden birine baktım.",
-    "i3": "Masama oturunca ilk iş ekranı açtım.",
-    "i4": "Bilgisayarda kısa sürecek bir işim vardı."
+  id: "computer",
+  title: "Bilgisayar",
+  premise: "Pofi, ekrandaki bir yazıyla uğraşırken yaptığı küçük değişiklikleri fark eder.",
+  intros: {
+    i1: "Sabah bilgisayarın başına geçtim.",
+    i2: "Bilgisayarımı açıp bekleyen işlerden birine baktım.",
+    i3: "Masama oturunca ilk iş ekranı açtım.",
+    i4: "Bilgisayarda kısa sürecek bir işim vardı.",
   },
-  "developments": {
-    "d1": "Yeni bir pencere açtım. Neden açtığımı hemen hatırlayamadım.",
-    "d2": "İmleç dönmeye başladı. Ne zaman duracağını merak ettim.",
-    "d3": "Bir dosyayı uzun süre aradım. Adını geçen hafta kendim değiştirmişim.",
-    "d4": "Ekranda küçük bir uyarı belirdi. Okuyamadan kayboldu."
+  developments: {
+    d1: "Ekrandaki yazıyı biraz büyüttüm. Bir satır aşağıya taşındı.",
+    d2: "Bir kelimede aynı harfi iki kez yazmışım. Fazlasını sildim.",
+    d3: "Bir kısayolla sayfanın en altına indim. Fareye uzanmam gerekmedi.",
+    d4: "Bir satırı kopyalayıp altına yapıştırdım.",
   },
-  "endings": {
-    "e1": "Biraz durup kaldığım yerden devam ettim.",
-    "e2": "Açık pencereleri üst üste hizaladım.",
-    "e3": "Bir daha baktım. Bu kez her şey yerindeydi.",
-    "e4": "Bilgisayar çalışmaya devam etti. Ben de ettim."
-  }
+  endings: {
+    e1: "Bir kez daha okuyup kaldığım yerden devam ettim.",
+    e2: "Ekrana yaklaşmışım. Sandalyemi biraz geri çektim.",
+    e3: "Son satıra bir kelime daha ekledim.",
+    e4: "İşimi bitirince pencereyi kapattım.",
+  },
 };

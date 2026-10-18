@@ -11,6 +11,8 @@ export const SPECIAL_DAYS: Readonly<
   "04-23": { note: "children-day" },
   "05-07": { note: "paper-boat-returns" },
   "08-08": { note: "cat-day" },
+  "10-29": { note: "republic-day" },
+  "11-10": { note: "ataturk-remembrance" },
   "12-08": { note: "little-star", sharedVariant: "v1" },
   "12-31": { note: "year-end" },
 };

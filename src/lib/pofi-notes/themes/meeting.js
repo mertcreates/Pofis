@@ -1,23 +1,23 @@
 export default {
-  "id": "meeting",
-  "title": "Toplantı",
-  "premise": "Pofi toplantıda küçük bir defterle yerini alır; konuşmalar sırasında ufak bir ayrıntı dikkatini çeker.",
-  "intros": {
-    "i1": "Toplantıya küçük defterimi götürdüm.",
-    "i2": "Toplantı başlamadan yerime oturup defterimi açtım.",
-    "i3": "Toplantı için kalemimi ve defterimi hazırladım.",
-    "i4": "Masada boş bir yer bulup defterimi önüme koydum."
+  id: "meeting",
+  title: "Toplantı",
+  premise: "Pofi, toplantıda not tutarken konuşmalara ve yanındaki insanlara dikkat eder.",
+  intros: {
+    i1: "Defterimi alıp toplantıya girdim.",
+    i2: "Toplantı başlamadan defterimi açtım.",
+    i3: "Toplantı masasına oturup defterimi önüme koydum.",
+    i4: "Bugünkü toplantı için defterimle yerime geçtim.",
   },
-  "developments": {
-    "d1": "İlk cümleyi yazdım. Sonra sadece dinledim.",
-    "d2": "Birisi tahtaya bir ok çizdi. Okun nereye gittiğine baktım.",
-    "d3": "Yanımdaki kişi kalemini düşürdü. Eğilip aldım, ona uzattım.",
-    "d4": "Aynı kelime birkaç kez geçince not alıp altını çizdim."
+  developments: {
+    d1: "Bir kelimeyi not ettim. Biraz sonra yine söylendi.",
+    d2: "Yanımdaki kişi kalemini düşürdü. Eğilip ona uzattım.",
+    d3: "Birisi bir tarih söyledi. Defterime not ettim.",
+    d4: "Yanımdaki arkadaşım bir kelimeyi kaçırmıştı. Duyduğumu ona fısıldadım.",
   },
-  "endings": {
-    "e1": "Sayfanın geri kalanı boş kaldı.",
-    "e2": "Toplantı bitince sandalyemi yerine ittim.",
-    "e3": "Çıkmadan önce sayfanın köşesine tarihi yazdım.",
-    "e4": "Kalemimin kapağını kapatıp defterin yanına koydum."
-  }
+  endings: {
+    e1: "Toplantı bitince defterimi kapattım.",
+    e2: "Defterimde bir sonraki toplantıya da yer kaldı.",
+    e3: "Odadan çıkarken defterimi kolumun altına aldım.",
+    e4: "Çıkmadan önce sayfaya bir kez daha baktım.",
+  },
 };

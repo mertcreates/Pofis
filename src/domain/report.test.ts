@@ -294,14 +294,11 @@ test.each([
 test("notlar kişi bazında sabit, mevcut haftayla sınırlı, 8 Aralık ortak", () => {
   const notes = pofiNotesForWeek("2026-10-16", "fixture-person");
   expect(notes.map((note) => note.date)).toEqual([
-    "2026-10-12",
-    "2026-10-13",
-    "2026-10-14",
-    "2026-10-15",
-    "2026-10-16",
+    "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16",
   ]);
   expect(pofiNotesForWeek("2026-10-16", "fixture-person")).toEqual(notes);
   expect(pofiNotesForWeek("2026-10-16", "another-person")).not.toEqual(notes);
+  expect(pofiNotesForWeek("2026-12-08", "a")).toHaveLength(5);
   expect(
     pofiNotesForWeek("2026-12-08", "a").find(
       (note) => note.date === "2026-12-08",

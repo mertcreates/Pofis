@@ -29,13 +29,13 @@ export const POFI_SPECIAL_NOTES = {
     "variants": {
       "v1": [
         "Takvimde bugün fazladan bir gün var.",
-        "Benim masamda fazladan bir şey yok.",
-        "Biraz yer açtım."
+        "Defterimde ona da bir sayfa ayırdım.",
+        "Şimdilik boş duruyor."
       ],
       "v2": [
         "Bugünün her yıl gelmediğini söylediler.",
         "Saatime baktım. Her zamanki gibi ilerliyordu.",
-        "Ben de gecikmedim."
+        "Defterime bugünün tarihini yazdım."
       ],
       "v3": [
         "Bugün 29 Şubat.",
@@ -44,8 +44,8 @@ export const POFI_SPECIAL_NOTES = {
       ],
       "v4": [
         "Şubat bitmek için biraz daha bekliyormuş.",
-        "Ben de pencerenin yanında bekledim.",
-        "Pencere bu durumu bilmiyordu."
+        "Ben de pencereye baktım.",
+        "Dışarıda her zamanki gibi bir gün vardı."
       ]
     }
   },
@@ -103,9 +103,9 @@ export const POFI_SPECIAL_NOTES = {
     "theme": "Kâğıt gemi · Yeniden",
     "variants": {
       "v1": [
-        "Kâğıt gemi çekmecenin içine düşmüş.",
-        "Onu bulup tekrar masaya koydum.",
-        "Yolculuğu kısa sürmüş."
+        "Çekmecem açıktı. İçinde kâğıt gemiyi buldum.",
+        "Alıp tekrar masaya koydum.",
+        "Pek uzağa gitmemiş."
       ],
       "v2": [
         "Masamdaki küçük gemiyi göremedim.",
@@ -115,7 +115,7 @@ export const POFI_SPECIAL_NOTES = {
       "v3": [
         "Kâğıt geminin bir katı açılmış.",
         "Tekrar katladım.",
-        "Masaya koyunca dik durdu."
+        "Masaya koyunca yine düzgün durdu."
       ],
       "v4": [
         "Küçük kâğıt gemiyi başka bir yere koydum.",
@@ -143,9 +143,9 @@ export const POFI_SPECIAL_NOTES = {
         "Ben de günaydın dedim."
       ],
       "v4": [
-        "Bugün herkes kalplerden bahsediyordu.",
-        "Masamdaki kaleme baktım.",
-        "O da küçük bir kalp çizebilirdi."
+        "Bugün bir arkadaşım kâğıttan kalp kesti.",
+        "Bir köşesi biraz yamuktu.",
+        "“Böyle de güzel,” dedim."
       ]
     }
   },
@@ -164,7 +164,7 @@ export const POFI_SPECIAL_NOTES = {
       ],
       "v3": [
         "Masama bir çift kâğıt göz yapıştırmışlar.",
-        "Defterimi açınca biri altında kaldı.",
+        "Defterim gözlerden birinin üstünü kapatıyordu.",
         "Defteri biraz yana çektim."
       ],
       "v4": [
@@ -175,17 +175,17 @@ export const POFI_SPECIAL_NOTES = {
     }
   },
   "children-day": {
-    "theme": "23 Nisan",
+    "theme": "23 Nisan · Ulusal Egemenlik ve Çocuk Bayramı",
     "variants": {
       "v1": [
-        "Bugün çocukların bayramıymış.",
+        "Bugün 23 Nisan Ulusal Egemenlik ve Çocuk Bayramı.",
         "Pencereden küçük bayraklar gördüm.",
         "Ben de defterime bir tane çizdim."
       ],
       "v2": [
-        "Takvimde 23 Nisan yazıyordu.",
-        "Dışarıdan çocuk sesleri geldi.",
-        "Bir süre dinledim."
+        "Dışarıda çocuklar 23 Nisan için bir şarkı söylüyordu.",
+        "Durup dinledim.",
+        "Bitince alkışladım."
       ],
       "v3": [
         "Bugün bayrakları izledim.",
@@ -193,9 +193,9 @@ export const POFI_SPECIAL_NOTES = {
         "Yine de yan yanaydılar."
       ],
       "v4": [
-        "Bugün çocukların günüymüş.",
-        "Bir resim çizmek istedim.",
-        "Küçük bir güneş yaptım."
+        "Bugün Atatürk'ün çocuklara armağan ettiği bayramı kutluyoruz.",
+        "Çocukların hazırladığı resimlere baktım.",
+        "Birinde kocaman bir güneş vardı."
       ]
     }
   },
@@ -214,13 +214,63 @@ export const POFI_SPECIAL_NOTES = {
       ],
       "v3": [
         "Takvimde kedilerle ilgili bir gün gördüm.",
-        "Kendime baktım.",
-        "Takvimi haklı buldum."
+        "Masamın altındaki karton kutuya baktım.",
+        "Bugün orada biraz oturabilirdim."
       ],
       "v4": [
         "Bugün kedilerin günüymüş.",
-        "Bir kutlama bekledim.",
-        "Sonra biraz kestirmeye karar verdim."
+        "Kutlamak için pencerenin yanındaki güneşli yere geçtim.",
+        "Biraz sonra ışık yer değiştirdi. Ben değiştirmedim."
+      ]
+    }
+  },
+  "republic-day": {
+    "theme": "29 Ekim · Cumhuriyet Bayramı",
+    "variants": {
+      "v1": [
+        "Bugün 29 Ekim Cumhuriyet Bayramı.",
+        "Pencereye küçük bir Türk bayrağı astım.",
+        "Sokakta da bayraklar vardı."
+      ],
+      "v2": [
+        "Sabah meydandan geçerken kutlamaları gördüm.",
+        "Bir çocuk elindeki bayrağı sallıyordu.",
+        "Ben de biraz durup izledim."
+      ],
+      "v3": [
+        "Bugün Cumhuriyet'in ilanının yıl dönümü.",
+        "Atatürk'ün bir fotoğrafına baktım.",
+        "Defterime küçük bir bayrak çizdim."
+      ],
+      "v4": [
+        "Meydandan bir marş sesi geliyordu.",
+        "Yaklaşıp sonuna kadar dinledim.",
+        "Bittiğinde ben de alkışladım."
+      ]
+    }
+  },
+  "ataturk-remembrance": {
+    "theme": "10 Kasım · Atatürk'ü Anma Günü",
+    "variants": {
+      "v1": [
+        "Saat 09.05'te ayağa kalktım.",
+        "Bir süre sessizce durdum.",
+        "Atatürk'ü andım."
+      ],
+      "v2": [
+        "Bugün 10 Kasım.",
+        "Atatürk'ün fotoğrafının önüne bir karanfil bıraktım.",
+        "Bir süre orada durdum."
+      ],
+      "v3": [
+        "Saat 09.05'te dışarıdan siren sesi duyuldu.",
+        "Yaptığım işi bırakıp ayağa kalktım.",
+        "Siren sustuğunda bir süre daha sessiz kaldım."
+      ],
+      "v4": [
+        "Bugün defterime 10 Kasım yazdım.",
+        "Yanına Atatürk'ün adını ekledim.",
+        "Sayfayı hemen çevirmedim."
       ]
     }
   },
@@ -234,8 +284,8 @@ export const POFI_SPECIAL_NOTES = {
       ],
       "v2": [
         "Bugün birinin doğum günüymüş.",
-        "Kutlamak için masamda ne olduğuna baktım.",
-        "İki ataşı yan yana koydum."
+        "Küçük bir not kâğıdı buldum.",
+        "Üstüne “İyi ki doğdun” yazdım."
       ],
       "v3": [
         "Masama küçük bir mum koydum.",
@@ -255,7 +305,7 @@ export const POFI_SPECIAL_NOTES = {
       "v1": [
         "Takvimin son sayfasına geldim.",
         "Bir süre kapatmadım.",
-        "Sonra yarın için boş bir sayfa bıraktım."
+        "Sonra yeni takvimi yanına koydum."
       ],
       "v2": [
         "Bugün yılın son günüymüş.",
@@ -264,8 +314,8 @@ export const POFI_SPECIAL_NOTES = {
       ],
       "v3": [
         "Takvimdeki son kutuya baktım.",
-        "Küçücük bir kutuydu.",
-        "İçine bugünün tarihini yazdım."
+        "Diğerlerinden pek farklı görünmüyordu.",
+        "Yine de bir süre ona baktım."
       ],
       "v4": [
         "Yıl bitmeden bir şey yapmak istedim.",

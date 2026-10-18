@@ -25,7 +25,7 @@ export function createPofiNotebook(
   > = {},
 ) {
   const notes = catalogue.createPool();
-  if (notes.length < 5 || new Set(notes).size !== notes.length)
+  if ((notes.length > 0 && notes.length < 5) || new Set(notes).size !== notes.length)
     throw new Error("The note pool needs at least five unique notes");
   for (const id of notes) {
     if (id.startsWith("special:"))
@@ -46,7 +46,7 @@ export function createPofiNotebook(
     specialDays.set(date, { ...special, variants });
   }
 
-  // Preserve the established 1,280-note selection sequence while supporting smaller catalogues.
+  // A stride coprime to the pool size avoids repeats within a week.
   const strides = STRIDE_CANDIDATES.filter(
     (stride) => stride < notes.length && gcd(stride, notes.length) === 1,
   );
@@ -72,6 +72,7 @@ export function createPofiNotebook(
         ];
       id = `special:${special.note}:${variant}`;
     } else {
+      if (!notes.length) throw new Error("No regular Pofi notes");
       const seed = hash(`pofi-notes:v1:${userKey}:${weekStart(date)}`);
       const stride = strides[(seed >>> 16) % strides.length];
       id = notes[(seed + weekday(date) * stride) % notes.length];
@@ -84,9 +85,11 @@ export function createPofiNotebook(
     notesForWeek(today: string, userKey: string): DatedNote[] {
       if (!isDateKey(today))
         throw new RangeError(`Invalid Pofi note date: ${today}`);
-      return pofiNotebookDates(today, specialDates).map((date) =>
-        noteForDate(date, userKey),
-      );
+      if (typeof userKey !== "string" || !userKey.trim())
+        throw new Error("Missing Pofi user key");
+      return pofiNotebookDates(today, specialDates)
+        .filter((date) => notes.length > 0 || specialDays.has(date.slice(5)))
+        .map((date) => noteForDate(date, userKey));
     },
   };
 }

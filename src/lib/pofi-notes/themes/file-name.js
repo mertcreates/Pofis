@@ -1,23 +1,23 @@
 export default {
-  "id": "file-name",
-  "title": "Dosya adı",
-  "premise": "Pofi hazırladığı dosyaya ad koymakta beklediğinden fazla vakit harcıyor.",
-  "intros": {
-    "i1": "Yeni dosyamı kaydetmek için bir isim aradım.",
-    "i2": "Hazırladığım belgeye ad vermem gerekiyordu.",
-    "i3": "Kaydet düğmesine bastım. Ad kısmı boştu.",
-    "i4": "Dosyayı bitirdim. Sıra adına gelmişti."
+  id: "file-name",
+  title: "Dosya adı",
+  premise: "Pofi, hazırladığı dosyaya uygun bir isim bulmaya çalışır.",
+  intros: {
+    i1: "Bugün hazırladığım dosyaya isim vermem gerekiyordu.",
+    i2: "Kaydet düğmesine bastım. Ad alanı boştu.",
+    i3: "Hazırladığım belgeyi kaydedecektim. İsmini henüz seçmemiştim.",
+    i4: "Ekrandaki dosyanın adına karar vermeye çalışıyordum.",
   },
-  "developments": {
-    "d1": "İlk aklıma gelen adı yazdım. Biraz uzun oldu.",
-    "d2": "Birkaç farklı isim denedim. Hepsi birbirine benzedi.",
-    "d3": "Takvime bakıp sonuna bugünün tarihini ekledim.",
-    "d4": "Bir kelime yazıp sildim. Yerine daha kısa bir şey yazdım."
+  developments: {
+    d1: "Önce uzun bir isim yazdım. Sonra yarısını sildim.",
+    d2: "Aklıma iki isim geldi. İkisini de denedim.",
+    d3: "Tarihi yazdım. Yanına bir kelime daha ekledim.",
+    d4: "Dosyanın içeriğini düşündüm. Adına iki kelime yazdım.",
   },
-  "endings": {
-    "e1": "Son hâline dokunmadan kaydettim.",
-    "e2": "Dosyanın bir itirazı olmadı.",
-    "e3": "Klasördeki diğer dosyaların yanına yerleşti.",
-    "e4": "Kaydedip pencereyi kapattım."
-  }
+  endings: {
+    e1: "Sonunda adını yazıp dosyayı kaydettim.",
+    e2: "Adını koyunca dosya biraz daha tamamlanmış göründü.",
+    e3: "Dosyayı kapatmadan önce adını bir kez daha okudum.",
+    e4: "Biraz sonra dosyayı yeniden açtım. Bulmam uzun sürmedi.",
+  },
 };

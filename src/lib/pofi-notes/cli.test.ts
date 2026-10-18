@@ -51,8 +51,9 @@ test("Pofi CLI inspects and previews the current single pool without writing it"
     expect(validation.status).toBe(0);
     expect(JSON.parse(validation.output)).toMatchObject({
       valid: true,
-      notes: 1280,
-      specialDays: 11,
+      themes: 16,
+      notes: 1024,
+      specialDays: 13,
     });
     expect(
       run("preview", "--date", "2026-10-16", "--key", "example").status,

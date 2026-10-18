@@ -33,7 +33,7 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 ## Arayüz kabulü
 
 - [ ] Mesai planında izinli, şablondan kapalı, sıfır süreli açık ve kilitli günleri; kart/stepper süre eşitliğini ve dar ekran yerleşimini görsel olarak doğrula. Planın davranış testleri mevcut; görsel kontrol kullanıcıda.
-- [ ] 404 sahnesini, tema depolama bildirimini ve eksik notta defter gezinmesini masaüstü/mobil tarayıcıda doğrula.
+- [ ] 404 sahnesini, tema depolama bildirimini ve eksik notta defter gezinmesini masaüstü/mobil tarayıcıda doğrula. Normal tema havuzu boşken nötr mesajı, önceki/sonraki gün gezinmesini ve özel gün notunu da kontrol et; yerel tarayıcı bağlantısı zaman aşımına uğradığı için bu kabul bekliyor.
 
 - [ ] Pofi'nin canlı/kayıtlı `%114 → %115` geçişinde `overworked` görselini ve “Hedefin üzerinde.” başlığını tarayıcıda doğrula.
 - [ ] Fiziksel mobil cihazda dokunmatik grafik ve modal tutamağından sürükleme davranışını kontrol et.

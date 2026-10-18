@@ -109,9 +109,8 @@ test("prior demo weeks retain missing and overtime days and their own Pofi notes
   expect(overtime.days[2].recordedSeconds).toBe(33358);
   // Captured 13:11:57 / 13:11:58 / 13:29:27 entries are consecutive.
   expect(overtime.days[2].source.pofi.state).toBe("error");
-  expect(
-    previewDemoReport(report, "2026-10-07").pofiNotes?.map((note) => note.date),
-  ).toEqual(["2026-10-05", "2026-10-06", "2026-10-07"]);
+  expect(previewDemoReport(report, "2026-10-07").pofiNotes?.map((note) => note.date))
+    .toEqual(["2026-10-05", "2026-10-06", "2026-10-07"]);
 });
 
 test("demo extra time simulates an open entry and keeps the captured report unchanged", () => {

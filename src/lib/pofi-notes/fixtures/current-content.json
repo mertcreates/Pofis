@@ -1,85 +1,69 @@
 {
   "sourceZipSha256": "555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca",
-  "contentRevision": "2026-10-17-tone-review",
+  "contentRevision": "2026-10-18-national-special-days-reviewed",
   "themes": {
-    "chair": {
-      "sha256": "ac6a92e50c574e33996a123aeb68c1e8b8e8fb9d01d11baf3e5189b6bb46e22d",
-      "fragments": 12
-    },
-    "office-silence": {
-      "sha256": "ba15027984958d81f98210acd6860a82e236d1b74693823b47a329aaf1c76fa7",
-      "fragments": 12
-    },
-    "sticky-note": {
-      "sha256": "32df14222672ca8541ede8ace68651ceb714b345a5fef42cddfcb78bd367f060",
-      "fragments": 12
-    },
-    "plant": {
-      "sha256": "3a66c65d3eac22f9f8f198bfc10111af4a00d3fba80b5c0598f9cfbde1143492",
-      "fragments": 12
-    },
-    "computer": {
-      "sha256": "b4a3550a034e75b77f4cc6f7f571ab03b2d679a150506a9eb6435cd1c1af5c14",
-      "fragments": 12
-    },
-    "water-glass": {
-      "sha256": "06dc0a4e2e4e2ad95a5656b606207a5de856122a3ed5d3c6d234e0a4cd9e1648",
-      "fragments": 12
-    },
-    "desk": {
-      "sha256": "f6811fef4da4574f68df109046d41cc1f5447ac365c1fa38a5de53e2c254b6a4",
-      "fragments": 12
-    },
-    "lunch": {
-      "sha256": "0bb23bda20404d80cc0fcb1124c0c5c1ad0490ba8cfcce0de701912383eb55ed",
-      "fragments": 12
-    },
-    "drawer": {
-      "sha256": "af9734fed0e536e97e2c44ac37845967769fc586db9b487be730f2ded9b5ee11",
-      "fragments": 12
-    },
-    "todo": {
-      "sha256": "9f03be57dfd95e11e40a687b653f13980a58eb438c975302cd99383344764af9",
-      "fragments": 12
-    },
     "coffee": {
-      "sha256": "a262366ea357ba1d6e5fb4e4798571dc4f504e3c834ed58752cf1af8dc9cc44c",
-      "fragments": 12
-    },
-    "elevator": {
-      "sha256": "764da1be9a707cffa55a63cdd4385a6a84a529e13e451f989548bebe35deeca6",
-      "fragments": 12
-    },
-    "headphones": {
-      "sha256": "75c2042d4516f427cc7792011c87164195e25a90b8d565aec792db162a0c7c25",
-      "fragments": 12
-    },
-    "file-name": {
-      "sha256": "7fed0d3ec23ace96cc5ed1351e269e1db3ed80da44af90a04f9a8a0c6c5fd092",
-      "fragments": 12
-    },
-    "desk-lamp": {
-      "sha256": "dd9862b49270bb012adb01aa8d8852cd760dbbb0f08f1e74d1048b8859fae247",
-      "fragments": 12
-    },
-    "umbrella": {
-      "sha256": "210bc6c7f5bd62379764924054693eac5b081cddd3584f5a9330144c26031b99",
-      "fragments": 12
-    },
-    "wall-clock": {
-      "sha256": "c0a8dbf71e92b0b8aeb3a17ccabefb0a3e34d3d411113102567aa037bdb94aed",
+      "sha256": "541ee34bb3ed8de528dabad17376e607d755bf59f594a4399cdc4dec9e42c410",
       "fragments": 12
     },
     "meeting": {
-      "sha256": "f929750ef957af2ace8a3bf7cffd925cbd445b38e9df63a3ec817a994077e4fb",
+      "sha256": "77fafd54f9b250becb117b4d910a4324176157f367c2b8ee6496414f645c573c",
       "fragments": 12
     },
-    "paperclips": {
-      "sha256": "e909458caeec7b1bf7dcef2b4aff804f654db326899c4bb5bb4f15f062a4655e",
+    "elevator": {
+      "sha256": "fa912d3d04050c139bd21b180a18931399634e8a232afa55d8662218c92f2454",
       "fragments": 12
     },
-    "door": {
-      "sha256": "4360fb7293a344ee69382710e60c13b4d2bf6facea067cc1b081967dc87fbbea",
+    "small-help": {
+      "sha256": "5b4801493b5a1ed2a0316ef72d2f6310fb3949aaa175856f10c0d47b7482a684",
+      "fragments": 12
+    },
+    "todo-list": {
+      "sha256": "15d554f383877fda168a413314e23a4057a0f34e5d8d6d498ba57fede57d692f",
+      "fragments": 12
+    },
+    "file-name": {
+      "sha256": "095bc3b7c7066a0477ee159ff9357f94bb4da71e039ad9ad2dcaed2b1a71c756",
+      "fragments": 12
+    },
+    "computer": {
+      "sha256": "d9f2527c1ea44e8e708b01de5da824eb996af4d3cdc9e5bd85f5cfc418af35f4",
+      "fragments": 12
+    },
+    "window-visitor": {
+      "sha256": "64ce8c3061b48edbbf5a9af6350236e5f97ef55f04e67a58e4003704a455d740",
+      "fragments": 12
+    },
+    "sticky-note": {
+      "sha256": "3029a629a824438ef339cb2d71228b5b1d39be2f843da09c51c33c62bf6e64d9",
+      "fragments": 12
+    },
+    "desk-neighbor": {
+      "sha256": "694e650dd4ee5987531115bf16c4655f36f73c7fc1176bf91a49f926421811d9",
+      "fragments": 12
+    },
+    "snacks": {
+      "sha256": "eb28851a40c7732aa0dc409b2fcf5aeb7bed014330b55621e4a223e9def7415a",
+      "fragments": 12
+    },
+    "small-mistake": {
+      "sha256": "0c1542f5fbadfdfd8f70636ebf002591aa26622b53585e3aaa943d06e22ec547",
+      "fragments": 12
+    },
+    "cardboard-box": {
+      "sha256": "eeade5ec6744d4d5fda020db9ab8370b3629e4cd7d53cb0835b33a909ae86874",
+      "fragments": 12
+    },
+    "chair": {
+      "sha256": "a31e1da04c451835080a66f0f41dbefdaf078ac6a04abb1ceb0dfd0ae207b4dc",
+      "fragments": 12
+    },
+    "desk": {
+      "sha256": "91eb30a0968594986bfbc258e4f5eeecf388e2a89bfebbc9ac205cbd413d368a",
+      "fragments": 12
+    },
+    "lunch": {
+      "sha256": "0653216b170c439fc19575e2823f8523151da75f97d6e965430c60f0db3bcec2",
       "fragments": 12
     }
   },
@@ -90,7 +74,7 @@
       "paragraphs": 12
     },
     "leap-day": {
-      "sha256": "ee16d1c9f03e5f425ced932575293b2f83e051667dcbffd6e7b40a062ff34eb5",
+      "sha256": "86ffb65f2d0dfeb556a328fc29e0db604bdd891b595973000b3d80d788634792",
       "variants": 4,
       "paragraphs": 12
     },
@@ -105,37 +89,47 @@
       "paragraphs": 12
     },
     "paper-boat-returns": {
-      "sha256": "a3b77451fbdf34923232155fc2208c11f95f0ab4059a719bf5b307d075f0ed42",
+      "sha256": "de68d395e755a81dcc69904e0ba18aaf967b96065e1a01f9c5e0351aef395ade",
       "variants": 4,
       "paragraphs": 12
     },
     "small-heart": {
-      "sha256": "6e734fdbdce85883add8316c2bfe4650b7a2ee66de66f39e1fc3c67da84f878e",
+      "sha256": "4fc45a5f614ed747ebafd3b97eadc32680d8df537b8842b173f24e019754d321",
       "variants": 4,
       "paragraphs": 12
     },
     "april-fools": {
-      "sha256": "80962578bed51005de9e0144fc6f4484e965520d89a8e767d3da62c6821a9975",
+      "sha256": "9560f091e6b0d95e3631e0b133cb2045c3d02b6cb83321b11a814a62a512f1b0",
       "variants": 4,
       "paragraphs": 12
     },
     "children-day": {
-      "sha256": "036e8f7d43b0092018a1e8b178f64530ef2ffc52f06de0dfea0d165e9c74836a",
+      "sha256": "f36d4bfd31cda432913f365148e479fd60646f2301e4fd94e321d95022693476",
       "variants": 4,
       "paragraphs": 12
     },
     "cat-day": {
-      "sha256": "1159ca6c755877301208b862876f202e92afe64592df6bc86c67c9cda0136b98",
+      "sha256": "885a8a623a00c2befcb6714d312cb27dd2cf8643938237ead4f41a372faca329",
       "variants": 4,
       "paragraphs": 12
     },
     "little-star": {
-      "sha256": "260ad7e07eb6d69fa09cd4f4e40c9a5540f5236505169cd228af0d583b0a7654",
+      "sha256": "12481642551e93fedee72138aede3bca2780a9a38cd651de190b62d14ab98454",
       "variants": 4,
       "paragraphs": 12
     },
     "year-end": {
-      "sha256": "7affb2bc278772e15b8feb695af10aa83a239bc18252577865816731860604d3",
+      "sha256": "57c765f4298f9adfc2040c25680d59c40c093c18119e4592a8d7e2610f645bc6",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "republic-day": {
+      "sha256": "7f85d029b5fb9aad6f5736dd0a69e8a4d2895711feabb2c118533cba556262d0",
+      "variants": 4,
+      "paragraphs": 12
+    },
+    "ataturk-remembrance": {
+      "sha256": "f4f82305f7917299954adfd04e395afd38a07148950c0be64649a5c6e1045e84",
       "variants": 4,
       "paragraphs": 12
     }
