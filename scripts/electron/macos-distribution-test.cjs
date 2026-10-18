@@ -87,7 +87,7 @@ async function run() {
     await execute("/usr/bin/ditto", ["-c", "-k", "--sequesterRsrc", "--keepParent", app, archive]);
     const bytes = Bun.file(archive);
     const manifest = releaseManifest(target, version, bytes.size,
-      createHash("sha256").update(await bytes.arrayBuffer()).digest("hex"));
+      createHash("sha256").update(Buffer.from(await bytes.arrayBuffer())).digest("hex"));
     archives.set("/" + manifest.url, archive);
     return manifest;
   };
@@ -155,7 +155,7 @@ async function run() {
     active = broken;
     await expectFailure(/Pofis sunucusu kapandı \(kod: 23\)/);
     assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, broken.version);
-    assert.equal((await pids()).length, 0);
+    await until(async () => (await pids()).length === 0);
     assert.deepEqual(await readdir(join(installRoot, 'versions')), []);
     assert.equal(await readFile(marker, "utf8"), "settings/session-file boundary preserved");
     await close();

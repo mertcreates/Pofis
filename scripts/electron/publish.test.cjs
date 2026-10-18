@@ -2,7 +2,7 @@ const { test, expect } = require("bun:test");
 const { createHash } = require("node:crypto");
 const { assertVersion } = require("./ci-build.cjs");
 const { assertManifest, assertPublicChanges, assertNoDowngrade, verifyDownload, targetFor,
-  readAsset, recover, releaseBody, assertRelease } = require("./publish.cjs");
+  readAsset, recover, releaseBody, assertRelease, cleanupDraft } = require("./publish.cjs");
 
 test("yayın sürümü kaynak sürümüyle tam eşleşir", () => {
   expect(() => assertVersion("1.2.3", "1.2.3")).not.toThrow();
@@ -121,5 +121,52 @@ test("eksik draft temizliği yalnız ilgili platformun asset'ini siler", async (
     globalThis.fetch = previousFetch;
     if (token === undefined) delete process.env.GH_TOKEN; else process.env.GH_TOKEN = token;
     if (output === undefined) delete process.env.GITHUB_OUTPUT; else process.env.GITHUB_OUTPUT = output;
+  }
+});
+
+test("başarısız build yalnız aynı kaynak commit'in draft release'ini siler", async () => {
+  const previousFetch = globalThis.fetch;
+  const token = process.env.GH_TOKEN;
+  const sha = process.env.GITHUB_SHA;
+  process.env.GH_TOKEN = "isolated-test-token";
+  process.env.GITHUB_SHA = "a".repeat(40);
+  const calls = [];
+  let releases = [];
+  let deleteStatus = 204;
+  try {
+    globalThis.fetch = async (url, options) => {
+      calls.push([url, options.method]);
+      return options.method === "DELETE"
+        ? new Response(null, { status: deleteStatus }) : Response.json(releases);
+    };
+    const list = ["https://api.github.com/repos/mertcreates/pofis-landing/releases?per_page=100&page=1", "GET"];
+    const deletion = ["https://api.github.com/repos/mertcreates/pofis-landing/releases/42", "DELETE"];
+    await cleanupDraft("1.2.3");
+    expect(calls.splice(0)).toEqual([list]);
+
+    const draft = { id: 42, tag_name: "v1.2.3", draft: true, body: releaseBody("1.2.3") };
+    releases = [{ ...draft, draft: false }];
+    await cleanupDraft("1.2.3");
+    expect(calls.splice(0)).toEqual([list]);
+
+    releases = [{ ...draft, body: draft.body.replace("a".repeat(40), "b".repeat(40)) }];
+    await expect(cleanupDraft("1.2.3")).rejects.toThrow("kaynak commit");
+    expect(calls.splice(0)).toEqual([list]);
+
+    releases = [{ ...draft, tag_name: "v1.2.4" }];
+    await cleanupDraft("1.2.3");
+    expect(calls.splice(0)).toEqual([list]);
+
+    releases = [draft];
+    await cleanupDraft("1.2.3");
+    expect(calls.splice(0)).toEqual([list, deletion]);
+
+    deleteStatus = 403;
+    await expect(cleanupDraft("1.2.3")).rejects.toThrow("HTTP 403");
+    expect(calls.splice(0)).toEqual([list, deletion]);
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (token === undefined) delete process.env.GH_TOKEN; else process.env.GH_TOKEN = token;
+    if (sha === undefined) delete process.env.GITHUB_SHA; else process.env.GITHUB_SHA = sha;
   }
 });

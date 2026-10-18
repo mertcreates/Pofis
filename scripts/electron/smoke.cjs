@@ -1,5 +1,6 @@
 // Run against the generated Windows folder; no Playwright or installed Node is needed.
-const { spawn } = require("node:child_process");
+const { spawn, execFile } = require("node:child_process");
+const { promisify } = require("node:util");
 const { mkdtemp, rm, writeFile, mkdir, readdir, readFile } = require("node:fs/promises");
 const { randomBytes } = require("node:crypto");
 const { join, resolve } = require("node:path");
@@ -157,6 +158,11 @@ async function run() {
     assert.equal(serverOrigin, ORIGIN);
     assert.equal(await evaluate("localStorage.getItem('desktop-smoke')"), "persisted");
     await close();
+    if (target.platform === "darwin" && !sourceMode) {
+      await promisify(execFile)("/usr/bin/codesign",
+        ["--verify", "--deep", "--strict", "--verbose=3", join(folder, "Pofis.app")]);
+      console.log("PASS: açılış, demo ve yeniden başlatma sonrasında uygulama imzası geçerli.");
+    }
     console.log(`PASS: ${target.id}; ${sourceMode ? "Kaynak electron/" : "Pofis paketi"}; Node/Bun içermeyen PATH; giriş ekranı/API doğrulaması; demo; tek örnek; gezinme sınırı; kalıcı profil; üç açılış/kapanışta port temizliği.`);
     console.log(`PASS: başka uygulama 3210'da kalırken boş port; portlar arasında kalıcı ayarlar; alternatif portta tek örnek; HTTP POST ve HttpOnly çerez temizleme.\nGeçici görsel inceleme: ${artifactDirectory}`);
   } finally {

@@ -1,8 +1,10 @@
-param([string]$SourceArchive, [string]$OutputDirectory)
+param([string]$SourceArchive, [string]$OutputDirectory, [Parameter(Mandatory)][string]$BaseVersion)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 Add-Type -AssemblyName System.IO.Compression
-foreach ($version in @('1.0.1', '1.0.2', '1.0.3')) {
+$parts = [version]$BaseVersion
+foreach ($offset in 1..3) {
+    $version = '{0}.{1}.{2}' -f $parts.Major, $parts.Minor, ($parts.Build + $offset)
     $path = Join-Path $OutputDirectory "$version.zip"
     Copy-Item -LiteralPath $SourceArchive -Destination $path
     $zip = [IO.Compression.ZipFile]::Open($path, [IO.Compression.ZipArchiveMode]::Update)
@@ -20,7 +22,7 @@ foreach ($version in @('1.0.1', '1.0.2', '1.0.3')) {
         $replacement = $zip.CreateEntry('release.json')
         $writer = [IO.StreamWriter]::new($replacement.Open(), [Text.UTF8Encoding]::new($false))
         $writer.Write((@{ schemaVersion = 1; version = $version; platform = 'win32'; arch = 'x64' } | ConvertTo-Json)); $writer.Dispose()
-        if ($version -eq '1.0.2') {
+        if ($offset -eq 2) {
             # A real executable whose owned Node utility process deliberately fails at startup.
             $zip.GetEntry('resources\app\electron\server-entry.cjs').Delete()
             $entry = $zip.CreateEntry('resources\app\electron\server-entry.cjs')

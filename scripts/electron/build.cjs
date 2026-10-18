@@ -1,9 +1,11 @@
 const { spawn } = require("node:child_process");
-const { cp } = require("node:fs/promises");
+const { cp, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 
 async function build() {
   const root = resolve(__dirname, "../..");
+  // Next can retain files from a previous standalone build.
+  await rm(join(root, ".next", "standalone"), { recursive: true, force: true });
   await new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ["--bun", join(root, "node_modules", "next", "dist", "bin", "next"), "build"], {
       cwd: root, stdio: "inherit", env: { ...process.env, POFIS_STANDALONE: "1" },

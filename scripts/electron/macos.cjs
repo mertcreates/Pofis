@@ -1,7 +1,7 @@
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
 const { rename, readdir, mkdir, copyFile, open } = require("node:fs/promises");
-const { join } = require("node:path");
+const { join, basename, sep } = require("node:path");
 const execute = promisify(execFile);
 
 async function configureBundle(bundle, executable, identifier, version) {
@@ -48,15 +48,20 @@ async function signMacBundle(bundle, run = execute) {
     0xcafebabe, 0xbebafeca, 0xcafebabf, 0xbfbafeca]);
   const sign = path => run("/usr/bin/codesign", ["--force", "--sign", "-",
     "--preserve-metadata=entitlements,flags", path]);
-  async function visit(directory) {
+  const targets = [];
+  // rebrandMacBundle gives each .app and its main executable the same name.
+  const mainExecutable = app => join(app, "Contents", "MacOS", basename(app, ".app"));
+  async function visit(directory, appExecutable) {
     for (const entry of await readdir(directory, { withFileTypes: true })) {
       const path = join(directory, entry.name);
       // Framework aliases point to code visited through its actual directory.
       if (entry.isSymbolicLink()) continue;
       if (entry.isDirectory()) {
-        await visit(path);
-        if (/\.(?:app|framework|xpc)$/.test(entry.name)) await sign(path);
+        await visit(path, entry.name.endsWith(".app") ? mainExecutable(path) : appExecutable);
+        if (/\.(?:app|framework|xpc)$/.test(entry.name)) targets.push(path);
       } else if (entry.isFile()) {
+        // codesign treats this path as its containing app. Sign that app only after nested code.
+        if (path === appExecutable) continue;
         const file = await open(path, "r");
         let native;
         try {
@@ -64,12 +69,14 @@ async function signMacBundle(bundle, run = execute) {
           const { bytesRead } = await file.read(header, 0, 4, 0);
           native = bytesRead === 4 && magic.has(header.readUInt32BE(0));
         } finally { await file.close(); }
-        if (native) await sign(path);
+        if (native) targets.push(path);
       }
     }
   }
-  // Sign native code before its containing bundles; keep Electron's per-file entitlements.
-  await visit(bundle);
+  await visit(bundle, mainExecutable(bundle));
+  // A framework's main binary also seals its container; sign deeper Helpers/Libraries first.
+  targets.sort((a, b) => b.split(sep).length - a.split(sep).length);
+  for (const path of targets) await sign(path);
   await sign(bundle);
   await run("/usr/bin/codesign", ["--verify", "--deep", "--strict", bundle]);
 }

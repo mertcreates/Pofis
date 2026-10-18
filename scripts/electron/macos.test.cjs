@@ -11,7 +11,9 @@ test("macOS imzası native dosyalardan kapsayıcı bundle'a ilerler; bağlantıl
   const helper = join(bundle, "Contents/Frameworks/Pofis Helper.app");
   const files = [join(framework, "Versions/A/Electron Framework"),
     join(helper, "Contents/MacOS/Pofis Helper"), join(bundle, "Contents/MacOS/Pofis"),
-    join(bundle, "Contents/Resources/app/server/node_modules/native/addon.node")];
+    join(bundle, "Contents/Resources/app/server/node_modules/native/addon.node"),
+    join(framework, "Versions/A/Helpers/app_shim_loader"),
+    join(framework, "Versions/A/Libraries/libEGL.dylib")];
   try {
     for (const file of files) {
       await mkdir(join(file, ".."), { recursive: true });
@@ -24,11 +26,17 @@ test("macOS imzası native dosyalardan kapsayıcı bundle'a ilerler; bağlantıl
     await signMacBundle(bundle, async (command, args) => { calls.push({ command, args }); });
     const signed = calls.filter(call => call.args.includes("--sign"));
     const paths = signed.map(call => call.args.at(-1));
-    for (const file of files) expect(paths.filter(path => path === file)).toHaveLength(1);
+    for (const file of [files[0], files[3], files[4], files[5]]) expect(paths.filter(path => path === file)).toHaveLength(1);
+    // App mains are signed by their container, never as a separate early operation.
+    expect(paths).not.toContain(files[1]);
+    expect(paths).not.toContain(files[2]);
     expect(paths.indexOf(files[0])).toBeLessThan(paths.indexOf(framework));
-    expect(paths.indexOf(files[1])).toBeLessThan(paths.indexOf(helper));
+    expect(paths.indexOf(files[4])).toBeLessThan(paths.indexOf(files[0]));
+    expect(paths.indexOf(files[5])).toBeLessThan(paths.indexOf(files[0]));
+    expect(paths.indexOf(helper)).toBeLessThan(paths.indexOf(bundle));
+    expect(paths.indexOf(framework)).toBeLessThan(paths.indexOf(bundle));
     expect(paths.at(-1)).toBe(bundle);
-    expect(paths).toHaveLength(files.length + 3);
+    expect(paths).toHaveLength(files.length + 1);
     for (const call of signed) {
       expect(call.command).toBe("/usr/bin/codesign");
       expect(call.args).not.toContain("--deep");

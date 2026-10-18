@@ -8,7 +8,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   begin:
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     runs-on: windows-2022
     timeout-minutes: 10
     outputs:
@@ -95,6 +95,28 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs stage
+  cleanup:
+    needs: [begin, build]
+    if: ${{ always() && needs.begin.result == 'success' && needs.build.result == 'failure' }}
+    runs-on: windows-2022
+    timeout-minutes: 10
+    env:
+      RELEASE_VERSION: ${{ needs.begin.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.3
+      - name: Başarısız derlemenin sürüm taslağını sil
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+        run: bun scripts/electron/publish.cjs cleanup
+      - name: Yeniden deneme bilgisini göster
+        shell: pwsh
+        run: |
+          "## Pofis $env:RELEASE_VERSION`nDerleme başarısız oldu. Taslak temizleme adımı tamamlandı.`n`nDüzeltmeden sonra Run workflow veya Re-run all jobs ile tüm akışı yeniden başlat." >> $env:GITHUB_STEP_SUMMARY
   publish:
     needs: [begin, build]
     runs-on: windows-2022

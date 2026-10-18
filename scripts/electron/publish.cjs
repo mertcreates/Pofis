@@ -15,11 +15,12 @@ const delay = ms => new Promise(done => setTimeout(done, ms));
 
 function releaseBody(version) {
   if (!/^[a-f0-9]{40}$/.test(process.env.GITHUB_SHA || "")) throw new Error("Kaynak commit kimliği geçersiz.");
-  return `Pofis ${version}\n\nWindows x64, macOS Apple Silicon ve Intel paketleri.\n\n${RELEASE_MARKER}\nKaynak commit: ${process.env.GITHUB_SHA}`;
+  return `Pofis ${version}\n\n- Windows x64, macOS Apple Silicon ve Intel.\n- Node.js veya Bun kurmadan, uygulama simgesinden açılış.\n- Tek komutla kurulum ve güncelleme.\n- Güncellemelerde korunan ayarlar ve oturum bilgileri.\n\nKurulum: https://pofis.app\n\n${RELEASE_MARKER}\nKaynak commit: ${process.env.GITHUB_SHA}`;
 }
 
 function assertRelease(release, version) {
-  if (!release || release.body !== releaseBody(version)) throw new Error("Sürüm bu kaynak commit ile üretilmemiş. Yeni bir sürüm numarası kullan.");
+  if (!release) throw new Error(`Pofis ${version} sürüm taslağı bulunamadı. Önce begin adımı tamamlanmalı.`);
+  if (release.body !== releaseBody(version)) throw new Error("Sürüm bu kaynak commit ile üretilmemiş. Yeni bir sürüm numarası kullan.");
 }
 
 function targetFor(id) {
@@ -64,22 +65,40 @@ async function verifyDownload(response, manifest, save = async () => {}) {
   if (size !== manifest.size || hash.digest("hex") !== manifest.sha256) throw new Error("İndirilen paket boyutu/SHA-256 değeri eşleşmiyor.");
 }
 
-async function api(path, { method = "GET", body, raw = false, missing = false, upload } = {}) {
+async function api(path, { method = "GET", body, raw = false, upload } = {}) {
   if (!process.env.GH_TOKEN) throw new Error("Depo sırlarına POFIS_RELEASE_TOKEN ekle.");
-  const url = upload || `https://api.github.com/repos/${REPOSITORY}/${path}`;
+  const url = upload || `https://api.github.com/repos/${REPOSITORY}${path ? `/${path}` : ""}`;
   if (upload && !upload.startsWith(`https://uploads.github.com/repos/${REPOSITORY}/releases/`)) throw new Error("Geçersiz dosya yükleme adresi.");
   const response = await fetch(url, { method, signal: AbortSignal.timeout(180000), headers: {
     Authorization: `Bearer ${process.env.GH_TOKEN}`, "X-GitHub-Api-Version": "2022-11-28",
     Accept: raw ? "application/octet-stream" : "application/vnd.github+json",
     ...(body ? { "Content-Type": upload ? "application/octet-stream" : "application/json" } : {}),
   }, body: body ? upload ? body : JSON.stringify(body) : undefined });
-  if (missing && response.status === 404) return null;
-  if (!response.ok) throw new Error(`GitHub ${method} ${path || "asset"}: HTTP ${response.status}.`);
+  if (!response.ok) throw new Error(`GitHub ${method} ${upload ? "asset" : path || REPOSITORY}: HTTP ${response.status}.`);
   return raw ? response : response.status === 204 ? null : response.json();
 }
 
-async function getRelease(version) { return api(`releases/tags/v${version}`, { missing: true }); }
+async function getRelease(version) {
+  // The tag endpoint only returns published releases; native jobs need the draft too.
+  for (let page = 1; ; page++) {
+    const releases = await api(`releases?per_page=100&page=${page}`);
+    const release = releases.find(item => item.tag_name === `v${version}`);
+    if (release) return release;
+    if (releases.length < 100) return null;
+  }
+}
 function manifestName(id) { return `manifest-${id}.json`; }
+
+async function cleanupDraft(version) {
+  const release = await getRelease(version);
+  if (!release || !release.draft) {
+    console.log("Silinecek sürüm taslağı yok; yayımlanmış sürümler korunur.");
+    return;
+  }
+  assertRelease(release, version);
+  await api(`releases/${release.id}`, { method: "DELETE" });
+  console.log(`Pofis ${version}: başarısız derlemenin sürüm taslağı ve paketleri silindi.`);
+}
 function assetNames(version, id) {
   return [`Pofis-${version}-${id}.zip`, installerAsset(id), manifestName(id)];
 }
@@ -138,7 +157,14 @@ async function assertSite(site, version) {
       (await run("git", ["remote", "get-url", "origin"], site)) !== `https://github.com/${REPOSITORY}.git`) {
     throw new Error("Site deposunun main dalı ve origin adresi doğrulanamadı.");
   }
-  const current = JSON.parse(await readFile(join(site, "public/releases/windows/latest.json"), "utf8"));
+  let raw;
+  try {
+    raw = await readFile(join(site, "public/releases/windows/latest.json"), "utf8");
+  } catch (error) {
+    if (error.code === "ENOENT") return;
+    throw error;
+  }
+  const current = JSON.parse(raw);
   if (!/^\d+\.\d+\.\d+$/.test(current.version)) throw new Error("Sitedeki sürüm numarası geçersiz.");
   assertNoDowngrade(current.version, version);
 }
@@ -213,7 +239,7 @@ async function publish(site, version) {
 
 async function verifyLive(site, version) {
   const until = Date.now() + 300000;
-  let last = "Pages yayını bekleniyor.";
+  let last = "Workers yayını bekleniyor.";
   while (Date.now() < until) {
     try {
       for (const id of TARGETS) {
@@ -241,18 +267,19 @@ async function verifyLive(site, version) {
     } catch (error) { last = error.message; }
     await delay(10000);
   }
-  throw new Error(`Pages yayını 5 dakikada doğrulanamadı: ${last}`);
+  throw new Error(`Workers yayını 5 dakikada doğrulanamadı: ${last}`);
 }
 
 async function main() {
-  if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_EVENT_NAME !== "workflow_dispatch" || process.env.GITHUB_REF !== "refs/heads/main") {
-    throw new Error("Yayın komutları yalnız main dalında elle başlatılan GitHub Actions akışında çalışır.");
+  if (process.env.GITHUB_ACTIONS !== "true" || process.env.GITHUB_EVENT_NAME !== "workflow_dispatch" || process.env.GITHUB_REF !== "refs/heads/master") {
+    throw new Error("Yayın komutları yalnız master dalında elle başlatılan GitHub Actions akışında çalışır.");
   }
   const version = process.env.RELEASE_VERSION;
   await checkVersion(version);
+  const action = process.argv[2];
+  if (action === "cleanup") return cleanupDraft(version);
   if (!process.env.SITE_DIRECTORY) throw new Error("SITE_DIRECTORY gerekli.");
   const site = resolve(process.env.SITE_DIRECTORY);
-  const action = process.argv[2];
   if (action === "begin") {
     await assertSite(site, version);
     const repo = await api("");
@@ -273,9 +300,9 @@ async function main() {
     await prepare(site, version);
   } else if (action === "publish") await publish(site, version);
   else if (action === "verify") await verifyLive(site, version);
-  else throw new Error("Yayın adımı: begin|recover|stage|prepare|publish|verify");
+  else throw new Error("Yayın adımı: begin|recover|stage|prepare|publish|verify|cleanup");
 }
 
 if (require.main === module) main().catch(error => { console.error(error.message); process.exitCode = 1; });
 module.exports = { assertManifest, assertPublicChanges, assertNoDowngrade, verifyDownload, targetFor,
-  readAsset, recover, releaseBody, assertRelease };
+  readAsset, recover, releaseBody, assertRelease, cleanupDraft };

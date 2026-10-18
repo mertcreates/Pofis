@@ -49,7 +49,7 @@ async function build(version, siteDirectory) {
   await prepareSite({ siteDirectory, releaseDirectory: join(root, "dist/releases", target.releaseDirectory),
     installerPath: join(__dirname, target.platform === "win32" ? "install.ps1" : "install.sh") });
   if (target.platform === "win32") {
-    await run(process.execPath, ["run", "test:desktop:distribution", "--startup-only", "--site", siteDirectory]);
+    await run(process.execPath, ["run", "test:desktop:distribution", "--site", siteDirectory]);
   } else {
     await run(process.execPath, [join(__dirname, "macos-distribution-test.cjs"), "--site", siteDirectory]);
   }

@@ -1,7 +1,7 @@
 name: Pofis kontrolleri
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
 permissions:
   contents: read

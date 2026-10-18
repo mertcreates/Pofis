@@ -71,7 +71,8 @@ async function run() {
   }
   const releases = join(root, "dist/releases/windows");
   const first = JSON.parse(await readFile(join(releases, "latest.json"), "utf8"));
-  if (!startupOnly) assert.equal(first.version, "1.0.0", "Tam güncelleme fixture'ları 1.0.0 dağıtımını gerektirir.");
+  const [major, minor, patch] = first.version.split(".").map(Number);
+  const [updatedVersion, brokenVersion, repairedVersion] = [1, 2, 3].map(offset => `${major}.${minor}.${patch + offset}`);
   let active = first;
   let delayManifest = false;
   let manifestRequests = 0;
@@ -90,7 +91,7 @@ async function run() {
     }
     if (path === "/broken.zip") return new Response("corrupt archive");
     if (path.endsWith(".zip")) zipRequests++;
-    const local = ["/1.0.1.zip", "/1.0.2.zip", "/1.0.3.zip"].includes(path)
+    const local = [updatedVersion, brokenVersion, repairedVersion].some(version => path === `/${version}.zip`)
       ? join(directory, path.slice(1)) : resolve(releases, `.${path}`);
     if (!local.startsWith(directory) && !local.startsWith(releases)) return new Response("", { status: 404 });
     return await Bun.file(local).exists() ? new Response(Bun.file(local)) : new Response("", { status: 404 });
@@ -143,7 +144,7 @@ async function run() {
   try {
     if (!startupOnly) {
       console.log("Dağıtım testleri için ZIP paketleri hazırlanıyor…");
-      const variants = await ps(`& ${quote(join(__dirname, "fixtures/release-variants.ps1"))} -SourceArchive ${quote(join(releases, first.url))} -OutputDirectory ${quote(directory)}`).done;
+      const variants = await ps(`& ${quote(join(__dirname, "fixtures/release-variants.ps1"))} -SourceArchive ${quote(join(releases, first.url))} -OutputDirectory ${quote(directory)} -BaseVersion ${quote(first.version)}`).done;
       assert.equal(variants.code, 0, variants.output);
     }
     await expectInstall(true, true);
@@ -177,18 +178,18 @@ async function run() {
       await evaluate("window.close(); true").catch(() => {});
       cdp.close(); cdp = null;
       await until(async () => !(await healthy()));
-      active = JSON.parse((await readFile(join(directory, "1.0.1.json"), "utf8")).replace(/^\uFEFF/, ""));
+      active = JSON.parse((await readFile(join(directory, `${updatedVersion}.json`), "utf8")).replace(/^\uFEFF/, ""));
       // The installer must refuse activation while the installed release is running.
       await ps(`Start-Process -FilePath ${quote(shortcut)} -WindowStyle Normal`).done;
       await until(healthy);
       const blocked = await expectInstall(false);
       assert.match(blocked.output, /Pofis açık/);
-      assert.equal((await state()).version, "1.0.0");
+      assert.equal((await state()).version, first.version);
       assert.equal(await healthy(), true);
       passed("açık uygulamada güncelleme mevcut sürümü bozmuyor");
       await close();
       await expectInstall(true);
-      assert.equal((await state()).version, "1.0.1");
+      assert.equal((await state()).version, updatedVersion);
       assert.notEqual((await state()).directory, initial.directory);
       assert.deepEqual(await readdir(join(install, 'versions')), [(await state()).directory]);
       await close();
@@ -209,22 +210,22 @@ async function run() {
       await expectInstall(true);
       passed("beklenmedik ana süreç kapanışı sonrası yeniden açılış");
       await close();
-      active = JSON.parse((await readFile(join(directory, "1.0.2.json"), "utf8")).replace(/^\uFEFF/, ""));
+      active = JSON.parse((await readFile(join(directory, `${brokenVersion}.json`), "utf8")).replace(/^\uFEFF/, ""));
       const failed = await expectInstall(false);
       assert.match(failed.output, /42/);
-      assert.equal((await state()).version, "1.0.2");
+      assert.equal((await state()).version, brokenVersion);
       assert.equal(await healthy(), false);
       assert.deepEqual(await readdir(join(install, 'versions')), [(await state()).directory]);
       passed("gerçek başlangıç hatası raporlanır; eski sürümler açılışı beklemeden kaldırılır");
       const previousState = await state();
-      active = { ...active, version: "1.0.3", url: "missing.zip" };
+      active = { ...active, version: repairedVersion, url: "missing.zip" };
       await expectInstall(false);
       assert.deepEqual(await state(), previousState);
       active = { ...active, url: "broken.zip" };
       await expectInstall(false);
       assert.deepEqual(await state(), previousState);
       passed("başarısız indirme ve bozuk pakette kurulumun korunması");
-      active = JSON.parse((await readFile(join(directory, "1.0.3.json"), "utf8")).replace(/^\uFEFF/, ""));
+      active = JSON.parse((await readFile(join(directory, `${repairedVersion}.json`), "utf8")).replace(/^\uFEFF/, ""));
       await expectInstall(true);
       await close();
     } else {
