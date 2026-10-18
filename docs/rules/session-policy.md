@@ -26,6 +26,8 @@ API temizliği ve keepalive yalnız ortak `SESSION_EXPIRED` + 401 doğrulamasıy
 
 ## Bağımlılıklar
 
+[Windows masaüstü kabuğu](../desktop.md) aynı HTTP API ve oturum kurallarını kullanır; kendi Chromium profili ve sunucu oturum dizini vardır. Profil `%APPDATA%/Pofis/` altında sürüm dosyalarından bağımsız tutulur; kurulum/güncelleme oturumları silmez. Uygulamayı kapatmak çıkış API'sini çağırmaz. Kaynak oturumunun geçerliliği mevcut TTL ve kaynak doğrulamasıyla belirlenir.
+
 Başka ürün kuralına bağlı değildir.
 
 ## Kullanan yerler

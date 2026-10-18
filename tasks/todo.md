@@ -10,6 +10,16 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 - [ ] İki gerçek hesap/tarayıcıyla kimlik, kaynak çerezi ve rapor ayrımını doğrula.
 - [ ] İstanbul gece yarısı, gün/hafta geçişi ve yeni kaynak hareketlerinin ekrana yansımasını kontrol et.
 
+## Windows masaüstü kabulü
+
+- [ ] [Masaüstü rehberindeki](../docs/desktop.md) gerçek PDKS giriş → rapor → yenileme → çıkış zincirini kurum ağı ve gerçek hesapla tamamla.
+- [ ] Node/Bun kurulmamış temiz Windows x64 cihazında tek komutla kurulum, simgeden açılış, imzasız ZIP/EXE için SmartScreen uyarıları, güncelleme ve normal çıkışta süreç temizliğini doğrula. PATH kısıtlı yerel kabul temiz cihaz testinin yerine geçmez.
+- [ ] Gerçek PDKS oturumunun sürüm güncellemesinde mevcut TTL içinde korunduğunu doğrula.
+- [ ] Gerçek PDKS oturumuyla 3210 başka uygulamadayken açılışı ve port değişiminden sonra oturum devamını doğrula. Yerel paket kabulü boş port, ayar kalıcılığı ve HttpOnly çerez temizleme yolunu kapsar.
+- [ ] Hosting sahibini seç; HTTPS script/manifest/ZIP adreslerini yayımlayıp pofis.app kurulum komutunu Windows akışına bağla. Mevcut landing Linux/macOS komutu bu dağıtımın canlı giriş noktası değildir.
+- [ ] macOS Apple Silicon ve Intel cihazlarında ortak `desktop:prepare/package/release` ile `.app`, helper adları, ad-hoc imza, izin/symlink koruması, tek örnek/Dock/Command-Q ve Node UtilityProcess temizliğini doğrula; aynı `test:desktop:smoke` betiğini çalıştır.
+- [ ] macOS tek komut kurulum/güncelleme betiğini ortak manifest ve başlangıç sonucu sözleşmesine bağla; indirilen gerçek pakette Gatekeeper kabulünü tamamla.
+
 ## Kurum dağıtımı
 
 - [ ] Docker imajını hedef ortamda derle ve çalıştır; TZ, dinleme adresi ve volume izinlerini kontrol et.
@@ -32,4 +42,3 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 ## Sonraki ürün işleri
 
 - [ ] Kullanıcı onayı için en az 10 Pofi görsel adayı üret. [Hazır promptlar ve mevcut engel](../docs/brand/pofi-review-2026-10-15/README.md).
-- [ ] macOS iki mimari paket hedefini ve tek Bun executable dağıtımını ayrıca tasarla ve doğrula. Mevcut standalone çıktı bu paketlerin yerine geçmez.

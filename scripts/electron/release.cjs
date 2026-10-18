@@ -1,0 +1,72 @@
+const { execFile } = require("node:child_process");
+const { promisify } = require("node:util");
+const { createReadStream } = require("node:fs");
+const { createHash, randomUUID } = require("node:crypto");
+const { mkdir, readFile, writeFile, copyFile, rename, stat, access, rm } = require("node:fs/promises");
+const { join, resolve } = require("node:path");
+const { platformTarget } = require("../../electron/platform.cjs");
+const execute = promisify(execFile);
+
+function releaseManifest(target, version, size, sha256) {
+  return { schemaVersion: 1, platform: target.platform, arch: target.arch, version, size, sha256,
+    url: `${version}/Pofis-${version}-${target.id}.zip` };
+}
+
+async function release(packageDirectory) {
+  const target = platformTarget();
+  const root = resolve(__dirname, "../..");
+  const directory = resolve(packageDirectory);
+  const app = JSON.parse(await readFile(join(directory, target.resources, "app", "package.json"), "utf8"));
+  if (!/^\d+\.\d+\.\d+$/.test(app.version)) throw new Error("Dağıtım sürümü x.y.z biçiminde olmalı.");
+  const metadataPath = join(target.platform === "darwin" ? join(directory, target.resources) : directory, "release.json");
+  const metadata = JSON.parse(await readFile(metadataPath, "utf8"));
+  if (metadata.version !== app.version || metadata.platform !== target.platform || metadata.arch !== target.arch) {
+    throw new Error("Paket hedefi bu bilgisayarın platform ve mimarisiyle eşleşmiyor.");
+  }
+  await access(join(directory, target.executable));
+  await access(join(directory, target.resources, "app", "server", "server.js"));
+  const output = join(root, "dist", "releases", target.releaseDirectory);
+  const versionDirectory = join(output, app.version);
+  await mkdir(versionDirectory, { recursive: true });
+  const name = `Pofis-${app.version}-${target.id}.zip`;
+  const archive = join(versionDirectory, name);
+  if (await stat(archive).then(() => true, error => { if (error.code === "ENOENT") return false; throw error; })) {
+    throw new Error("Bu sürümün dağıtımı zaten var. Yeni sürüm numarası kullanın.");
+  }
+  // Exclusive ownership also protects two developers building the same release simultaneously.
+  const temporary = `${archive}.partial`;
+  const lock = `${archive}.lock`;
+  await writeFile(lock, "", { flag: "wx" });
+  try {
+    console.log(`Dağıtım arşivi hazırlanıyor (${target.id})...`);
+    if (target.platform === "win32") {
+      await execute(join(process.env.SystemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe"),
+        ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", join(__dirname, "archive.ps1"), "-Source", directory, "-Destination", temporary]);
+    } else {
+      await execute("/usr/bin/ditto", ["-c", "-k", "--sequesterRsrc", "--keepParent", join(directory, "Pofis.app"), temporary]);
+    }
+    const hash = createHash("sha256");
+    for await (const chunk of createReadStream(temporary)) hash.update(chunk);
+    const manifest = releaseManifest(target, app.version, (await stat(temporary)).size, hash.digest("hex"));
+    await rename(temporary, archive);
+    const json = JSON.stringify(manifest, null, 2) + "\n";
+    await writeFile(join(versionDirectory, "manifest.json"), json);
+    const latest = join(output, "latest.json");
+    const staging = `${latest}.${randomUUID()}.tmp`;
+    await writeFile(staging, json, { flag: "wx" });
+    await rename(staging, latest);
+    if (target.platform === "win32") await copyFile(join(__dirname, "install.ps1"), join(output, "install.ps1"));
+    console.log(`Dağıtım dosyaları: ${output}`);
+  } finally {
+    try { await rm(temporary, { force: true }); }
+    finally { await rm(lock, { force: true }); }
+  }
+}
+
+if (require.main === module) {
+  const index = process.argv.indexOf("-PackageDirectory");
+  const directory = index === -1 ? null : process.argv[index + 1];
+  if (!directory) { console.error("Kullanım: bun run desktop:release -PackageDirectory <paket-klasörü>"); process.exitCode = 1; }
+  else release(directory).catch(error => { console.error(error.message); process.exitCode = 1; });
+}
+module.exports = { releaseManifest };

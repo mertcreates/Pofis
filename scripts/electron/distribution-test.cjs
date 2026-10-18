@@ -1,0 +1,227 @@
+// All successful startup checks below use the packaged Electron/Next standalone application.
+const { spawn } = require("node:child_process");
+const { mkdir, mkdtemp, readFile, writeFile, rm } = require("node:fs/promises");
+const { join, resolve } = require("node:path");
+const assert = require("node:assert/strict");
+const { randomBytes } = require("node:crypto");
+const { connect } = require("./cdp.cjs");
+const { ORIGIN, stopProcessTree } = require("../../electron/server.cjs");
+
+const root = resolve(__dirname, "../..");
+if (process.platform !== "win32") {
+  throw new Error("Bu betik Windows kurulumunu sınar. Ortak paket kabulü için bun run test:desktop:smoke kullanın.");
+}
+const powershell = join(process.env.SystemRoot, "System32/WindowsPowerShell/v1.0/powershell.exe");
+const env = { ...process.env, PATH: join(process.env.SystemRoot, "System32") };
+env.PSModulePath = join(process.env.SystemRoot, "System32/WindowsPowerShell/v1.0/Modules");
+delete env.ELECTRON_RUN_AS_NODE;
+const quote = value => `'${String(value).replaceAll("'", "''")}'`;
+async function until(check, timeout = 20000) {
+  const end = Date.now() + timeout;
+  while (Date.now() < end) { const value = await check(); if (value) return value; await Bun.sleep(100); }
+  throw Error("Dağıtım kabul kontrolü zaman aşımı.");
+}
+function ps(code) {
+  const child = spawn(powershell, ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command",
+    "[Console]::OutputEncoding = [Text.UTF8Encoding]::new(); $ErrorActionPreference='Stop'; " + code],
+    { env, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+  let output = "";
+  child.stdout.on("data", chunk => { output += chunk; });
+  child.stderr.on("data", chunk => { output += chunk; });
+  const done = new Promise((resolve, reject) => {
+    child.on("error", reject);
+    child.on("exit", code => resolve({ code, output }));
+  });
+  return { child, done };
+}
+
+async function run() {
+  const startupOnly = process.argv.includes("--startup-only");
+  const checks = join(root, "dist/electron/checks");
+  await mkdir(checks, { recursive: true });
+  const directory = await mkdtemp(join(checks, "distribution test-"));
+  const install = join(directory, "installed");
+  const profile = join(directory, "profile");
+  const shortcut = join(directory, "Pofis.lnk");
+  const releases = join(root, "dist/releases/windows");
+  const first = JSON.parse(await readFile(join(releases, "latest.json"), "utf8"));
+  assert.equal(first.version, "1.0.0", "Kabul başlangıcı 1.0.0 dağıtımını gerektirir.");
+  let active = first;
+  let delayManifest = false;
+  let manifestRequests = 0;
+  let zipRequests = 0;
+  let cdp;
+  let debugChild;
+  const host = Bun.serve({ hostname: "127.0.0.1", port: 0, async fetch(request) {
+    const path = decodeURIComponent(new URL(request.url).pathname);
+    if (path === "/install.ps1") return new Response(Bun.file(join(__dirname, "install.ps1")), { headers: { "Content-Type": "text/plain; charset=utf-8" } });
+    if (path === "/latest.json") {
+      manifestRequests++;
+      if (delayManifest) await Bun.sleep(2000);
+      return Response.json(active);
+    }
+    if (path === "/broken.zip") return new Response("corrupt archive");
+    if (path.endsWith(".zip")) zipRequests++;
+    const local = path === "/1.0.1.zip" || path === "/1.0.2.zip"
+      ? join(directory, path.slice(1)) : resolve(releases, `.${path}`);
+    if (!local.startsWith(directory) && !local.startsWith(releases)) return new Response("", { status: 404 });
+    return await Bun.file(local).exists() ? new Response(Bun.file(local)) : new Response("", { status: 404 });
+  } });
+  const base = `http://127.0.0.1:${host.port}`;
+  const flags = `-ManifestUrl ${quote(base + "/latest.json")} -InstallRoot ${quote(install)} -ShortcutPath ${quote(shortcut)} -UserDataDir ${quote(profile)}`;
+  const installer = bootstrap => ps(bootstrap
+    ? `& ([scriptblock]::Create((Invoke-RestMethod ${quote(base + "/install.ps1")}).TrimStart([char]0xFEFF))) ${flags}`
+    : `& ${quote(join(__dirname, "install.ps1"))} ${flags}`);
+  const state = async () => JSON.parse(await readFile(join(install, "installed.json"), "utf8"));
+  const executable = async () => join(install, "versions", (await state()).directory, "Pofis.exe");
+  const healthy = async () => fetch(`${ORIGIN}/api/health`, { signal: AbortSignal.timeout(500) })
+    .then(r => r.ok && !!r.headers.get("X-Pofis-Desktop"), () => false);
+  const close = async () => {
+    const owned = `try { $_.Path -like ${quote(install + "\\versions\\*")} } catch { $false }`;
+    // Health can become ready before Electron creates the window.
+    await until(async () => (await ps(`@(Get-Process | Where-Object { ${owned} } | Where-Object { $_.MainWindowHandle -ne 0 }).Count`).done).output.trim() !== "0");
+    const result = await ps(`Get-Process | Where-Object { ${owned} } | Where-Object { $_.MainWindowHandle -ne 0 } | ForEach-Object { $null = $_.CloseMainWindow() }`).done;
+    assert.equal(result.code, 0, result.output);
+    await until(async () => !(await healthy()));
+    await until(async () => {
+      const result = await ps(`@(Get-Process | Where-Object { ${owned} }).Count`).done;
+      assert.equal(result.code, 0, result.output);
+      return result.output.trim() === "0";
+    });
+  };
+  const expectInstall = async (success, bootstrap = false) => {
+    const result = await installer(bootstrap).done;
+    assert.equal(result.code === 0, success, result.output);
+    return result;
+  };
+  const evaluate = async expression => {
+    const result = await cdp.send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
+    if (result.exceptionDetails) throw Error(JSON.stringify(result.exceptionDetails));
+    return result.result.value;
+  };
+  const debugOpen = async () => {
+    let stderr = "";
+    debugChild = spawn(await executable(), [`--user-data-dir=${profile}`, "--remote-debugging-port=0"],
+      { env, windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
+    debugChild.stderr.on("data", chunk => { stderr += chunk; });
+    const address = await until(() => stderr.match(/DevTools listening on (ws:\/\/[^\s]+)/)?.[1]);
+    const origin = address.replace(/^ws:/, "http:").split("/devtools/")[0];
+    const target = await until(async () => (await (await fetch(`${origin}/json/list`)).json()).find(t => t.url.startsWith(ORIGIN)));
+    cdp = await connect(target.webSocketDebuggerUrl);
+    await until(() => evaluate(`location.origin === ${JSON.stringify(ORIGIN)} && document.readyState === 'complete' && !!document.body`));
+  };
+  const passed = name => console.log(`PASS: ${name}`);
+  try {
+    if (!startupOnly) {
+      console.log("Gerçek dağıtım ZIP varyantları hazırlanıyor...");
+      const variants = await ps(`& ${quote(join(__dirname, "fixtures/release-variants.ps1"))} -SourceArchive ${quote(join(releases, first.url))} -OutputDirectory ${quote(directory)}`).done;
+      assert.equal(variants.code, 0, variants.output);
+    }
+    await expectInstall(true, true);
+    assert.equal((await state()).version, "1.0.0");
+    assert.equal(await healthy(), true);
+    passed("ilk kurulum, HTTP bootstrap ve otomatik pencere açılışı");
+    if (!startupOnly) {
+      const initial = await state();
+      const count = zipRequests;
+      const healthToken = (await fetch(`${ORIGIN}/api/health`)).headers.get("X-Pofis-Desktop");
+      await expectInstall(true);
+      assert.equal(zipRequests, count);
+      assert.equal((await state()).directory, initial.directory);
+      assert.equal((await fetch(`${ORIGIN}/api/health`)).headers.get("X-Pofis-Desktop"), healthToken);
+      passed("aynı sürüm tekrar indirilmiyor; çalışan tek örnek korunuyor");
+      await close();
+      const shortcutLaunch = await ps(`Start-Process -FilePath ${quote(shortcut)} -WindowStyle Normal`).done;
+      assert.equal(shortcutLaunch.code, 0, shortcutLaunch.output);
+      await until(healthy);
+      passed("normal uygulama simgesinden açılış");
+      await close();
+      await debugOpen();
+      const plan = JSON.stringify({ defaultPlan: [28800, 28800, 28800, 28800, 25200, 0, 0], weekOverrides: {} });
+      await evaluate(`localStorage.setItem('pofis:theme:v1','dark'); localStorage.setItem('pofis:work-plans:v1',${JSON.stringify(plan)}); true`);
+      await mkdir(join(profile, "sessions"), { recursive: true });
+      await writeFile(join(profile, "sessions/preservation-fixture.txt"), "fixture-session-preserved");
+      await evaluate("window.close(); true").catch(() => {});
+      cdp.close(); cdp = null;
+      await until(async () => !(await healthy()));
+      active = JSON.parse((await readFile(join(directory, "1.0.1.json"), "utf8")).replace(/^\uFEFF/, ""));
+      // The installer must refuse activation while the installed release is running.
+      await ps(`Start-Process -FilePath ${quote(shortcut)} -WindowStyle Normal`).done;
+      await until(healthy);
+      const blocked = await expectInstall(false);
+      assert.match(blocked.output, /Pofis açık/);
+      assert.equal((await state()).version, "1.0.0");
+      assert.equal(await healthy(), true);
+      passed("açık uygulamada güncelleme mevcut sürümü bozmuyor");
+      await close();
+      await expectInstall(true);
+      assert.equal((await state()).version, "1.0.1");
+      assert.notEqual((await state()).directory, initial.directory);
+      await close();
+      await debugOpen();
+      assert.equal(await evaluate("localStorage.getItem('pofis:theme:v1')"), "dark");
+      assert.equal(await evaluate("localStorage.getItem('pofis:work-plans:v1')"), plan);
+      assert.equal(await readFile(join(profile, "sessions/preservation-fixture.txt"), "utf8"), "fixture-session-preserved");
+      passed("yeni sürüm, tema/plan ve oturum dosyalarının korunması");
+      // Kill only our main PID. The owned Node utility process must exit when its main PID disappears.
+      debugChild.kill();
+      cdp.close(); cdp = null;
+      await until(async () => !(await healthy()));
+      await expectInstall(true);
+      passed("beklenmedik ana süreç kapanışı sonrası yeniden açılış");
+      await close();
+      active = JSON.parse((await readFile(join(directory, "1.0.2.json"), "utf8")).replace(/^\uFEFF/, ""));
+      const failed = await expectInstall(false);
+      assert.match(failed.output, /42/);
+      assert.equal((await state()).version, "1.0.1");
+      assert.equal(await healthy(), true);
+      passed("gerçek Node sunucusu başlatma hatasında önceki çalışan sürüme dönüş");
+      await close();
+      const previousState = await state();
+      active = { ...active, url: "missing.zip" };
+      await expectInstall(false);
+      assert.deepEqual(await state(), previousState);
+      active = { ...active, url: "broken.zip" };
+      await expectInstall(false);
+      assert.deepEqual(await state(), previousState);
+      passed("başarısız indirme ve bozuk pakette kurulumun korunması");
+      active = JSON.parse((await readFile(join(directory, "1.0.1.json"), "utf8")).replace(/^\uFEFF/, ""));
+    } else {
+      await close();
+    }
+    const occupied = Bun.serve({ hostname: "127.0.0.1", port: 3210, fetch: () => new Response("another app") });
+    try {
+      await expectInstall(true);
+      assert.equal(await (await fetch(ORIGIN)).text(), "another app");
+      await expectInstall(true);
+      await close();
+      assert.equal(await (await fetch(ORIGIN)).text(), "another app");
+    } finally { occupied.stop(true); }
+    passed("3210 başka uygulamadayken kurulum/açılış ve ikinci açılış başarılı; diğer süreç korunuyor");
+    delayManifest = true;
+    const previousRequests = manifestRequests;
+    const one = installer(false);
+    await until(() => manifestRequests > previousRequests);
+    const two = await installer(false).done;
+    assert.notEqual(two.code, 0);
+    assert.match(two.output, /başka bir Pofis kurulumu/);
+    const firstResult = await one.done;
+    assert.equal(firstResult.code, 0, firstResult.output);
+    passed("eşzamanlı iki kurulumda tek sahip kilidi");
+    await close();
+    passed("normal kapanış ve yeniden başlatma");
+    console.log("Dağıtım kabulü tamamlandı. Gerçek PDKS hesabı ve temiz cihaz/SmartScreen kabulü ayrıca yapılmalı.");
+  } catch (error) {
+    console.error("Kabul hatası:", error);
+    throw error;
+  } finally {
+    cdp?.close();
+    await close().catch(() => {});
+    await stopProcessTree(debugChild);
+    await ps(`Get-Process | Where-Object { $_.Path -like ${quote(install + "\\versions\\*")} } | Stop-Process -Force`).done;
+    host.stop(true);
+    // Only this test's generated install/profile/archives are removed.
+    await rm(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
+  }
+}
+run().catch(error => { console.error(error); process.exitCode = 1; });

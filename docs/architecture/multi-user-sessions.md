@@ -37,9 +37,13 @@ Yerel üretim önizlemesi standart `next start`, Docker dağıtımı standalone 
 
 ## İşletim sınırları
 
+[Windows masaüstü kabuğu](../desktop.md) aynı oturum yöneticisini Electron’un Node.js UtilityProcess’iyle kullanır. Electron profili ve sunucu oturum dosyaları `%APPDATA%/Pofis/` altında ayrılır; tarayıcı ve kurum sunucusunun verileriyle paylaşılmaz. Sürüm dosyaları `%LOCALAPPDATA%/Programs/Pofis/` altındadır; güncelleme profili değiştirmez. Normal pencere kapanışı sunucu sürecini kapatır; kaynak oturumunu iptal etmez. Yeniden açılışta mevcut sabit TTL uygulanır.
+
 Dağıtım tek uygulama süreci ve kalıcı yerel oturum diziniyle yapılmalıdır. Bellek kullanımı yüklenen oturum sayısıyla büyür; aynı dizini paylaşan birden fazla süreç için kilit ve iptal koordinasyonu yoktur. Kurum ağı, TLS, yeniden başlatma, disk izinleri/yedekleri ve gerçek hesap kabulü dağıtım ortamında doğrulanır.
 
 Yerel fixture ve sentetik yük kontrolleri gerçek PDKS kapasitesini belirlemez. Bekleyen kurum kabulü [görev listesinde](../../tasks/todo.md), kontrol yöntemi [doğrulama rehberinde](../verification.md) tutulur.
+
+Masaüstünde sunucu portu doluysa boş loopback portu seçilir. Electron içindeki sabit origin, HTTP protokol yönlendirmesiyle korunur; port değişimi tema/plan depolamasını veya çerez profilini değiştirmez. Ayrıntılar [masaüstü sözleşmesindedir](../desktop.md#yaşam-döngüsü-ve-sorumluluklar).
 
 ## Sonraki karar
 

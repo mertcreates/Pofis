@@ -6,6 +6,8 @@
 
 web
 
+Pofis, Windows x64 ve macOS Apple Silicon/Intel için ortak Electron/Node.js ve Next standalone altyapısıyla aynı web uygulamasını açar. Windows tek komut kurulum/güncellemesi yerelde doğrulanmıştır. macOS gerçek cihaz kabulü, macOS kurulum betiği ve hosting yayını bekler. [Kapsam ve çalışma zamanı](docs/desktop.md).
+
 ## Stack
 
 Next.js + React + Bun. Yerel üretim önizlemesi standart Next komutlarını, Docker dağıtımı standalone çıktıyı kullanır. Mevcut dağıtım tek Bun süreci ve kalıcı oturum dizini kullanır. [Mimari](docs/architecture/multi-user-sessions.md) · [Dağıtım](docs/deployment.md).

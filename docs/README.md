@@ -11,6 +11,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Hesaplar, politikalar ve kod sahipleri | [Kural haritası](rules/README.md) |
 | Oturum yaşam döngüsü ve tek süreç sınırları | [Çok kullanıcılı yapı](architecture/multi-user-sessions.md) |
 | Çalışma ortamı, proxy ve Docker | [Dağıtım](deployment.md) |
+| Ortak Windows/macOS Electron altyapısı, paketleme ve Windows kurulumu | [Masaüstü](desktop.md) |
 | Demo verisi, saat ve gezinme | [Mesaim demosu](demo.md) |
 | Pofi içeriği ve tek havuz seçimi | [Pofi notları](pofi-notes.md) |
 | Pofi dili ve görselleri | [Ton rehberi](brand/pofi-tone-guide.md), [görsel kaynaklar](brand/assets.md) |

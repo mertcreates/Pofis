@@ -46,6 +46,10 @@ Gerçek kaynak ve dağıtım kabulünde kurum ağı, kullanıcı hesabı ve hede
 
 Yerel oturum ölçümü için `bun scripts/benchmark-sessions.ts 100` çalıştırılabilir. [Betik](../scripts/benchmark-sessions.ts) sahte kaynak ve izole oturum dosyaları kullanır; geçici sonuç `work/session-benchmark/latest.json` dosyasına yazılır. Sonuç incelendikten sonra temizlenir; gerçek PDKS iş yükü ayrıca ölçülür.
 
+## Masaüstü kabulü
+
+[Masaüstü rehberi](desktop.md#tekrarlanabilir-kabul) ortak platform/süreç testlerini, Node/Bun bulunmayan PATH ile paket kabulünü ve gerçek PDKS elle kontrol zincirini yönetir. Windows ve macOS hedefinde `bun run test:desktop` ve paket hazırlandıktan sonra aynı `bun run test:desktop:smoke` çalıştırılır. Windows ZIP'i için ayrıca `bun run test:desktop:distribution` kurulum/güncelleme/geri dönüş ve veri koruma yollarını izole dizinlerde sınar. Windows üzerinde sinyal politikası ve macOS yollarının test edilmesi macOS sistem araçları, gerçek pencere, izinler ve Gatekeeper kabulünü kanıtlamaz. Bu kontroller kurum hesabı/ağı ve temiz cihaz kabulünün yerine geçmez.
+
 ## Sonuçların yönetimi
 
 Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulamaların rapor, ekran görüntüsü ve ölçüm çıktılarını temizleyin. Geçerli ürün kararlarını ilgili sözleşmeye, açık bulguları görev listesine taşıyın. Davranış testleri ve demo üzerinden elle tarayıcı kabulü doğrulama yönteminin parçasıdır.

@@ -28,6 +28,10 @@ bun run start
 
 Yerelde `build` doğrudan `next build`, `start` ise `next start --hostname 127.0.0.1` çalıştırır. Komutlardaki `bun --bun` öneki Next'i Bun çalışma zamanıyla çalıştırır. Dinleme adresi `bun run start --hostname 0.0.0.0` ile değiştirilebilir. Dockerfile standalone çıktıyı üretir, statik dosyaları imaja kopyalar ve `bun server.js` ile başlatır. Docker dağıtımı tek Bun süreci ve kalıcı oturum dizini kullanır. [Ortam ayarları ve dağıtım kabulü](docs/deployment.md).
 
+## Masaüstü altyapısı
+
+Pofis mevcut Next standalone uygulamasını Electron’un dahili Node.js runtime’ıyla kendi Electron penceresinde açar. Windows x64 ve macOS Apple Silicon/Intel ortak kabuk, sunucu, paketleyici ve manifest üreticisini kullanır; son kullanıcıda Node/Bun kurulumu gerekmez. `desktop:prepare`, `desktop`, `desktop:package`, `desktop:release` komutları hedef işletim sisteminde aynı şekilde çalışır. Windows için tek komut kurulum/güncelleme ve geri dönüş uygulanır. macOS kod altyapısı hazırdır; gerçek macOS paket/cihaz kabulü ve macOS kurulum betiği bekler. Hosting henüz yayımlanmış değildir. [Platformlar, yerel kurulum komutu ve kabul listesi](docs/desktop.md).
+
 ## Belgeler
 
 - [Belge haritası](docs/README.md): konu sahipleri ve okuma yolları.

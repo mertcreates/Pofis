@@ -8,7 +8,16 @@
     "build": "bun --bun next build",
     "start": "bun --bun next start --hostname 127.0.0.1",
     "typecheck": "tsc --noEmit",
-    "test": "bun test"
+    "test": "bun test",
+    "desktop": "bun scripts/electron/launch.cjs",
+    "desktop:install": "bun node_modules/electron/install.js",
+    "desktop:prepare": "bun run desktop:install && bun scripts/electron/build.cjs",
+    "desktop:package": "bun run desktop:prepare && bun scripts/electron/package.cjs",
+    "desktop:release": "bun scripts/electron/release.cjs",
+    "test:desktop": "bun test ./electron/server.test.cjs ./electron/startup.test.cjs ./electron/platform.test.cjs",
+    "desktop:serve": "bun scripts/electron/serve-releases.cjs",
+    "test:desktop:distribution": "bun scripts/electron/distribution-test.cjs",
+    "test:desktop:smoke": "bun scripts/electron/smoke.cjs"
   },
   "dependencies": {
     "cheerio": "1.1.2",
@@ -23,6 +32,7 @@
     "@types/bun": "1.4.3",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
+    "electron": "44.9.0",
     "typescript": "7.0.2"
   }
 }

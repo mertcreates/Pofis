@@ -11,6 +11,7 @@
 | Pofi | Kaynak durum görselleri, albüm, sürprizler ve tek havuzlu not yönetimi |
 | Oturum | Kullanıcı başına PDKS istemcisi, sabit TTL, JSON kalıcılığı ve kısa kişisel rapor önbelleği |
 | Dağıtım | Yerelde standart Next komutları; Docker'da tek Bun süreci, standalone çıktı ve kalıcı oturum dizini |
+| Masaüstü | [Ortak Windows/macOS Electron, Node.js standalone, paketleme ve manifest](desktop.md); gerçek readiness, tek örnek ve süreç temizliği; Windows tek komut kurulum/güncelleme ve geri dönüş; macOS cihaz kabulü ve kurulum betiği, hosting yayını bekliyor |
 
 [Kural sahipleri](rules/README.md) · [Arayüz sahipleri](ui-source-migration.md) · [Oturum mimarisi](architecture/multi-user-sessions.md).
 

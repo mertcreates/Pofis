@@ -4,6 +4,7 @@ node_modules
 work
 extras
 output
+dist
 .playwright-cli
 .codex
 .agents
