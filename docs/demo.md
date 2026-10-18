@@ -2,7 +2,7 @@
 
 Yerel adres: http://127.0.0.1:3000/demo. Sayfa giriş gerektirmeden gerçek Mesaim görünümünü açar. Günlük hareketler, rapor tablosu, plan editörü, geçmiş haftanın grafiği ve Pofi aynı bileşenleri ve [ürün kurallarını](rules/README.md) kullanır.
 
-Yerleşim ve bileşen görünümleri [kaynak arayüzden](ui-source-migration.md) gelir. Hafta seçici aylar üzerinden çalışır. Demo kontrollerinde Pazartesi–Cuma gün seçicisi bulunur; grafik gün seçme kontrolü değildir. Günün akışı içindeki geçen süre ve hedef çıkış, tablodaki “Bugün” ve Pofi seçilen günü birlikte gösterir. Üst satır gün akışı ve haftalık toplamı; orta satır akordeon giriş-çıkış raporu ve içeriği kadar yükselen Pofi kartını içerir. Kapalı satırda gün, süre ve ilk giriş/son çıkış özeti görünür. Raporda hedef farkı ve kayıt durumu satır açıldığında görünür; verisi olmayan hafta sonları gösterilmez. Günün kayıtları rapor satırından açılır. Ayarlar menüsü plan modalını açar.
+Yerleşim ve bileşen görünümleri [DESIGN](../DESIGN.md) belgesini izler; demo ve canlı ekran [aynı arayüz sahiplerini](architecture/ui-components.md) kullanır. Hafta seçici aylar üzerinden çalışır. Demo kontrollerinde Pazartesi–Cuma gün seçicisi bulunur; grafik gün seçme kontrolü değildir. Günün akışı içindeki geçen süre ve hedef çıkış, tablodaki “Bugün” ve Pofi seçilen günü birlikte gösterir. Üst satır gün akışı ve haftalık toplamı; orta satır akordeon giriş-çıkış raporu ve içeriği kadar yükselen Pofi kartını içerir. Kapalı satırda gün, süre ve ilk giriş/son çıkış özeti görünür. Raporda hedef farkı ve kayıt durumu satır açıldığında görünür; verisi olmayan hafta sonları gösterilmez. Günün kayıtları rapor satırından açılır. Ayarlar menüsü plan modalını açar.
 
 ## Demo kontrolleri
 

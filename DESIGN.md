@@ -56,7 +56,7 @@ spacing:
 
 Sakin, anlaşılır ve kullanıcıyı yargılamayan mesai ekranı. Açık yüzeyler, ölçülü lavanta ve özgün Pofi karakteri kullanılır. Sistem sayısal gerçeği söyler; Pofi ona eşlik eder.
 
-1.0.0 Docker arşivi başlangıç görsel kaynağıdır; sonraki kararlar bu belgede yönetilir. [Bileşen eşlemesi](docs/ui-source-migration.md), [görsel kaynaklar](docs/brand/assets.md) ve [ton rehberi](docs/brand/pofi-tone-guide.md) ilgili sahipleri gösterir. Önceki [dashboard görseli](docs/screenshots/dashboard-reference.png) tasarım geçmişidir.
+Görsel kararlar bu belgede yönetilir. [Arayüz sahipleri](docs/architecture/ui-components.md), [görsel kaynaklar](docs/brand/assets.md) ve [ton rehberi](docs/brand/pofi-tone-guide.md) ilgili kod ve içerik sahiplerini gösterir.
 
 | Alan | Yürütülen kaynak |
 | --- | --- |

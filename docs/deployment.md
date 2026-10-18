@@ -1,6 +1,6 @@
 # Tek pod / tek süreç dağıtımı
 
-Bu rehber kurum sunucusundaki Docker/ingress dağıtımını yönetir. Electron paketleri ve Windows kurulumu [masaüstü rehberinde](desktop.md), GitHub Actions/Pages otomasyonu [sürüm yayınında](release.md) açıklanır.
+Bu rehber kurum sunucusundaki Docker/ingress dağıtımını yönetir. Electron paketleri ve Windows kurulumu [masaüstü rehberinde](desktop.md), GitHub Actions/Workers otomasyonu [sürüm yayınında](release.md) açıklanır.
 
 Masaüstü güncellemesinde eski paketlerin temizlenmesi ve Windows/macOS kaldırma davranışı [masaüstü rehberinde](desktop.md#kaldırma) yönetilir; kullanıcı profili uygulama dosyalarından bağımsız korunur.
 

@@ -6,7 +6,7 @@
 
 web
 
-Web uygulaması, Windows x64 ve macOS Apple Silicon/Intel için ortak Electron kabuğuyla da çalışır. Paketleme kapsamı [masaüstü rehberinde](docs/desktop.md), üç hedefin otomatik dağıtımı [sürüm yayınında](docs/release.md), bekleyen cihaz ve yayın kabulü [görev listesinde](tasks/todo.md) tutulur.
+Web uygulaması, Windows x64 ve macOS Apple Silicon/Intel için ortak Electron kabuğuyla da çalışır. Paketleme kapsamı [masaüstü rehberinde](docs/desktop.md), üç hedefin yayın otomasyonu [sürüm yayınında](docs/release.md), bekleyen cihaz ve yayın kabulü [görev listesinde](tasks/todo.md) tutulur.
 
 ## Stack
 
@@ -32,16 +32,16 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 - [Mesai planı](docs/rules/work-plan.md), kullanıcıya varsayılan şablonu ve mevcut haftanın gereken çalışma sürelerini düzenleme olanağı verir. PDKS kayıtları gerçekleşen süreyi sağlar; planlar tarayıcıda saklanır. Günlük sınırlar, devir, tamamlama ve haftalık hedef sözleşmesi kural belgesindedir.
 - PDKS girişi sunucuda işlenir. Parola yalnız girişte kullanılır; kaynak çerezleri her oturuma özel tutulur. Oturum politikası ve kaynak önbelleği [kural haritasından](docs/rules/README.md) yönetilir.
 - [Mesaim demosu](docs/demo.md) aynı görünüm ve hesap sahiplerini kullanır; yakalanmış veriyi gün/hafta seçimi ve sanal ek süreyle sunar.
-- Pofi durumları, albüm, notlar ve sürprizler kaynak arşivden gelir. Tema/metin yönetimi [Pofi notları rehberindedir](docs/pofi-notes.md).
+- Pofi durumları, albüm, notlar ve sürprizler ortak ekranlarda sunulur. [Durum seçimi](docs/rules/pofi.md), [sürprizler](docs/rules/pofi-surprises.md) ve [not içeriği](docs/pofi-notes.md) kendi sahiplerinde yönetilir.
 
 ## Brand Commitments
 
-Pofis / Pofi / “Mesaiye biraz Pofi.” Marka moru `#8b7bff`, özgün karakter ve [ton rehberi](docs/brand/pofi-tone-guide.md) korunur. Ekran yerleşimi ve bileşen görünümleri [kaynak arayüz eşlemesini](docs/ui-source-migration.md), güncel görsel kararlar [DESIGN.md](DESIGN.md) belgesini izler.
+Pofis / Pofi / “Mesaiye biraz Pofi.” Marka moru `#8b7bff`, özgün karakter ve [ton rehberi](docs/brand/pofi-tone-guide.md) korunur. Ekran yerleşimi ve bileşen görünümleri [DESIGN.md](DESIGN.md) belgesini izler; [arayüz sahipleri](docs/architecture/ui-components.md) bileşenlerin sorumluluklarını gösterir.
 
 ## Evidence on Hand
 
-Özgün [master spec](docs/spec/master-spec-v2.md) başlangıç referansıdır. Güncel davranış sözleşmeleri [kural belgelerinde](docs/rules/README.md), tekrarlanabilir kontroller [doğrulama rehberinde](docs/verification.md), bekleyen kabul işleri [görev listesinde](tasks/todo.md) tutulur.
+Güncel davranış sözleşmeleri [kural belgelerinde](docs/rules/README.md), tekrarlanabilir kontroller [doğrulama rehberinde](docs/verification.md), bekleyen kabul işleri [görev listesinde](tasks/todo.md) tutulur.
 
 ## Product Principles
 
-Veri dürüstlüğü, düşük bilişsel yük, açık modül sahipliği ve kullanıcıyı yargılamayan doğal Türkçe. 1.0.0 Docker kaynak arşivi başlangıç referansıdır; güncel davranış kural belgeleriyle, arayüz DESIGN ile yönetilir. Uygulama kodu açık sınırlar, okunabilir akış ve bağımsız davranış testleriyle geliştirilir.
+Veri dürüstlüğü, düşük bilişsel yük, açık modül sahipliği ve kullanıcıyı yargılamayan doğal Türkçe. Güncel davranış kural belgeleriyle, arayüz DESIGN ile yönetilir. Uygulama kodu açık sınırlar, okunabilir akış ve bağımsız davranış testleriyle geliştirilir.

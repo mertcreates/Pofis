@@ -1,6 +1,6 @@
-# Pofis — Brand & UI Kit v1.0
+# Pofi karakter kaynakları ve prototip
 
-> Kaynak prototip: bu paketin ekranları, mola hesabı ve CSV özelliği bağımsız örnektir. Güncel Pofis kapsamı [PRODUCT](../../PRODUCT.md), tasarım kararları [DESIGN](../../DESIGN.md), dil ve slogan [ton rehberi](../../docs/brand/pofi-tone-guide.md) sahibindedir.
+Bu klasör özgün karakter dosyalarını, üretim referanslarını ve bağımsız arayüz prototipini içerir. Güncel Pofis kapsamı [PRODUCT](../../PRODUCT.md), tasarım kararları [DESIGN](../../DESIGN.md), dil ve slogan [ton rehberi](../../docs/brand/pofi-tone-guide.md) sahibindedir. Etkin uygulama görselleri [görsel kaynaklar](../../docs/brand/assets.md) belgesinde listelenir.
 
 **Pofis** için Soft Lavender / light-mode, statik kedi maskotlu, çevrimdışı çalışabilen tasarım prototipi.
 
@@ -18,21 +18,17 @@
 - `assets/pofi-full.webp` — Kanonik tam gövde, web için optimize
 - `assets/pofi-full-512.webp` — Dashboard için küçük tam gövde
 - `assets/pofi-full.png` — Şeffaf yüksek çözünürlüklü kayıpsız kaynak
-- `assets/pofi-mark.svg` — Gerçek vektör, basitleştirilmiş Pofi kafa sembolü
-- `assets/pofi-mark-64.webp` — Küçük raster sembol
-- `assets/pofi-mark-32.png` — Favicon
 - `character-sheet.html` — Karakter kimliği kontrol sayfası
 - `docs/CHARACTER_BIBLE.md` — Değişmeyen karakter özellikleri
 - `docs/MASTER_PROMPT.md` — Referans dosyalı üretim promptu
-- `docs/BRAND_GUIDE.md` — Kullanılan tasarım token'ları
 - `references/` — Orijinal logo ve keşif görselleri, üretim referansları
 
-## Gerçek PDKS entegrasyonu
+## Prototipin kapsamı
 
-Demo verileri `app.js` içindeki `sample` objesindedir. Gerçek uygulamada statik örnek kayıtlar yerine **yetkili PDKS veri kaynağından** gelen giriş, çıkış ve mola kayıtları kullanılmalıdır. Hesaplamalar kullanıcı hedefi, mola kuralı, vardiya ve saat dilimi dikkate alınarak yeniden doğrulanmalıdır. Tahmini çıkış ile gerçekleşmiş çıkış ayrı alanlarda tutulmalıdır.
+Demo verileri `app.js` içindeki `sample` objesindedir. Mola düşen hesap ve CSV dışa aktarma bu bağımsız prototipe aittir. Uygulamanın [kayıtlı süre](../../docs/rules/recorded-time.md) hesabı ilk giriş–son çıkışı kullanır; ara molaları düşmez. Güncel ekranı incelemek için uygulamanın [Mesaim demosunu](../../docs/demo.md) kullanın.
 
 ## Önemli sınırlamalar
 
-Pofi'nin **önden tam gövde** illüstrasyonu kanoniktir. Diğer AI üretimi perspektif görsellerde küçük şekil farkları bulunabilir. `pofi-mark.svg` basitleştirilmiş bir vektör sembolüdür ve tam gövde illüstrasyonunun birebir vektör sürümü değildir. Personel kartındaki küçük logo görsel üretiminden geldiği için gerçek logo referansıyla karşılaştırılmalıdır.
+Pofi'nin **önden tam gövde** illüstrasyonu yüz ve karakter kimliğinin referansıdır; yeni üretimlerin dik duruşu karakter kurallarında tanımlanır. Diğer AI üretimi perspektif görsellerde küçük şekil farkları bulunabilir. Uygulamanın marka simgesi `public/pofi/pofi-mark-256.png` dosyasıdır. Personel kartındaki küçük logo görsel üretiminden geldiği için gerçek logo referansıyla karşılaştırılmalıdır.
 
 `references/pofi-original-ai-sheet.png` üzerindeki “tabii Mascot” başlığı eski AI çıktısından gelmiştir ve ürün adı olarak doğru değildir. Nihai adlar **Pofis / Pofi** olarak bu pakette düzeltilmiştir.

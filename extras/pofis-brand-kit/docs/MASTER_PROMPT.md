@@ -45,7 +45,7 @@ to Image B and check legibility at small UI sizes.
 
 ## Dashboard kullanımında prompt yerine gerçek asset
 
-Dashboard, sidebar ve rapor kartlarında yeni görsel üretmek yerine `pofi-full-512.webp` ve `pofi-mark.svg` doğrudan kullanılır. Böylece tasarım sürekliliği için üretken modele bağımlılık ortadan kalkar.
+Uygulamada kullanılacak mevcut dosyalar [görsel kaynaklar](../../../docs/brand/assets.md) belgesinden seçilir. Panel durum görselleri, tam gövde ve marka simgesi kendi kullanım alanlarında korunur. Yeni üretimler inceleme ve kullanıcı seçimi sonrasında uygulamaya alınır.
 
 ## Görsel inceleme kapısı
 

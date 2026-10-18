@@ -30,7 +30,7 @@ Yerelde `build` doğrudan `next build`, `start` ise `next start --hostname 127.0
 
 ## Masaüstü altyapısı
 
-Windows ve macOS Electron kabuğu aynı uygulamayı Next standalone ve dahili Node.js ile açar; son kullanıcıda Node/Bun kurulumu gerekmez. Geliştirme/paketleme komutları ve Windows kurulumu [masaüstü rehberinde](docs/desktop.md), üç platformun GitHub Actions/Pages akışı [sürüm yayınında](docs/release.md) açıklanır. Açık kabul işleri [görev listesinde](tasks/todo.md) tutulur.
+Windows ve macOS Electron kabuğu aynı uygulamayı Next standalone ve dahili Node.js ile açar; son kullanıcıda Node/Bun kurulumu gerekmez. Geliştirme/paketleme komutları ve Windows kurulumu [masaüstü rehberinde](docs/desktop.md), üç platformun GitHub Actions/Workers akışı [sürüm yayınında](docs/release.md) açıklanır. Açık kabul işleri [görev listesinde](tasks/todo.md) tutulur.
 
 ## Belgeler
 

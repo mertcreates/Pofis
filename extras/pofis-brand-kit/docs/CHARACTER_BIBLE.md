@@ -33,7 +33,7 @@ Pofi, açık krem gövdeli, yumuşak lavanta ayrıntılı, iki arka ayağı üze
 
 ## Üretim yaklaşımı
 
-Mevcut tam gövde PNG/WebP dosyaları Pofi'nin yüz, renk, materyal, kuyruk ve kart kimliğini korumak için referans alınır; yeni tam gövde çizimlerinde kanonik ayakta poz kullanılır. Uygulamadaki mevcut görseller bu prompt kararıyla değiştirilmez. Küçük boyutlar için `assets/pofi-mark.svg`, Pofi'nin tanınan yüz hatlarından üretilmiş **basitleştirilmiş ayrı bir vektör sembolüdür**. Tam gövde illüstrasyonunun vektörel eşdeğeri değildir.
+Mevcut tam gövde PNG/WebP dosyaları Pofi'nin yüz, renk, materyal, kuyruk ve kart kimliğini korumak için referans alınır; yeni tam gövde çizimlerinde kanonik ayakta poz kullanılır. Uygulamadaki mevcut görseller bu prompt kararıyla değiştirilmez. Etkin marka simgesi ve durum dosyaları [görsel kaynaklar](../../../docs/brand/assets.md) belgesinde yönetilir.
 
 Yeni bir sahne gerektiğinde ana referans görsel ve `docs/MASTER_PROMPT.md` birlikte kullanılır. Referans görsel kimliği taşır; prompt ayakta pozu ve nesnelerin sahnedeki yerini tarif eder. Şemsiye gibi bir nesne yüzün çevresinde boşluk bırakacak şekilde, başın üstünde ve yanında konumlandırılır. Yeni çıktı, ana görsel dosyalarının yerini otomatik almaz. Yüz, kulak, kıvrım, gövde/pati oranı, poz ve kart eşleşmesi karşılaştırılarak ayrıca onaylanır.
 
@@ -44,14 +44,9 @@ Yeni bir sahne gerektiğinde ana referans görsel ve `docs/MASTER_PROMPT.md` bir
 - Yüz, kulaklar, alın kıvrımı ve kart sahne nesnelerinden tamamen okunur kalır.
 - Şemsiye kanopisi başın üstünde ve yanında durur; şaft baş ve yanak siluetinin dışından ilerleyerek tutan patiye ulaşır.
 
-## Kullanım boyutları
+## Uygulamada kullanım
 
-| Alan | Önerilen dosya | CSS boyutu |
-| --- | --- | --- |
-| Sidebar / favicon | `pofi-mark.svg` | 24–48 px |
-| Küçük yardımcı alan | `pofi-mark.svg` | 48–64 px |
-| Dashboard kartı | `pofi-full-512.webp` | 96–160 px |
-| Onboarding / büyük gösterim | `pofi-full.webp` | 160–320 px |
+Dosya seçimi [görsel kaynaklar](../../../docs/brand/assets.md), ekran boyutları ve yerleşim [DESIGN](../../../DESIGN.md) belgesinde yönetilir.
 
 Resimler `object-fit: contain` ile, sabit en/boy oranında gösterilir. Orantısız sıkıştırma uygulanmaz.
 

@@ -51,7 +51,7 @@ flowchart TD
   T --> V
 ```
 
-Oklar bir kuralın sonucunun nerede kullanıldığını gösterir. Rapor uyarlaması DTO'yu görünüme çevirir; tahmin formülünü veya plan dengelemesini yeniden yazmaz. UI renkleri/yerleşimi [DESIGN](../../DESIGN.md) ve [kaynak arayüz sahiplerinde](../ui-source-migration.md) kalır.
+Oklar bir kuralın sonucunun nerede kullanıldığını gösterir. Rapor uyarlaması DTO'yu görünüme çevirir; tahmin formülünü veya plan dengelemesini yeniden yazmaz. UI renkleri ve yerleşimi [DESIGN](../../DESIGN.md) belgesinde, bileşen sorumlulukları [arayüz sahiplerinde](../architecture/ui-components.md) yönetilir.
 
 ## Diğer tek sahipler
 

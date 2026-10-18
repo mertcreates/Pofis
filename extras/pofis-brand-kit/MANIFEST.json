@@ -4,14 +4,9 @@
   "mascot": "Pofi",
   "files": [
     {
-      "path": "README.md",
-      "size_bytes": 2559,
-      "sha256": "0e09e0947a354fe8e34dc532423f6d62dc6fb4011b304d7a3fad26a870be6811"
-    },
-    {
       "path": "app.js",
-      "size_bytes": 4364,
-      "sha256": "f8ad01a3d06a8f868e3037590e1ab7d795cbf289ce51b86d00d11f86dcc12fc4"
+      "size_bytes": 4440,
+      "sha256": "9e62e1bd330bc2b320e574effc5bb2297e112a32315124a541c172cf6868359c"
     },
     {
       "path": "assets/pofi-full-256.webp",
@@ -34,74 +29,29 @@
       "sha256": "22e35b723087998788ba4b7e53501eabcf0c63a4c54ebf09c7182545ff5a19ec"
     },
     {
-      "path": "assets/pofi-mark-192.png",
-      "size_bytes": 16334,
-      "sha256": "1eb5dc5c356e7e865bd1ca3b0d8635266c8f57334b17d8484edb3e9e834a0476"
-    },
-    {
-      "path": "assets/pofi-mark-192.webp",
-      "size_bytes": 7172,
-      "sha256": "a97f70c340d2ec991d140f4591ea0cfb8e72297ee534265cb649f2502c39e24f"
-    },
-    {
-      "path": "assets/pofi-mark-32.png",
-      "size_bytes": 1729,
-      "sha256": "bf81387d5f15fe5e9b59966f378825bf4fb5ad978acfe7d5f3b7df2c6e9df2cf"
-    },
-    {
-      "path": "assets/pofi-mark-512.png",
-      "size_bytes": 48551,
-      "sha256": "be9e3223c74e6ee73012c83a087d34f1b942b18c0de4339adb7f76c6d5315714"
-    },
-    {
-      "path": "assets/pofi-mark-64.png",
-      "size_bytes": 4199,
-      "sha256": "c62c6b05bbf60b3530a0e1ef407b9e1f66abff1cc5e22a830d28626579d8720c"
-    },
-    {
-      "path": "assets/pofi-mark-64.webp",
-      "size_bytes": 2138,
-      "sha256": "e41ad5ffa0bb5dca3bf5cbdd8603bb705e23d1d59ea3546eea671e0342bbb2bd"
-    },
-    {
-      "path": "assets/pofi-mark.svg",
-      "size_bytes": 2473,
-      "sha256": "24c2d618d66ccab1e827e3fe345dbf52db7c13bb34fc65804a19f0e05107192d"
-    },
-    {
       "path": "character-sheet.html",
-      "size_bytes": 4120,
-      "sha256": "33d184c747b84b41ffa040c1e4eec20f37eaa84739ddb68e594bc9efba7d5e13"
-    },
-    {
-      "path": "docs/BRAND_GUIDE.md",
-      "size_bytes": 2132,
-      "sha256": "241e84db3546284068f526b06fe501e67a0a0788d5cd0f9587c53120c4e11ead"
+      "size_bytes": 4123,
+      "sha256": "6b5a43fe9d6fe170f2d5c979be19629994e9ff3a1eb539ec71e425c2503c1bcb"
     },
     {
       "path": "docs/CHARACTER_BIBLE.md",
-      "size_bytes": 3352,
-      "sha256": "47b01c5ae185a66067dc4fd2b37a89fd63661b41e52362be991985cf0c0b3146"
+      "size_bytes": 4089,
+      "sha256": "c60e851ba99704a403464a4a883591f8075d661f4ee8c9beb8085162b0a58acd"
     },
     {
       "path": "docs/COLOR_TOKENS.json",
-      "size_bytes": 833,
-      "sha256": "710403a7c75ee911e84bc09570065f81b3989a0069457166dc81eeaeec926288"
+      "size_bytes": 864,
+      "sha256": "c762d1dd6f72b59dbab5723fde08cf477916135c72223fe68fe8be856411dfac"
     },
     {
       "path": "docs/MASTER_PROMPT.md",
-      "size_bytes": 2460,
-      "sha256": "0c4da037b1ced0fe46ae3eaeb9278a4842a1c27aba7c8696e0ca34b8c1c1caa2"
-    },
-    {
-      "path": "docs/QA_REPORT.md",
-      "size_bytes": 1970,
-      "sha256": "8256afd2c84a3fc2f2e6191890aa8be470ba93c87438f82fd2373aca89926595"
+      "size_bytes": 3369,
+      "sha256": "4028c69f848c65fb2861093d9e17cf4bbcff01df16c177b85a58d9669688145a"
     },
     {
       "path": "index.html",
-      "size_bytes": 13902,
-      "sha256": "931ea614c5abb96ea0de3aaa76dce50552e041d9ae9e4f33e9f1339bb2494003"
+      "size_bytes": 13998,
+      "sha256": "c3639a06b620f9bb8ef73cea5174558ebb655df24346db400d3827a177254244"
     },
     {
       "path": "preview/assets-qa.png",
@@ -122,6 +72,16 @@
       "path": "preview/dashboard-mobile.png",
       "size_bytes": 132275,
       "sha256": "f07ebcc805bd667f8d09cb175d5ae427e86db0bb05fbcc3085712336637d1e41"
+    },
+    {
+      "path": "README.md",
+      "size_bytes": 2713,
+      "sha256": "bae75c0d3eb18e614723d5e75f0feb7e9dbdd5e54944c56a460f3e421a5b23a4"
+    },
+    {
+      "path": "references/ChatGPT Görseli 15 Eki 2026 18_10_21.png",
+      "size_bytes": 1231930,
+      "sha256": "5c84c685139e6594f6a00b7d9a35b6d75551ac88dbefce27adc1cdc8f61db958"
     },
     {
       "path": "references/pofi-exploratory-views.png",
@@ -145,8 +105,8 @@
     },
     {
       "path": "styles.css",
-      "size_bytes": 14176,
-      "sha256": "79582744f60852c269baf5e804465d8cbba080515832caebf3638d08f978be3d"
+      "size_bytes": 14195,
+      "sha256": "457ae7b1b5a36ea231531dd457036a426de317780f21ba8fbe4b62afeae21e24"
     }
   ]
 }
