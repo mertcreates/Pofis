@@ -41,7 +41,7 @@ Landing'in `public/_headers` dosyası installer ve manifestlere `Cache-Control: 
 
 ## Yayın sonrası HTTPS kabulü
 
-1. `https://pofis.app/` sayfasını, macOS ve Windows PowerShell sekmelerini, iki komutu ve kopyalama düğmesini kontrol et. macOS komutu: `curl -fsSL https://pofis.app/install.sh | /bin/bash`.
+1. `https://pofis.app/` sayfasını, macOS ve Windows PowerShell sekmelerini, iki komutu ve kopyalama düğmesini kontrol et. macOS komutu: `pofis=$(curl -fsSL https://pofis.app/install.sh) && /bin/bash -c "$pofis" --`.
 2. `https://pofis.app/install.ps1` ve `https://pofis.app/install.sh` düz metin ve UTF-8, üç `https://pofis.app/releases/<hedef>/latest.json` adresi JSON dönmeli. Installer ve manifestlerde `Cache-Control: no-store` bulunmalı; içerikler beklenen dosyalarla eşleşmeli.
 3. Public manifestlerdeki ZIP'leri anonim indir; boyut ve SHA-256 değerlerini karşılaştır.
 4. Windows'ta `irm https://pofis.app/install.ps1 | iex` komutuyla kurulum → otomatik açılış → simgeden açılış → aynı komutla güncel sürüm kontrolünü tamamla. Yeni sürümde veri koruma ve geri dönüşü doğrula.
@@ -51,7 +51,7 @@ Bu adımlar canlı hosting ve paket yayını sonrasında uygulanır. Yerel hazı
 ## Bir sürüm yayımlama
 
 1. `package.json` sürümünü yeni `x.y.z` değerine getir; değişiklikleri inceleyip `main` dalına gönder.
-2. GitHub → Actions → **Pofis sürümünü yayımla** → Run workflow; `main` ve aynı sürüm numarasını seç.
+2. GitHub → Actions → **Pofis sürümünü yayımla** → Run workflow; `main` dalını seç. Sürüm, çalıştırılan commit'in `package.json` dosyasından otomatik alınır ve tüm platformlara aktarılır.
 3. Akışın tamamlanmasını bekle. Push/PR kontrolleri ayrı [CI akışında](../.github/workflows/ci.yml) çalışır; push otomatik release başlatmaz.
 
 | Hedef | Native runner | Dağıtım dosyası |
@@ -62,7 +62,7 @@ Bu adımlar canlı hosting ve paket yayını sonrasında uygulanır. Yerel hazı
 
 Üç hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Her biri kilitli bağımlılıkları kurar, tür kontrolünü ve testleri çalıştırır; Next standalone/Electron paketini üretir. Gerçek paket üzerinde ortak pencere/süreç kabulü çalışır. Windows ayrıca gerçek ZIP ve landing komutuyla izole PowerShell ilk kurulum/açılış kabulünü çalıştırır. Bu kısa kabul tam güncelleme/geri dönüş testinin veya temiz cihaz testinin yerine geçmez.
 
-macOS paketleyici ad-hoc imzalı `.app` üretir; ZIP `ditto` ile izin ve bağlantıları korur. Developer ID/notarization eklenmez. Ortak Bash 3.2 installer'ı iki mimaride kullanılır. Her macOS job'u gerçek ZIP ile ilk kurulum, simgeden açılış, aynı sürüm/ikinci açılış, güncelleme, bozuk indirme, dolu port, gerçek sunucu hatasında geri dönüş, profil kalıcılığı ve kurulum kilidi kabulünü çalıştırır. Native CI, indirilen uygulamanın temiz cihazdaki Gatekeeper kabulünü kanıtlamaz.
+macOS paketleyici native dosyaları ve iç bundle’ları içten dışa ad-hoc imzalar; entitlement/runtime bayraklarını koruyup dış `.app` imzasını en son üretir. `--deep` yalnız imza doğrulamasında kullanılır; ZIP `ditto` ile izin ve bağlantıları korur. Developer ID/notarization eklenmez. Ortak Bash 3.2 installer'ı iki mimaride kullanılır. Her macOS job'u gerçek ZIP ile ilk kurulum, simgeden açılış, aynı sürüm/ikinci açılış, güncelleme, bozuk indirme, dolu port, gerçek sunucu hatasında geri dönüş, profil kalıcılığı ve kurulum kilidi kabulünü çalıştırır. Native CI, indirilen uygulamanın temiz cihazdaki Gatekeeper kabulünü kanıtlamaz.
 
 ## Yayın sırası ve hata davranışı
 
@@ -90,3 +90,4 @@ Yerel birim testleri sürüm/manifest, public dosya sınırı, kaynak commit eş
 - [Cloudflare Pages GitHub entegrasyonu](https://developers.cloudflare.com/pages/configuration/git-integration/github-integration/)
 - [bsdtar arşiv güvenliği](https://github.com/libarchive/libarchive/blob/master/tar/bsdtar.1)
 - [macOS mv -h bağlantı değiştirme](https://github.com/apple-oss-distributions/file_cmds/blob/main/mv/mv.1)
+ğlantı değiştirme](https://github.com/apple-oss-distributions/file_cmds/blob/main/mv/mv.1)

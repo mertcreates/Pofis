@@ -1,5 +1,6 @@
 const { resolve, join, sep } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
+const { MAC_INSTALL_COMMAND } = require("./install-command.cjs");
 
 function serveReleases(directory, port = 4173) {
   const root = resolve(directory);
@@ -24,7 +25,8 @@ if (require.main === module) {
   if (target.platform === "win32") {
     console.log(`& ([scriptblock]::Create((irm http://127.0.0.1:${server.port}/install.ps1).TrimStart([char]0xFEFF))) -ManifestUrl http://127.0.0.1:${server.port}/latest.json`);
   } else {
-    console.log(`curl -fsSL http://127.0.0.1:${server.port}/install.sh | /bin/bash -s -- --manifest-url http://127.0.0.1:${server.port}/latest.json`);
+    console.log(MAC_INSTALL_COMMAND.replace("https://pofis.app/install.sh", `http://127.0.0.1:${server.port}/install.sh`) +
+      ` --manifest-url http://127.0.0.1:${server.port}/latest.json`);
   }
 }
 module.exports = { serveReleases };

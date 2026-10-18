@@ -95,6 +95,22 @@ activate() {
   /bin/mv -fh "$pointer" "$app_path"
 }
 
+assert_startup_result() {
+  local receipt="$1" id="$2" version="$3" status message
+  if [[ "$(json "$receipt" schemaVersion)" != 1 || "$(json "$receipt" requestId)" != "$id" || \
+    "$(json "$receipt" version)" != "$version" ]]; then
+    die 'Pofis açılış sonucu doğrulanamadı. Uygulamayı kapatıp yeniden dene.'; return 1
+  fi
+  status="$(json "$receipt" status)"
+  if [[ "$status" == error ]]; then
+    message="$(json "$receipt" message)"
+    die "${message:-Pofis başlatılamadı. Uygulamayı yeniden aç.}"; return 1
+  fi
+  if [[ "$status" != ready || "$(json "$receipt" windowReady)" != true ]]; then
+    die 'Pofis penceresi hazır olmadı. Uygulamayı kapatıp yeniden dene.'; return 1
+  fi
+}
+
 launch() {
   local bundle="$1" version="$2" id receipt deadline pid executable
   id="$(/usr/bin/uuidgen | /usr/bin/tr -d '-' | /usr/bin/tr '[:upper:]' '[:lower:]')"
@@ -105,11 +121,9 @@ launch() {
   deadline=$((SECONDS + 45))
   while (( SECONDS < deadline )); do
     if [[ -f "$receipt" ]]; then
-      if [[ "$(json "$receipt" schemaVersion)" != 1 || "$(json "$receipt" requestId)" != "$id" || \
-        "$(json "$receipt" status)" != ready || "$(json "$receipt" version)" != "$version" || \
-        "$(json "$receipt" windowReady)" != true ]]; then
+      if ! assert_startup_result "$receipt" "$id" "$version"; then
         /bin/rm -f "$receipt"
-        die 'Pofis penceresi hazır olmadı. Uygulamayı kapatıp yeniden dene.'; return 1
+        return 1
       fi
       pid="$(json "$receipt" pid)"
       executable="$(json "$receipt" executable)"

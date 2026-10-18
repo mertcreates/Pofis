@@ -26,7 +26,7 @@ bun run test:desktop:smoke <paket-komutunun-yazdığı-klasör>
 
 [Derleme betiği](../scripts/electron/build.cjs) `POFIS_STANDALONE=1` ile Next çıktısını hazırlar; `public` ve `.next/static` dosyalarını standalone klasörüne ekler. [Ortak paketleyici](../scripts/electron/package.cjs) bunu `resources/app/server/` altına kopyalar. Yalnız Next'in izlediği üretim bağımlılıkları taşınır; kök `node_modules` ağacı kopyalanmaz. Windows junction bağlantıları dereference edilerek paket kaynak depodan bağımsızlaştırılır. [Ortak dağıtım üreticisi](../scripts/electron/release.cjs) tüm hedeflerde aynı manifest şemasını, sürüm kontrolünü ve SHA-256 hesabını kullanır. Yalnız ZIP üretimi Windows'ta .NET, macOS'ta `ditto` aracına bırakılır; macOS arşivi `.app` izinlerini ve bağlantılarını korur.
 
-[macOS uyarlaması](../scripts/electron/macos.cjs) `.app` ve helper adlarını, bundle kimliklerini ve sürüm alanlarını düzenler; sistemdeki `codesign` ile yerel ad-hoc imza üretip doğrular. Bu, Developer ID veya notarization değildir; Gatekeeper/indirilen uygulama kabulünün yerini tutmaz. Yeni framework/paketleme bağımlılığı eklenmez. macOS'ta `Pofis.app` açılır; profil `~/Library/Application Support/Pofis/` altında tutulur. [macOS installer](../scripts/electron/install.sh) aynı başlangıç sonucu ve manifest sözleşmesini kullanır.
+[macOS uyarlaması](../scripts/electron/macos.cjs) `.app` ve helper adlarını, bundle kimliklerini ve sürüm alanlarını düzenler; sistemdeki `codesign` ile Mach-O dosyalarını ve iç bundle’ları içten dışa ad-hoc imzalar; Electron’un dosyaya özgü entitlement ve runtime bayraklarını korur. En son dış `.app` imzalanır; `--deep` yalnız doğrulamada kullanılır. Bu, Developer ID veya notarization değildir; Gatekeeper/indirilen uygulama kabulünün yerini tutmaz. Yeni framework/paketleme bağımlılığı eklenmez. macOS'ta `Pofis.app` açılır; profil `~/Library/Application Support/Pofis/` altında tutulur. [macOS installer](../scripts/electron/install.sh) aynı başlangıç sonucu ve manifest sözleşmesini kullanır.
 
 ## Yerel dağıtımı hazırlama
 
@@ -105,16 +105,16 @@ Kurulum parametreleri `-ManifestUrl`, `-InstallRoot`, `-ShortcutPath`, `-UserDat
 ## macOS kurulum ve güncellemesi
 
 ```sh
-curl -fsSL https://pofis.app/install.sh | /bin/bash
+pofis=$(curl -fsSL https://pofis.app/install.sh) && /bin/bash -c "$pofis" --
 ```
 
-[Installer](../scripts/electron/install.sh) macOS'un Bash 3.2 ve sistem araçlarını kullanır; Node/Bun, Homebrew, Xcode veya sudo istemez. Rosetta altında da Apple Silicon donanımını tanır; Intel için x64 manifestini seçer. Sistem/paket sürümü ve mimarisi, gerekli dosyalar, ad-hoc imza, ZIP boyutu/SHA-256, arşiv yolları ve `.app` içi sembolik bağlantılar doğrulanır. Sistem `bsdtar` arşivden dizin dışına veya güvensiz bağlantı üzerinden yazmayı reddeder. Quarantine nitelikleri kaldırılmaz.
+[Installer](../scripts/electron/install.sh) macOS'un Bash 3.2 ve sistem araçlarını kullanır; Node/Bun, Homebrew, Xcode veya sudo istemez. Kurulum komutu betiğin tamamını indirdikten sonra çalıştırır; indirme hatasında curl hatasını ve başarısız çıkış kodunu korur, kısmi betiği çalıştırmaz. Rosetta altında da Apple Silicon donanımını tanır; Intel için x64 manifestini seçer. Sistem/paket sürümü ve mimarisi, gerekli dosyalar, ad-hoc imza, ZIP boyutu/SHA-256, arşiv yolları ve `.app` içi sembolik bağlantılar doğrulanır. Sistem `bsdtar` arşivden dizin dışına veya güvensiz bağlantı üzerinden yazmayı reddeder. Quarantine nitelikleri kaldırılmaz.
 
 - Sürümler `~/Library/Application Support/Pofis Installer/versions/<kimlik>/Pofis.app` altındadır; yanında doğrulanmış `install.json` manifesti bulunur. `~/Applications/Pofis.app`, etkin sürüme işaret eden atomik değiştirilen bir sembolik bağlantıdır. Finder'dan açılır; Dock'a eklenebilir. Installer'ın yönetmediği mevcut uygulamanın üzerine yazılmaz.
 - Profil ve oturumlar `~/Library/Application Support/Pofis/` altında kalır. Güncelleme bu dizini taşımaz veya silmez. Profil ve kurulum dizinleri birbirinin içinde olamaz.
 - Aynı sürüm/hash yeniden indirilmez; paket ve pencere doğrulanıp mevcut Pofis öne getirilir. Sürüm düşürme ve aynı sürümde farklı hash reddedilir.
 - Güncelleme ayrı dizinde hazırlanır. Bu kurulumun Pofis/yardımcı süreçleri açıksa kapatıp komutu yeniden çalıştırma mesajı verilir. Kontroller tamamlandığında uygulama simgesi yeni sürüme çevrilir.
-- `open -n` istek kimliğini Electron'a ulaştırır; tek örnek kilidi ikinci sunucuyu engeller. Installer 45 saniye içinde gerçek sürüm/PID/executable ve görünür pencere sonucunu doğrular. Yalnız port dinlenmesi yeterli değildir.
+- `open -n` istek kimliğini Electron'a ulaştırır; tek örnek kilidi ikinci sunucuyu engeller. Installer 45 saniye içinde gerçek sürüm/PID/executable ve görünür pencere sonucunu doğrular. Electron hata sonucu döndürürse istek kimliği ve sürümü doğrulandıktan sonra özgün hata mesajı gösterilir; kurulum başarısız çıkar. Yalnız port dinlenmesi yeterli değildir.
 - Yeni sürüm açılmazsa yalnız bu denemenin yeni main sürecine TERM gönderilir; bağlantı önceki sürüme çevrilir ve eski sürüm açılmaya çalışılır. İlk kurulum başarısızsa etkin uygulama simgesi kaldırılır. Önceki/hatalı sürümler tanı için tutulur; kullanıcı verileri korunur.
 - Atomik `install.lock` dizini eşzamanlı installer'ları engeller; normal hata/sinyalde kaldırılır. Installer SIGKILL veya sistem çökmesiyle durduysa, başka kurulum çalışmadığı doğrulandıktan sonra mesajda verilen kilit dizini elle kaldırılır. Normal uygulama açılışı bu kilidi kullanmaz.
 
@@ -165,3 +165,4 @@ Gerçek hesapla **PDKS giriş → rapor → yenileme → çıkış**, temiz Wind
 macOS Apple Silicon/Intel üzerinde ortak paketleyici ve installer'ın native CI kabulü, gerçek cihazda Finder/Dock/klavye ve Gatekeeper kabulü bekler. Tray/panel ve arka plan auto-update bu kapsamda yoktur.
 
 API referansları: [Electron app](https://www.electronjs.org/docs/latest/api/app), [Electron paketleme ve macOS bundle düzeni](https://www.electronjs.org/docs/latest/tutorial/application-distribution), [Electron UtilityProcess](https://www.electronjs.org/docs/latest/api/utility-process), [Get-FileHash](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-5.1).
+ft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-5.1).

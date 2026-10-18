@@ -10,6 +10,7 @@ const { createHash } = require("node:crypto");
 const { platformTarget } = require("../../electron/platform.cjs");
 const { signMacBundle } = require("./macos.cjs");
 const { releaseManifest } = require("./release.cjs");
+const { MAC_INSTALL_COMMAND } = require("./install-command.cjs");
 const execute = promisify(execFile);
 const root = resolve(__dirname, "../..");
 
@@ -29,7 +30,7 @@ async function run() {
   let host, occupied, active, bundle;
   const installer = await readFile(join(__dirname, "install.sh"), "utf8");
   const siteIndex = process.argv.indexOf("--site");
-  let command = "curl -fsSL https://pofis.app/install.sh | /bin/bash";
+  const command = MAC_INSTALL_COMMAND;
   if (siteIndex !== -1) {
     const site = resolve(process.argv[siteIndex + 1]);
     const { content } = require(join(site, "src/content.ts"));
@@ -42,7 +43,7 @@ async function run() {
   delete env.ELECTRON_RUN_AS_NODE;
   const install = () => {
     const script = command.replace("https://pofis.app/install.sh", `${base}/install.sh`) +
-      ' -s -- --manifest-url "$MANIFEST_URL" --install-root "$INSTALL_ROOT" --app-path "$APP_PATH" --user-data-dir "$USER_DATA"';
+      ' --manifest-url "$MANIFEST_URL" --install-root "$INSTALL_ROOT" --app-path "$APP_PATH" --user-data-dir "$USER_DATA"';
     const child = spawn("/bin/bash", ["-o", "pipefail", "-c", script], { env: { ...env,
       MANIFEST_URL: `${base}/latest.json`, INSTALL_ROOT: installRoot, APP_PATH: appPath, USER_DATA: profile },
       stdio: ["ignore", "pipe", "pipe"] });
@@ -149,7 +150,7 @@ async function run() {
     await close();
     console.log("PASS: bozuk/eksik indirme, açıkken güncelleme reddi, gerçek sürüm yükseltme ve profil korunması");
     active = broken;
-    await expectFailure(/penceresi hazır olmadı|45 saniye/);
+    await expectFailure(/Pofis sunucusu kapandı \(kod: 23\)/);
     assert.equal(await readlink(appPath), updated);
     assert.equal((await pids()).length, 1);
     assert.equal(await readFile(marker, "utf8"), "settings/session-file boundary preserved");

@@ -1,6 +1,6 @@
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
-const { rename, readdir, mkdir, copyFile } = require("node:fs/promises");
+const { rename, readdir, mkdir, copyFile, open } = require("node:fs/promises");
 const { join } = require("node:path");
 const execute = promisify(execFile);
 
@@ -43,10 +43,35 @@ async function rebrandMacBundle(bundle, version, icon) {
   }
 }
 
-async function signMacBundle(bundle) {
-  // Local ad-hoc integrity signatures require no developer certificate or notarization.
-  await execute("/usr/bin/codesign", ["--force", "--deep", "--sign", "-", bundle]);
-  await execute("/usr/bin/codesign", ["--verify", "--deep", "--strict", bundle]);
+async function signMacBundle(bundle, run = execute) {
+  const magic = new Set([0xfeedface, 0xcefaedfe, 0xfeedfacf, 0xcffaedfe,
+    0xcafebabe, 0xbebafeca, 0xcafebabf, 0xbfbafeca]);
+  const sign = path => run("/usr/bin/codesign", ["--force", "--sign", "-",
+    "--preserve-metadata=entitlements,flags", path]);
+  async function visit(directory) {
+    for (const entry of await readdir(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      // Framework aliases point to code visited through its actual directory.
+      if (entry.isSymbolicLink()) continue;
+      if (entry.isDirectory()) {
+        await visit(path);
+        if (/\.(?:app|framework|xpc)$/.test(entry.name)) await sign(path);
+      } else if (entry.isFile()) {
+        const file = await open(path, "r");
+        let native;
+        try {
+          const header = Buffer.alloc(4);
+          const { bytesRead } = await file.read(header, 0, 4, 0);
+          native = bytesRead === 4 && magic.has(header.readUInt32BE(0));
+        } finally { await file.close(); }
+        if (native) await sign(path);
+      }
+    }
+  }
+  // Sign native code before its containing bundles; keep Electron's per-file entitlements.
+  await visit(bundle);
+  await sign(bundle);
+  await run("/usr/bin/codesign", ["--verify", "--deep", "--strict", bundle]);
 }
 
 module.exports = { rebrandMacBundle, signMacBundle };

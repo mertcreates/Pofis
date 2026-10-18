@@ -1,11 +1,6 @@
 name: Pofis sürümünü yayımla
 on:
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'package.json ile aynı sürüm (örnek: 1.0.1)'
-        required: true
-        type: string
 permissions:
   contents: read
 concurrency:
@@ -16,8 +11,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     runs-on: windows-2022
     timeout-minutes: 10
-    env:
-      RELEASE_VERSION: ${{ inputs.version }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -25,6 +20,16 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.4.3
+      - name: Sürümü package.json dosyasından al
+        id: version
+        shell: pwsh
+        run: |
+          $releaseVersion = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          if ($releaseVersion -cnotmatch '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$') {
+            throw 'package.json sürümü x.y.z biçiminde olmalı.'
+          }
+          "RELEASE_VERSION=$releaseVersion" >> $env:GITHUB_ENV
+          "version=$releaseVersion" >> $env:GITHUB_OUTPUT
       - name: Sürümü kontrol et
         run: bun scripts/electron/ci-build.cjs check
       - name: Tanıtım sitesinin deposunu al
@@ -52,7 +57,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
     env:
-      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_VERSION: ${{ needs.begin.outputs.version }}
       RELEASE_TARGET: ${{ matrix.target }}
       CI: 'true'
     steps:
@@ -91,11 +96,11 @@ jobs:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs stage
   publish:
-    needs: build
+    needs: [begin, build]
     runs-on: windows-2022
     timeout-minutes: 30
     env:
-      RELEASE_VERSION: ${{ inputs.version }}
+      RELEASE_VERSION: ${{ needs.begin.outputs.version }}
       CI: 'true'
     steps:
       - uses: actions/checkout@v4
