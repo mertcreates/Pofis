@@ -43,6 +43,7 @@ export function createSessionManager({
           "PDKS session persistence failed:",
           error.code || error.name,
         );
+        throw error;
       }
     };
   }

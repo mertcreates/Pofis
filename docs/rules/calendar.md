@@ -12,6 +12,8 @@ Arayüz: `TIME_ZONE`, `dateKey`, `secondsOf`, `sourceTimestamp`, `weekday`, `wee
 
 İstanbul takvimi kullanılır; hafta pazartesi başlar. Kaynak tarih/saatinin UTC karşılığı o tarihteki İstanbul farkından üretilir. Gerçek olmayan tarih ve saatler reddedilir. İşletim sisteminin yerel TZ değeri kullanılmaz; UTC ISO aktarım zamanları İstanbul formatlayıcısıyla gösterilir. Docker çalışma zamanı ayrıca `TZ=Europe/Istanbul` tanımlar.
 
+Tarihsel ileri saat geçişinde, geçiş öncesi kaynak saatleri eski UTC farkını korur. Örneğin 29 Mart 2015 02:30 İstanbul saati `2015-03-29T00:30:00Z` olur; atlanan 03:30 yerel saati `null` döndürür. Çözülen zaman damgası aynı kaynak tarih ve saatine geri dönmelidir.
+
 ## Bağımlılıklar
 
 Başka ürün kuralına bağlı değildir.

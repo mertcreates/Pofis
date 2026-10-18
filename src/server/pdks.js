@@ -4,7 +4,7 @@ import { ui } from "../lib/ui-text.js";
 import { isSessionExpired } from "../lib/pdks-failure";
 import { load } from "cheerio";
 import { CookieJar } from "tough-cookie";
-import { dateKey, isDateKey, secondsOf } from "../domain/rules/calendar";
+import { dateKey, sourceTimestamp } from "../domain/rules/calendar";
 
 export const PDKS_ORIGIN = SOURCE_POLICY.origin;
 export const PASSAGES_PATH =
@@ -269,7 +269,7 @@ export function parsePassages(html, url) {
         );
       const [, day, month, year, time] = match;
       const date = `${year}-${month}-${day}`;
-      if (!isDateKey(date) || secondsOf(time) === null)
+      if (sourceTimestamp(date, time) === null)
         throw new PdksError(
           ui.sourceErrors.reportDateUnreadable,
           "SOURCE_CHANGED",
@@ -379,7 +379,20 @@ export class PdksClient {
   run(action) {
     const result = this.queue
       .then(action)
-      .finally(() => this.onStateChange?.());
+      .then(
+        async (value) => {
+          await this.onStateChange?.();
+          return value;
+        },
+        async (error) => {
+          try {
+            await this.onStateChange?.();
+          } catch {
+            // The persistence hook logs its failure; preserve the original action error.
+          }
+          throw error;
+        },
+      );
     this.queue = result.catch(() => {});
     return result;
   }
@@ -393,6 +406,7 @@ export class PdksClient {
       url.pathname.toLowerCase() === PROFILE_PATH.toLowerCase();
     let method = fields ? "POST" : "GET";
     let body = fields?.toString();
+    let persistenceError;
     for (let hop = 0; hop < SOURCE_POLICY.maxRedirectHops; hop++) {
       if (
         url.origin !== this.origin ||
@@ -461,7 +475,14 @@ export class PdksClient {
       }
       const cookies = response.headers.getSetCookie();
       for (const cookie of cookies) await this.jar.setCookie(cookie, url.href);
-      if (cookies.length) await this.onStateChange?.();
+      if (cookies.length) {
+        try {
+          await this.onStateChange?.();
+        } catch (error) {
+          // Classify the source response before surfacing a secondary disk error.
+          persistenceError ||= error;
+        }
+      }
       if (!loginRequest && response.status === 401)
         throw new PdksError(
           ui.sourceErrors.sessionExpired,
@@ -563,6 +584,7 @@ export class PdksClient {
           details,
         );
       }
+      if (persistenceError) throw persistenceError;
       return { html, url: url.href, status: response.status };
     }
     throw new PdksError(ui.sourceErrors.redirectFailed, "SOURCE_CHANGED");

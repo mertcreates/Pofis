@@ -22,13 +22,19 @@ export function sourceTimestamp(
 ): number | null {
   if (!clock || !isDateKey(date) || secondsOf(clock) === null) return null;
   const local = Date.parse(`${date}T${clock}Z`);
-  const parts = zonedFormatter.formatToParts(local);
-  const part = (name: string) =>
-    parts.find((item) => item.type === name)!.value;
-  const formatted = Date.parse(
-    `${part("year")}-${part("month")}-${part("day")}T${part("hour")}:${part("minute")}:${part("second")}Z`,
-  );
-  return local - (formatted - local);
+  let candidate = local;
+  // Resolve the offset at the actual instant; skipped local clocks never match.
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const parts = zonedFormatter.formatToParts(candidate);
+    const part = (name: string) =>
+      parts.find((item) => item.type === name)!.value;
+    const formatted = Date.parse(
+      `${part("year")}-${part("month")}-${part("day")}T${part("hour")}:${part("minute")}:${part("second")}Z`,
+    );
+    if (formatted === local) return candidate;
+    candidate += local - formatted;
+  }
+  return null;
 }
 
 export function dateKey(at: Date | number): string {

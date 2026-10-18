@@ -14,6 +14,8 @@ Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Her kullanıc
 
 Ürün gün/hafta/saat hesapları [takvim sahibinde](../src/domain/rules/calendar.ts) açıkça İstanbul saat dilimini kullanır. İşletim sisteminin TZ ayarı ürün hesabının yerine geçmez. `fetchedAt` ve tanı zamanları UTC ISO olarak taşınır; arayüz İstanbul saatine çevirir.
 
+Kalıcı dizinin yazı hataları için [oturum politikasındaki](rules/session-policy.md) API ve yeniden deneme sözleşmesini doğrulayın; kaynak hatasıyla birlikte oluşan disk hatasının tanısı sunucu loglarında izlenir.
+
 ## Proxy / ingress
 
 TLS ingress üzerinde sonlanabilir; pod HTTP dinler. Secure çerezi doğrudan HTTPS bağlantısında veya `X-Forwarded-Proto` başlığının ilk değeri `https` olduğunda kullanılır. Ingress bu başlığı tarayıcının bağlantı protokolüne göre yeniden yazmalı, Host bilgisini doğru iletmeli ve pod'a erişim kurumun ingress ağıyla sınırlandırılmalıdır. Giriş, heartbeat ve çıkış uçları Origin/Sec-Fetch-Site değerlerinden bağımsız çalışır; dış adres ayarı gerekmez. Ingress erişim logları parola/gövde, Cookie ve Set-Cookie alanlarını kaydetmemelidir.

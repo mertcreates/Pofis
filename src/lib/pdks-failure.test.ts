@@ -91,3 +91,19 @@ test("geciken eski başarısızlık yeni isteği veya oturumu etkilemez", async 
   expect(await old).toBeNull();
   expect(await current).toEqual({ person: "current" });
 });
+
+test("iptalden sonra gelen başarılı rapor eski kişiyi geri getirmez", async () => {
+  const requests = createLatestRequest();
+  let resolveOld!: (response: Response) => void;
+  let requestSignal!: AbortSignal;
+  const pending = requests.run("/api/report", {}, async (_path, options) => {
+    requestSignal = options!.signal!;
+    return new Promise<Response>(resolve => { resolveOld = resolve; });
+  });
+
+  requests.cancel();
+  expect(requestSignal.aborted).toBe(true);
+  resolveOld(Response.json({ person: { id: "self", name: "Eski kişi" } }));
+
+  expect(await pending).toBeNull();
+});

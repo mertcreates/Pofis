@@ -14,6 +14,141 @@ import { GET as report } from "../app/api/report/route.js";
 import { POST as heartbeat } from "../app/api/session/heartbeat/route.js";
 import { PdksClient, PdksError, PASSAGES_PATH } from "./pdks.js";
 
+async function reportPersistenceFixture(cookieChange, sourceFailure) {
+  let failWrites = false;
+  let sourceCalls = 0;
+  let client;
+  const manager = createSessionManager({
+    storage: {
+      read: async () => null,
+      save: async () => {
+        if (failWrites)
+          throw Object.assign(new Error("private fixture disk failure"), {
+            code: "ENOSPC",
+          });
+      },
+      remove: async () => {},
+    },
+    createClient: () => {
+      client = new PdksClient({
+        fetchImpl: async (url) => {
+          sourceCalls++;
+          if (sourceFailure === "network")
+            throw new TypeError("private fixture connection failure");
+          const sessionProbe = url.pathname.endsWith("/PizzyMain.aspx");
+          return new Response(sessionProbe
+            ? '<span id="ctl_RPPersonel_LblKisiAdiSoyadi">Fixture Person</span>'
+            : "fixture", {
+            status: sessionProbe ? 200 : sourceFailure || 200,
+            headers: cookieChange && (sessionProbe || sourceFailure !== 500)
+              ? { "Set-Cookie": "source=updated; Path=/" }
+              : {},
+          });
+        },
+      });
+      client.login = async () => {
+        client.self = {
+          id: "self",
+          sourceId: "fixture",
+          name: "Fixture Person",
+          unit: "",
+          title: "",
+        };
+      };
+      client.personalPassages = async () => {
+        await client.request(PASSAGES_PATH);
+        return [];
+      };
+      return client;
+    },
+  });
+  const token = await manager.connect({ username: "fixture", password: "fixture" });
+  failWrites = true;
+  return {
+    manager,
+    client,
+    request: new NextRequest(
+      "http://localhost:3000/api/report?person=self&from=2026-10-12&to=2026-10-18",
+      { headers: { Cookie: `${SESSION_COOKIE}=${token}` } },
+    ),
+    recoverStorage: () => { failWrites = false; },
+    sourceCalls: () => sourceCalls,
+  };
+}
+
+test.each([false, true])("başarılı raporun disk yazısı hata verirse başarı dönmez; depolama düzelince aynı oturum yeniden dener (çerez değişimi: %s)", async (cookieChange) => {
+  const key = Symbol.for("pofis.session-manager");
+  const previous = globalThis[key];
+  const logger = spyOn(console, "error").mockImplementation(() => {});
+  let fixture;
+  try {
+    fixture = await reportPersistenceFixture(cookieChange);
+    globalThis[key] = fixture.manager;
+    const failed = await report(fixture.request);
+    const body = await failed.json();
+    expect(failed.status).toBe(500);
+    expect(body.code).toBe("INTERNAL_ERROR");
+    expect(body.person).toBeUndefined();
+    expect(body.passages).toBeUndefined();
+    expect(JSON.stringify(body)).not.toContain("private fixture");
+    expect(failed.cookies.get(SESSION_COOKIE)).toBeUndefined();
+    expect(await fixture.manager.sessionFor(fixture.request)).toBeTruthy();
+    expect(fixture.client.reportCache).toBeUndefined();
+    expect(logger.mock.calls.flat()).toContain("ENOSPC");
+    fixture.recoverStorage();
+    const recovered = await report(fixture.request);
+    expect(recovered.status).toBe(200);
+    expect((await recovered.json()).person.name).toBe("Fixture Person");
+    expect(fixture.sourceCalls()).toBe(2);
+  } finally {
+    if (fixture) await fixture.manager.disconnect(fixture.request);
+    if (previous) globalThis[key] = previous;
+    else delete globalThis[key];
+    logger.mockRestore();
+  }
+});
+
+test.each(["network", 403, 500, 401])("ikincil disk yazısı hatası kaynak %s hatasını maskelemez", async (sourceFailure) => {
+  const key = Symbol.for("pofis.session-manager");
+  const previous = globalThis[key];
+  const logger = spyOn(console, "error").mockImplementation(() => {});
+  let fixture;
+  try {
+    fixture = await reportPersistenceFixture(true, sourceFailure);
+    globalThis[key] = fixture.manager;
+    const response = await report(fixture.request);
+    const body = await response.json();
+    expect(response.status).toBe(sourceFailure === 401 ? 401 : 502);
+    expect(body.code).toBe(sourceFailure === 401 ? "SESSION_EXPIRED"
+      : sourceFailure === "network" ? "CONNECTION_FAILED" : "SOURCE_ERROR");
+    expect(body.person).toBeUndefined();
+    expect(body.passages).toBeUndefined();
+    expect(JSON.stringify(body)).not.toContain("private fixture");
+    expect(logger.mock.calls.flat()).toContain("ENOSPC");
+    expect(fixture.client.reportCache).toBeUndefined();
+    if (sourceFailure === 500) {
+      expect(body.details).toMatchObject({
+        sourceStatus: 500,
+        sessionCheck: "unverified",
+        sessionCheckCode: "ENOSPC",
+      });
+      expect(fixture.sourceCalls()).toBe(2);
+    }
+    if (sourceFailure === 401) {
+      expect(response.cookies.get(SESSION_COOKIE)?.maxAge).toBe(0);
+      expect(await fixture.manager.sessionFor(fixture.request)).toBeNull();
+    } else {
+      expect(response.cookies.get(SESSION_COOKIE)).toBeUndefined();
+      expect(await fixture.manager.sessionFor(fixture.request)).toBeTruthy();
+    }
+  } finally {
+    if (fixture) await fixture.manager.disconnect(fixture.request);
+    if (previous) globalThis[key] = previous;
+    else delete globalThis[key];
+    logger.mockRestore();
+  }
+});
+
 test.each([403, 429, 500, "invalid-expiry"])("%s kaynak hatası giriş formu içerse de aktif oturumu korur", async (scenario) => {
   const key = Symbol.for("pofis.session-manager");
   const previous = globalThis[key];

@@ -18,6 +18,8 @@ Yeniden bağlantıyı oturum yöneticisinin `replaceSession` işlemi yürütür.
 
 Bakımda süresi dolan kayıtların silme hataları ayrı ayrı kaydedilir; sağlıklı oturumların keepalive işleri sürer. Soğuk dosya taraması hata verse de keepalive işleri sürer; tarama bir sonraki saatlik aralıkta yeniden denenir. İstek sırasında oluşan disk hataları çağırana başarısızlık olarak döner.
 
+Başarılı kaynak işinin çerez değişimi veya işlem sonu kaydı `ENOSPC` gibi bir disk hatası verirse rapor API'si `INTERNAL_ERROR` / 500 döner; yanıtta rapor verisi taşınmaz ve sonuç başarı önbelleğine yazılmaz. Etkin oturum korunur, depolama düzeldikten sonraki deneme kaynağı yeniden çağırır. Kaynak işi zaten bağlantı, kaynak HTTP veya oturum bitişi hatası verdiyse bu özgün hata korunur; ikincil kayıt hatası yalnız güvenli koduyla loglanır. Böylece disk hatası `SESSION_EXPIRED` / 401 sonucunu veya etkin oturumun kaynak hata sınıfını değiştirmez.
+
 Raporun kaynak işi başarılı olduğunda ve hata verdiğinde oturum üyeliği/TTL tekrar denetlenir. Çıkış veya TTL nedeniyle geçersiz oturum `SESSION_EXPIRED` / 401 döner ve tarayıcı çerezi temizlenir. Aktif oturumun kaynak bağlantı hatası 502 olarak kalır. Yeni girişin `AUTH_FAILED` sonucu mevcut oturumu veya çerezini iptal etmez.
 
 API temizliği ve keepalive yalnız ortak `SESSION_EXPIRED` + 401 doğrulamasıyla oturumu düşürür. İstemci giriş/heartbeat başarısında `connected: true`, çıkış başarısında `connected: false` bekler; çelişkili veya eksik yanıtı başarı saymaz. Ayrıntılar [hata sözleşmesindedir](../pdks-errors.md).

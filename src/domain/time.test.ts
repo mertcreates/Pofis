@@ -29,6 +29,27 @@ test("kaynak saatini İstanbul'un tarihsel UTC farkıyla taşır", () => {
   );
 });
 
+test.each([
+  ["2015-03-29", "01:30:00", "2015-03-28T23:30:00Z"],
+  ["2015-03-29", "02:30:00", "2015-03-29T00:30:00Z"],
+  ["2015-03-29", "02:59:59", "2015-03-29T00:59:59Z"],
+  ["2015-03-29", "04:00:00", "2015-03-29T01:00:00Z"],
+  ["2016-03-27", "02:30:00", "2016-03-27T00:30:00Z"],
+  ["2016-03-27", "04:00:00", "2016-03-27T01:00:00Z"],
+])("yaz saati geçişinde %s %s kaynak saatini korur", (date, clock, utc) => {
+  const expected = Date.parse(utc);
+  expect(dateKey(expected)).toBe(date);
+  expect(formatClock(expected)).toBe(clock);
+  expect(sourceTimestamp(date, clock)).toBe(expected);
+});
+
+test.each(["2015-03-29", "2016-03-27"])(
+  "%s ileri saat geçişinde var olmayan yerel saati reddeder",
+  (date) => {
+    expect(sourceTimestamp(date, "03:30:00")).toBeNull();
+  },
+);
+
 test("UTC gece yarısından önce İstanbul'da yeni güne geçer", () => {
   expect(dateKey(Date.parse("2026-10-14T21:30:00Z"))).toBe("2026-10-15");
   expect(weekStart(dateKey(Date.parse("2026-10-18T21:01:00Z")))).toBe(

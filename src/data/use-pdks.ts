@@ -54,7 +54,7 @@ export function usePdks(week: string) {
   }, [checkSession, requests]);
 
   const load = useCallback(async () => {
-    if (!connected) return;
+    if (!connected || mutationInFlight.current) return;
     const id = ++generation.current;
     dispatch({ type: "started", operation: "report" });
     try {
@@ -72,7 +72,6 @@ export function usePdks(week: string) {
     void load();
     return () => {
       requests.cancel();
-      generation.current++;
     };
   }, [load, requests]);
 

@@ -21,7 +21,9 @@ bun run build
 | Dağıtım | [Kurum ortamı kabulü](deployment.md#dağıtım-kabulü) |
 | Belge | Diff, yerel bağlantılar, kod sahibiyle tutarlılık ve `bun test src/domain/rules/rules.test.ts` |
 
-[Kurallar testi](../src/domain/rules/rules.test.ts) modül belgelerini, kural bağlantılarını ve bağımlılık sınırlarını denetler. Serbest metin ile kodun anlamca tutarlılığı ayrıca incelenir.
+[Kurallar testi](../src/domain/rules/rules.test.ts) modül belgelerini, kural bağlantılarını ve bağımlılık sınırlarını denetler. Bun'ın import tarayıcısıyla türleri silindikten sonra kalan değer, yan etki, yeniden dışa aktarım, `require` ve sabit adresli dinamik importları kontrol eder; yasak bağımlılık örnekleriyle denetimin duyarlılığını doğrular. Serbest metin ile kodun anlamca tutarlılığı ayrıca incelenir.
+
+Kapsam yüzdesini testlerin yüklediği modüllerle birlikte değerlendirin. Taşıma ve reducer testlerinin kapsamı, `usePdks` içindeki React effect ve istek sahipliği akışını kapsamaz; bu akış için bekleyen çıkış, hafta değişimi ve geciken rapor yanıtı zincirini tarayıcıda doğrulayın.
 
 ## Plan doğrulaması
 

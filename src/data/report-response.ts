@@ -1,7 +1,6 @@
 import { isOwnReport } from "@/domain/rules/report-access";
 import type { Report } from "@/domain/report";
-import { isDateKey } from "@/domain/rules/calendar";
-import { secondsOf } from "@/domain/rules/calendar";
+import { isDateKey, sourceTimestamp } from "@/domain/rules/calendar";
 import { ApiError } from "@/lib/api-client.js";
 import { ui } from "@/lib/ui-text.js";
 
@@ -41,11 +40,10 @@ export function readReportResponse(
     if (
       !object(passage) ||
       typeof passage.date !== "string" ||
-      !isDateKey(passage.date) ||
       passage.date < from ||
       passage.date > to ||
       typeof passage.time !== "string" ||
-      secondsOf(passage.time) === null ||
+      sourceTimestamp(passage.date, passage.time) === null ||
       (passage.direction !== "in" && passage.direction !== "out")
     )
       throw invalid();

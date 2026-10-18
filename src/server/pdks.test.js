@@ -161,6 +161,25 @@ test("turnike kolonları, yönü, takvim tarihi ve callback kodlaması doğrulan
   expect(() => readCallback("globalThis.untrusted = true")).toThrow();
 });
 
+test.each(["2015-03-29", "2016-03-27"])("İstanbul ileri saat geçişinde var olmayan kaynak saati reddedilir: %s", (date) => {
+  const html = form(wrapGrid(gridContent([
+    { date, time: "03:30:00", direction: "in" },
+  ])));
+  let error;
+  try {
+    parsePassages(html, passageUrl);
+  } catch (caught) {
+    error = caught;
+  }
+  expect(error).toMatchObject({ code: "SOURCE_CHANGED", status: 502 });
+});
+
+test.each(["02:30:00", "04:00:00"])("İstanbul ileri saat geçişinin geçerli kaynak saati korunur: %s", (time) => {
+  const passage = { date: "2015-03-29", time, direction: "in" };
+  const html = form(wrapGrid(gridContent([passage])));
+  expect(parsePassages(html, passageUrl).rows).toEqual([passage]);
+});
+
 test("yönlendirme kurum dışına çıkamaz ve HTTP 200 giriş sayfası oturum bitişidir", async () => {
   let calls = 0;
   const redirect = new PdksClient({

@@ -23,6 +23,34 @@ const passages = [
   { date: today, time: "13:00:00", direction: "in" },
 ];
 
+const ruleTranspiler = new Bun.Transpiler({ loader: "ts" });
+function assertRuleImports(source: string) {
+  for (const { path } of ruleTranspiler.scanImports(source)) {
+    if (/(?:server|components|data|next|react|attendance)/.test(path))
+      throw new Error(`Kural çalışma zamanı bağımlılığı: ${path}`);
+  }
+}
+
+test.each([
+  'import { type Props, Button } from "@/components/primitives"; export const view = Button;',
+  'import "@/components/request-error.css";',
+  'export { Button } from "@/components/primitives";',
+  'const view = require("@/components/primitives");',
+  'const view = import("@/components/primitives");',
+])("kural sınırı çalışma zamanı import biçimini yakalar: %s", (source) => {
+  expect(() => assertRuleImports(source)).toThrow("@/components/");
+});
+
+test("kural sınırı silinen tür importlarına ve yorumdaki örneklere izin verir", () => {
+  expect(() => assertRuleImports(`
+    import type { DayReport } from "../attendance";
+    import { type DayReport as Report } from "../attendance";
+    // import { Button } from "@/components/primitives";
+    import { weekday } from "./calendar";
+    export const day = weekday("2026-10-16");
+  `)).not.toThrow();
+});
+
 test.each([
   [null, null, "empty", null],
   ["08:00:00", null, "open", null],
@@ -187,17 +215,7 @@ test("her kural sahibi belgelenir ve çalışma zamanı UI/sunucu orkestrasyonun
     const name = file.replace(/\.(ts|js)$/, "");
     expect(existsSync(resolve(docs, `${name}.md`))).toBe(true);
     const source = readFileSync(resolve(directory, file), "utf8");
-    const imports = [
-      ...source.matchAll(
-        /import\s+(?!type\b)([\s\S]*?)\s+from\s+["']([^"']+)["']/g,
-      ),
-    ];
-    for (const [, names, target] of imports) {
-      if (/^\{\s*type\b/.test(names.trim())) continue;
-      expect(target).not.toMatch(
-        /(?:server|components|data|next|react|attendance)/,
-      );
-    }
+    expect(() => assertRuleImports(source)).not.toThrow();
   }
   for (const file of readdirSync(docs).filter((name) => name.endsWith(".md"))) {
     const path = resolve(docs, file);

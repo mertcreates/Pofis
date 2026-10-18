@@ -2,8 +2,6 @@ import { expect, test } from "bun:test";
 import { workPlanStorage } from "./work-plans";
 import { emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, changeWeekPlan, changeDefaultPlan, readDayPlan, readWeekPlan, resolveWeekPlan } from "@/domain/rules/work-plan";
 import { loadPlans, savePlans, PLAN_STORAGE_KEY } from "@/lib/plan-storage.js";
-import { readReportResponse } from "./report-response";
-import type { Report } from "@/domain/report";
 
 function storage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial));
@@ -193,38 +191,12 @@ test("geçersiz güncel şema hata verir; bozuk kaydı varsayılan başarı gibi
 
 test("yazma hatası önceki depolama içeriğini korur", () => {
   const store = storage();
-  savePlans(store, emptyWorkPlans());
+  const previous = emptyWorkPlans();
+  savePlans(store, previous);
   const before = store.getItem(PLAN_STORAGE_KEY);
-  expect(() => savePlans({ setItem() { throw new Error("quota"); } },
+  store.setItem = () => { throw new Error("quota"); };
+  expect(() => savePlans(store,
     changeDefaultPlan(emptyWorkPlans(), readDayPlan([420, 420, 420, 420, 420, 0, 0])!))).toThrow("quota");
   expect(store.getItem(PLAN_STORAGE_KEY)).toBe(before);
-});
-test("rapor sözleşmesi aynı güne ait hareketleri kabul eder, kişi/tarih ve hareket yapısını doğrular", () => {
-  const valid: Report = {
-    person: { id: "self", name: "Fixture", title: "", unit: "" },
-    from: "2026-10-12",
-    to: "2026-10-18",
-    fetchedAt: "2026-10-16T12:00:00Z",
-    passages: [
-      { date: "2026-10-16", time: "08:00:00", direction: "in" },
-      { date: "2026-10-16", time: "12:00:00", direction: "out" },
-    ],
-  };
-  expect(readReportResponse(valid, valid.from, valid.to)).toEqual(valid);
-  for (const value of [
-    null,
-    { ...valid, person: { ...valid.person, id: "another" } },
-    { ...valid, from: "2026-10-05" },
-    { ...valid, passages: undefined },
-    { ...valid, passages: null },
-    { ...valid, passages: [{ date: "2026-10-11", time: "08:00:00", direction: "in" }] },
-    { ...valid, passages: [{ date: "2026-02-30", time: "08:00:00", direction: "in" }] },
-    { ...valid, passages: [{ date: "2026-10-16", time: "08:00:00", direction: "unknown" }] },
-    {
-      ...valid,
-      passages: [{ date: "2026-10-16", time: "25:00:00", direction: "in" }],
-    },
-  ]) {
-    expect(() => readReportResponse(value, valid.from, valid.to)).toThrow();
-  }
+  expect(loadPlans(store)).toEqual(previous);
 });
