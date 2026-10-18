@@ -10,9 +10,9 @@ Arayüz: `POFI_ASSETS`, `pofiNote`.
 
 ## Sözleşme
 
-İlerleme duration sahibinden alınır. Yedi durumun görselleri 1.0.0 Docker kaynak arşivinden gelir. Başlıklar ve mesajlar [ui-text.js](../../src/lib/ui-text.js) sahibinde [ton rehberine](../brand/pofi-tone-guide.md) göre yönetilir: başlık kayıt/hedef durumunu belirtir; Pofi'nin kısa mesajı hesabı tekrarlamak yerine kendi küçük gözlemini veya davranışını anlatır. Belirsizlikte açık kontrol yönlendirmesi kullanılır. Kullanıcının yorgunluğu veya üretkenliği hakkında yargı verilmez. Arşivde tanımlı olup seçiciye bağlanmamış `%115` overworked eşiği, 16 Ekim 2026 kullanıcı isteğiyle otomatik akışa eklenmiştir.
+İlerleme duration sahibinden alınır. Yedi durumun görselleri 1.0.0 Docker kaynak arşivinden gelir. Başlıklar ve mesajlar [ui-text.js](../../src/lib/ui-text.js) sahibinde [ton rehberine](../brand/pofi-tone-guide.md) göre yönetilir: başlık kayıt/hedef durumunu belirtir; Pofi'nin kısa mesajı hesabı tekrarlamak yerine kendi küçük gözlemini veya davranışını anlatır. Belirsizlikte açık kontrol yönlendirmesi kullanılır. Kullanıcının yorgunluğu veya üretkenliği hakkında yargı verilmez.
 
-Günlük hedef [plan sahibinin](work-plan.md) etkin hedefidir; son açık gündeki devir Pofi'ye de yansır. Devirle hedef sıfırsa geçerli süre %100 kabul edilir: açık girişte `working`, tamamlanmış kayıtta `completed`. Plan dışı gün öncelikli olarak `idle` kalır.
+Günlük hedef [plan sahibinin](work-plan.md) etkin hedefidir; son açık gündeki devir Pofi'ye de yansır. Devirle hedef sıfırsa geçerli süre %100 kabul edilir: açık girişte `working`, tamamlanmış kayıtta `completed`. Belirsizlik yoksa plan dışı gün `idle` kalır.
 
 | Koşul | Durum |
 | --- | --- |

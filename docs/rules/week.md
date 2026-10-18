@@ -28,6 +28,7 @@ Görünen gerçekleşen toplam = kayıtlı süreler toplamı + canlı ek tahmin
 ## Kullanan yerler
 
 - [metrics.tsx](../../src/components/dashboard/metrics.tsx)
+- [weekly-total.tsx](../../src/components/dashboard/weekly-total.tsx)
 
 ## Testler
 

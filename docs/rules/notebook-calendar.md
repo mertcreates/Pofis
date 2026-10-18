@@ -10,7 +10,7 @@ Arayüz: `isNotebookDate(date, specialDates)`, `pofiNotebookDates(today, special
 
 ## Sözleşme
 
-Mevcut haftanın hafta içi günleri ve özel tarihe denk gelen hafta sonları seçilir. Takvim özel tarihleri parametre olarak alır. [Not motoru](../../src/lib/pofi-notes/notebook.ts) tek [özel gün listesini](../../src/lib/pofi-notes/special-days.ts) kullanır; tüm tarihler aynı 1.280 notluk havuzdan seçilir. Ekran sunucudan gelen notların tarihlerinden aynı takvimi oluşturur; UI'da ayrı özel gün listesi tutulmaz. Bugün listede değilse son hafta içi günü açılır. Bu takvim kişinin çalışma planından bağımsızdır. İçerik ve seçim yönetimi [Pofi notları rehberinde](../pofi-notes.md) açıklanır.
+Mevcut haftanın hafta içi günleri ve özel tarihe denk gelen hafta sonları seçilir. Takvim özel tarihleri parametre olarak alır. [Not motoru](../../src/lib/pofi-notes/notebook.ts) tek [özel gün listesini](../../src/lib/pofi-notes/special-days.ts) kullanır; tüm tarihler güncel tek not havuzundan seçilir. Ekran sunucudan gelen notların tarihlerinden aynı takvimi oluşturur; UI'da ayrı özel gün listesi tutulmaz. Bugün listede değilse son hafta içi günü açılır. Bu takvim kişinin çalışma planından bağımsızdır. İçerik ve seçim yönetimi [Pofi notları rehberinde](../pofi-notes.md) açıklanır.
 
 ## Arayüz davranışı
 

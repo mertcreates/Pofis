@@ -1,5 +1,7 @@
 # Pofis — Brand Guide v1.0
 
+> İlk marka kitinin referans belgesi. Aşağıdaki slogan ve UI ölçüleri prototipe aittir; güncel slogan “Mesaiye biraz Pofi.”, güncel arayüz sahibi [DESIGN](../../../DESIGN.md) ve [ton rehberidir](../../../docs/brand/pofi-tone-guide.md).
+
 **Ad:** Pofis  
 **Maskot:** Pofi  
 **Slogan:** Mesain, gözünün önünde.  

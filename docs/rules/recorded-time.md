@@ -31,5 +31,4 @@ Hareket sırası ve eşleşme güvenilirliği [geçiş sahibinde](passages.md), 
 ## Testler
 
 - [recorded-time.test.ts](../../src/domain/rules/recorded-time.test.ts)
-- [rules.test.ts](../../src/domain/rules/rules.test.ts)
 - [report.test.ts](../../src/domain/report.test.ts)

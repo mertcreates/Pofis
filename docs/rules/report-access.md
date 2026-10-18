@@ -28,4 +28,4 @@ Tek uygulamada yalnız self raporu kabul edilir. Tarih aralığı gerçek günle
 - [http.test.js](../../src/server/http.test.js)
 - [routes.test.js](../../src/server/routes.test.js)
 - [pdks.test.js](../../src/server/pdks.test.js)
-- [work-plans.test.ts](../../src/data/work-plans.test.ts)
+- [report-response.test.ts](../../src/data/report-response.test.ts)

@@ -66,7 +66,7 @@ Oklar bir kuralın sonucunun nerede kullanıldığını gösterir. Rapor uyarlam
 | PDKS hata sözleşmesi | [pdks-failure](../../src/lib/pdks-failure.ts): ortak sınıflandırma ve toparlanma; [hata sözleşmesi](../pdks-errors.md) taşıma, durum ve sunum sahiplerini açıklar |
 | Demo verisi ve saati | [Demo rehberi](../demo.md): yakalama, gezinti ve istemci sahipleri; canlı görünümle ortak hesaplar |
 
-`prepareReport` günlük özetleri, hedefleri ve geçiş analizini bir kez hazırlar; dönen fonksiyon saat değişiminde bugünün süre/Pofi sonucunu günceller. [DashboardView](../../src/components/dashboard/view.tsx), rapor/plan/İstanbul tarihi/tazelik değiştiğinde hazırlığı yeniler. `presentReport` tek çağrıda aynı yolu kullanır. Sabit alanların korunması [rapor testleriyle](../../src/domain/report.test.ts) denetlenir.
+`prepareReport` günlük özetleri, hedefleri ve geçiş analizini bir kez hazırlar; dönen fonksiyon saat değişiminde bugünün süre/Pofi sonucunu günceller. [DashboardView](../../src/components/dashboard/view.tsx), rapor/plan/İstanbul tarihi/tazelik değiştiğinde hazırlığı yeniler. [ReportContent](../../src/components/dashboard/report-content.tsx) canlı güncel haftanın saniyelik saatini, [Dashboard](../../src/components/dashboard.tsx) İstanbul gün değişimini yönetir; demo kendi sanal saatini sağlar. `presentReport` tek çağrıda aynı yolu kullanır. Sabit alanların korunması [rapor testleriyle](../../src/domain/report.test.ts) denetlenir.
 
 ## Kural değiştirirken
 

@@ -1,5 +1,7 @@
 # Pofis — Brand & UI Kit v1.0
 
+> Kaynak prototip: bu paketin ekranları, mola hesabı ve CSV özelliği bağımsız örnektir. Güncel Pofis kapsamı [PRODUCT](../../PRODUCT.md), tasarım kararları [DESIGN](../../DESIGN.md), dil ve slogan [ton rehberi](../../docs/brand/pofi-tone-guide.md) sahibindedir.
+
 **Pofis** için Soft Lavender / light-mode, statik kedi maskotlu, çevrimdışı çalışabilen tasarım prototipi.
 
 ## Başlangıç

@@ -22,7 +22,7 @@
 
 ## Planın yapısı ve varsayılan şablon
 
-- `WorkPlan`, pazartesi–pazar sırasıyla yedi dakika değeri tutar. Düzenlenebilir günler pazartesi–cumadır; günlük aralık 0–960 dakikadır. Şablonda sıfır değer kapalı gündür; haftada otomatik hesapla sıfırlanmış açık gün ayrıca işaretlenir. Cumartesi/pazar resmî tatildir ve plan değerleri sıfırdır.
+- `WorkPlan`, pazartesi–pazar sırasıyla yedi dakika değeri tutar. Düzenlenebilir günler pazartesi–cumadır; günlük aralık 0–960 dakikadır. Şablonda sıfır değer kapalı gündür; haftada otomatik hesapla sıfırlanmış açık gün ayrıca işaretlenir. Cumartesi/pazar bu plan modelinde düzenlenemez ve plan değerleri sıfırdır; mevcut PDKS kayıtları korunur.
 - İlk şablon pazartesi–cuma 480’er dakika, toplam 40 saattir. Şablonu kullanıcı düzenler; PDKS kayıtları gerçekleşen süreyi sağlar.
 - Şablon 30 dakika adımlarını kullanır. Haftalık gereken süreler ve bunların düzenlenmesi saniye hassasiyetini korur; stepper 30 dakikalık artış/azalış yapar ve sınırdaki son adımda 0 veya 16 saate ulaşır.
 - Haftanın planı özel hafta kaydından, böyle bir kayıt bulunmadığında varsayılan şablondan gelir. Şablon değişikliği onu miras alan geçmiş haftalara da uygulanır.
@@ -94,6 +94,8 @@ Gereken sürenin otomatik olarak sıfıra inmesi günün açık durumunu korur. 
 
 Toplu uygulama, seçili gereken süreyi diğer uygun açık günlere uygular. Tamamla işleminin dağıtım sırası [aşağıda](#izin-sonrası-referans-hedefe-tamamlama) tanımlıdır.
 
+<a id="izinli-gün"></a>
+
 ### İzinli gün
 
 Haftalık düzenlemede günü kapatmak veya süresini elle sıfıra indirmek o günü izinli yapar. Günün çalışma planı sıfırlanır; haftalık hedeften **o günün güncel varsayılan şablon süresi** düşülür. Hedefin alt sınırı sıfırdır. Aynı günü tekrar izinli yapmak ek indirim üretmez. İzin, kullanıcının kişisel planlama tercihidir; resmî PDKS izin kaydı oluşturmaz.
@@ -112,6 +114,8 @@ Sıfırla, tamamlanmamış günlerin izinlerini kaldırıp günleri şablona dö
 Şablon 9 × 5 ve Pzt–Çar toplamı 26 sa 40 dk ise Cuma izni 9 saat düşürür: hedef 36 sa, Per gereken 9 sa 20 dk olur.
 
 Kapasite örneği: hedef 40 sa, Pzt–Çar gerçekleşeni 6 sa, Per/Cum gereken 16’şar sa ve dağıtılamayan borç 2 sa. Perşembe 15 saate ayarlandığında hedef 39 saate iner; otomatik dağıtım Perşembeyi yeniden 16 saate çıkarır ve kalan borç 1 sa olur.
+
+<a id="izin-sonrası-referans-hedefe-tamamlama"></a>
 
 ## İzin sonrası referans hedefe tamamlama
 

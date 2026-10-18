@@ -35,7 +35,7 @@ Kullanıcının haftalık planda izin olarak kapattığı gün. Haftalık hedeft
 Varsayılan şablonun toplamından izinli günlerin şablon süreleri çıkarıldıktan sonra kalan hedef. Tamamla eylemi bu toplamı kullanır.
 
 **Gerçekleşen toplam**:
-PDKS günlük kayıt sürelerinin toplamı. Canlı anlık tahmin dahilse ayrıca belirtilir.
+PDKS günlük kayıt sürelerinin toplamı. Ekrandaki haftalık toplam buna canlı ek tahmini de bir kez ekler; ayrım süre çubuğu ve ayrıntılarda gösterilir.
 
 **Beklenen toplam**:
 Tamamlanan günlerin gerçekleşen süreleri ile tamamlanmamış günlerin güncel gereken sürelerinin toplamı.

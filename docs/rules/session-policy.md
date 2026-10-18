@@ -1,46 +1,42 @@
 # Oturum politikası
 
-[Kural haritası](README.md) · [Terimler](../../GLOSSARY.md)
+[Kural haritası](README.md) · [Oturum mimarisi](../architecture/multi-user-sessions.md)
 
 ## Tek sahip
 
-[src/domain/rules/session-policy.ts](../../src/domain/rules/session-policy.ts)
+[session-policy.ts](../../src/domain/rules/session-policy.ts), `SESSION_POLICY` değerlerini tanımlar; sunucu durumu veya sır içermez.
 
-Arayüz: `SESSION_POLICY`.
+| Politika | Değer |
+| --- | --- |
+| Oturum çerezi | `pofis_session`; HttpOnly, SameSite=strict, Path=/ |
+| Sabit TTL | 8 saat; istekler süreyi uzatmaz |
+| Token | 32 rastgele bayt |
+| İstemci heartbeat / zaman aşımı | 1 dakika / 10 saniye |
+| Etkin istemci lease'i / kaynak keepalive | 10 dakika / 20 dakika |
+| Soğuk dosya taraması / en uzun backoff | 1 saat / 1 saat |
+| Kullanıcı adı / şifre üst sınırı | 200 / 1000 karakter |
 
-## Sözleşme
+Secure çerezi doğrudan HTTPS veya proxy'nin ilk `X-Forwarded-Proto` değeri `https` olduğunda kullanılır. Güvenilir proxy ve başlık yazımı [dağıtım sözleşmesindedir](../deployment.md#proxy--ingress).
 
-`SESSION_POLICY.cookie` tek oturum çerezi adıdır; sunucu yalnız bunu okur ve temizler. TTL, temizlik aralıkları, token uzunluğu, heartbeat/lease/keepalive, backoff, giriş alan limitleri ve çerez nitelikleri tek politikadır. Sunucu oturum işlemlerinin sahibidir; istemci yalnız gerekli süre/alan limitlerini okur. Girişte kullanıcı adı/şifre geçici olarak kullanılır; oturum ve önbellekte giriş kimlik bilgileri saklanmaz. İstek nesnesindeki kimlik bilgileri ve formdaki şifre kullanımdan sonra bırakılır; kullanıcı adı tekrar deneme için yalnız açık formda korunur, uygulama depolamasına yazılmaz; kaynak tarafından doğrulanan kişi bilgisi ve CookieJar oturumda kalır. JavaScript belleğinin fiziksel olarak sıfırlanması garanti edilmez. Kalıcılığa şifre yazılmaz. Sunucu ve form aynı uzunluk limitini kullanır. Çerez adaptörü doğrudan HTTPS veya proxy'nin `X-Forwarded-Proto` başlığındaki ilk `https` değeri için Secure kullanır; HttpOnly ve SameSite=strict korunur. [Proxy sözleşmesi](../deployment.md). Bu dosya sunucu durumu veya sır içermez.
+## Güvenceler
 
-Toplam oturum kotası yoktur; sabit 8 saat TTL korunur. Tek süreçte her oturum ayrı istemci ve CookieJar kullanır. Dosyalar asenkron, oturum başına sıralı yazma/silme ve atomik değiştirmeyle yönetilir; diskten yalnız istenen oturum yüklenir. Çıkış devam eden kaynak isteğini iptal eder; geciken okuma ve yazılar oturumu geri getiremez. Bellekteki oturumlar dakikalık bakımda, soğuk dosyalar saatlik taramada temizlenir; boş süreçte bakım durur. Erişim anında TTL daima denetlenir. [Yapı ve işletim sınırları](../architecture/multi-user-sessions.md). Kaynak istek kapasitesi [kaynak politikasına](source-policy.md) aittir.
+- Her oturum ayrı kişi kimliği, `PdksClient` ve CookieJar kullanır; toplam oturum kotası yoktur. Yalnız güncel çerez adı okunur ve temizlenir.
+- Parola yalnız girişte kullanılır; oturum, önbellek veya dosyaya yazılmaz. İstek kimlik alanları ve form şifresi işlem sonunda bırakılır. Kullanıcı adı tekrar deneme için açık formda kalabilir; uygulama depolamasına yazılmaz. JavaScript belleğinin fiziksel sıfırlanması garanti edilmez.
+- TTL erişimde ve kaynak işi tamamlandığında yeniden denetlenir. Çıkış devam eden kaynak işini iptal eder; geciken yanıtlar veya dosya okumaları kişiyi geri getiremez.
+- Yeniden bağlantıda yeni kimlik doğrulama/ilk kayıt başarısızsa mevcut oturum korunur. Eski kaydı silme ve geri alma hatalarının sınırları [yaşam döngüsünde](../architecture/multi-user-sessions.md#oturum-yaşam-döngüsü) tanımlıdır.
+- Başarılı raporun oturum kaydı yazılamazsa API `INTERNAL_ERROR` / 500 döner; rapor veya başarı önbelleği üretilmez. Etkin oturum korunur; depolama düzeldikten sonraki deneme kaynağı yeniden çağırır. Kaynak işi zaten hata verdiyse özgün hata korunur, ikincil disk hatası güvenli koduyla loglanır.
+- Temizlik ve keepalive hataları sağlıklı oturumları durdurmaz. Dosya yazma/silme sırası, yeniden başlatma ve silinemeyen dosyanın sınırları mimari sahibinde yönetilir.
+- Yalnız `SESSION_EXPIRED` + 401 oturumu bitirir. Yanlış şifre mevcut oturumu iptal etmez. İstemci GET'te boolean, giriş/heartbeat başarısında `true`, çıkışta `false` bekler. [Yanıt ve toparlanma sözleşmesi](../pdks-errors.md).
 
-Yeniden bağlantıyı oturum yöneticisinin `replaceSession` işlemi yürütür. Yeni kimlik doğrulama veya ilk kayıt başarısızsa mevcut oturum korunur. Yeni oturum kaydedildikten sonra eski oturum kapatılır; eski kaydın silinmesi başarısızsa yeni oturum da iptal edilir ve dosyası silinmeye çalışılır. Geri alma sırasında disk silme de başarısızsa iki oturum aynı süreçte iptal edilmiş kalır; hata kaydedilir ve istek başarısız döner. Diskte kalan dosyaların süreç yeniden başlatıldıktan sonraki sınırları mimari belgede açıklanır.
-
-Bakımda süresi dolan kayıtların silme hataları ayrı ayrı kaydedilir; sağlıklı oturumların keepalive işleri sürer. Soğuk dosya taraması hata verse de keepalive işleri sürer; tarama bir sonraki saatlik aralıkta yeniden denenir. İstek sırasında oluşan disk hataları çağırana başarısızlık olarak döner.
-
-Başarılı kaynak işinin çerez değişimi veya işlem sonu kaydı `ENOSPC` gibi bir disk hatası verirse rapor API'si `INTERNAL_ERROR` / 500 döner; yanıtta rapor verisi taşınmaz ve sonuç başarı önbelleğine yazılmaz. Etkin oturum korunur, depolama düzeldikten sonraki deneme kaynağı yeniden çağırır. Kaynak işi zaten bağlantı, kaynak HTTP veya oturum bitişi hatası verdiyse bu özgün hata korunur; ikincil kayıt hatası yalnız güvenli koduyla loglanır. Böylece disk hatası `SESSION_EXPIRED` / 401 sonucunu veya etkin oturumun kaynak hata sınıfını değiştirmez.
-
-Raporun kaynak işi başarılı olduğunda ve hata verdiğinde oturum üyeliği/TTL tekrar denetlenir. Çıkış veya TTL nedeniyle geçersiz oturum `SESSION_EXPIRED` / 401 döner ve tarayıcı çerezi temizlenir. Aktif oturumun kaynak bağlantı hatası 502 olarak kalır. Yeni girişin `AUTH_FAILED` sonucu mevcut oturumu veya çerezini iptal etmez.
-
-API temizliği ve keepalive yalnız ortak `SESSION_EXPIRED` + 401 doğrulamasıyla oturumu düşürür. İstemci giriş/heartbeat başarısında `connected: true`, çıkış başarısında `connected: false` bekler; çelişkili veya eksik yanıtı başarı saymaz. Ayrıntılar [hata sözleşmesindedir](../pdks-errors.md).
-
-## Bağımlılıklar
-
-[Windows masaüstü kabuğu](../desktop.md) aynı HTTP API ve oturum kurallarını kullanır; kendi Chromium profili ve sunucu oturum dizini vardır. Profil `%APPDATA%/Pofis/` altında sürüm dosyalarından bağımsız tutulur; kurulum/güncelleme oturumları silmez. Uygulamayı kapatmak çıkış API'sini çağırmaz. Kaynak oturumunun geçerliliği mevcut TTL ve kaynak doğrulamasıyla belirlenir.
-
-Başka ürün kuralına bağlı değildir.
+[Windows/macOS masaüstü](../desktop.md) aynı kuralları kullanır; normal uygulama kapanışı PDKS çıkışı sayılmaz. Rapor önbelleği ve kaynak kapasitesi [kaynak politikasına](source-policy.md) aittir.
 
 ## Kullanan yerler
 
-- [session-manager.js](../../src/server/session-manager.js)
-- [session-storage.js](../../src/server/session-storage.js)
-- [http.js](../../src/server/http.js)
-- [session-heartbeat.js](../../src/lib/session-heartbeat.js)
-- [connection.tsx](../../src/components/connection.tsx)
+- [session-manager.js](../../src/server/session-manager.js): giriş, geri yükleme, TTL ve iptal.
+- [session-storage.js](../../src/server/session-storage.js): dosya kalıcılığı.
+- [http.js](../../src/server/http.js): çerez ve giriş sınırları.
+- [session-heartbeat.js](../../src/lib/session-heartbeat.js), [connection.tsx](../../src/components/connection.tsx): istemci süreleri ve giriş alanları.
 
 ## Testler
 
-- [session-storage.test.js](../../src/server/session-storage.test.js)
-- [session-manager.test.js](../../src/server/session-manager.test.js)
-- [routes.test.js](../../src/server/routes.test.js)
-- [http.test.js](../../src/server/http.test.js)
+[Depolama](../../src/server/session-storage.test.js) · [Oturum yöneticisi](../../src/server/session-manager.test.js) · [Route](../../src/server/routes.test.js) · [HTTP](../../src/server/http.test.js) · [Oturum yanıtı](../../src/lib/session-response.test.ts) · [Heartbeat](../../src/lib/session-heartbeat.test.js).

@@ -56,4 +56,4 @@ bun scripts/pofi-notes.ts validate
 bun run typecheck
 ```
 
-[Davranış testleri](../src/lib/pofi-notes/notebook.test.ts) içerik fixture'larını, tek havuz sırasını ve 2026–2028 deterministik seçimlerini kapsar. [CLI testi](../src/lib/pofi-notes/cli.test.ts) listeleme, doğrulama, önizleme ve kaldırılan yayın hazırlama komutunu denetler.
+[Davranış testleri](../src/lib/pofi-notes/notebook.test.ts) içerik fixture'larını, tek havuz sırasını ve 2026–2028 deterministik seçimlerini kapsar. [CLI testi](../src/lib/pofi-notes/cli.test.ts) listeleme, doğrulama ve önizlemeyi çalıştırır; kaldırılan yayın hazırlama komutunun kabul edilmediğini denetler.

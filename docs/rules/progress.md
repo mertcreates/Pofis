@@ -28,4 +28,3 @@ Başka ürün kuralına bağlı değildir.
 ## Testler
 
 - [rules.test.ts](../../src/domain/rules/rules.test.ts)
-- [time.test.ts](../../src/domain/time.test.ts)

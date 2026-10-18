@@ -25,4 +25,11 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 
 Davranış değiştiğinde ilgili sözleşmeyi ve bağımlı testleri birlikte güncelleyin. Tamamlanan doğrulamanın sonucunu kullanıcıya bildirin; tamamlanmış audit raporlarını, ekran görüntülerini ve ölçüm çıktılarını temizleyin. Geçerli kararlar konu sahibinde, çözülmemiş bulgular görev listesinde tutulur. Davranış testleri korunur; arayüz kabulü doğrulama rehberine göre demoda yapılır.
 
-[Özgün master spec](spec/master-spec-v2.md), kullanıcıdan gelen başlangıç belgesidir; güncel kapsam için PRODUCT ve kural belgeleri kullanılır. Marka kiti, ton rehberi ve kullanıcı tasarım referansları kaynak içeriktir.
+## Kaynak ve referans belgeleri
+
+- [Özgün master spec](spec/master-spec-v2.md): kullanıcıdan gelen başlangıç belgesi; içeriği korunur. Güncel kapsam PRODUCT ve kural belgelerinden okunur.
+- [Marka kiti](../extras/pofis-brand-kit/README.md): bağımsız ilk prototip, karakter kaynakları ve o prototipin QA sonuçları. Güncel uygulama/erişilebilirlik kabulü değildir.
+- [Karakter kuralları](../extras/pofis-brand-kit/docs/CHARACTER_BIBLE.md) ve [üretim promptu](../extras/pofis-brand-kit/docs/MASTER_PROMPT.md): yeni görsellerin kimlik ve inceleme ölçütleri.
+- [Pofi görsel setleri](brand/pofi-review-2026-10-15/README.md): mevcut aday dosyaları ve uygulamaya alma sınırı.
+
+Ton rehberi güncel Pofi dilinin sahibidir; kaynak belgelerdeki eski slogan, hesap ve yerleşim örnekleri uygulama sözleşmesini değiştirmez.

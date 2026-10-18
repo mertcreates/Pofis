@@ -1,9 +1,5 @@
 # Merkezi, çok kullanıcılı Pofis
 
-16 Ekim 2026 kullanıcı kararı: arşivin tek sunucu yöntemini koru; toplam oturum kotasını kaldır, disk işlemlerini iyileştir, PDKS isteklerini kullanıcılar arasında bağımsız çalıştır ve yerel yük ölçümü yap.
-
-pofis.app statik landing/installer/manifest dosyaları bağımsız public projede hazırlanır; kullanıcı profili veya PDKS oturumları bu projeye aktarılmaz. Masaüstü sürüm/profil ayrımı ve yayın sorumluluğu [masaüstü sözleşmesindedir](../desktop.md).
-
 ## Uygulanan yapı
 
 Tek uygulama süreci, süreç belleğinde oturumlar ve yerel JSON dosyaları kullanılır. Her oturum kendi `PdksClient`, CookieJar ve doğrulanmış kişi kimliğiyle çalışır. Sabit toplam oturum kotası yoktur. Sabit 8 saat TTL korunur.
@@ -39,7 +35,7 @@ Yerel üretim önizlemesi standart `next start`, Docker dağıtımı standalone 
 
 ## İşletim sınırları
 
-[Windows masaüstü kabuğu](../desktop.md) aynı oturum yöneticisini Electron’un Node.js UtilityProcess’iyle kullanır. Electron profili ve sunucu oturum dosyaları `%APPDATA%/Pofis/` altında ayrılır; tarayıcı ve kurum sunucusunun verileriyle paylaşılmaz. Sürüm dosyaları `%LOCALAPPDATA%/Programs/Pofis/` altındadır; güncelleme profili değiştirmez. Normal pencere kapanışı sunucu sürecini kapatır; kaynak oturumunu iptal etmez. Yeniden açılışta mevcut sabit TTL uygulanır.
+[Windows/macOS masaüstü kabuğu](../desktop.md) aynı oturum yöneticisini Electron’un Node.js UtilityProcess’iyle kullanır. Profil ve sunucu oturumları sürüm dosyalarından, dış tarayıcıdan ve kurum sunucusundan ayrıdır; dizinler ve güncelleme davranışı masaüstü rehberinde yönetilir. Normal pencere kapanışı sunucuyu kapatır; PDKS çıkışı sayılmaz. Yeniden açılışta mevcut sabit TTL uygulanır.
 
 Dağıtım tek uygulama süreci ve kalıcı yerel oturum diziniyle yapılmalıdır. Bellek kullanımı yüklenen oturum sayısıyla büyür; aynı dizini paylaşan birden fazla süreç için kilit ve iptal koordinasyonu yoktur. Kurum ağı, TLS, yeniden başlatma, disk izinleri/yedekleri ve gerçek hesap kabulü dağıtım ortamında doğrulanır.
 

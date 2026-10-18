@@ -6,9 +6,7 @@
 
 web
 
-Pofis, Windows x64 ve macOS Apple Silicon/Intel için ortak Electron/Node.js ve Next standalone altyapısıyla aynı web uygulamasını açar. Windows tek komut kurulum/güncellemesi yerelde doğrulanmıştır. macOS gerçek cihaz kabulü, macOS kurulum betiği ve hosting yayını bekler. [Kapsam ve çalışma zamanı](docs/desktop.md).
-
-Landing bağımsız `pofis-landing` projesindedir; pofis.app için Cloudflare Pages ve GitHub Releases yayın hazırlığı yerelde uygulanmıştır. Ana uygulama kaynak deposu private kalır. Canlı yayın ve DNS/HTTPS kabulü bekler.
+Web uygulaması, Windows x64 ve macOS Apple Silicon/Intel için ortak Electron kabuğuyla da çalışır. Paketleme ve dağıtım kapsamı [masaüstü rehberinde](docs/desktop.md), bekleyen cihaz ve yayın kabulü [görev listesinde](tasks/todo.md) tutulur.
 
 ## Stack
 
@@ -46,4 +44,4 @@ Pofis / Pofi / “Mesaiye biraz Pofi.” Marka moru `#8b7bff`, özgün karakter 
 
 ## Product Principles
 
-Veri dürüstlüğü, düşük bilişsel yük, açık modül sahipliği ve kullanıcıyı yargılamayan doğal Türkçe. Davranış ve içerik için 1.0.0 Docker kaynak arşivi esas alınır; uygulama kodu açık sınırlar, okunabilir akış ve bağımsız testlerle geliştirilir.
+Veri dürüstlüğü, düşük bilişsel yük, açık modül sahipliği ve kullanıcıyı yargılamayan doğal Türkçe. 1.0.0 Docker kaynak arşivi başlangıç referansıdır; güncel davranış kural belgeleriyle, arayüz DESIGN ile yönetilir. Uygulama kodu açık sınırlar, okunabilir akış ve bağımsız davranış testleriyle geliştirilir.

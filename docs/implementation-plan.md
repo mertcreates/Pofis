@@ -5,17 +5,15 @@
 | Alan | Uygulanan kapsam |
 | --- | --- |
 | Mesai verisi | Kişisel turnike listesinin bütün sayfaları; tek günlük özet, süre ve kayıt durumu sahipleri |
-| Mesaim | Kaynak ekran düzeni, hafta seçici, metrikler, gün akışı, grafik, ham kayıtlar ve plan modalı |
+| Mesaim | Güncel haftada gün akışı, günlük cetvelli haftalık toplam ve akordeon rapor/Pofi; geçmiş haftada dört metrik, grafik ve tablo; ortak hafta seçici ve plan modalı |
 | Demo | Aynı görünüm ve kurallar; dört haftalık yakalama, gün seçimi ve sanal ek süre |
 | Plan | Varsayılan şablon, gereken süre üzerinden hafta düzenleme ve yerel kayıt; hesap ve dağıtım ayrıntıları [plan sözleşmesinde](rules/work-plan.md) |
 | Pofi | Kaynak durum görselleri, albüm, sürprizler ve tek havuzlu not yönetimi |
 | Oturum | Kullanıcı başına PDKS istemcisi, sabit TTL, JSON kalıcılığı ve kısa kişisel rapor önbelleği |
 | Dağıtım | Yerelde standart Next komutları; Docker'da tek Bun süreci, standalone çıktı ve kalıcı oturum dizini |
-| Masaüstü | [Ortak Windows/macOS Electron, Node.js standalone, paketleme ve manifest](desktop.md); gerçek readiness, tek örnek ve süreç temizliği; Windows tek komut kurulum/güncelleme ve geri dönüş; macOS cihaz kabulü ve kurulum betiği, hosting yayını bekliyor |
+| Masaüstü | [Ortak Electron kabuğu, paketleme, kurulum/güncelleme ve landing hazırlığı](desktop.md); açık platform/yayın kabulü görev listesinde |
 
 [Kural sahipleri](rules/README.md) · [Arayüz sahipleri](ui-source-migration.md) · [Oturum mimarisi](architecture/multi-user-sessions.md).
-
-Landing bağımsız `pofis-landing` projesine ayrılmıştır. Cloudflare Pages + GitHub Releases için doğrulanmış manifest/installer aktarımı yerelde hazırdır; canlı yayın ve DNS/HTTPS kabulü bekler. [Dağıtım sahipliği](desktop.md#pofisapp-yayın-hazırlığı).
 
 ## Sonraki aşama
 

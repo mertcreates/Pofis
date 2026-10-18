@@ -10,33 +10,30 @@ Yerleşim ve bileşen görünümleri [kaynak arayüzden](ui-source-migration.md)
 
 Sıfırdan büyük ek süre seçildiğinde sanal saat seçilen andan başlayarak saniyede bir ilerler; günlük sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Kayıtlı süre sabit kalır. Gün veya ek süre değişince saat yeni seçimden başlar; sıfır ek süre ve “Başlangıca dön” çalışan saati durdurur. Sekme yeniden görünür olduğunda geçen süre saate yansır. Saat İstanbul'da seçilen günün 23:59:59 sınırında durur.
 
-Üstteki Mesaim, Hata ekranları ve Bildirimler sekmeleri ekranlar arasında geçiş sağlar. Hazır senaryolar mevcut veri ve ortak hesap sahiplerini kullanır: Eksik mesai 15 Ekim'i, Belirsiz kayıt 7 Ekim'i, Kayıtsız gün 9 Ekim'i açar; Devam eden mesai 15 Ekim'e 120 dakika sanal ek süre ekler. Hedef farkı kayıtlı demo mesai planına göre hesaplanır. Gün veya süre elle değiştiğinde eşleşen senaryo seçilir; eşleşme yoksa “Özel seçim” görünür.
+Üstteki Mesaim, Hata ekranları ve Bildirimler sekmeleri ekranlar arasında geçiş sağlar. Hazır senaryolar mevcut veri ve ortak hesap sahiplerini kullanır: Hedefin altında 15 Ekim'i, Belirsiz kayıt 7 Ekim'i, Kayıt olmayan gün 9 Ekim'i açar; Devam eden mesai 15 Ekim'e 120 dakika sanal ek süre ekler. Hedef farkı kayıtlı demo mesai planına göre hesaplanır. Gün veya süre elle değiştiğinde eşleşen senaryo seçilir; eşleşme yoksa “Özel seçim” görünür.
 
 Geçişlerde gün, ek süre, hata senaryosu ve örnek giriş adımı korunur. “Başlangıca dön” Mesaim'i yakalama gününde sıfır ek süreyle açar; hata önizlemesini bağlantı hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince önizleme başlangıç durumuna döner.
 
 [Demo kontrolleri](../src/demo/controls.tsx) sekmeleri ve sıfırlamayı sunar; durum [demo istemcisinde](../src/demo/dashboard.tsx) tutulur. Ortak DashboardView demo kontrol yapısını bilmez; içeriği standart `children` ile alır.
-## Hata ekranı
+## Hata ekranları ve bildirimler
 
-“Hata ekranları” sekmesi onaylanan Pofi sahnesini sabit tutar. Teknik ayrıntılar İz kaydı düzenindedir: sorun açıklaması, hata kodu ve İstanbul saatindeki kısa zaman görünür. İkinci durak olan “İstek ayrıntıları” da sürekli görünür; açma/kapama kontrolü bulunmaz. API HTTP durumu Pofis API altında, kaynak HTTP durumu ve bağlantı kodu PDKS altında gösterilir; uygulama hatasında kaynak verisi üretilmez. Hata sınıfı istek ayrıntılarında bulunur. Çizgi işlem sırası veya başarı göstergesi değildir. “Teknik ayrıntıları kopyala” tüm izinli alanları ve özgün zaman damgasını taşır. [İz kaydı sunumu](../src/components/request-error-details.tsx) ortak tanı alanlarını ve kopyalama bileşenini kullanır.
+Senaryolar canlı ekranlarla aynı [hata bileşenini](../src/components/request-error.js), [teknik ayrıntıları](../src/components/request-error-details.tsx) ve [kompakt bildirimleri](../src/components/inline-notice.tsx) kullanır. Hata sınıfları, İz kaydı ve toparlanma kuralları [hata sözleşmesinde](pdks-errors.md) yönetilir; demo yalnız örnek girdileri sağlar.
 
-Pofi sahnesi ve İz kaydı tek hata tasarımıdır. Kart içinde kart kullanılmaz. Canlı hata ekranları da aynı açık İz kaydı düzenini kullanır.
+| Önizleme | Etkileşim ve sınır |
+| --- | --- |
+| Bağlantı/DNS, kaynak HTTP 500, uygulama hatası | Ortak Pofi sahnesi ve açık teknik ayrıntılar; kopyalama izinli alanları ve özgün zaman damgasını taşır |
+| Girişe dön | Örnek formu açar; gönderim formu temizleyip seçili örnek hatayı gösterir. API/PDKS isteği göndermez |
+| 404 | Canlı [NotFoundState](../src/components/not-found-state.tsx); Mesaim bağlantısı demoya döner |
+| Uygulama içi hata | Ortak runtime hata görünümü; gerçek istisna oluşturmaz, framework yeniden denemesini kanıtlamaz |
+| Rapor yenileme/çıkış hatası | Rapor üzerinde ortak bildirim; yeniden deneme yalnız örnek hatanın zamanını yeniler |
+| Tema/plan depolama ve eski rapor | Kompakt bildirim. Eski rapor senaryosu durum mesajıdır; tazelik durum makinesini çalıştırmaz |
+| Plan süre sınırları | “Planı aç” gerçek PlanEditor'ü açar; eksi/artı ile 0–16 saat, İzin/Aç ve açık günlere uygulama denenir. Ayrı saat giriş alanı yoktur |
+| Plan kayıt hatası | Yazma reddedilir, son örnek plan korunur |
+| Eksik Pofi notu | “Defteri aç” gerçek Notebook/Modal'ı açar; ilk seçilecek günün notu önizleme girdisinden çıkarılır, tarih ve gezinme korunur |
 
-Senaryo seçicisi bağlantı/DNS hatası, PDKS HTTP 500 ve uygulama hatasını karşılaştırır. Açıklamalar, güvenli alanlar, gruplama ve kopyalama ortak hata sunumu/bileşeninden gelir. Eksik kaynak bilgisi üretilmez.
+Seçimler sekmeler arasında korunur. Yerel modal ve örnek plan senaryo/sekme değişiminde sıfırlanır. “Başlangıca dön” hata önizlemesini bağlantı hatasına, bildirim önizlemesini çıkış hatasına getirir. Yerel örnekler bellektedir; plan depolamasına veya kaynak fixture'a yazmaz.
 
-“Girişe dön” örnek giriş formunu açar; gönderim formu temizleyip seçili örnek hatayı yeniden gösterir. Bu akış API veya PDKS isteği göndermez. “Mesaim” sekmesi rapora döner; iki ekranın önizleme seçimleri geçişlerde korunur. Önizleme seçimleri bellektedir; sayfa yenilenince rapor açılır. [Önizleme sahibi](../src/demo/error-preview.tsx) ortak canlı hata bileşenini kullanır; [demo stilleri](../src/demo/error-preview.css) yalnız demo kontrollerini düzenler.
-
-## Bildirimler
-
-“Bildirimler” sekmesi canlı ekranlarla aynı Pofi Sahne bildirimini rapor üzerinde gösterir. Başlık, açıklama ve işleme uygun yeniden deneme eylemi lavanta yüzeyde; küçük Pofi sağda, sürekli açık İz kaydı altta bulunur. Tasarım seçicisi ve eski alternatifler kaldırılmıştır. Çıkış hatası ve rapor yenileme hatası senaryoları ortak RequestError bileşenini kullanır. Yeniden deneme yalnız örnek hatanın zamanını yeniler; API veya PDKS isteği göndermez. Senaryo sekmeler arasında korunur; “Başlangıca dön” çıkış hatasına döndürür. Önizleme sahibi [bildirim demosudur](../src/demo/notice-preview.tsx).
-### Diğer hata ve bildirim senaryoları
-
-“Hata ekranları” seçicisinde 404 ve uygulama içi hata da bulunur. 404 canlı sayfayla aynı [NotFoundState](../src/components/not-found-state.tsx) bileşenidir; Mesaim'e dönüş bağlantısı demoya döner. Uygulama içi hata, `runtime` sözleşmesiyle ortak RequestError görünümünü gösterir; API isteği/durumu üretilmez. Bu görsel örnek gerçek istisna oluşturmaz ve framework hata sınırının yeniden bağlanma kabulü değildir.
-
-“Bildirimler” seçicisinde tema okuma/yazma, plan okuma/yazma ve eski rapor bilgisi [ortak kompakt bildirimle](../src/components/inline-notice.tsx) gösterilir. Eski rapor senaryosu durum mesajının önizlemesidir; canlı tazelik durum makinesini veya tahmin durdurmayı çalıştırmaz.
-
-Plan alan doğrulaması ve plan modalında kayıt hatası [yerel önizleme](../src/demo/local-preview.tsx) üzerinden “Planı aç” düğmesiyle gerçek PlanEditor bileşenini açar. Doğrulama için saat alanına `0` girilir; geçerli girdi bellekteki örnek planı günceller. Kayıt hatası senaryosu yazmayı reddeder ve son planı korur. Bu etkileşimler tarayıcı depolamasına yazmaz. Pofi defterinde eksik not senaryosu “Defteri aç” düğmesiyle gerçek Notebook ve Modal bileşenlerini açar: ilk seçilecek günün notu yalnız önizleme girdisinden çıkarılır, diğer notlar ve gezinme korunur; kaynak fixture değiştirilmez.
-
-Senaryo seçimleri sekmeler arasında korunur. Modalın açık/kapalı durumu ve örnek plan senaryo veya sekme değişince sıfırlanır. “Başlangıca dön” seçicileri ilk durumlarına getirir. Yerel örnekler yalnız seçildiklerinde yüklenir; ortak DashboardView demo senaryolarını bilmez.
+Önizleme sahipleri: [hatalar](../src/demo/error-preview.tsx), [bildirimler](../src/demo/notice-preview.tsx), [yerel modal senaryoları](../src/demo/local-preview.tsx). Ortak DashboardView bu senaryoları bilmez.
 
 ## Veri ve zaman
 

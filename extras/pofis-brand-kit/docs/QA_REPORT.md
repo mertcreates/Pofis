@@ -1,5 +1,7 @@
 # Pofis — Asset ve UI QA v1.0
 
+> Kullanıcı kaynak paketinin özgün QA kaydıdır; yalnız marka kiti prototipine aittir. Mola düşen örnek hesaplar ve eski görsel sonuçlar güncel Pofis kabulü sayılmaz. Güncel [süre kuralı](../../../docs/rules/recorded-time.md) ve [doğrulama yöntemi](../../../docs/verification.md) kendi sahiplerindedir.
+
 ## Gerçekleştirilen kontroller
 
 - [x] Tam gövde kanonik görsel mevcut: şeffaf PNG ve WebP

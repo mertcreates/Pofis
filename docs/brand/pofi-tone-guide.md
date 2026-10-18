@@ -30,7 +30,7 @@ Pofis'in sistem arayüzü:
 
 Örnekler:
 
-- "Bugünkü süre"
+- "Bugünkü mesai"
 - "Hedefe kalan"
 - "Hedef çıkış"
 - "Mesai devam ediyor"
@@ -243,7 +243,7 @@ Pofis ve Pofi'nin dili şu özellikleri taşımalıdır:
 - Aynı eylemi aynı adla göster. PDKS oturumu için “Bağlan / Bağlantıyı kes”, turnike hareketleri için “Giriş / Çıkış” kullan.
 - Başlık, düğme ve kısa durum etiketlerinde son nokta kullanma. Açıklamalarda ve Pofi'nin cümlelerinde noktalama işaretlerini koru; süren işlemleri “…” ile belirt.
 - Kayıt yokluğunu gözlenen bilgiyle anlat: “Henüz giriş kaydı yok”. Geçmiş bir açık girişte “Eşleşen çıkış kaydı yok” de; kullanıcının hâlâ çalıştığını varsayma.
-- Sürelerde “Kayıtlı süre”, “Canlı toplam” ve “Anlık tahmin” ayrımını koru. Hedef karşılaştırmalarında “Hedefe kalan”, “Hedefin üzerinde” ve “Hedefle aynı” kullan.
+- Sürelerde kayıtlı süre, canlı toplam ve ek tahmin ayrımını koru. Günün akışında “Bugünkü mesai”, “Kayıtlı” ve “Tahmini” kullan; diğer bağlamların etiketleri [süre sözleşmesindedir](../rules/duration.md). Hedef karşılaştırmalarında “Hedefe kalan”, “Hedefin üzerinde” ve “Hedefle aynı” kullan.
 - Hata açıklaması sorunu ve uygulanabilir sonraki adımı söylesin. Teknik ayrıntılarda kullanılan HTTP, API ve PDKS terimlerini kullanıcıya yönelik ana mesajlara gereksiz yere taşıma.
 - Pofi'nin sistem durumunu bildiren başlığı ile kendi gözlemini anlatan mesajını ayır. Kayıt belirsizliğinde açık yönlendirme önceliklidir.
 

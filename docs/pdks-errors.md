@@ -49,11 +49,11 @@ Teknik ayrıntılar kutusuz İz kaydı düzeninde sürekli görünür. “Sorunu
 
 ## Uygulama içi hata ve yerel bildirimler
 
-Rapor hazırlığı veya saat izdüşümündeki beklenmeyen istisnalar [DashboardView](../src/components/dashboard/view.tsx) içinde metne çevrilmez; Next.js hata sınırına ulaşır. [error.tsx](../src/app/error.tsx) güvenli Pofi hata ekranını ve framework yeniden denemesini sunar. Ham istisna mesajı kullanıcıya gösterilmez. `runtime` hatası API isteği sayılmaz; tanıda API HTTP durumu üretilmez. İstek alanı yoksa İz kaydının istek bölümü çizilmez.
+Rapor hazırlığı veya saat izdüşümündeki beklenmeyen istisnalar [DashboardView](../src/components/dashboard/view.tsx) veya [ReportContent](../src/components/dashboard/report-content.tsx) içinde metne çevrilmez; Next.js hata sınırına ulaşır. [error.tsx](../src/app/error.tsx) güvenli Pofi hata ekranını ve framework yeniden denemesini sunar. Ham istisna mesajı kullanıcıya gösterilmez. `runtime` hatası API isteği sayılmaz; tanıda API HTTP durumu üretilmez. İstek alanı yoksa İz kaydının istek bölümü çizilmez.
 
 [InlineNotice](../src/components/inline-notice.tsx) yerel depolama sorunlarını ve eski rapor bilgisini kompakt biçimde sunar. Tema hatasını [AppShell](../src/components/shell/app-shell.js) gösterir; giriş, 404 ve hata ekranları da aynı yolu kullanır. Tema ve plan hataları birbirini gizlemez. Plan hatasının durumu [use-work-plans](../src/data/use-work-plans.ts) sahibindedir: plan modalı açıkken modalda, diğer durumlarda raporun üzerinde gösterilir. Başarılı yazı hatayı temizler; başarısız yazı son kayıtlı planı değiştirmez. Eski rapor mesajı durum bilgisidir; ayrı bir teknik hata veya ikinci yeniden deneme eylemi üretmez.
 
-404, aynı lavanta sahne yerleşiminde Mesaim'e dönüş bağlantısını ve mevcut Pofi etkileşimini korur; API hatası veya teknik tanı üretmez. Not defterinde bulunmayan içerik ve planın geçersiz girdileri kendi bağlamlarında kalır; tam sayfa hata ekranına dönüşmez.
+404, aynı lavanta sahne yerleşiminde Mesaim'e dönüş bağlantısını ve mevcut Pofi etkileşimini korur; API hatası veya teknik tanı üretmez. Not defterinde bulunmayan içerik tarih ve gezinmeyi korur; tam sayfa hata ekranına dönüşmez. Plan düzenleyicisinin stepper sınırları geçersiz süre seçimini engeller; kapasite ve kayıt sorunları modalda açıklanır.
 
 ## Doğrulama
 

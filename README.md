@@ -30,9 +30,7 @@ Yerelde `build` doğrudan `next build`, `start` ise `next start --hostname 127.0
 
 ## Masaüstü altyapısı
 
-Pofis mevcut Next standalone uygulamasını Electron’un dahili Node.js runtime’ıyla kendi Electron penceresinde açar. Windows x64 ve macOS Apple Silicon/Intel ortak kabuk, sunucu, paketleyici ve manifest üreticisini kullanır; son kullanıcıda Node/Bun kurulumu gerekmez. `desktop:prepare`, `desktop`, `desktop:package`, `desktop:release` komutları hedef işletim sisteminde aynı şekilde çalışır. Windows için tek komut kurulum/güncelleme ve geri dönüş uygulanır. macOS kod altyapısı hazırdır; gerçek macOS paket/cihaz kabulü ve macOS kurulum betiği bekler. Hosting henüz yayımlanmış değildir. [Platformlar, yerel kurulum komutu ve kabul listesi](docs/desktop.md).
-
-Landing bağımsız `../pofis-landing` projesindedir. Cloudflare Pages + GitHub Releases girdilerini, yerel release sonrasında `bun run desktop:site` hazırlar. [Yayın sırası ve kabul](docs/desktop.md#pofisapp-yayın-hazırlığı).
+Windows ve macOS Electron kabuğu aynı uygulamayı Next standalone ve dahili Node.js ile açar; son kullanıcıda Node/Bun kurulumu gerekmez. Geliştirme/paketleme komutları, Windows kurulum ve güncellemesi, bağımsız landing yayını ve platform kabul durumu [masaüstü rehberindedir](docs/desktop.md). Açık kabul işleri [görev listesinde](tasks/todo.md) tutulur.
 
 ## Belgeler
 
