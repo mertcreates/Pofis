@@ -60,11 +60,13 @@ export function weekLabel(
   const end = addDays(start, 6);
   const showYear =
     today && (isDifferentYear(start, today) || isDifferentYear(end, today));
-  return dateFormatter({
+  const label = dateFormatter({
     day: "numeric",
     month: short ? "short" : "long",
     ...(showYear ? { year: "numeric" } : {}),
   }).formatRange(new Date(`${start}T12:00:00Z`), new Date(`${end}T12:00:00Z`));
+  // ICU versions use different range spacing on the server and in browsers.
+  return label.replace(/\s+/g, " ");
 }
 
 export function formatClock(at: number | null, seconds = true): string {
