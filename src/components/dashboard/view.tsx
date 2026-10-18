@@ -14,9 +14,7 @@ import { InlineNotice } from "../inline-notice";
 import { useAppearance } from "@/data/use-appearance";
 import { DashboardHeader } from "./header";
 import { DashboardMetrics } from "./metrics";
-import { DayFlow } from "../attendance/day-flow";
 import { WeekChart } from "../attendance/week-chart";
-import { DailyRecords, RecordsDialog } from "../attendance/records";
 import { ReportTable } from "../attendance/report-table";
 import { PofiPanel } from "./pofi-panel";
 import PofiCall from "../pofi-call.js";
@@ -52,7 +50,7 @@ export function DashboardView({
   children?: ReactNode;
 }) {
   const appearance = useAppearance();
-  const [dialog, setDialog] = useState<"plan" | "room" | "records" | null>(
+  const [dialog, setDialog] = useState<"plan" | "room" | null>(
     null,
   );
   const today = dateKey(now);
@@ -171,9 +169,12 @@ export function DashboardView({
                   />
                   {isCurrent && todayReport && (
                     <div className="middle-grid">
-                      <DayFlow
-                        day={todayReport}
-                        target={todayReport.source.exitGoalSeconds}
+                      <WeekChart
+                        days={days}
+                        today={today}
+                        start={week}
+                        current={isCurrent}
+                        blocked={presentation.blocked}
                       />
                       <PofiPanel
                         key={today}
@@ -183,9 +184,7 @@ export function DashboardView({
                       />
                     </div>
                   )}
-                  <div
-                    className={isCurrent ? "bottom-grid" : "weekly-chart-list"}
-                  >
+                  {!isCurrent && (
                     <div className="weekly-chart-list">
                       <WeekChart
                         days={days}
@@ -194,17 +193,9 @@ export function DashboardView({
                         current={isCurrent}
                         blocked={presentation.blocked}
                       />
-                    </div>
-                    {isCurrent && todayReport && (
-                      <DailyRecords
-                        day={todayReport}
-                        onAll={() => setDialog("records")}
-                      />
-                    )}
-                    {!isCurrent && (
                       <ReportTable days={days} today={today} />
-                    )}
-                  </div>
+                    </div>
+                  )}
                   {isCurrent && (
                     <ReportTable days={days} today={today} />
                   )}
@@ -245,9 +236,6 @@ export function DashboardView({
             notes={source?.pofiNotes}
             onClose={() => setDialog(null)}
           />
-        )}
-        {connected && dialog === "records" && todayReport && (
-          <RecordsDialog day={todayReport} onClose={() => setDialog(null)} />
         )}
       </AppShell>
       <PofiCall />

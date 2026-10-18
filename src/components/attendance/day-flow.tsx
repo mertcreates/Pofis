@@ -2,10 +2,11 @@
 
 import type { CSSProperties } from "react";
 import { targetExitAt } from "@/domain/rules/work-plan";
+import { dateKey } from "@/domain/rules/calendar";
 import { ui } from "@/lib/ui-text.js";
 import type { DayReport } from "@/domain/attendance";
 import { durationText, formatClock, formatDate } from "@/domain/time";
-import { DurationTrack } from "../primitives";
+import { Duration, DurationTrack } from "../primitives";
 import { stateLabel } from "./labels";
 import "./day-flow.css";
 
@@ -15,6 +16,7 @@ export function DayFlow({ day, target }: { day: DayReport; target: number | null
   const hasRecorded = day.recordedSeconds !== null;
   const hasDuration = hasRecorded || live;
   const targetAt = targetExitAt(day.firstEntry, target);
+  const delta = targetAt !== null && target !== null ? total - target : null;
   const endAt = day.firstEntry === null ? day.lastExit : Math.max(
     day.firstEntry + total * 1000,
     day.lastExit ?? day.firstEntry,
@@ -39,6 +41,16 @@ export function DayFlow({ day, target }: { day: DayReport; target: number | null
           {formatDate(day.date, { day: "numeric", month: "long", weekday: "long" })}
         </time>
       </div>
+      <div className="rail-elapsed">
+        <span>{ui.todayWork}</span>
+        <strong><Duration seconds={hasDuration ? total : null} /></strong>
+        {delta !== null && (
+          <span className="rail-target-delta">
+            <span>{delta >= 0 ? ui.targetOver : ui.targetRemaining}</span>
+            <b>{delta >= 0 && "+"}<Duration seconds={Math.abs(delta)} /></b>
+          </span>
+        )}
+      </div>
       <div className="rail-chart" role="img" aria-label={summary}>
         <div className="rail-track" style={{
           "--rail-position": `${total / extent * 100}cqw`,
@@ -59,13 +71,15 @@ export function DayFlow({ day, target }: { day: DayReport; target: number | null
         </div>
         {targetAt !== null && (
           <div className="rail-target-row" style={{ "--rail-target-position": `${(target ?? 0) / extent * 100}cqw` } as CSSProperties}>
-            <div className="rail-target-label"><span>{ui.targetLabel}</span><time>{formatClock(targetAt)}</time></div>
+            <div className="rail-target-label"><span>{ui.targetExit}</span><time>{formatClock(targetAt)}
+              {dateKey(targetAt) !== day.date && ` · ${formatDate(dateKey(targetAt))}`}</time>
+            </div>
           </div>
         )}
       </div>
       <div className="rail-legend">
-        <span><i aria-hidden="true" />{ui.recordedTime}</span>
-        {live && <span title={ui.liveEstimateDescription}><i aria-hidden="true" />{ui.liveEstimateLabel}</span>}
+        <span><i aria-hidden="true" />{ui.recordedShort}</span>
+        {live && <span title={ui.liveEstimateDescription}><i aria-hidden="true" />{ui.estimatedShort}</span>}
       </div>
     </section>
   );

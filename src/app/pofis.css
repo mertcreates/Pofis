@@ -43,7 +43,7 @@
   gap: 14px;
   margin-bottom: 16px;
 }
-.metrics.metrics-today { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.metrics.metrics-today { grid-template-columns: minmax(0, 1.65fr) minmax(0, 1fr); }
 .metrics-today .duration-seconds { display: inline; }
 .metric {
   display: flex;
@@ -70,12 +70,10 @@
   color: var(--accent);
 }
 .metric-tag {
-  background: var(--accent-soft);
   color: var(--accent-text);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  border-radius: 7px;
-  padding: 6px 8px;
+  font-variant-numeric: tabular-nums;
 }
 .metric-value {
   font-size: 29px;
@@ -1552,8 +1550,7 @@ body {
     font-size: 10px;
   }
   .metric-tag {
-    font-size: 10px;
-    padding: 4px 6px;
+    font-size: 11px;
   }
   .duration-seconds {
     display: block;
@@ -1619,6 +1616,11 @@ body {
 }
 @media (max-width: 700px) {
   .metrics.metrics-today { grid-template-columns: 1fr; }
+  .dashboard .metric { min-height: 0; padding-block: 14px; }
+  .dashboard .metric-reading { min-height: 0; }
+  .dashboard .metric-value { margin-top: 10px; margin-bottom: 8px; }
+  .dashboard .metric-details { padding-top: 8px; }
+  .dashboard .progress-panel { min-height: 0; }
 }
 @media (prefers-reduced-motion: reduce) {
   .chart-tooltip {

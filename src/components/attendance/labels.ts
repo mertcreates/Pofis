@@ -22,9 +22,3 @@ export function stateLabel(day: DayReport) {
       return ui.recordedDay;
   }
 }
-export function passageSummary(day: DayReport) {
-  const closedIntervals = day.intervals.filter(
-    (interval) => interval.entry !== null && interval.exit !== null,
-  );
-  return ui.passageOverview(day.records.length, closedIntervals.length);
-}
