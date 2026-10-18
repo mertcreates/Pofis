@@ -41,8 +41,8 @@ Landing'in `public/_headers` dosyası installer ve manifestlere `Cache-Control: 
 
 ## Yayın sonrası HTTPS kabulü
 
-1. `https://pofis.app/` sayfasını, macOS ve Windows PowerShell sekmelerini, Windows komutunu ve kopyalama düğmesini kontrol et. macOS installer hazır olana kadar sekmesinde durum metni gösterilir.
-2. `https://pofis.app/install.ps1` düz metin ve UTF-8, üç `https://pofis.app/releases/<hedef>/latest.json` adresi JSON dönmeli. Installer ve manifestlerde `Cache-Control: no-store` bulunmalı; içerikler beklenen dosyalarla eşleşmeli.
+1. `https://pofis.app/` sayfasını, macOS ve Windows PowerShell sekmelerini, iki komutu ve kopyalama düğmesini kontrol et. macOS komutu: `curl -fsSL https://pofis.app/install.sh | /bin/bash`.
+2. `https://pofis.app/install.ps1` ve `https://pofis.app/install.sh` düz metin ve UTF-8, üç `https://pofis.app/releases/<hedef>/latest.json` adresi JSON dönmeli. Installer ve manifestlerde `Cache-Control: no-store` bulunmalı; içerikler beklenen dosyalarla eşleşmeli.
 3. Public manifestlerdeki ZIP'leri anonim indir; boyut ve SHA-256 değerlerini karşılaştır.
 4. Windows'ta `irm https://pofis.app/install.ps1 | iex` komutuyla kurulum → otomatik açılış → simgeden açılış → aynı komutla güncel sürüm kontrolünü tamamla. Yeni sürümde veri koruma ve geri dönüşü doğrula.
 
@@ -62,17 +62,17 @@ Bu adımlar canlı hosting ve paket yayını sonrasında uygulanır. Yerel hazı
 
 Üç hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Her biri kilitli bağımlılıkları kurar, tür kontrolünü ve testleri çalıştırır; Next standalone/Electron paketini üretir. Gerçek paket üzerinde ortak pencere/süreç kabulü çalışır. Windows ayrıca gerçek ZIP ve landing komutuyla izole PowerShell ilk kurulum/açılış kabulünü çalıştırır. Bu kısa kabul tam güncelleme/geri dönüş testinin veya temiz cihaz testinin yerine geçmez.
 
-macOS paketleyici ad-hoc imzalı `.app` üretir; ZIP `ditto` ile izin ve bağlantıları korur. Developer ID/notarization eklenmez. macOS tek komut installer'ı henüz yoktur; landing'deki macOS sekmesi kurulum komutu göstermeye başlamaz. Native CI pencere testi, indirilen uygulamanın Gatekeeper kabulünü kanıtlamaz.
+macOS paketleyici ad-hoc imzalı `.app` üretir; ZIP `ditto` ile izin ve bağlantıları korur. Developer ID/notarization eklenmez. Ortak Bash 3.2 installer'ı iki mimaride kullanılır. Her macOS job'u gerçek ZIP ile ilk kurulum, simgeden açılış, aynı sürüm/ikinci açılış, güncelleme, bozuk indirme, dolu port, gerçek sunucu hatasında geri dönüş, profil kalıcılığı ve kurulum kilidi kabulünü çalıştırır. Native CI, indirilen uygulamanın temiz cihazdaki Gatekeeper kabulünü kanıtlamaz.
 
 ## Yayın sırası ve hata davranışı
 
 [Yayın betiği](../scripts/electron/publish.cjs):
 
 1. Sürümü, public hedef depoyu, `main` dalını ve sürüm düşürülmediğini doğrular; draft release açar.
-2. Üç native job test edilmiş ZIP'lerini draft'a yükler. Her platformda manifest son yüklenir. Windows `install.ps1` dosyası da asset olur.
-3. Tüm işler başarılıysa paketler tekrar indirilip boyut/SHA-256 ile doğrulanır; üç public manifest ve Windows installer hazırlanır. Landing typecheck/static build çalışır.
-4. Release yayımlanır. Üç ZIP anonim HTTPS üzerinden tekrar indirilip doğrulanır. Ancak bu kontrol geçerse landing değişiklikleri commit edilip `main` dalına gönderilir. Git'e yalnız dört izinli public dosya girebilir; kaynak ve ZIP aktarımı reddedilir.
-5. Cloudflare commit'i yayımlar. Betik en fazla beş dakika HTTPS landing, üç manifestin tam içeriği/cache başlıkları ve Windows installer içeriği/başlıklarını kontrol eder. Başarısızsa workflow başarısız olur; mevcut paketi silmez veya başarı göstermez.
+2. Üç native job test edilmiş ZIP'lerini draft'a yükler. Her platformda manifest son yüklenir. Windows `install.ps1`, macOS job'ları mimariyle adlandırılan `install-darwin-<mimari>.sh` asset'lerini yükler. İki macOS installer'ının aynı canonical kaynakla eşleşmesi doğrulanır; public sitede ortak `install.sh` sunulur.
+3. Tüm işler başarılıysa paketler tekrar indirilip boyut/SHA-256 ile doğrulanır; üç public manifest ve iki installer hazırlanır. Landing typecheck/static build çalışır.
+4. Release yayımlanır. Üç ZIP anonim HTTPS üzerinden tekrar indirilip doğrulanır. Ancak bu kontrol geçerse landing değişiklikleri commit edilip `main` dalına gönderilir. Git'e yalnız beş izinli public dosya girebilir; kaynak ve ZIP aktarımı reddedilir.
+5. Cloudflare commit'i yayımlar. Betik en fazla beş dakika HTTPS landing, üç manifestin tam içeriği/cache başlıkları ve iki installer'ın içeriği/başlıklarını kontrol eder. Başarısızsa workflow başarısız olur; mevcut paketi silmez veya başarı göstermez.
 
 Release işlemleri ortak concurrency grubunda sıralanır. Yeniden denemede aynı **sürüm ve kaynak commit'i** kullanılır: tamamlanmış platform paketleri hash doğrulanarak draft/yayımlanmış release'den alınır, yeniden build edilmez. Yalnız otomasyonun kendi draft'ında ilgili platformun eksik dosyaları temizlenir. Son birleştirme aşaması ve yayımlanmış release dosya silmez. Aynı sürüm farklı kaynak commit'iyle sürdürülemez; yeni içerik için yeni sürüm gerekir. Release gövdesinde yalnız build commit kimliği bulunur; kaynak dosyalar yayımlanmaz.
 
@@ -88,3 +88,5 @@ Yerel birim testleri sürüm/manifest, public dosya sınırı, kaynak commit eş
 - [GitHub Actions kullanım ücretleri ve kotaları](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
 - [GitHub kimlik doğrulama](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github)
 - [Cloudflare Pages GitHub entegrasyonu](https://developers.cloudflare.com/pages/configuration/git-integration/github-integration/)
+- [bsdtar arşiv güvenliği](https://github.com/libarchive/libarchive/blob/master/tar/bsdtar.1)
+- [macOS mv -h bağlantı değiştirme](https://github.com/apple-oss-distributions/file_cmds/blob/main/mv/mv.1)

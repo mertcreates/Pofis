@@ -7,7 +7,7 @@ const { rebrandMacBundle, signMacBundle } = require("./macos.cjs");
 const { prepareIcons } = require("./icons.cjs");
 
 async function prepare() {
-  if (!process.versions.bun) throw new Error("Paketleyiciyi Bun ile çalıştırın.");
+  if (!process.versions.bun) throw new Error("Paketleyiciyi Bun ile çalıştır.");
   const target = platformTarget();
   const root = resolve(__dirname, "../..");
   const icons = await prepareIcons(join(root, "public", "pofi", "pofi-mark-256.png"), join(root, "dist", "electron", "icons"));
@@ -23,7 +23,7 @@ async function prepare() {
     });
   const installed = JSON.parse(stdout.trim());
   if (installed.platform !== target.platform || installed.arch !== target.arch) {
-    throw new Error(`Electron ${installed.platform}/${installed.arch}, Bun ${target.id}. İkisini aynı platform ve mimariyle hazırlayın.`);
+    throw new Error(`Electron ${installed.platform}/${installed.arch}, Bun ${target.id}. İkisini aynı platform ve mimariyle hazırla.`);
   }
   const standalone = join(root, ".next", "standalone");
   await access(join(standalone, "server.js"));
@@ -59,7 +59,7 @@ async function prepare() {
   if (target.platform === "darwin") {
     await signMacBundle(join(output, "Pofis.app"));
   }
-  console.log(`Pofis paketi (${target.id}): ${output}\n${target.platform === "darwin" ? "Pofis.app" : "Pofis.exe"} dosyasını açın. Node/Bun kurulumu gerekmez.`);
+  console.log(`Pofis paketi (${target.id}): ${output}\n${target.platform === "darwin" ? "Pofis.app" : "Pofis.exe"} dosyasını aç. Node/Bun kurulumu gerekmez.`);
 }
 
 prepare().catch((error) => { console.error(error.message); process.exitCode = 1; });

@@ -39,3 +39,30 @@ test("yalnız doğrulanmış paketin public manifestini ve installer'ını aktar
     expect(await readFile(publishedPath, "utf8")).toBe(published);
   } finally { await rm(root, { recursive: true, force: true }); }
 });
+
+for (const arch of ["arm64", "x64"]) test(`macOS ${arch}: ortak installer ve doğru manifest yolu aktarılır`, async () => {
+  const root = await mkdtemp(join(tmpdir(), "pofis-mac-site-"));
+  try {
+    const siteDirectory = join(root, "site");
+    const releaseDirectory = join(root, "release");
+    const installerPath = join(root, "install.sh");
+    await mkdir(siteDirectory);
+    await mkdir(join(releaseDirectory, "1.2.3"), { recursive: true });
+    await mkdir(join(siteDirectory, "public"));
+    await writeFile(join(siteDirectory, "public/install.ps1"), "Windows korunur");
+    await writeFile(join(siteDirectory, "package.json"), JSON.stringify({ name: "pofis-landing",
+      repository: { url: "https://github.com/example/pofis-landing.git" } }));
+    const bytes = Buffer.from("macOS aktarım fixture'ı; .app çalıştırma kabulü değildir");
+    const name = `Pofis-1.2.3-darwin-${arch}.zip`;
+    await writeFile(join(releaseDirectory, "1.2.3", name), bytes);
+    await writeFile(join(releaseDirectory, "latest.json"), JSON.stringify({ schemaVersion: 1,
+      platform: "darwin", arch, version: "1.2.3", size: bytes.length,
+      sha256: createHash("sha256").update(bytes).digest("hex"), url: `1.2.3/${name}` }));
+    await writeFile(installerPath, "#!/bin/bash\nprintf 'Pofis'\n");
+    const { manifest } = await prepareSite({ siteDirectory, releaseDirectory, installerPath });
+    expect(manifest.url).toBe(`https://github.com/example/pofis-landing/releases/download/v1.2.3/${name}`);
+    expect(JSON.parse(await readFile(join(siteDirectory, "public/releases/macos", arch, "latest.json"), "utf8"))).toEqual(manifest);
+    expect(await readFile(join(siteDirectory, "public/install.sh"), "utf8")).toBe("#!/bin/bash\nprintf 'Pofis'\n");
+    expect(await readFile(join(siteDirectory, "public/install.ps1"), "utf8")).toBe("Windows korunur");
+  } finally { await rm(root, { recursive: true, force: true }); }
+});

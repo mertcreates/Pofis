@@ -97,7 +97,7 @@ function createDesktopServer({ root, fork, sessionDirectory, onUnexpectedExit, p
     isHealthy,
     async start() {
       await access(join(root, "server.js")).catch(() => {
-        throw new Error("Standalone sunucu bulunamadı. Pofis paketini eksiksiz kurun; geliştirmede bun run desktop:prepare çalıştırın.");
+        throw new Error("Pofis sunucu dosyaları bulunamadı. Uygulamayı yeniden kur. Geliştirme ortamında bun run desktop:prepare çalıştır.");
       });
       const selectedPort = await selectPort(port);
       origin = `http://${HOST}:${selectedPort}`;
@@ -115,7 +115,7 @@ function createDesktopServer({ root, fork, sessionDirectory, onUnexpectedExit, p
         controller.abort();
       });
       child.once("exit", (code) => {
-        failure = new Error(`Pofis sunucusu kapandı (kod: ${code}). Pofis'i yeniden açın; gerekirse uygulamayı yeniden kurun.`);
+        failure = new Error(`Pofis sunucusu kapandı (kod: ${code}). Pofis'i yeniden aç; gerekirse uygulamayı yeniden kur.`);
         controller.abort();
         if (ready && !stopping) onUnexpectedExit(failure);
       });
@@ -129,7 +129,7 @@ function createDesktopServer({ root, fork, sessionDirectory, onUnexpectedExit, p
         }
         await delay(150, undefined, { signal: controller.signal }).catch(() => {});
       }
-      throw failure || new Error(stopping ? "Başlatma iptal edildi." : "Sunucu 30 saniye içinde hazır olmadı. Pofis'i yeniden açın.");
+      throw failure || new Error(stopping ? "Başlatma iptal edildi." : "Sunucu 30 saniye içinde hazır olmadı. Pofis'i yeniden aç.");
     },
     stop() {
       stopping = true;

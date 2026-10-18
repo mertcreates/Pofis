@@ -9,7 +9,7 @@ const { ORIGIN, stopProcessTree } = require("../../electron/server.cjs");
 
 const root = resolve(__dirname, "../..");
 if (process.platform !== "win32") {
-  throw new Error("Bu betik Windows kurulumunu sınar. Ortak paket kabulü için bun run test:desktop:smoke kullanın.");
+  throw new Error("Bu betik Windows kurulumunu sınar. Ortak paket kabulü için bun run test:desktop:smoke kullan.");
 }
 const powershell = join(process.env.SystemRoot, "System32/WindowsPowerShell/v1.0/powershell.exe");
 const env = { ...process.env, PATH: join(process.env.SystemRoot, "System32") };
@@ -62,7 +62,7 @@ async function run() {
       ["[string]$ShortcutPath = (Join-Path ([Environment]::GetFolderPath('Programs')) 'Pofis.lnk')", `[string]$ShortcutPath = ${quote(shortcut)}`],
       ["[string]$UserDataDir = (Join-Path $env:APPDATA 'Pofis')", `[string]$UserDataDir = ${quote(profile)}`],
     ]) {
-      assert.ok(siteInstaller.includes(original), "İzole installer parametresi bulunamadı.");
+      assert.ok(siteInstaller.includes(original), "İzole kurulum parametresi bulunamadı.");
       siteInstaller = siteInstaller.replace(original, replacement);
     }
   }
@@ -139,7 +139,7 @@ async function run() {
   const passed = name => console.log(`PASS: ${name}`);
   try {
     if (!startupOnly) {
-      console.log("Gerçek dağıtım ZIP varyantları hazırlanıyor...");
+      console.log("Dağıtım testleri için ZIP paketleri hazırlanıyor…");
       const variants = await ps(`& ${quote(join(__dirname, "fixtures/release-variants.ps1"))} -SourceArchive ${quote(join(releases, first.url))} -OutputDirectory ${quote(directory)}`).done;
       assert.equal(variants.code, 0, variants.output);
     }

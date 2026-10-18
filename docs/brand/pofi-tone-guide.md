@@ -249,6 +249,12 @@ Pofis ve Pofi'nin dili şu özellikleri taşımalıdır:
 
 Ortak arayüz metinlerinin sahibi [ui-text.js](../../src/lib/ui-text.js) dosyasıdır. Pofi notlarının metinleri [içerik kataloğunda](../pofi-notes.md) yönetilir.
 
+### Kurulum, güncelleme ve geliştirici çıktıları
+
+Kurulum, derleme, paketleme, yayın ve uygulama açılışında Pofis'in sistem sesini kullan. Kısa durumlar “Pofis indiriliyor…”, “Paket doğrulanıyor…” ve “Pofis hazır” gibi doğrudan olsun. Hatalarda gözlenen sorunu ve uygulanabilir sonraki adımı söyle: “Pofis açık. Uygulamayı kapatıp aynı komutu yeniden çalıştır.”
+
+Komutları, dosya yollarını, sürümleri ve tanılama için gerekli teknik ayrıntıları koru. Açıklamalarda “build”, “installer” ve “draft release” yerine “derleme”, “kurulum betiği” ve “sürüm taslağı” kullan. Bu metinler ilgili betiklerde yönetilir. Teknik durumları Pofis’in sesiyle, hata mesajlarını doğrudan yönlendirmeyle anlat.
+
 ## 12. Yeni metin üretirken kontrol et
 
 Her öneriden sonra şu soruları sor:

@@ -54,4 +54,6 @@ Yerel oturum ölçümü için `bun scripts/benchmark-sessions.ts 100` çalışt�
 
 ## Sonuçların yönetimi
 
+macOS installer için `bun scripts/electron/macos-distribution-test.cjs --site ../pofis-landing` gerçek macOS runner'ında gerçek ZIP kullanır; iki release job'u bunu otomatik çalıştırır. İlk kurulum/pencere, Finder uygulama yolu, aynı sürüm/tek örnek, alternatif port, indirme hatası, açıkken güncelleme, sürüm yükseltme, gerçek sunucu hatasında geri dönüş, profil dosyası kalıcılığı, kurulum kilidi ve çökme sonrası yeniden açılışı sınar. Bash/sürüm/arşiv yolu birim testleri bu native kabulün yerine geçmez. Gatekeeper ve gerçek PDKS oturumu ayrıca doğrulanır.
+
 Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulamaların rapor, ekran görüntüsü ve ölçüm çıktılarını temizleyin. Geçerli ürün kararlarını ilgili sözleşmeye, açık bulguları görev listesine taşıyın. Davranış testleri ve demo üzerinden elle tarayıcı kabulü doğrulama yönteminin parçasıdır.

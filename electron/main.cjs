@@ -32,7 +32,7 @@ async function report(status, message) {
 async function focusAndReport() {
   if (!ready || quitting || reportingFailure) return;
   if (!window || window.isDestroyed() || window.webContents.isDestroyed() || !(await server.isHealthy())) {
-    await report("error", "Pofis açık ancak sağlıklı değil. Uygulamayı kapatıp yeniden açın.");
+    await report("error", "Pofis açık ancak kullanıma hazır değil. Uygulamayı kapatıp yeniden aç.");
     return;
   }
   if (window.isMinimized()) window.restore();
@@ -72,7 +72,7 @@ if (!app.requestSingleInstanceLock()) {
     if (!server) { app.quit(); return; }
     server.stop().then(() => app.quit()).catch(async () => {
       await dialog.showMessageBox({ type: "error", title: "Pofis", message:
-        "Pofis'in sunucu süreci kapatılamadı. Sistem süreç yöneticisinden kontrol edin." });
+        "Pofis'in sunucu süreci kapatılamadı. Sistem süreç yöneticisinden kontrol et." });
       app.quit();
     });
   });
@@ -129,7 +129,7 @@ if (!app.requestSingleInstanceLock()) {
     window.webContents.on("will-navigate", restrictNavigation);
     window.webContents.on("will-redirect", restrictNavigation);
     window.webContents.on("will-attach-webview", (event) => event.preventDefault());
-    window.webContents.on("render-process-gone", () => fail(new Error("Pofis arayüzü kapandı. Uygulamayı yeniden açın.")));
+    window.webContents.on("render-process-gone", () => fail(new Error("Pofis arayüzü kapandı. Uygulamayı yeniden aç.")));
     const painted = new Promise(resolve => window.once("ready-to-show", resolve));
     await window.loadURL(ORIGIN);
     await painted;

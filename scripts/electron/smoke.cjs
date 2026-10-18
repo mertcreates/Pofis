@@ -14,7 +14,7 @@ async function until(check, timeout = 30000) {
     if (result) return result;
     await Bun.sleep(100);
   }
-  throw new Error("Windows kabul kontrolü zaman aşımı.");
+  throw new Error("Pofis açılış testi zaman aşımına uğradı.");
 }
 
 function connect(url) {

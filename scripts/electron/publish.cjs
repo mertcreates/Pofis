@@ -8,18 +8,18 @@ const { checkVersion, run } = require("./ci-build.cjs");
 const REPOSITORY = "mertcreates/pofis-landing";
 const TARGETS = ["win32-x64", "darwin-arm64", "darwin-x64"];
 const RELEASE_MARKER = "Pofis ortak sürüm otomasyonu.";
-const PUBLIC_FILES = ["public/install.ps1", "public/releases/windows/latest.json",
+const PUBLIC_FILES = ["public/install.ps1", "public/install.sh", "public/releases/windows/latest.json",
   "public/releases/macos/arm64/latest.json", "public/releases/macos/x64/latest.json"];
 const root = resolve(__dirname, "../..");
 const delay = ms => new Promise(done => setTimeout(done, ms));
 
 function releaseBody(version) {
   if (!/^[a-f0-9]{40}$/.test(process.env.GITHUB_SHA || "")) throw new Error("Kaynak commit kimliği geçersiz.");
-  return `Pofis ${version}\n\nWindows x64, macOS Apple Silicon ve Intel paketleri.\nmacOS tek komut installer desteği henüz sunulmuyor.\n\n${RELEASE_MARKER}\nBuild: ${process.env.GITHUB_SHA}`;
+  return `Pofis ${version}\n\nWindows x64, macOS Apple Silicon ve Intel paketleri.\n\n${RELEASE_MARKER}\nKaynak commit: ${process.env.GITHUB_SHA}`;
 }
 
 function assertRelease(release, version) {
-  if (!release || release.body !== releaseBody(version)) throw new Error("Release bu kaynak commit'iyle üretilmemiş; yeni sürüm kullanın.");
+  if (!release || release.body !== releaseBody(version)) throw new Error("Sürüm bu kaynak commit ile üretilmemiş. Yeni bir sürüm numarası kullan.");
 }
 
 function targetFor(id) {
@@ -39,14 +39,14 @@ function assertManifest(manifest, version, id) {
 }
 
 function assertPublicChanges(paths) {
-  if (paths.some(path => !PUBLIC_FILES.includes(path))) throw new Error("Landing'de dağıtım kapsamı dışında değişiklik var.");
+  if (paths.some(path => !PUBLIC_FILES.includes(path))) throw new Error("Site deposunda dağıtım kapsamı dışında değişiklik var.");
 }
 
 function assertNoDowngrade(current, next) {
   const a = current.split(".").map(Number);
   const b = next.split(".").map(Number);
   for (let i = 0; i < 3; i++) {
-    if (a[i] > b[i]) throw new Error("Landing daha yeni sürümde; eski sürüm etkinleştirilemez.");
+    if (a[i] > b[i]) throw new Error("Sitedeki sürüm daha yeni; eski sürüm etkinleştirilemez.");
     if (a[i] < b[i]) return;
   }
 }
@@ -65,9 +65,9 @@ async function verifyDownload(response, manifest, save = async () => {}) {
 }
 
 async function api(path, { method = "GET", body, raw = false, missing = false, upload } = {}) {
-  if (!process.env.GH_TOKEN) throw new Error("POFIS_RELEASE_TOKEN secret'ı tanımlanmalı.");
+  if (!process.env.GH_TOKEN) throw new Error("Depo sırlarına POFIS_RELEASE_TOKEN ekle.");
   const url = upload || `https://api.github.com/repos/${REPOSITORY}/${path}`;
-  if (upload && !upload.startsWith(`https://uploads.github.com/repos/${REPOSITORY}/releases/`)) throw new Error("Geçersiz asset yükleme adresi.");
+  if (upload && !upload.startsWith(`https://uploads.github.com/repos/${REPOSITORY}/releases/`)) throw new Error("Geçersiz dosya yükleme adresi.");
   const response = await fetch(url, { method, signal: AbortSignal.timeout(180000), headers: {
     Authorization: `Bearer ${process.env.GH_TOKEN}`, "X-GitHub-Api-Version": "2022-11-28",
     Accept: raw ? "application/octet-stream" : "application/vnd.github+json",
@@ -81,13 +81,16 @@ async function api(path, { method = "GET", body, raw = false, missing = false, u
 async function getRelease(version) { return api(`releases/tags/v${version}`, { missing: true }); }
 function manifestName(id) { return `manifest-${id}.json`; }
 function assetNames(version, id) {
-  return [`Pofis-${version}-${id}.zip`, ...(id === "win32-x64" ? ["install.ps1"] : []), manifestName(id)];
+  return [`Pofis-${version}-${id}.zip`, installerAsset(id), manifestName(id)];
 }
+// Each native job owns its own assets; the two macOS jobs never race on install.sh.
+function installerAsset(id) { return id === "win32-x64" ? "install.ps1" : `install-${id}.sh`; }
+function installerFile(id) { return id === "win32-x64" ? "install.ps1" : "install.sh"; }
 function releaseDirectory(id) { return join(root, "dist/releases", targetFor(id).releaseDirectory); }
 
 async function readAsset(release, name, raw = false) {
   const asset = release.assets.find(item => item.name === name && item.state === "uploaded");
-  if (!asset || !Number.isSafeInteger(asset.id)) throw new Error(`Release asset'i eksik: ${name}`);
+  if (!asset || !Number.isSafeInteger(asset.id)) throw new Error(`Sürüm dosyası eksik: ${name}`);
   const response = await api(`releases/assets/${asset.id}`, { raw: true });
   return raw ? response : response.json();
 }
@@ -96,7 +99,7 @@ async function recover(version, id, release, allowCleanup = true) {
   const names = assetNames(version, id);
   const present = names.filter(name => release.assets.some(asset => asset.name === name && asset.state === "uploaded"));
   if (present.length !== names.length) {
-    if (!release.draft || !allowCleanup) throw new Error(`Release eksik: ${id}`);
+    if (!release.draft || !allowCleanup) throw new Error(`Sürüm paketi eksik: ${id}`);
     // These are only this platform's incomplete, generated draft assets, never published files.
     for (const asset of release.assets.filter(asset => names.includes(asset.name))) {
       await api(`releases/assets/${asset.id}`, { method: "DELETE" });
@@ -116,26 +119,27 @@ async function recover(version, id, release, allowCleanup = true) {
   await file.close();
   const local = { ...manifest, url: `${version}/${names[0]}` };
   await writeFile(join(directory, "latest.json"), JSON.stringify(local, null, 2) + "\n");
-  if (id === "win32-x64") {
-    const response = await readAsset(release, "install.ps1", true);
+  {
+    const response = await readAsset(release, installerAsset(id), true);
     const installer = await response.text();
-    if (!installer.includes("https://pofis.app/releases/windows/latest.json") || installer.length > 256000) throw new Error("Installer asset'i geçersiz.");
-    await writeFile(join(directory, "install.ps1"), installer);
+    const canonical = (await readFile(join(__dirname, installerFile(id)), "utf8")).replace(/^\uFEFF/, "");
+    if (installer !== canonical) throw new Error("Kurulum betiği kaynak commit ile eşleşmiyor.");
+    await writeFile(join(directory, installerFile(id)), installer);
   }
   if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, "reuse=true\n");
-  console.log(`${id}: daha önce doğrulanmış paket indirildi; yeniden build yapılmayacak.`);
+  console.log(`${id}: daha önce doğrulanmış paket indirildi; yeniden derleme gerekmiyor.`);
   return true;
 }
 
 async function assertSite(site, version) {
   const pkg = JSON.parse(await readFile(join(site, "package.json"), "utf8"));
-  if (pkg.name !== "pofis-landing" || pkg.repository?.url !== `https://github.com/${REPOSITORY}.git`) throw new Error("Landing hedefi eşleşmiyor.");
+  if (pkg.name !== "pofis-landing" || pkg.repository?.url !== `https://github.com/${REPOSITORY}.git`) throw new Error("Tanıtım sitesinin deposu eşleşmiyor.");
   if ((await run("git", ["branch", "--show-current"], site)) !== "main" ||
       (await run("git", ["remote", "get-url", "origin"], site)) !== `https://github.com/${REPOSITORY}.git`) {
-    throw new Error("Landing main dalı ve origin adresi doğrulanamadı.");
+    throw new Error("Site deposunun main dalı ve origin adresi doğrulanamadı.");
   }
   const current = JSON.parse(await readFile(join(site, "public/releases/windows/latest.json"), "utf8"));
-  if (!/^\d+\.\d+\.\d+$/.test(current.version)) throw new Error("Mevcut landing sürümü geçersiz.");
+  if (!/^\d+\.\d+\.\d+$/.test(current.version)) throw new Error("Sitedeki sürüm numarası geçersiz.");
   assertNoDowngrade(current.version, version);
 }
 
@@ -155,7 +159,7 @@ async function prepare(site, version) {
     const local = JSON.parse(await readFile(join(directory, "latest.json"), "utf8"));
     if (local.version !== version) throw new Error(`Sürüm eşleşmiyor: ${id}`);
     await prepareSite({ siteDirectory: site, releaseDirectory: directory,
-      installerPath: join(directory, "install.ps1") });
+      installerPath: join(directory, installerFile(id)) });
   }
   await changedFiles(site);
 }
@@ -163,20 +167,20 @@ async function prepare(site, version) {
 async function stage(version, id) {
   const release = await getRelease(version);
   assertRelease(release, version);
-  if (!release.draft) throw new Error("Yayımlanmış release'e dosya eklenemez.");
+  if (!release.draft) throw new Error("Yayımlanmış sürüme dosya eklenemez.");
   const directory = releaseDirectory(id);
   const { manifest, archive } = await prepareSite({ siteDirectory: process.env.SITE_DIRECTORY,
-    releaseDirectory: directory, installerPath: join(directory, "install.ps1") });
+    releaseDirectory: directory, installerPath: join(directory, installerFile(id)) });
   assertManifest(manifest, version, id);
   const manifestPath = join(directory, manifestName(id));
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
   for (const [name, path] of [[assetNames(version, id)[0], archive],
-    ...(id === "win32-x64" ? [["install.ps1", join(process.env.SITE_DIRECTORY, "public/install.ps1")]] : []),
+    [installerAsset(id), join(process.env.SITE_DIRECTORY, "public", installerFile(id))],
     [manifestName(id), manifestPath]]) {
     const url = release.upload_url.replace(/\{.*$/, "") + "?name=" + encodeURIComponent(name);
     await api("asset", { method: "POST", upload: url, body: Bun.file(path) });
   }
-  console.log(`${id}: test edilmiş paket draft release'e aktarıldı.`);
+  console.log(`${id}: test edilmiş paket sürüm taslağına aktarıldı.`);
 }
 
 async function publish(site, version) {
@@ -188,7 +192,7 @@ async function publish(site, version) {
     const manifest = await readAsset(release, manifestName(id));
     assertManifest(manifest, version, id);
     const local = JSON.parse(await readFile(join(site, "public/releases", targetFor(id).releaseDirectory, "latest.json"), "utf8"));
-    if (JSON.stringify(local) !== JSON.stringify(manifest)) throw new Error(`Landing/release manifestleri farklı: ${id}`);
+    if (JSON.stringify(local) !== JSON.stringify(manifest)) throw new Error(`Site ve sürüm manifestleri farklı: ${id}`);
   }
   if (release.draft) {
     await api(`releases/${release.id}`, { method: "PATCH", body: { draft: false, make_latest: "true" } });
@@ -198,7 +202,7 @@ async function publish(site, version) {
     const manifest = await readAsset(release, manifestName(id));
     await verifyDownload(await fetch(manifest.url, { signal: AbortSignal.timeout(180000) }), manifest);
   }
-  if (!paths.length) { console.log("Landing zaten bu sürümde."); return; }
+  if (!paths.length) { console.log("Site bu sürümde güncel"); return; }
   await run("git", ["add", "--", ...paths], site);
   await run("git", ["-c", "user.name=Pofis Release", "-c", "user.email=release@pofis.app", "commit", "-m", `Pofis ${version}`], site);
   const auth = Buffer.from(`x-access-token:${process.env.GH_TOKEN}`).toString("base64");
@@ -208,7 +212,6 @@ async function publish(site, version) {
 }
 
 async function verifyLive(site, version) {
-  const expectedInstaller = await readFile(join(site, "public/install.ps1"), "utf8");
   const until = Date.now() + 300000;
   let last = "Pages yayını bekleniyor.";
   while (Date.now() < until) {
@@ -223,13 +226,16 @@ async function verifyLive(site, version) {
         const expected = JSON.parse(await readFile(join(site, "public", path), "utf8"));
         if (JSON.stringify(actual) !== JSON.stringify(expected)) throw new Error(`Canlı manifest farklı: ${id}`);
       }
-      const installer = await fetch("https://pofis.app/install.ps1", { cache: "no-store", signal: AbortSignal.timeout(10000) });
-      if (!installer.ok || !installer.headers.get("content-type")?.includes("text/plain") ||
-          !installer.headers.get("cache-control")?.includes("no-store") || await installer.text() !== expectedInstaller) {
-        throw new Error("Canlı installer içeriği/başlıkları farklı.");
+      for (const name of ["install.ps1", "install.sh"]) {
+        const expected = await readFile(join(site, "public", name), "utf8");
+        const installer = await fetch(`https://pofis.app/${name}`, { cache: "no-store", signal: AbortSignal.timeout(10000) });
+        if (!installer.ok || !installer.headers.get("content-type")?.includes("text/plain") ||
+            !installer.headers.get("cache-control")?.includes("no-store") || await installer.text() !== expected) {
+          throw new Error(`Yayındaki kurulum betiğinin içeriği veya HTTP başlıkları farklı: ${name}`);
+        }
       }
       const page = await fetch("https://pofis.app/", { signal: AbortSignal.timeout(10000) });
-      if (!page.ok || !page.headers.get("content-type")?.includes("text/html")) throw new Error("Landing HTML hazır değil.");
+      if (!page.ok || !page.headers.get("content-type")?.includes("text/html")) throw new Error("Tanıtım sayfası henüz hazır değil.");
       console.log(`Pofis ${version}: canlı HTTPS dağıtımı doğrulandı.`);
       return;
     } catch (error) { last = error.message; }
@@ -250,7 +256,7 @@ async function main() {
   if (action === "begin") {
     await assertSite(site, version);
     const repo = await api("");
-    if (repo.private || repo.default_branch !== "main") throw new Error("Hedef public repo/main olmalı.");
+    if (repo.private || repo.default_branch !== "main") throw new Error("Hedef herkese açık bir depo ve main dalı olmalı.");
     const release = await getRelease(version);
     if (!release) await api("releases", { method: "POST", body: { tag_name: `v${version}`,
       target_commitish: "main", name: `Pofis ${version}`, body: releaseBody(version), draft: true } });

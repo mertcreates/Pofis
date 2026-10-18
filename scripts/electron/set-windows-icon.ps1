@@ -37,7 +37,7 @@ public static class PofisIcon {
         byte[] ico = File.ReadAllBytes(icon);
         if (ico.Length < 22 || BitConverter.ToUInt16(ico, 2) != 1 || BitConverter.ToUInt16(ico, 4) != 1 ||
             BitConverter.ToUInt32(ico, 18) != 22 || BitConverter.ToUInt32(ico, 14) != ico.Length - 22)
-            throw new InvalidDataException("Expected a single PNG icon.");
+            throw new InvalidDataException("Simge dosyası tek bir PNG içermeli.");
         var groups = new List<Group>();
         int maximumId = 0;
         IntPtr module = LoadLibraryExW(executable, IntPtr.Zero, 0x22);
@@ -61,7 +61,7 @@ public static class PofisIcon {
             };
             Check(EnumResourceNamesW(module, new IntPtr(14), names, IntPtr.Zero));
         } finally { FreeLibrary(module); }
-        if (groups.Count == 0 || maximumId >= UInt16.MaxValue) throw new InvalidDataException("No usable application icon group.");
+        if (groups.Count == 0 || maximumId >= UInt16.MaxValue) throw new InvalidDataException("Uygulanabilir bir simge grubu bulunamadı.");
         ushort imageId = (ushort)(maximumId + 1);
         byte[] png = new byte[ico.Length - 22];
         Array.Copy(ico, 22, png, 0, png.Length);

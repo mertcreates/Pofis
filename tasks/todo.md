@@ -18,7 +18,7 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 - [ ] Gerçek PDKS oturumuyla 3210 başka uygulamadayken açılışı ve port değişiminden sonra oturum devamını doğrula. Yerel paket kabulü boş port, ayar kalıcılığı ve HttpOnly çerez temizleme yolunu kapsar.
 - [ ] Bağımsız `pofis-landing` projesini `mertcreates/pofis-landing` public deposunda yayımla; [release kurulumu](../docs/release.md) ile sınırlı repository secret, Actions ücretsiz kullanım sınırı ve Cloudflare Git/DNS/HTTPS bağlantısını hazırla. Üç native job'u ve release → anonim ZIP → Pages kabulünü gerçek yetkili çalıştırmada doğrula; ardından canlı Windows tek komut kurulum/güncellemesini sına. Yerel testler uzaktan yayın kanıtı değildir.
 - [ ] macOS Apple Silicon ve Intel cihazlarında ortak `desktop:prepare/package/release` ile `.app`, helper adları, ad-hoc imza, izin/symlink koruması, tek örnek/Dock/Command-Q ve Node UtilityProcess temizliğini doğrula; aynı `test:desktop:smoke` betiğini çalıştır.
-- [ ] macOS tek komut kurulum/güncelleme betiğini ortak manifest ve başlangıç sonucu sözleşmesine bağla; indirilen gerçek pakette Gatekeeper kabulünü tamamla.
+- [ ] Hazırlanan macOS tek komut kurulum/güncelleme akışının iki native CI job'unda gerçek ZIP kabulünü tamamla; temiz Apple Silicon/Intel cihazında Finder/Dock simgesi ve indirilen pakette Gatekeeper kabulünü doğrula. Yerel Bash testleri native kurulum kanıtı değildir.
 
 ## Kurum dağıtımı
 

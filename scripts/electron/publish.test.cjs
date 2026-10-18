@@ -27,7 +27,7 @@ test("üç hedef yalnız kendi public release ZIP adresini kabul eder", () => {
 });
 
 test("public commit yalnız installer ve üç manifesti içerebilir", () => {
-  expect(() => assertPublicChanges(["public/install.ps1", "public/releases/windows/latest.json",
+  expect(() => assertPublicChanges(["public/install.ps1", "public/install.sh", "public/releases/windows/latest.json",
     "public/releases/macos/arm64/latest.json", "public/releases/macos/x64/latest.json"])).not.toThrow();
   for (const path of ["src/app/page.tsx", ".env", "public/source.zip", "package.json", "../Pofis/secret"]) {
     expect(() => assertPublicChanges([path])).toThrow();

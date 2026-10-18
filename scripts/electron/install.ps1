@@ -54,7 +54,7 @@ function Assert-RequiredFiles([string]$Directory, [string]$Version) {
         $stream = [IO.File]::OpenRead((Join-Path $Directory $relative))
         $reader = [IO.BinaryReader]::new($stream)
         try {
-            if ($reader.ReadUInt16() -ne 0x5A4D) { throw 'Paket geçerli bir Windows executable içermiyor.' }
+            if ($reader.ReadUInt16() -ne 0x5A4D) { throw 'Paket geçerli bir Windows uygulaması içermiyor.' }
             $stream.Position = 0x3C
             $offset = $reader.ReadInt32()
             $stream.Position = $offset
@@ -108,7 +108,7 @@ function Set-PofisShortcut([string]$Executable) {
 }
 
 function Start-VerifiedPofis([string]$Executable, [string]$Version) {
-    Write-Host 'Pofis açılıyor...'
+    Write-Host 'Pofis açılıyor…'
     $id = [Guid]::NewGuid().ToString('N')
     $resultPath = Join-Path $UserDataDir "launch-results\$id.json"
     $process = Start-Process -FilePath $Executable -WorkingDirectory ([IO.Path]::GetDirectoryName($Executable)) -WindowStyle Normal `
@@ -124,9 +124,9 @@ function Start-VerifiedPofis([string]$Executable, [string]$Version) {
                 $running = Get-Process -Id $result.pid -ErrorAction SilentlyContinue
                 if (-not $running -or $result.version -ne $Version -or -not $result.windowReady -or
                     -not $running.Path.Equals($Executable, [StringComparison]::OrdinalIgnoreCase)) {
-                    throw 'Çalışan Pofis sürümü doğrulanamadı. Açık Pofis pencerelerini kapatıp yeniden deneyin.'
+                    throw 'Çalışan Pofis sürümü doğrulanamadı. Açık Pofis pencerelerini kapatıp yeniden dene.'
                 }
-                Write-Host 'Pofis kullanıma hazır.'
+                Write-Host 'Pofis hazır'
                 $verified = $true
                 return
             }
@@ -134,7 +134,7 @@ function Start-VerifiedPofis([string]$Executable, [string]$Version) {
             $process.Refresh()
             # A secondary instance may exit before the primary writes its result.
         }
-        throw 'Pofis penceresi 45 saniye içinde hazır olmadı. Açık Pofis pencerelerini kapatıp yeniden deneyin.'
+        throw 'Pofis penceresi 45 saniye içinde hazır olmadı. Açık Pofis pencerelerini kapatıp yeniden dene.'
     } finally {
         # Allow Electron to release its single-instance lock before rollback.
         if (-not $verified) { $null = $process.WaitForExit(10000) }
@@ -150,12 +150,12 @@ $activated = $false
 $previous = $null
 $exitCode = 0
 try {
-    Write-Host 'Pofis kurulumu başlatılıyor...'
-    Write-Host 'Sistem kontrol ediliyor...'
+    Write-Host 'Pofis kurulumu başlatılıyor…'
+    Write-Host 'Sistem kontrol ediliyor…'
     if ([Environment]::OSVersion.Platform -ne 'Win32NT' -or [Environment]::OSVersion.Version.Major -lt 10) { throw 'Windows 10 veya üzeri gerekli.' }
     $arch = if ($env:PROCESSOR_ARCHITEW6432) { $env:PROCESSOR_ARCHITEW6432 } else { $env:PROCESSOR_ARCHITECTURE }
     if ($arch -ne 'AMD64') { throw 'Bu dağıtım Windows x64 içindir. Bu mimari henüz desteklenmiyor.' }
-    Write-Host 'Windows x64 bulundu.'
+    Write-Host 'Windows x64 bulundu'
     $InstallRoot = [IO.Path]::GetFullPath($InstallRoot)
     $UserDataDir = [IO.Path]::GetFullPath($UserDataDir)
     $ShortcutPath = [IO.Path]::GetFullPath($ShortcutPath)
@@ -185,16 +185,16 @@ try {
             if ($previous.sha256 -ne $manifest.sha256) { throw 'Aynı sürümün paket içeriği değişmiş. Yeni bir sürüm numarası gerekli.' }
             $current = Join-Path $versions $previous.directory
             Assert-RequiredFiles $current $previous.version
-            Write-Host "Pofis zaten güncel ($($previous.version))."
+            Write-Host "Pofis güncel ($($previous.version))"
             Set-PofisShortcut (Join-Path $current 'Pofis.exe')
             Start-VerifiedPofis (Join-Path $current 'Pofis.exe') $previous.version
             return
         }
     }
-    Write-Host 'Pofis indiriliyor...'
+    Write-Host 'Pofis indiriliyor…'
     $archive = Join-Path $InstallRoot ([Guid]::NewGuid().ToString('N') + '.zip')
     Save-Download (Get-DownloadUri $manifest.url $source) $archive
-    Write-Host 'Paket doğrulanıyor...'
+    Write-Host 'Paket doğrulanıyor…'
     if ((Get-Item -LiteralPath $archive).Length -ne $manifest.size -or
         (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash -ne $manifest.sha256) { throw 'Paket bütünlüğü doğrulanamadı. Mevcut kurulum korundu.' }
     $directory = [Guid]::NewGuid().ToString('N')
@@ -204,7 +204,7 @@ try {
     [IO.Directory]::CreateDirectory($stage) | Out-Null
     Expand-VerifiedArchive $archive $stage
     Assert-RequiredFiles $stage $manifest.version
-    if (@(Get-InstalledProcess).Count -gt 0) { throw 'Pofis açık. Uygulamayı kapatıp aynı kurulum komutunu yeniden çalıştırın.' }
+    if (@(Get-InstalledProcess).Count -gt 0) { throw 'Pofis açık. Uygulamayı kapatıp aynı kurulum komutunu yeniden çalıştır.' }
     $target = $stage
     $state = @{ schemaVersion = 1; version = $manifest.version; sha256 = $manifest.sha256; directory = $directory }
     Write-AtomicJson $statePath $state
@@ -212,7 +212,7 @@ try {
     $stage = $null
     Set-PofisShortcut (Join-Path $target 'Pofis.exe')
     Start-VerifiedPofis (Join-Path $target 'Pofis.exe') $manifest.version
-    Write-Host "Kurulum tamamlandı. Pofis $($manifest.version)."
+    Write-Host "Kurulum tamamlandı · Pofis $($manifest.version)"
 } catch {
     $exitCode = 1
     Write-Host "Pofis: $($_.Exception.Message)" -ForegroundColor Red
@@ -240,4 +240,4 @@ try {
     }
     if ($lock) { $lock.Dispose() }
 }
-if ($exitCode -ne 0) { throw 'Pofis kurulumu tamamlanamadı. Yukarıdaki açıklamayı izleyip yeniden deneyin.' }
+if ($exitCode -ne 0) { throw 'Pofis kurulumu tamamlanamadı. Yukarıdaki açıklamayı izleyip yeniden dene.' }

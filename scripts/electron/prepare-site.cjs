@@ -9,7 +9,7 @@ async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
   const packageJson = JSON.parse(await readFile(join(site, "package.json"), "utf8"));
   if (packageJson.name !== "pofis-landing") throw new Error("Hedef bağımsız pofis-landing projesi olmalı.");
   const repository = packageJson.repository?.url?.match(/^https:\/\/github\.com\/([\w-]+\/[\w.-]+)\.git$/)?.[1];
-  if (!repository) throw new Error("Landing package.json içinde GitHub repository.url tanımlanmalı.");
+  if (!repository) throw new Error("Tanıtım sitesinin package.json dosyasında GitHub repository.url tanımlanmalı.");
   const manifest = JSON.parse(await readFile(join(releaseDirectory, "latest.json"), "utf8"));
   const target = platformTarget(manifest.platform, manifest.arch);
   if (manifest.schemaVersion !== 1 || manifest.platform !== target.platform || manifest.arch !== target.arch ||
@@ -25,7 +25,8 @@ async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
   for await (const chunk of createReadStream(archive)) hash.update(chunk);
   if (hash.digest("hex") !== manifest.sha256) throw new Error("Paket SHA-256 değeri manifestle eşleşmiyor.");
   // HTTP supplies charset=utf-8; omit the file BOM so irm | iex receives plain PowerShell.
-  const installer = target.platform === "win32" ? (await readFile(installerPath, "utf8")).replace(/^\uFEFF/, "") : null;
+  const installerName = target.platform === "win32" ? "install.ps1" : "install.sh";
+  const installer = (await readFile(installerPath || join(__dirname, installerName), "utf8")).replace(/^\uFEFF/, "");
   const publicManifest = {
     schemaVersion: 1, platform: target.platform, arch: target.arch, version: manifest.version,
     size: manifest.size, sha256: manifest.sha256,
@@ -33,12 +34,12 @@ async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
   };
   const destination = join(site, "public", "releases", target.releaseDirectory);
   await mkdir(destination, { recursive: true });
-  if (installer) await writeFile(join(site, "public", "install.ps1"), installer);
+  await writeFile(join(site, "public", installerName), installer);
   await writeFile(join(destination, "latest.json"), JSON.stringify(publicManifest, null, 2) + "\n");
-  console.log(`Landing dağıtım dosyaları hazır: ${destination}`);
+  console.log(`Site dağıtım dosyaları hazır: ${destination}`);
   console.log(`GitHub hedefi: ${repository}, etiket: v${manifest.version}`);
   console.log(`Yüklenecek dosya: ${archive}`);
-  console.log("Önce GitHub paketini yayımlayın; ardından landing değişikliklerini yayımlayın.");
+  console.log("Önce GitHub paketini yayımla; ardından site değişikliklerini yayımla.");
   return { manifest: publicManifest, archive };
 }
 
@@ -53,7 +54,7 @@ if (require.main === module) {
     prepareSite({
       siteDirectory: args[1] || resolve(root, "../pofis-landing"),
       releaseDirectory: join(root, "dist", "releases", target.releaseDirectory),
-      installerPath: join(__dirname, "install.ps1"),
+      installerPath: join(__dirname, target.platform === "win32" ? "install.ps1" : "install.sh"),
     }).catch(error => { console.error(error.message); process.exitCode = 1; });
   }
 }

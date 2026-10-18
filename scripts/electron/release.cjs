@@ -31,14 +31,14 @@ async function release(packageDirectory) {
   const name = `Pofis-${app.version}-${target.id}.zip`;
   const archive = join(versionDirectory, name);
   if (await stat(archive).then(() => true, error => { if (error.code === "ENOENT") return false; throw error; })) {
-    throw new Error("Bu sürümün dağıtımı zaten var. Yeni sürüm numarası kullanın.");
+    throw new Error("Bu sürümün dağıtımı zaten var. Yeni sürüm numarası kullan.");
   }
   // Exclusive ownership also protects two developers building the same release simultaneously.
   const temporary = `${archive}.partial`;
   const lock = `${archive}.lock`;
   await writeFile(lock, "", { flag: "wx" });
   try {
-    console.log(`Dağıtım arşivi hazırlanıyor (${target.id})...`);
+    console.log(`Dağıtım arşivi hazırlanıyor (${target.id})…`);
     if (target.platform === "win32") {
       await execute(join(process.env.SystemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe"),
         ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", join(__dirname, "archive.ps1"), "-Source", directory, "-Destination", temporary]);
@@ -55,7 +55,8 @@ async function release(packageDirectory) {
     const staging = `${latest}.${randomUUID()}.tmp`;
     await writeFile(staging, json, { flag: "wx" });
     await rename(staging, latest);
-    if (target.platform === "win32") await copyFile(join(__dirname, "install.ps1"), join(output, "install.ps1"));
+    const installer = target.platform === "win32" ? "install.ps1" : "install.sh";
+    await copyFile(join(__dirname, installer), join(output, installer));
     console.log(`Dağıtım dosyaları: ${output}`);
   } finally {
     try { await rm(temporary, { force: true }); }

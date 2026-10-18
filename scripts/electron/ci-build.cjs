@@ -33,8 +33,10 @@ async function build(version, siteDirectory) {
   await checkVersion(version);
   const target = platformTarget();
   if (process.env.RELEASE_TARGET && process.env.RELEASE_TARGET !== target.id) {
-    throw new Error("Runner mimarisi seçilen yayın hedefiyle eşleşmiyor.");
+    throw new Error("Derleme ortamının mimarisi seçilen yayın hedefiyle eşleşmiyor.");
   }
+  // bunfig's default test root is src/; desktop/installer tests need explicit paths.
+  await run(process.execPath, ["test", "./electron", "./scripts/electron"]);
   await run(process.execPath, ["run", "desktop:package"]);
   const packages = join(root, "dist", target.outputDirectory);
   const names = (await readdir(packages)).filter(name => name.startsWith(`Pofis-${target.id}-`));
@@ -42,12 +44,14 @@ async function build(version, siteDirectory) {
   const directory = join(packages, names[0]);
   await run(process.execPath, ["run", "test:desktop:smoke", directory]);
   await run(process.execPath, ["run", "desktop:release", "-PackageDirectory", directory]);
+  if (!siteDirectory) throw new Error("CI kurulum testi için tanıtım sitesinin klasörü gerekli.");
+  const { prepareSite } = require("./prepare-site.cjs");
+  await prepareSite({ siteDirectory, releaseDirectory: join(root, "dist/releases", target.releaseDirectory),
+    installerPath: join(__dirname, target.platform === "win32" ? "install.ps1" : "install.sh") });
   if (target.platform === "win32") {
-    if (!siteDirectory) throw new Error("Windows CI kabulü landing klasörünü gerektirir.");
-    const { prepareSite } = require("./prepare-site.cjs");
-    await prepareSite({ siteDirectory, releaseDirectory: join(root, "dist/releases/windows"),
-      installerPath: join(__dirname, "install.ps1") });
     await run(process.execPath, ["run", "test:desktop:distribution", "--startup-only", "--site", siteDirectory]);
+  } else {
+    await run(process.execPath, [join(__dirname, "macos-distribution-test.cjs"), "--site", siteDirectory]);
   }
 }
 
