@@ -5,6 +5,7 @@ const { startupId, writeStartupResult } = require("./startup.cjs");
 const { platformTarget } = require("./platform.cjs");
 const { checkForUpdates } = require("./updates.cjs");
 const { createWindowOpenHandler } = require("./external-links.cjs");
+const { installPermissions } = require("./permissions.cjs");
 const target = platformTarget();
 
 app.setName("Pofis");
@@ -99,8 +100,7 @@ if (!app.requestSingleInstanceLock()) {
         { label: "Yapıştır", role: "paste" }, { label: "Tümünü Seç", role: "selectAll" },
       ] },
     ]) : null);
-    session.defaultSession.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
-    session.defaultSession.setPermissionCheckHandler(() => false);
+    installPermissions(session.defaultSession, () => window?.webContents);
     session.defaultSession.on("will-download", (event) => event.preventDefault());
     server = createDesktopServer({
       root: app.isPackaged ? join(__dirname, "..", "server") : join(__dirname, "..", ".next", "standalone"),

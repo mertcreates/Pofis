@@ -34,6 +34,12 @@ Oturum JSON'ları çalışma anında kullanıcı profilinde oluşur; derleme var
 
 Masaüstü standalone derlemesinde `experimental.isrFlushToDisk: false` kullanılır. Next.js çalışma zamanı önbelleği bellekte tutulur; imzalı uygulamanın içine `route-cache` dosyaları yazılmaz. Paket açılış testi macOS'ta uygulama kapandıktan sonra imzayı yeniden doğrular. Web derlemesinin önbellek ayarı değişmez.
 
+## Pano izinleri
+
+[İzin işleyicisi](../electron/permissions.cjs), yalnız ana Pofis penceresinin `http://127.0.0.1:3210` adresindeki ana çerçevesine `clipboard-sanitized-write` izni verir. Böylece hata ekranındaki **Teknik ayrıntıları kopyala** işlemi tarayıcının pano API'siyle çalışır. Pano okuma, alt çerçeveler, diğer pencereler/adresler ve diğer izinler reddedilir. Hem izin kontrolü hem izin isteği aynı sınırı uygular; renderer'a Node.js veya yeni bir IPC arayüzü açılmaz.
+
+`bun run test:desktop` izin sınırlarını sınar. `bun scripts/electron/clipboard-smoke.cjs`, geçici profilde gerçek Electron ve örnek metinle eski ret politikasındaki hatayı, izinli yazmayı ve pano okuma reddini kontrol eder; gerçek PDKS hesabı kullanmaz. Hedef pakette ayrıca hata ekranı → **Teknik ayrıntıları kopyala** → metin alanına yapıştır zincirini doğrulayın.
+
 ## Dış bağlantılar
 
 Alt bilgideki “mertcreates.” bağlantısı [Electron ana sürecinden](../electron/main.cjs), [dış bağlantı işleyicisi](../electron/external-links.cjs) üzerinden varsayılan sistem tarayıcısında açılır. İşleyici yalnız `https://mertcreates.com` origin'ini ve kullanıcı bilgisi içermeyen adresleri kabul eder; diğer hedefler ve yeni Electron pencereleri engellenir. Ana pencerenin uygulama dışına gezinme ve yönlendirme sınırı korunur. Tarayıcı açılamazsa adresi elle açmayı öneren hata bildirimi gösterilir.
