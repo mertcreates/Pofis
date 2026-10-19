@@ -1,9 +1,10 @@
-const { app, BrowserWindow, clipboard, dialog, Menu, session, utilityProcess } = require("electron");
+const { app, BrowserWindow, clipboard, dialog, Menu, session, shell, utilityProcess } = require("electron");
 const { join } = require("node:path");
 const { createDesktopServer, ORIGIN } = require("./server.cjs");
 const { startupId, writeStartupResult } = require("./startup.cjs");
 const { platformTarget } = require("./platform.cjs");
 const { checkForUpdates } = require("./updates.cjs");
+const { createWindowOpenHandler } = require("./external-links.cjs");
 const target = platformTarget();
 
 app.setName("Pofis");
@@ -129,7 +130,15 @@ if (!app.requestSingleInstanceLock()) {
       show: false, autoHideMenuBar: true,
       webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true },
     });
-    window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+    window.webContents.setWindowOpenHandler(createWindowOpenHandler({
+      openExternal: url => shell.openExternal(url),
+      onError: () => {
+        console.error("Pofis dış bağlantısı tarayıcıda açılamadı.");
+        dialog.showMessageBox(window, { type: "error", title: "Bağlantı açılamadı",
+          message: "Tarayıcı açılamadı. https://mertcreates.com adresini tarayıcında açabilirsin." })
+          .catch(() => console.error("Pofis bağlantı hatası gösterilemedi."));
+      },
+    }));
     const restrictNavigation = (event, url) => {
       if (new URL(url).origin !== ORIGIN) event.preventDefault();
     };

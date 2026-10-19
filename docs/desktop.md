@@ -34,6 +34,12 @@ Oturum JSON'ları çalışma anında kullanıcı profilinde oluşur; derleme var
 
 Masaüstü standalone derlemesinde `experimental.isrFlushToDisk: false` kullanılır. Next.js çalışma zamanı önbelleği bellekte tutulur; imzalı uygulamanın içine `route-cache` dosyaları yazılmaz. Paket açılış testi macOS'ta uygulama kapandıktan sonra imzayı yeniden doğrular. Web derlemesinin önbellek ayarı değişmez.
 
+## Dış bağlantılar
+
+Alt bilgideki “mertcreates.” bağlantısı [Electron ana sürecinden](../electron/main.cjs), [dış bağlantı işleyicisi](../electron/external-links.cjs) üzerinden varsayılan sistem tarayıcısında açılır. İşleyici yalnız `https://mertcreates.com` origin'ini ve kullanıcı bilgisi içermeyen adresleri kabul eder; diğer hedefler ve yeni Electron pencereleri engellenir. Ana pencerenin uygulama dışına gezinme ve yönlendirme sınırı korunur. Tarayıcı açılamazsa adresi elle açmayı öneren hata bildirimi gösterilir.
+
+`bun run test:desktop` gerçek footer adresinin tarayıcıya aktarılmasını, diğer origin/protokollerin engellenmesini ve tarayıcı açılış hatasını sınar. Paket kabulünde “mertcreates.” bağlantısına tıklayıp sistem tarayıcısının açıldığını ve Pofis penceresinin yerinde kaldığını ayrıca kontrol et.
+
 ## Açılışta sürüm denetimi
 
 [Electron ana süreci](../electron/main.cjs), paketli uygulamanın penceresi hazır olduktan 3 saniye sonra [güncelleme denetleyicisini](../electron/updates.cjs) bir kez çalıştırır. Geliştirme açılışı kontrol başlatmaz; ikinci örneğin mevcut pencereyi öne getirmesi yeni kontrol oluşturmaz. Kapanış bekleyen zamanlayıcıyı temizler; devam eden isteğin sonucu kapanan veya hata durumundaki uygulamada bildirim açmaz.
