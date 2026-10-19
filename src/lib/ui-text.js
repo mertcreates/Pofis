@@ -60,7 +60,8 @@ export const ui = {
   },
   theme: {
     appearance: "Görünüm",
-    label: "Koyu görünüm",
+    switchToLight: "Açık görünüme geç",
+    switchToDark: "Koyu görünüme geç",
   },
   pofiCall: ["Beni mi çağırdın?", "Buradayım."],
   consoleNote: "Buraya da küçük bir not bıraktım.\n\nMesaiye biraz Pofi.\nmertercan.com",

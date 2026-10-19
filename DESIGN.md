@@ -103,6 +103,7 @@ Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedi
 
 ## Gezinme ve kontroller
 
+- **Görünüm:** girişte 44×44px kompakt ikon düğmesi, yan menü ve mobil menüde “Görünüm” yazısı ve aynı ikon kullanılır. Güneş açık, ay koyu görünümü belirtir; erişilebilir ad ve ipucu geçilecek görünümü söyler. Klavye odağı tema renginde belirgindir. Tema tercihi mevcut depolama sahibinde tutulur.
 - **Giriş:** şifre alanının sağındaki göz düğmesi şifreyi gösterir/gizler. Başlangıçta ve form gönderildiğinde şifre gizlidir. Düğme mevcut ikon, tema ve klavye odağı dilini kullanır; erişilebilir adı yapacağı eylemi söyler. Oturum doğrulanırken alan ve düğme devre dışıdır.
 - **Hafta seçici:** aylık native popover, ayla kesişen pazartesi haftaları ve güncel haftaya dönüş. Gelecek haftalar kapalıdır; demo yakalama aralığıyla sınırlıdır. Seçim kapanır ve odağı tetikleyiciye döndürür.
 - **Demo:** gün seçimi, sanal saat, hata ve bildirim senaryoları [demo rehberinde](docs/demo.md) yönetilir. Karşılaştırma demoları karar sonrasında temizlenir; durum demoları korunur.
