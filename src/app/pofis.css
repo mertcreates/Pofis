@@ -251,6 +251,8 @@
   min-height: 345px;
 }
 .metrics-history { align-items: start; }
+.metrics-history > .weekly-total { grid-column: 2; grid-row: 1; }
+.metrics-history > .chart-panel { grid-column: 1; grid-row: 1; }
 .metrics > .chart-panel { min-height: 0; }
 .metrics .weekly-chart { height: 140px; margin-top: 24px; }
 .metrics .bar-area { height: calc(100% - 39px); }
@@ -1590,6 +1592,8 @@ body {
 }
 @media (max-width: 700px) {
   .metrics.metrics-today { grid-template-columns: 1fr; }
+  .metrics-history > .weekly-total,
+  .metrics-history > .chart-panel { grid-column: auto; grid-row: auto; }
   .dashboard .metric { min-height: 0; padding-block: 14px; }
   .dashboard .metric-reading { min-height: 0; }
   .dashboard .metric-value { margin-top: 10px; margin-bottom: 8px; }

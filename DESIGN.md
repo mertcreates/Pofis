@@ -73,7 +73,7 @@ Renkler `light-dark()` ve semantik CSS değişkenlerinden gelir. `html[data-them
 
 - **Giriş ve hata:** üst marka ve içerik ortak 920px alana hizalanır. Kenar boşluğu masaüstünde 32px, 780px altında 16px'tir.
 - **Güncel hafta:** üstte günün akışı ve haftalık toplam; altında akordeon giriş–çıkış raporu ve Pofi. Pofi kartı üstte hizalanır, raporun yüksekliğine esnemez.
-- **Geçmiş hafta:** güncel haftayla aynı iki sütunlu üst satırda günlük dağılım grafiği ve haftalık toplam; altında açılır günlük kayıt raporu. Hedef ve hedef farkı toplam kartında bir kez gösterilir. Toplam kartı içeriği kadar yükselir; grafiğe esnemez.
+- **Geçmiş hafta:** güncel haftayla aynı iki sütunlu üst satırda günlük dağılım grafiği ve haftalık toplam; altında açılır günlük kayıt raporu. Hedef ve hedef farkı toplam kartında bir kez gösterilir. Toplam kartı içeriği kadar yükselir; grafiğe esnemez. Geçmiş haftada günlük cetvel gösterilmez; mobilde toplam kartı grafikten önce gelir.
 - **Duyarlı düzen:** masaüstünde 230px sol menü ve en fazla 1530px ana alan; 1170px altında orta satır tek sütun, 1000px altında menü üstte açılır, 700px altında üst kartlar tek sütun olur. Kart yüksekliği içeriği izler. Diğer ölçüler CSS sahibinde tutulur.
 
 Canlı ekranda [ReportContent](src/components/dashboard/report-content.tsx) güncel haftanın saniyelik saatini, dış [Dashboard](src/components/dashboard.tsx) İstanbul gün değişimini yönetir. Gizli sekmeden dönüşte gerçek saat okunur. Demo kendi sanal saatini sağlar. Ayarlar ve Pofi odası doğrudan yüklenir.
@@ -95,9 +95,9 @@ Sayısal veriler tabular gösterilir. Saat/dakika baskın, saniye ikincildir. Bi
 
 ### Haftalık toplam ve grafik
 
-[WeeklyTotal](src/components/dashboard/weekly-total.tsx), toplam ve sakin hedefi aynı satırda “toplam / hedef” olarak sunar. Yüzde başlıkta dolgusuz mor metindir; kalan/aşan süre alta yaslanır. Tamamlanmış haftada hedefin altındaki süre “Hedefin altında” etiketiyle gösterilir. Eksik veya belirsiz kayıtlarda geçmiş haftanın farkı ve yüzdesi yaklaşık işaretiyle sunulur; güncel haftada fark gösterilmez.
+[WeeklyTotal](src/components/dashboard/weekly-total.tsx), toplam ve sakin hedefi aynı satırda “toplam / hedef” olarak sunar. Yüzde başlıkta dolgusuz mor metindir; kalan/aşan süre alta yaslanır. Hedefe tam eşit toplam “Hedefle eşit” olarak sunulur. Yaklaşık yüzde ve farkın erişilebilir etiketleri kayıt eksikliği veya belirsizliğini açıklar. Tamamlanmış haftada hedefin altındaki süre “Hedefin altında” etiketiyle gösterilir. Eksik veya belirsiz kayıtlarda geçmiş haftanın farkı ve yüzdesi yaklaşık işaretiyle sunulur; güncel haftada fark gösterilmez.
 
-Cetvelde her açık gün eşit genişliktedir. Bölümler kendi etkin günlük hedeflerine göre dolar; günlük hedefler farklıysa eşit bölümler haftalık toplamın eşit paylarını temsil etmez. Hedef aşımı sonraki bölüme taşmaz. Sıfır süreli açık gün görünür kalır; bilinmeyen süre sıfır diye adlandırılmaz. Gün adı, süre ve hedef ortak tooltip'te görünür.
+Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedir. Bölümler kendi etkin günlük hedeflerine göre dolar; günlük hedefler farklıysa eşit bölümler haftalık toplamın eşit paylarını temsil etmez. Hedef aşımı sonraki bölüme taşmaz. Sıfır süreli açık gün görünür kalır; bilinmeyen süre sıfır diye adlandırılmaz. Gün adı, süre ve hedef ortak tooltip'te görünür.
 
 [Haftalık grafik](src/components/attendance/week-chart.tsx) geçmiş haftada günlük süre sütunlarını gösterir. Geçmiş günler `--chart-past`, bugün `--accent` kullanır; hedef çizgisi yoktur. Ölçek yalnız görünen sürelerden gelir. Canlı girdi verildiğinde kayıtlı bölümün üstüne açık tahmin eklenir; tooltip kayıtlı süre ve canlı toplamı ayırır. Lejant “Günlük kayıtlı süre”dir.
 

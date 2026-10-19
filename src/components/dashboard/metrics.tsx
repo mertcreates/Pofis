@@ -25,8 +25,8 @@ export function DashboardMetrics({
       {isCurrent && day && (
         <DayFlow day={day} target={exitGoal} />
       )}
-      {!isCurrent && <WeekChart days={days} today={today} start={week} current={false} />}
       <WeeklyTotal days={days} target={target} summary={summary} isCurrent={isCurrent} />
+      {!isCurrent && <WeekChart days={days} today={today} start={week} current={false} />}
     </div>
   );
 }

@@ -17,11 +17,15 @@ export function WeeklyTotal({ days, target, summary, isCurrent }: {
   isCurrent: boolean;
 }) {
   const percent = target > 0 ? percentage(summary.totalSeconds, target) : null;
-  const segments = weeklyRuler(days);
+  const segments = isCurrent ? weeklyRuler(days) : [];
+  const difference = summary.totalSeconds - target;
+  const differenceLabel = difference === 0 ? ui.equalTargetLabel
+    : difference > 0 ? ui.excessLabel
+    : isCurrent ? ui.remainingLabel : ui.shortfallLabel;
   return <section className="dashboard-card metric weekly-total">
     <div className="metric-header">
       <span>{ui.weeklyTotal}</span>
-      {percent !== null && <span className="metric-tag">{summary.incomplete && "≈ "}%{percent}</span>}
+      {percent !== null && <span className="metric-tag" aria-label={summary.incomplete ? ui.approximateWeekPercent(percent) : undefined}>{summary.incomplete && "≈ "}%{percent}</span>}
     </div>
     <div className="weekly-total-reading">
       <div className="metric-value"><Duration seconds={summary.totalSeconds} /></div>
@@ -45,8 +49,8 @@ export function WeeklyTotal({ days, target, summary, isCurrent }: {
       </div>
     </>}
     {(!isCurrent || !summary.incomplete) && <dl className="weekly-total-difference">
-      <dt>{summary.totalSeconds >= target ? ui.excessLabel : isCurrent ? ui.remainingLabel : ui.shortfallLabel}</dt>
-      <dd>{summary.incomplete && "≈ "}<Duration seconds={Math.abs(target - summary.totalSeconds)} /></dd>
+      <dt>{differenceLabel}</dt>
+      <dd aria-label={summary.incomplete ? ui.approximateWeekDifference(durationText(Math.abs(difference))) : undefined}>{summary.incomplete && "≈ "}<Duration seconds={Math.abs(difference)} /></dd>
     </dl>}
   </section>;
 }
