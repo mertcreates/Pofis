@@ -230,6 +230,32 @@ small {
   display: grid;
   gap: 20px;
 }
+.connection-password {
+  position: relative;
+  margin-top: 6px;
+}
+.connection-password input {
+  margin-top: 0;
+  padding-inline-end: 52px;
+}
+.connection-password-toggle {
+  position: absolute;
+  inset-block: 1px;
+  inset-inline-end: 1px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: calc(var(--radius-control) - 1px);
+  background: transparent;
+  color: var(--secondary);
+}
+.connection-password-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -3px;
+}
 .primary {
   background: var(--accent);
   color: var(--accent-content);

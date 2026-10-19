@@ -160,6 +160,8 @@ export const ui = {
   connect: "PDKS’ye bağlan",
   username: "Kullanıcı adı",
   password: "Şifre",
+  showPassword: "Şifreyi göster",
+  hidePassword: "Şifreyi gizle",
   verifyingSession: "Oturum doğrulanıyor…",
   loadingApp: "Yükleniyor…",
   checkingSession: "Oturum kontrol ediliyor…",

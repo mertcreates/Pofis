@@ -2,7 +2,8 @@ import { SESSION_POLICY } from "@/domain/rules/session-policy";
 import { ui } from "@/lib/ui-text.js";
 import RequestError from "./request-error.js";
 import type { RequestFailure } from "@/lib/pdks-failure";
-import { memo, useEffect, useRef } from "react";
+import { memo, useEffect, useId, useRef, useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { POFI_ASSETS } from "@/domain/rules/pofi.js";
 import { presentPdksFailure } from "./pdks-error-presentation";
 
@@ -20,6 +21,8 @@ export const Connection = memo(function Connection({
   onConnect: (form: HTMLFormElement) => Promise<void>;
 }) {
   const password = useRef<HTMLInputElement>(null);
+  const passwordId = useId();
+  const [passwordVisible, setPasswordVisible] = useState(false);
   const fieldError = error?.operation === "connect"
     && (error.kind === "credentials" || error.kind === "validation");
   const systemError = error && !fieldError && error.kind !== "session-expired";
@@ -56,6 +59,7 @@ export const Connection = memo(function Connection({
           aria-busy={busy}
           onSubmit={(event) => {
             event.preventDefault();
+            setPasswordVisible(false);
             void onConnect(event.currentTarget);
           }}
         >
@@ -72,21 +76,35 @@ export const Connection = memo(function Connection({
               disabled={busy}
             />
           </label>
-          <label>
-            {ui.password}
-            <input
-              ref={password}
-              name="password"
-              aria-invalid={fieldError || undefined}
-              aria-describedby={fieldError ? "connection-error" : undefined}
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••"
-              required
-              maxLength={SESSION_POLICY.maxPasswordLength}
-              disabled={busy}
-            />
-          </label>
+          <div>
+            <label htmlFor={passwordId}>{ui.password}</label>
+            <div className="connection-password">
+              <input
+                id={passwordId}
+                ref={password}
+                name="password"
+                aria-invalid={fieldError || undefined}
+                aria-describedby={fieldError ? "connection-error" : undefined}
+                type={passwordVisible && !busy ? "text" : "password"}
+                autoComplete="current-password"
+                placeholder="••••••••"
+                required
+                maxLength={SESSION_POLICY.maxPasswordLength}
+                disabled={busy}
+              />
+              <button
+                type="button"
+                className="connection-password-toggle"
+                aria-label={passwordVisible ? ui.hidePassword : ui.showPassword}
+                aria-controls={passwordId}
+                title={passwordVisible ? ui.hidePassword : ui.showPassword}
+                disabled={busy}
+                onClick={() => setPasswordVisible(visible => !visible)}
+              >
+                {passwordVisible ? <EyeOff size={18} aria-hidden="true" /> : <Eye size={18} aria-hidden="true" />}
+              </button>
+            </div>
+          </div>
           {fieldError && errorMessage}
           <button className="primary full" disabled={busy}>
             {busy ? ui.verifyingSession : ui.connect}

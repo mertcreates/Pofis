@@ -103,6 +103,7 @@ Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedi
 
 ## Gezinme ve kontroller
 
+- **Giriş:** şifre alanının sağındaki göz düğmesi şifreyi gösterir/gizler. Başlangıçta ve form gönderildiğinde şifre gizlidir. Düğme mevcut ikon, tema ve klavye odağı dilini kullanır; erişilebilir adı yapacağı eylemi söyler. Oturum doğrulanırken alan ve düğme devre dışıdır.
 - **Hafta seçici:** aylık native popover, ayla kesişen pazartesi haftaları ve güncel haftaya dönüş. Gelecek haftalar kapalıdır; demo yakalama aralığıyla sınırlıdır. Seçim kapanır ve odağı tetikleyiciye döndürür.
 - **Demo:** gün seçimi, sanal saat, hata ve bildirim senaryoları [demo rehberinde](docs/demo.md) yönetilir. Karşılaştırma demoları karar sonrasında temizlenir; durum demoları korunur.
 - **Plan:** [PlanEditor](src/components/plan-editor.tsx), varsayılan plan ve tarih etiketli hafta sekmelerini kullanır; özel hafta noktası sekmededir. Pazartesi–cuma kartları tek sırada kalır. Açık gün nötr, kilitli gün lavanta ve kilit ikonlu, kapalı gün sakin nötr, seçili gün mor kenarlıdır.
