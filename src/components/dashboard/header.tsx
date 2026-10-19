@@ -39,7 +39,6 @@ export function DashboardHeader({
           firstWeek={firstWeek}
         />
         <div className="topbar-tools">
-          {onEditPlan && <button type="button" onClick={onEditPlan} disabled={busy}>{ui.planner.editSelectedWeek}</button>}
           <div className="report-updates">
             {fetchedAt && (
               <time dateTime={fetchedAt}>

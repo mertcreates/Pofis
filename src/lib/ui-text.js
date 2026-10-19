@@ -283,7 +283,6 @@ export const ui = {
     expectedTotal: "Beklenen toplam:",
     plannedLabel: "Planlanan:",
     recordedLabel: "Gerçekleşen:",
-    editSelectedWeek: "Hafta planını düzenle",
     unallocated: (duration, shortfall) => `${duration} ${shortfall ? "eksik süre açık günlere dağıtılamadı" : "fazla süre açık günlerden düşülemedi"}. Günlük süre sınırlarına ulaşıldı.`,
     closed: "Kapalı",
     onLeave: "İzinli",
