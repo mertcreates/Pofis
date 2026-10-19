@@ -70,7 +70,7 @@ export const Connection = memo(function Connection({
               aria-invalid={fieldError || undefined}
               aria-describedby={fieldError ? "connection-error" : undefined}
               autoComplete="username"
-              placeholder="kullanici.adi"
+              placeholder="Kullanıcı Adı"
               required
               maxLength={SESSION_POLICY.maxUsernameLength}
               disabled={busy}
@@ -87,7 +87,7 @@ export const Connection = memo(function Connection({
                 aria-describedby={fieldError ? "connection-error" : undefined}
                 type={passwordVisible && !busy ? "text" : "password"}
                 autoComplete="current-password"
-                placeholder="••••••••"
+                placeholder="Şifre"
                 required
                 maxLength={SESSION_POLICY.maxPasswordLength}
                 disabled={busy}
