@@ -28,13 +28,13 @@ Landing'in `public/_headers` dosyası installer ve manifestlere `Cache-Control: 
 
 Paketli Electron uygulaması açılışta bu manifestlerden kendi hedefine ait olanı kullanır. Yeni sürüm bildirimi ve kurulum komutunu kopyalama davranışı [masaüstü sözleşmesinde](desktop.md#açılışta-sürüm-denetimi) yönetilir.
 
-## İlk test sürümü
+## Sürüm ve manifest
 
-Pofis uygulaması `0.1.0` ile test edilir; yeni içerik yayımlanacaksa `0.1.1` gibi yeni bir sürüm kullanılır. `1.0.0`, ürün hazır olduğunda seçilir. Landing'in kendi `package.json` sürümü uygulama sürümünden bağımsızdır ve `1.0.0` kalabilir.
+Uygulama sürümünün sahibi [package.json](../package.json) dosyasıdır. Yeni paket içeriği yeni bir `x.y.z` sürümüyle yayımlanır; landing projesinin paket sürümü bundan bağımsızdır.
 
 İlk paket yayımlanana kadar public `latest.json` dosyaları ve footer'daki uygulama sürümü bulunmaz. Örnek sürüm, paket boyutu veya hash yayımlanmaz. İlk yayın mevcut manifest gerektirmez; manifest varsa sürüm düşürme koruması uygulanır. Otomasyon üç doğrulanmış paketten gerçek manifestleri üretir; bu dosyalar yalnız paketler anonim indirilebildikten sonra canlıya gönderilir.
 
-Önceden elle kurulmuş `1.0.0` geliştirme paketi varsa `0.1.0` denemeden önce normal kaldırma yoluyla kaldırılır. Installer sürüm düşürmez; kullanıcı profili korunur.
+Installer sürüm düşürmez. Daha yüksek sürümlü bir geliştirme paketinden düşük sürüme geçiş gerekiyorsa önce normal kaldırma yolu kullanılır; kullanıcı profili korunur.
 
 ## Yayın sonrası HTTPS kabulü
 

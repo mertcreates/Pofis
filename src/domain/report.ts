@@ -66,6 +66,7 @@ export function prepareReport(
     }));
     const fixed = {
       date: row.date,
+      recordIssues: passage.issues,
       records,
       firstEntry,
       lastExit,

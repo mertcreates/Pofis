@@ -1,22 +1,24 @@
 # Mesaim demosu
 
-Yerel adres: http://127.0.0.1:3000/demo. Sayfa giriş gerektirmeden gerçek Mesaim görünümünü açar. Günlük hareketler, rapor tablosu, plan editörü, geçmiş haftanın grafiği ve Pofi aynı bileşenleri ve [ürün kurallarını](rules/README.md) kullanır.
-
-Yerleşim ve bileşen görünümleri [DESIGN](../DESIGN.md) belgesini izler; demo ve canlı ekran [aynı arayüz sahiplerini](architecture/ui-components.md) kullanır. Hafta seçici aylar üzerinden çalışır. Demo kontrollerinde Pazartesi–Cuma gün seçicisi bulunur; grafik gün seçme kontrolü değildir. Günün akışı içindeki geçen süre ve hedef çıkış, tablodaki “Bugün” ve Pofi seçilen günü birlikte gösterir. Üst satır gün akışı ve haftalık toplamı; orta satır akordeon giriş-çıkış raporu ve içeriği kadar yükselen Pofi kartını içerir. Kapalı satırda gün, süre ve ilk giriş/son çıkış özeti görünür. Raporda hedef farkı ve kayıt durumu satır açıldığında görünür; verisi olmayan hafta sonları gösterilmez. Günün kayıtları rapor satırından açılır. Ayarlar menüsü plan modalını açar.
+Yerel adres: http://127.0.0.1:3000/demo. Sayfa giriş gerektirmeden Mesaim'i yakalanmış kayıtlarla açar. Canlı ekranla aynı [bileşenleri](architecture/ui-components.md) ve [ürün kurallarını](rules/README.md) kullanır. Yerleşim ve etkileşimlerin sahibi [DESIGN](../DESIGN.md) belgesidir.
 
 ## Demo kontrolleri
 
 ### Mesaim önizlemesi
 
-“Hazır senaryo → Geçmiş hafta” seçimi, yakalama tarihinden önceki haftanın tüm kayıtlarını ortak geçmiş hafta görünümünde açar. Gün simülasyonu ve ek süre kontrolleri bu görünümde gizlenir. Hafta seçiciden diğer haftalara geçilebilir; gün senaryolarından birini seçmek gün simülasyonuna döner. Geçmiş haftada üstte kompakt günlük dağılım grafiği ve içeriği kadar yükselen haftalık toplam, altta açılır günlük kayıtlar bulunur.
+Mesaim, Hata ekranları ve Bildirimler sekmeleri arasında seçimler korunur. Mesaim'de iki önizleme vardır:
 
-Sıfırdan büyük ek süre seçildiğinde sanal saat seçilen andan başlayarak saniyede bir ilerler; günlük sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Kayıtlı süre sabit kalır. Gün veya ek süre değişince saat yeni seçimden başlar; sıfır ek süre ve “Başlangıca dön” çalışan saati durdurur. Sekme yeniden görünür olduğunda geçen süre saate yansır. Saat İstanbul'da seçilen günün 23:59:59 sınırında durur.
+| Önizleme | Kontrol ve sonuç |
+| --- | --- |
+| Gün | Pazartesi–Cuma seçicisi günü sanal “bugün” yapar. Günün akışı, rapordaki “Bugün” ve Pofi aynı günü gösterir. Grafik gün seçme kontrolü değildir. |
+| Geçmiş hafta | “Hazır senaryo → Geçmiş hafta” önceki haftanın tüm kayıtlarını yakalama saatiyle açar. Gün ve ek süre kontrolleri gizlenir. Hafta seçiciyle diğer geçmiş haftalara geçilebilir; yakalama haftasına geçmek veya gün senaryosu seçmek gün önizlemesine döner. |
 
-Üstteki Mesaim, Hata ekranları ve Bildirimler sekmeleri ekranlar arasında geçiş sağlar. Hazır senaryolar mevcut veri ve ortak hesap sahiplerini kullanır: Hedefin altında 15 Ekim'i, Belirsiz kayıt 7 Ekim'i, Kayıt olmayan gün 9 Ekim'i açar; Devam eden mesai 15 Ekim'e 120 dakika sanal ek süre ekler. Hedef farkı kayıtlı demo mesai planına göre hesaplanır. Gün veya süre elle değiştiğinde eşleşen senaryo seçilir; eşleşme yoksa “Özel seçim” görünür.
+Gün senaryoları: Hedefin altında → 15 Ekim; Belirsiz kayıt → 7 Ekim; Kayıt olmayan gün → 9 Ekim; Devam eden mesai → 15 Ekim'e 120 dakika sanal ek süre. Hedef farkı kayıtlı demo planına göre hesaplanır. Elle seçim bir senaryoyla eşleşmezse “Özel seçim” görünür.
 
-Geçişlerde gün, ek süre, hata senaryosu ve örnek giriş adımı korunur. “Başlangıca dön” Mesaim'i yakalama gününde sıfır ek süreyle açar; hata önizlemesini bağlantı hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince önizleme başlangıç durumuna döner.
+“Demoyu sıfırla” yakalama gününü sıfır ek süreyle açar; hata önizlemesini bağlantı, bildirim önizlemesini çıkış hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince geçici seçimler sıfırlanır.
 
 [Demo kontrolleri](../src/demo/controls.tsx) sekmeleri ve sıfırlamayı sunar; durum [demo istemcisinde](../src/demo/dashboard.tsx) tutulur. Ortak DashboardView demo kontrol yapısını bilmez; içeriği standart `children` ile alır.
+
 ## Hata ekranları ve bildirimler
 
 Senaryolar canlı ekranlarla aynı [hata bileşenini](../src/components/request-error.js), [teknik ayrıntıları](../src/components/request-error-details.tsx) ve [kompakt bildirimleri](../src/components/inline-notice.tsx) kullanır. Hata sınıfları, İz kaydı ve toparlanma kuralları [hata sözleşmesinde](pdks-errors.md) yönetilir; demo yalnız örnek girdileri sağlar.
@@ -33,7 +35,7 @@ Senaryolar canlı ekranlarla aynı [hata bileşenini](../src/components/request-
 | Plan kayıt hatası | Yazma reddedilir, son örnek plan korunur |
 | Eksik Pofi notu | “Defteri aç” gerçek Notebook/Modal'ı açar; ilk seçilecek günün notu önizleme girdisinden çıkarılır, tarih ve gezinme korunur |
 
-Seçimler sekmeler arasında korunur. Yerel modal ve örnek plan senaryo/sekme değişiminde sıfırlanır. “Başlangıca dön” hata önizlemesini bağlantı hatasına, bildirim önizlemesini çıkış hatasına getirir. Yerel örnekler bellektedir; plan depolamasına veya kaynak fixture'a yazmaz.
+Yerel modal ve örnek plan senaryo/sekme değişiminde sıfırlanır. Bu örnekler bellektedir; plan depolamasına veya kaynak fixture'a yazmaz.
 
 Önizleme sahipleri: [hatalar](../src/demo/error-preview.tsx), [bildirimler](../src/demo/notice-preview.tsx), [yerel modal senaryoları](../src/demo/local-preview.tsx). Ortak DashboardView bu senaryoları bilmez.
 
@@ -45,6 +47,8 @@ Başlangıç günü 16 Ekim 2026, saati 11:24 Europe/Istanbul'dur. Bir gün seç
 
 Dört hafta arasında gezinilir; ilk yakalama haftasından önceki ve yakalama tarihinden sonraki haftalar seçilmez. Haftayı değiştirince haftanın aynı günü korunur; kısmi yakalama haftasında son kullanılabilir hafta içi gün seçilir. Kayıtsız hafta içi günler de seçilebilir. Seçim istemci belleğindedir; yeniden yükleme başlangıç gününü açar. Raporu yenile, aynı günün yakalanmış raporunu yeniden sunar. Gün gezintisi canlı Mesaim'de gösterilmez.
 
+Pozitif ek sürede sanal saat saniyede bir ilerler; sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Sekmeye dönüşte geçen süre yansır. Saat 23:59:59'da durur; sıfır ek süre ve “Demoyu sıfırla” çalışan saati durdurur. Geçmiş hafta önizlemesi tüm haftayı sabit yakalama saatiyle değerlendirir.
+
 | Haftanın başlangıcı | Hareket | Kayıtlı süre |
 | --- | ---: | ---: |
 | 21 Eylül | 74 | 36:55:54 |
@@ -52,11 +56,11 @@ Dört hafta arasında gezinilir; ilk yakalama haftasından önceki ve yakalama t
 | 5 Ekim | 84 | 32:07:40 |
 | 12 Ekim | 58 | 30:01:01 |
 
-Örnek senaryolar:
+Gün önizlemesinde örnekler:
 
 - 9 Ekim: kayıtsız çalışma günü; haftalık toplam yaklaşık, hedef farkı hesaplanmıyor.
 - 15 Ekim: 04:51:52 kayıtlı süre; varsayılan 8 saat hedefe göre eksik.
-- 7 Ekim: 09:15:58 bilinen kayıtlı süre; geçiş belirsizliği nedeniyle hedef farkı gösterilmez.
+- 7 Ekim: 09:15:58 bilinen kayıtlı süre; 13:11:58'de arada çıkış kaydı olmadan yeni giriş vardır. Günlük hedef farkı gösterilmez; [kayıt sorunu](rules/record-status.md) saatiyle açıklanır.
 - 28 Eylül: eşleşmeyen ara hareketler; ham hareketler ve ilk giriş–son çıkış özeti birlikte korunuyor.
 - 14 Ekim: 05:57:32 erken giriş; İstanbul saatinde gösteriliyor.
 - 15 Ekim: 2 saatlik ek süre seçimi 04:51:52 kayıtlı süreyi korur ve 02:00:00 anlık tahmin üretir.

@@ -11,7 +11,17 @@ export function stateLabel(day: DayReport) {
     case "missing":
       return ui.noRecord;
     case "uncertain":
-      return ui.incompleteRecord;
+      return day.recordIssues.length > 0
+        ? day.recordIssues.filter((issue, index, issues) => issues.findIndex(other => other.kind === issue.kind) === index)
+          .map(issue => {
+            switch (issue.kind) {
+              case "repeated-entry": return ui.recordIssues.repeatedEntry(issue.time);
+              case "unmatched-exit": return ui.recordIssues.unmatchedExit(issue.time);
+              case "missing-exit": return ui.recordIssues.missingExit(issue.time);
+              case "invalid-record": return ui.recordIssues.invalidRecord;
+            }
+          }).join(" ")
+        : ui.recordIssues.inconsistentSummary;
     case "ongoing":
       return ui.mesaiOngoing;
     case "open":

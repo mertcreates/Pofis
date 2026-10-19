@@ -3,6 +3,7 @@ import { presentReport, type Report } from "../report";
 import { DEFAULT_WORK_PLAN, type WorkPlan } from "./work-plan";
 import { summarizeWeek } from "./week";
 import type { DayState } from "./record-status";
+import { passageDay } from "./passages.js";
 
 const today = "2026-10-16";
 const now = Date.parse(`${today}T15:00:00+03:00`);
@@ -11,6 +12,33 @@ const closed = [
   ["12:00:00", "out"],
 ] as const;
 const open = [...closed, ["13:00:00", "in"]] as const;
+test.each([
+  { name: "art arda giriş", events: [["08:00:00", "in"], ["09:00:00", "in"], ["12:00:00", "out"]], kind: "repeated-entry", time: "09:00:00" },
+  { name: "girişsiz çıkış", events: [["12:00:00", "out"]], kind: "unmatched-exit", time: "12:00:00" },
+  { name: "art arda çıkış", events: [["08:00:00", "in"], ["12:00:00", "out"], ["13:00:00", "out"]], kind: "unmatched-exit", time: "13:00:00" },
+  { name: "geçmiş açık giriş", events: [["08:00:00", "in"]], kind: "missing-exit", time: "08:00:00" },
+] as const)("kayıt sorunu neden ve saatle rapora taşınır: $name", ({ events, kind, time }) => {
+  const day = presentReport(fixture("2026-10-15", events), DEFAULT_WORK_PLAN, now, false).days[3];
+  expect(day.state).toBe("uncertain");
+  expect(day.recordIssues).toEqual([{ kind, time }]);
+  expect(day.liveSeconds).toBeNull();
+});
+
+test("bugünkü açık giriş ve tutarlı geçmiş çift sorun üretmez", () => {
+  expect(passageDay([{ date: today, time: "08:00:00", direction: "in" }], today, today).issues).toEqual([]);
+  const day = presentReport(fixture("2026-10-15", closed), DEFAULT_WORK_PLAN, now, false).days[3];
+  expect(day.state).toBe("recorded");
+  expect(day.recordIssues).toEqual([]);
+  expect(day.recordedSeconds).toBe(14400);
+});
+
+test("okunamayan saat ve yön kayıt sorunu üretir", () => {
+  for (const event of [{ time: "25:00:00", direction: "in" }, { time: "08:00:00", direction: "unknown" }]) {
+    const day = passageDay([{ date: today, ...event }], today, today);
+    expect(day.uncertain).toBe(true);
+    expect(day.issues[0].kind).toBe("invalid-record");
+  }
+});
 type Events = readonly (readonly [string, "in" | "out"])[];
 function fixture(date: string, events: Events): Report {
   return {

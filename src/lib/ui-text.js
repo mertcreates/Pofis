@@ -194,6 +194,13 @@ export const ui = {
   liveEstimateDescription: "Canlı toplamın, çıkış kaydıyla kesinleşen kayıtlı süreyi aşan tahmini bölümü.",
   liveTotalLabel: "Canlı toplam",
   incompleteRecord: "Kayıtlarda belirsizlik var",
+  recordIssues: {
+    repeatedEntry: time => `${time}: arada çıkış kaydı olmadan yeni giriş var.`,
+    unmatchedExit: time => `${time}: bu çıkışla eşleşen giriş kaydı yok.`,
+    missingExit: time => `${time} girişinden sonra çıkış kaydı yok.`,
+    invalidRecord: "Bir kaydın saati veya giriş–çıkış yönü okunamıyor.",
+    inconsistentSummary: "Giriş ve çıkış saatlerinden süre hesaplanamıyor.",
+  },
   incompleteRecordHint: "Giriş-çıkış kayıtlarını kontrol et.",
   awaitingEntry: "Henüz giriş kaydı yok",
   mesaiOngoing: "Mesai devam ediyor",

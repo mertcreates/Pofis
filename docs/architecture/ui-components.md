@@ -11,9 +11,9 @@ Demo ve canlı ekran aynı bileşenleri kullanır. Görsel kararlar [DESIGN](../
 | Hafta seçimi | [WeekPicker](../../src/components/dashboard/week-picker.tsx), [takvim](../../src/components/dashboard/week-calendar.ts): aylık gezinme ve hafta seçimi |
 | Süre ve metrikler | [Metrics](../../src/components/dashboard/metrics.tsx), [Duration / Progress](../../src/components/primitives.tsx): hesaplanmış süreleri sunma; geçmiş haftada grafik ve haftalık toplamı aynı satırda birleştirme |
 | Günün akışı | [DayFlow](../../src/components/attendance/day-flow.tsx): saat ekseni, hedef ve son kayıt/şimdi işaretleri |
-| Haftalık toplam | [WeeklyTotal](../../src/components/dashboard/weekly-total.tsx): günlük hedef bölümleri, toplam ve hedef farkı |
+| Haftalık toplam | [WeeklyTotal](../../src/components/dashboard/weekly-total.tsx): toplam ve hedef farkı; güncel haftada günlük hedef cetveli |
 | Haftalık grafik | [WeekChart](../../src/components/attendance/week-chart.tsx): günlük kayıtlı süre ve tahmin sütunları |
-| Giriş–çıkış raporu | [ReportTable](../../src/components/attendance/report-table.tsx), [RawPassages](../../src/components/attendance/records.tsx): akordeon/tablo, kayıt durumu ve açıldığında hazırlanan ham hareketler |
+| Giriş–çıkış raporu | [ReportTable](../../src/components/attendance/report-table.tsx), [RawPassages](../../src/components/attendance/records.tsx): açılır günlük özetler ve ham hareketler; [labels](../../src/components/attendance/labels.ts) kayıt durumunu ve somut nedenleri metne çevirir |
 | Pofi paneli | [PofiPanel](../../src/components/dashboard/pofi-panel.tsx): durum görseli, başlık, mesaj ve odayı açma |
 | Pofi odası | [Oda](../../src/components/pofi/room.js), [not defteri](../../src/components/pofi/notebook.js), [bağlantı](../../src/components/pofi-room-content.tsx): albüm, kart, notlar ve sürprizler |
 | Pofi çağırma ve ikonlar | [PofiCall](../../src/components/pofi-call.js), [Icon](../../src/components/ui-icon.js): klavye çağrısı ve ortak ikonlar |

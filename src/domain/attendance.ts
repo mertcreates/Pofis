@@ -8,6 +8,7 @@ type Interval = {
 export type DayReport = {
   date: string;
   state: DayState;
+  recordIssues: ReturnType<typeof import("./rules/passages.js").passageDay>["issues"];
   records: Passage[];
   intervals: Interval[];
   firstEntry: number | null;
