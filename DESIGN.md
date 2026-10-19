@@ -73,8 +73,8 @@ Renkler `light-dark()` ve semantik CSS değişkenlerinden gelir. `html[data-them
 
 - **Giriş ve hata:** üst marka ve içerik ortak 920px alana hizalanır. Kenar boşluğu masaüstünde 32px, 780px altında 16px'tir.
 - **Güncel hafta:** üstte günün akışı ve haftalık toplam; altında akordeon giriş–çıkış raporu ve Pofi. Pofi kartı üstte hizalanır, raporun yüksekliğine esnemez.
-- **Geçmiş hafta:** dört haftalık metrik, ardından alt alta grafik ve rapor tablosu.
-- **Duyarlı düzen:** masaüstünde 230px sol menü ve en fazla 1530px ana alan; 1170px altında orta satır tek sütun, 1000px altında menü üstte açılır, 700px altında üst kartlar tek sütun olur. Kart yüksekliği içeriği izler. 600px altında geçmiş rapor tablosu etiketli gün kartlarına dönüşür. Diğer ölçüler CSS sahibinde tutulur.
+- **Geçmiş hafta:** güncel haftayla aynı iki sütunlu üst satırda günlük dağılım grafiği ve haftalık toplam; altında açılır günlük kayıt raporu. Hedef ve hedef farkı toplam kartında bir kez gösterilir. Toplam kartı içeriği kadar yükselir; grafiğe esnemez.
+- **Duyarlı düzen:** masaüstünde 230px sol menü ve en fazla 1530px ana alan; 1170px altında orta satır tek sütun, 1000px altında menü üstte açılır, 700px altında üst kartlar tek sütun olur. Kart yüksekliği içeriği izler. Diğer ölçüler CSS sahibinde tutulur.
 
 Canlı ekranda [ReportContent](src/components/dashboard/report-content.tsx) güncel haftanın saniyelik saatini, dış [Dashboard](src/components/dashboard.tsx) İstanbul gün değişimini yönetir. Gizli sekmeden dönüşte gerçek saat okunur. Demo kendi sanal saatini sağlar. Ayarlar ve Pofi odası doğrudan yüklenir.
 
@@ -95,7 +95,7 @@ Sayısal veriler tabular gösterilir. Saat/dakika baskın, saniye ikincildir. Bi
 
 ### Haftalık toplam ve grafik
 
-[WeeklyTotal](src/components/dashboard/weekly-total.tsx), toplam ve sakin hedefi aynı satırda “toplam / hedef” olarak sunar. Yüzde başlıkta dolgusuz mor metindir; güncel haftada kalan/aşan süre alta yaslanır.
+[WeeklyTotal](src/components/dashboard/weekly-total.tsx), toplam ve sakin hedefi aynı satırda “toplam / hedef” olarak sunar. Yüzde başlıkta dolgusuz mor metindir; kalan/aşan süre alta yaslanır. Tamamlanmış haftada hedefin altındaki süre “Hedefin altında” etiketiyle gösterilir. Eksik veya belirsiz kayıtlarda geçmiş haftanın farkı ve yüzdesi yaklaşık işaretiyle sunulur; güncel haftada fark gösterilmez.
 
 Cetvelde her açık gün eşit genişliktedir. Bölümler kendi etkin günlük hedeflerine göre dolar; günlük hedefler farklıysa eşit bölümler haftalık toplamın eşit paylarını temsil etmez. Hedef aşımı sonraki bölüme taşmaz. Sıfır süreli açık gün görünür kalır; bilinmeyen süre sıfır diye adlandırılmaz. Gün adı, süre ve hedef ortak tooltip'te görünür.
 
@@ -109,7 +109,7 @@ Cetvelde her açık gün eşit genişliktedir. Bölümler kendi etkin günlük h
 - **Plan düzenleme:** gün adı/İzin–Aç eylemi solda, stepper sağdadır. Varsayılan sekmesinde Kapat–Aç kullanılır. Haftalık kart ve stepper aynı gereken süreyi gösterir. İzinli gün “İzinli”, şablondan kapalı gün “Kapalı”, sıfır süreli açık gün `0 sa` der. Kilitli gerçekleşen süre düzenlenmez; kayıtlı plan ve farklıysa şablon alt bilgide görünür.
 - **Plan toplamları:** ana toplam hedeftir; beklenen toplam farklıysa ayrıca gösterilir. Tamamla ve Sıfırla uygulanabilir olduklarında görünür; kapasite yetmiyorsa açıklama sunulur. [Hesap ve kayıt sözleşmesi](docs/rules/work-plan.md) bu belgedeki görsel kararlardan ayrıdır.
 - **Mobil plan:** kontroller ve eylemler satır kırabilir; sayı ile birimi birlikte kalır. Dokunmatik kontroller 44px olur; diğer ölçüler plan CSS sahibindedir. Tam süreler erişilebilir etiketlerde korunur.
-- **Rapor:** güncel hafta günleri bağımsız native akordeondur. Kapalı satır gün, süre ve ilk giriş/son çıkış özetini gösterir; belirsizlik uyarısı görünür kalır. Hedef farkı, kayıtlı süre, durum ve ham hareketler ayrıntıdadır. Geçmiş haftada altı sütun kullanılır. Hafta sonları yalnız kayıt/süre verisi varsa görünür. Ham liste ilk açılışta oluşturulur ve korunur. [Kayıt durumu sözleşmesi](docs/rules/record-status.md) ortaktır.
+- **Rapor:** güncel ve geçmiş hafta günleri bağımsız native akordeondur. Kapalı satır gün, süre ve ilk giriş/son çıkış özetini gösterir; belirsizlik uyarısı görünür kalır. Hedef farkı, kayıtlı süre, durum ve ham hareketler ayrıntıdadır. Hafta sonları yalnız kayıt/süre verisi varsa görünür. Ham liste ilk açılışta oluşturulur ve korunur. [Kayıt durumu sözleşmesi](docs/rules/record-status.md) ortaktır.
 - **Pofi:** 156px durum görseli ve ortak başlık/mesaj düzeni; maskota basınca oda açılır. Albüm, notlar, kart, Pofi mesaisi ve sürprizler kendi sahiplerini kullanır.
 
 ## Odak, modal ve tooltip

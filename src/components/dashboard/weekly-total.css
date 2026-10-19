@@ -9,4 +9,3 @@
 .weekly-total-difference { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 6px 12px; margin: auto 0 0; padding-top: 18px; font-size: 12px; }
 .weekly-total-difference dt { color: var(--secondary); }
 .weekly-total-difference dd { margin: 0; font-weight: 600; }
-.weekly-total > .metric-hint { margin-top: 16px; }

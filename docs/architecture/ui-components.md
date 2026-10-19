@@ -9,7 +9,7 @@ Demo ve canlı ekran aynı bileşenleri kullanır. Görsel kararlar [DESIGN](../
 | Mesaim | [DashboardView](../../src/components/dashboard/view.tsx), [başlık](../../src/components/dashboard/header.tsx): güncel/geçmiş hafta yerleşimi ve ortak ekran modeli |
 | Canlı saat | [ReportContent](../../src/components/dashboard/report-content.tsx): saniyelik izdüşüm; [Dashboard](../../src/components/dashboard.tsx): İstanbul gün değişimi |
 | Hafta seçimi | [WeekPicker](../../src/components/dashboard/week-picker.tsx), [takvim](../../src/components/dashboard/week-calendar.ts): aylık gezinme ve hafta seçimi |
-| Süre ve metrikler | [Metrics](../../src/components/dashboard/metrics.tsx), [MetricCard](../../src/components/dashboard/metric-card.tsx), [Duration / Progress](../../src/components/primitives.tsx): hesaplanmış süreleri sunma |
+| Süre ve metrikler | [Metrics](../../src/components/dashboard/metrics.tsx), [Duration / Progress](../../src/components/primitives.tsx): hesaplanmış süreleri sunma; geçmiş haftada grafik ve haftalık toplamı aynı satırda birleştirme |
 | Günün akışı | [DayFlow](../../src/components/attendance/day-flow.tsx): saat ekseni, hedef ve son kayıt/şimdi işaretleri |
 | Haftalık toplam | [WeeklyTotal](../../src/components/dashboard/weekly-total.tsx): günlük hedef bölümleri, toplam ve hedef farkı |
 | Haftalık grafik | [WeekChart](../../src/components/attendance/week-chart.tsx): günlük kayıtlı süre ve tahmin sütunları |

@@ -250,14 +250,10 @@
 .chart-panel {
   min-height: 345px;
 }
-.weekly-chart-list {
-  display: grid;
-  gap: 16px;
-  min-width: 0;
-}
-.weekly-chart-list .chart-panel {
-  min-height: 365px;
-}
+.metrics-history { align-items: start; }
+.metrics > .chart-panel { min-height: 0; }
+.metrics .weekly-chart { height: 140px; margin-top: 24px; }
+.metrics .bar-area { height: calc(100% - 39px); }
 .weekly-chart {
   margin-top: 34px;
   position: relative;
@@ -1488,7 +1484,7 @@ body {
     display: block;
   }
   .chart-foot > span:last-child {
-    display: block;
+    display: inline-flex;
     text-align: left;
     margin-top: 7px;
   }

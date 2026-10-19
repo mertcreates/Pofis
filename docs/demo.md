@@ -8,6 +8,8 @@ Yerleşim ve bileşen görünümleri [DESIGN](../DESIGN.md) belgesini izler; dem
 
 ### Mesaim önizlemesi
 
+“Hazır senaryo → Geçmiş hafta” seçimi, yakalama tarihinden önceki haftanın tüm kayıtlarını ortak geçmiş hafta görünümünde açar. Gün simülasyonu ve ek süre kontrolleri bu görünümde gizlenir. Hafta seçiciden diğer haftalara geçilebilir; gün senaryolarından birini seçmek gün simülasyonuna döner. Geçmiş haftada üstte kompakt günlük dağılım grafiği ve içeriği kadar yükselen haftalık toplam, altta açılır günlük kayıtlar bulunur.
+
 Sıfırdan büyük ek süre seçildiğinde sanal saat seçilen andan başlayarak saniyede bir ilerler; günlük sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Kayıtlı süre sabit kalır. Gün veya ek süre değişince saat yeni seçimden başlar; sıfır ek süre ve “Başlangıca dön” çalışan saati durdurur. Sekme yeniden görünür olduğunda geçen süre saate yansır. Saat İstanbul'da seçilen günün 23:59:59 sınırında durur.
 
 Üstteki Mesaim, Hata ekranları ve Bildirimler sekmeleri ekranlar arasında geçiş sağlar. Hazır senaryolar mevcut veri ve ortak hesap sahiplerini kullanır: Hedefin altında 15 Ekim'i, Belirsiz kayıt 7 Ekim'i, Kayıt olmayan gün 9 Ekim'i açar; Devam eden mesai 15 Ekim'e 120 dakika sanal ek süre ekler. Hedef farkı kayıtlı demo mesai planına göre hesaplanır. Gün veya süre elle değiştiğinde eşleşen senaryo seçilir; eşleşme yoksa “Özel seçim” görünür.

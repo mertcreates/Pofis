@@ -3,7 +3,6 @@ import { dateKey } from "@/domain/rules/calendar";
 import type { prepareReport } from "@/domain/report";
 import { ui } from "@/lib/ui-text.js";
 import { ReportTable } from "../attendance/report-table";
-import { WeekChart } from "../attendance/week-chart";
 import { DashboardMetrics } from "./metrics";
 import { PofiPanel } from "./pofi-panel";
 
@@ -21,18 +20,15 @@ export function ReportContent({ prepared, initialNow, today, isCurrent, liveCloc
   const clock = useClock(initialNow, liveClock && isCurrent ? "second" : false);
   // The outer date owner replaces the projector at midnight; never call yesterday's projector with today's clock.
   const now = dateKey(clock) === today ? clock : initialNow;
-  const { days, blocked } = prepared(now);
+  const { days } = prepared(now);
   const todayReport = days.find(day => day.date === today);
   return <section className="dashboard" aria-label={ui.personRecords(owner)}>
-    <DashboardMetrics targetSeconds={targetSeconds} days={days} today={today} isCurrent={isCurrent} />
+    <DashboardMetrics targetSeconds={targetSeconds} days={days} today={today} isCurrent={isCurrent} week={week} />
     {isCurrent && todayReport && <div className="middle-grid">
       <ReportTable days={days} today={today} compact />
       <PofiPanel key={today} day={todayReport} now={now} onOpen={onOpenRoom} />
     </div>}
-    {!isCurrent && <div className="weekly-chart-list">
-      <WeekChart days={days} today={today} start={week} current={isCurrent} blocked={blocked} />
-      <ReportTable days={days} today={today} />
-    </div>}
+    {!isCurrent && <ReportTable days={days} today={today} compact />}
     {isCurrent && !todayReport && <ReportTable days={days} today={today} />}
   </section>;
 }

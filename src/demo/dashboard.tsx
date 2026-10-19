@@ -30,6 +30,7 @@ export function DemoDashboard({
 }: ReturnType<typeof demoData>) {
   const [date, setDate] = useState(() => dateKey(capturedAt));
   const [extraMinutes, setExtraMinutes] = useState(0);
+  const [historical, setHistorical] = useState(false);
   const [view, setView] = useState<DemoView>("attendance");
   const [errorPreview, setErrorPreview] = useState<ErrorPreviewState>(initialErrorPreview);
   const [noticePreview, setNoticePreview] = useState<NoticePreviewState>(initialNoticePreview);
@@ -38,6 +39,7 @@ export function DemoDashboard({
   const selectWeek = useCallback(
     (next: string) => {
       if (!reports.some((report) => report.from === next)) return;
+      if (next === weekStart(dateKey(capturedAt))) setHistorical(false);
       const available = demoDays(next, capturedAt);
       const matchingDay = addDays(next, weekday(date));
       const nextDate = available.includes(matchingDay)
@@ -54,9 +56,10 @@ export function DemoDashboard({
     const captured = reports.find((report) => report.from === week);
     if (!captured)
       throw new Error("Seçilen hafta örnek veri aralığında bulunmuyor.");
+    if (historical) return { report: captured, now: capturedAt, maxExtraMinutes: 0 };
     return previewDemoDay(captured, date, capturedAt, extraMinutes);
-  }, [reports, week, date, capturedAt, extraMinutes, revision]);
-  const now = useDemoClock(report.now, extraMinutes > 0);
+  }, [reports, week, date, capturedAt, extraMinutes, revision, historical]);
+  const now = useDemoClock(report.now, !historical && extraMinutes > 0);
   function selectDate(next: string) {
     const nextWeek = weekStart(next);
     if (
@@ -71,11 +74,12 @@ export function DemoDashboard({
   function resetPreview() {
     setDate(dateKey(capturedAt));
     setExtraMinutes(0);
+    setHistorical(false);
     setErrorPreview(initialErrorPreview);
     setNoticePreview(initialNoticePreview);
     setView("attendance");
   }
-  const selectedPreset = Object.entries(attendancePresets).find(
+  const selectedPreset = historical ? "historical" : Object.entries(attendancePresets).find(
     ([, preset]) => preset.date === date && preset.minutes === extraMinutes,
   )?.[0] ?? "custom";
   const controls = (children: ReactNode) => (
@@ -108,11 +112,19 @@ export function DemoDashboard({
           <label className="demo-control-select">
             <span>{ui.demo.controls.scenario}</span>
             <select value={selectedPreset} onChange={event => {
+              const past = event.currentTarget.value === "historical";
+              setHistorical(past);
+              if (past) {
+                setDate(addDays(weekStart(dateKey(capturedAt)), -7));
+                setExtraMinutes(0);
+                return;
+              }
               const preset = attendancePresets[event.currentTarget.value as keyof typeof attendancePresets];
               setDate(preset.date);
               setExtraMinutes(preset.minutes);
             }}>
               <option value="custom" disabled>{ui.demo.controls.custom}</option>
+              <option value="historical">{ui.demo.controls.historical}</option>
               {(Object.keys(attendancePresets) as (keyof typeof attendancePresets)[]).map(key => (
                 <option key={key} value={key}>{ui.demo.controls.presets[key]}</option>
               ))}
@@ -120,7 +132,7 @@ export function DemoDashboard({
           </label>
           <p className="demo-notice">{ui.demo.notice}</p>
         </div>
-        <DemoDayPicker
+        {!historical && <DemoDayPicker
           dates={dates}
           selected={date}
           now={now}
@@ -129,7 +141,7 @@ export function DemoDashboard({
           maxExtraMinutes={report.maxExtraMinutes}
           onExtraMinutesChange={setExtraMinutes}
           onSelect={selectDate}
-        />
+        />}
       </>)}
     </DashboardView>
   );

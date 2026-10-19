@@ -14,13 +14,11 @@ export function WeekChart({
   today,
   start,
   current,
-  blocked = false,
 }: {
   days: DayReport[];
   today: string;
   start: string;
   current: boolean;
-  blocked?: boolean;
 }) {
   const visible = days.filter(
     day =>
@@ -117,7 +115,6 @@ export function WeekChart({
           </span>
         )}
       </div>
-      {blocked && <p className="table-footnote">{ui.availableRecordsTotal}</p>}
     </section>
   );
 }

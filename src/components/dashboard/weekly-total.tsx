@@ -10,11 +10,11 @@ import { Tooltip } from "../tooltip";
 import { weeklyRuler } from "./weekly-ruler";
 import "./weekly-total.css";
 
-export function WeeklyTotal({ days, target, summary, showDifference }: {
+export function WeeklyTotal({ days, target, summary, isCurrent }: {
   days: DayReport[];
   target: number;
   summary: ReturnType<typeof summarizeWeek>;
-  showDifference: boolean;
+  isCurrent: boolean;
 }) {
   const percent = target > 0 ? percentage(summary.totalSeconds, target) : null;
   const segments = weeklyRuler(days);
@@ -44,7 +44,9 @@ export function WeeklyTotal({ days, target, summary, showDifference }: {
         })}
       </div>
     </>}
-    {showDifference && !summary.incomplete && <dl className="weekly-total-difference"><dt>{summary.totalSeconds >= target ? ui.excessLabel : ui.remainingLabel}</dt><dd><Duration seconds={Math.abs(target - summary.totalSeconds)} /></dd></dl>}
-    {summary.incomplete && <p className="metric-hint">{ui.availableRecordsTotal}</p>}
+    {(!isCurrent || !summary.incomplete) && <dl className="weekly-total-difference">
+      <dt>{summary.totalSeconds >= target ? ui.excessLabel : isCurrent ? ui.remainingLabel : ui.shortfallLabel}</dt>
+      <dd>{summary.incomplete && "≈ "}<Duration seconds={Math.abs(target - summary.totalSeconds)} /></dd>
+    </dl>}
   </section>;
 }
