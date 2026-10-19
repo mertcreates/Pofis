@@ -11,6 +11,7 @@
     "test": "bun test",
     "desktop": "bun scripts/electron/launch.cjs",
     "desktop:update-demo": "bun scripts/electron/update-demo.cjs",
+    "desktop:install-demo": "bun scripts/electron/install-close-demo.cjs",
     "desktop:install": "bun node_modules/electron/install.js",
     "desktop:prepare": "bun run desktop:install && bun scripts/electron/build.cjs",
     "desktop:package": "bun run desktop:prepare && bun scripts/electron/package.cjs",
