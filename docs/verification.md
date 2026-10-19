@@ -50,6 +50,10 @@ Yerel oturum ölçümü için `bun scripts/benchmark-sessions.ts 100` çalışt�
 
 ## Masaüstü kabulü
 
+`bun run test:desktop`, [sürüm denetimi testlerini](../electron/updates.test.cjs) de çalıştırır. Test manifestleriyle Windows/macOS hedef seçimi, sayısal sürüm karşılaştırması, bildirim seçimi, sabit kurulum komutu, kapanış sırasında sonucu bırakma ve gerçek 5 saniyelik zaman aşımı doğrulanır. Yerel Electron dialogunun ve panonun işletim sistemi davranışı, ayrıca canlı HTTPS manifestleri hedef cihazda kontrol edilir.
+
+Installer kapanış sözleşmesi `bun test ./scripts/electron/install-close.test.cjs ./scripts/electron/install-macos.test.cjs` ile sınanır. macOS'ta sistem Bash'i, Windows'ta `POFIS_TEST_BASH` ile belirtilen Git Bash kullanılır. Onay reddi, yanıtsız çalıştırma, normal kapanış, ayrı zorla kapatma onayı ve süreçler bitmeden ilerlememe senaryoları işletim sistemi işlemleri taklit edilerek doğrulanır. Windows testi ayrıca izole kurulum yolunda çalışan gerçek bir fixture sürecini zorla kapatıp dışarıdaki sürecin çalışmaya devam ettiğini doğrular. Windows dağıtım kabulü gerçek paketle açık uygulamanın normal kapanışını ve yeni sürümün açılışını da sınar; bu testte yalnız terminal yanıtı sağlanır ve zorla kapatma sorusuna ihtiyaç duyulmadığı kontrol edilir. macOS native kabulü aynı normal kapanış zincirini gerçek `osascript` ile çalıştırır.
+
 [Masaüstü rehberi](desktop.md#tekrarlanabilir-kabul) ortak platform/süreç testlerini, Node/Bun bulunmayan PATH ile paket kabulünü ve gerçek PDKS elle kontrol zincirini yönetir. Windows ve macOS hedefinde `bun run test:desktop` ve paket hazırlandıktan sonra aynı `bun run test:desktop:smoke` çalıştırılır. Windows ZIP'i için ayrıca `bun run test:desktop:distribution` kurulum/güncelleme/temizlik ve veri koruma yollarını izole dizinlerde sınar. Windows üzerinde sinyal politikası ve macOS yollarının test edilmesi macOS sistem araçları, gerçek pencere, izinler ve Gatekeeper kabulünü kanıtlamaz. Bu kontroller kurum hesabı/ağı ve temiz cihaz kabulünün yerine geçmez.
 
 ## Sonuçların yönetimi

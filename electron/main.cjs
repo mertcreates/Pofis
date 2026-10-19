@@ -1,8 +1,9 @@
-const { app, BrowserWindow, dialog, Menu, session, utilityProcess } = require("electron");
+const { app, BrowserWindow, clipboard, dialog, Menu, session, utilityProcess } = require("electron");
 const { join } = require("node:path");
 const { createDesktopServer, ORIGIN } = require("./server.cjs");
 const { startupId, writeStartupResult } = require("./startup.cjs");
 const { platformTarget } = require("./platform.cjs");
+const { checkForUpdates } = require("./updates.cjs");
 const target = platformTarget();
 
 app.setName("Pofis");
@@ -14,6 +15,7 @@ let serverOrigin;
 let quitting = false;
 let reportingFailure = false;
 let ready = false;
+let updateTimer;
 const requests = new Set();
 const firstRequest = startupId(process.argv);
 if (firstRequest) requests.add(firstRequest);
@@ -69,6 +71,7 @@ if (!app.requestSingleInstanceLock()) {
     if (quitting) return;
     event.preventDefault();
     quitting = true;
+    clearTimeout(updateTimer);
     if (!server) { app.quit(); return; }
     server.stop().then(() => app.quit()).catch(async () => {
       await dialog.showMessageBox({ type: "error", title: "Pofis", message:
@@ -139,5 +142,19 @@ if (!app.requestSingleInstanceLock()) {
     await painted;
     ready = true;
     await focusAndReport();
+    if (app.isPackaged) {
+      updateTimer = setTimeout(() => {
+        checkForUpdates({
+          target, currentVersion: app.getVersion(),
+          isActive: () => !quitting && !reportingFailure && !window.isDestroyed() && !window.webContents.isDestroyed(),
+          showMessageBox: options => dialog.showMessageBox(window, options),
+          writeClipboard: text => clipboard.writeText(text),
+        }).catch(() => {
+          // Update failures are optional diagnostics and must never fail application startup.
+          console.warn("Pofis güncelleme denetimi tamamlanamadı.");
+        });
+      }, 3000);
+      updateTimer.unref();
+    }
   }).catch(fail);
 }

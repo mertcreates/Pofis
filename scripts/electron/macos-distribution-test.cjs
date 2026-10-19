@@ -41,11 +41,15 @@ async function run() {
   const archives = new Map();
   const env = { ...process.env, PATH: "/usr/bin:/bin:/usr/sbin:/sbin" };
   delete env.ELECTRON_RUN_AS_NODE;
-  const install = () => {
-    const script = command.replace("https://pofis.app/install.sh", `${base}/install.sh`) +
-      ' -s -- --manifest-url "$MANIFEST_URL" --install-root "$INSTALL_ROOT" --app-path "$APP_PATH" --user-data-dir "$USER_DATA"';
+  const install = (consent = false) => {
+    // Only the terminal answer is stubbed for native CI. Quit and process checks remain real.
+    const script = (consent ? 'source "$INSTALLER_SOURCE"; prompts=0; confirm_close() { prompts=$((prompts + 1)); return 0; }; main' :
+      command.replace("https://pofis.app/install.sh", `${base}/install.sh`) + ' -s --') +
+      ' --manifest-url "$MANIFEST_URL" --install-root "$INSTALL_ROOT" --app-path "$APP_PATH" --user-data-dir "$USER_DATA"' +
+      (consent ? '; [[ "$prompts" == 1 ]]' : '');
     const child = spawn("/bin/bash", ["-o", "pipefail", "-c", script], { env: { ...env,
-      MANIFEST_URL: `${base}/latest.json`, INSTALL_ROOT: installRoot, APP_PATH: appPath, USER_DATA: profile },
+      MANIFEST_URL: `${base}/latest.json`, INSTALL_ROOT: installRoot, APP_PATH: appPath, USER_DATA: profile,
+      INSTALLER_SOURCE: join(__dirname, "install.sh") },
       stdio: ["ignore", "pipe", "pipe"] });
     let output = "";
     child.stdout.on("data", data => output += data);
@@ -145,13 +149,13 @@ async function run() {
     active = next;
     await expectFailure(/Pofis açık/);
     assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, first.version);
-    await close();
-    await expectInstall();
+    const updated = await install(true);
+    assert.equal(updated.code, 0, updated.output);
     assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, next.version);
     assert.deepEqual(await readdir(join(installRoot, 'versions')), []);
     assert.equal(await readFile(marker, "utf8"), "settings/session-file boundary preserved");
     await close();
-    console.log("PASS: bozuk/eksik indirme, açıkken güncelleme reddi, gerçek sürüm yükseltme ve profil korunması");
+    console.log("PASS: bozuk/eksik indirme, onaysız güncelleme reddi, onaylı normal kapanış ve sürüm yükseltme, profil korunması");
     active = broken;
     await expectFailure(/Pofis sunucusu kapandı \(kod: 23\)/);
     assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, broken.version);

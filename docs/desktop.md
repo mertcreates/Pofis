@@ -34,6 +34,24 @@ Oturum JSON'ları çalışma anında kullanıcı profilinde oluşur; derleme var
 
 Masaüstü standalone derlemesinde `experimental.isrFlushToDisk: false` kullanılır. Next.js çalışma zamanı önbelleği bellekte tutulur; imzalı uygulamanın içine `route-cache` dosyaları yazılmaz. Paket açılış testi macOS'ta uygulama kapandıktan sonra imzayı yeniden doğrular. Web derlemesinin önbellek ayarı değişmez.
 
+## Açılışta sürüm denetimi
+
+[Electron ana süreci](../electron/main.cjs), paketli uygulamanın penceresi hazır olduktan 3 saniye sonra [güncelleme denetleyicisini](../electron/updates.cjs) bir kez çalıştırır. Geliştirme açılışı kontrol başlatmaz; ikinci örneğin mevcut pencereyi öne getirmesi yeni kontrol oluşturmaz. Kapanış bekleyen zamanlayıcıyı temizler; devam eden isteğin sonucu kapanan veya hata durumundaki uygulamada bildirim açmaz.
+
+Denetleyici platform tanımından `https://pofis.app/releases/windows/latest.json`, `…/macos/arm64/latest.json` veya `…/macos/x64/latest.json` adresini seçer. Ana sürecin Node `fetch` çağrısı önbelleksiz, kimlik bilgisi göndermeden, yönlendirmeyi reddederek ve 5 saniye zaman aşımıyla çalışır. Mevcut sürüm, kullanıcı kimliği veya PDKS bilgisi isteğe eklenmez.
+
+Manifestin şeması, hedefi, `x.y.z` sürümü, boyutu, SHA-256 biçimi ve beklenen public GitHub paket adresi doğrulanır. Sürüm bileşenleri sayısal karşılaştırılır. Yalnız daha yeni sürümde ana pencereye bağlı yerel bildirim gösterilir:
+
+- **Pofis'in yeni sürümü hazır** — kurulu ve yeni sürüm ile kurulum komutunu yeniden çalıştırma açıklaması.
+- **Kurulum komutunu kopyala** platformun sabit komutunu panoya yazar. Komut manifestten alınmaz; uygulama komutu çalıştırmaz.
+- **Daha sonra** varsayılan ve iptal seçeneğidir; panoyu değiştirmez. Tercih kalıcı kaydedilmez; sonraki açılış yeniden denetler.
+
+Aynı veya eski sürüm bildirim açmaz. Ağ, HTTP, JSON veya doğrulama hatası açılışı durdurmaz; yalnız genel bir konsol uyarısı yazılır. Kurulum komutu çalıştırıldığında aşağıdaki onaylı kapanış ve kurulum akışı uygulanır. [Denetleyici testleri](../electron/updates.test.cjs) üç hedefi, sayısal karşılaştırmayı, iptali, kapanışı, geçersiz yanıtları ve zaman aşımını kapsar.
+
+### Güncelleme bildirimini deneme
+
+`bun run desktop:update-demo`, [yerel demo başlatıcısıyla](../scripts/electron/update-demo.cjs) gerçek Electron bildirimini örnek `0.1.0 → 0.1.1` sürümleriyle açar. Electron runtime'ı kurulu olmalıdır; eksikse önce `bun run desktop:install` çalıştırılır. Next derlemesi veya çalışan Pofis gerekmez. Demo ağ isteği ve kurulum yapmaz, ayrı geçici profil kullanır; pencere kapatılınca profil temizlenir. **Kurulum komutunu kopyala** gerçek platform komutunu panoya yazar; **Daha sonra** veya pencereyi kapatma panoyu değiştirmez. Komutu çalıştırmadan bir metin alanına yapıştırarak kontrol edebilirsin.
+
 ## Yerel dağıtımı hazırlama
 
 Uygulama simgesinin tek kaynağı [pofi-mark-256.png](../public/pofi/pofi-mark-256.png) dosyasıdır. Pencere ve macOS Dock aynı PNG'yi kullanır. Paketleme, görseli değiştirmeden `dist/electron/icons/` altında ICO ve ICNS üretir; Windows EXE/kısayol simgesine ve macOS uygulama paketine işler.
@@ -102,12 +120,22 @@ bun test ./scripts/electron/prepare-site.test.cjs
 
 - Uygulama `%LOCALAPPDATA%/Programs/Pofis/versions/<kimlik>/` altına kurulur; etkin sürüm `installed.json` ile belirlenir. `install.lock` aynı kökte eşzamanlı işlemleri engeller.
 - Güncel sürüm yeniden indirilmez/kurulmaz; dosyaları kontrol edilir, kısayolu onarılır, uygulama açılır veya mevcut pencere öne gelir. Sürüm düşürülmez; aynı sürümün farklı hash taşıması reddedilir.
-- Yeni paket `versions/<kimlik>/` altında pasif dizinde hazırlanır. Tüm doğrulamalar geçtikten sonra atomik `installed.json` kaydıyla etkinleştirilir; derin Next dosya yollarını içeren dizin taşınmaz. Pofis çalışıyorsa kullanıcıdan kapatıp komutu tekrar çalıştırması istenir; süreç zorla kapatılmaz, etkin sürüm değiştirilmez.
+- Yeni paket `versions/<kimlik>/` altında pasif dizinde hazırlanır. Tüm doğrulamalar ve aşağıdaki onaylı kapanış geçtikten sonra atomik `installed.json` kaydıyla etkinleştirilir; derin Next dosya yollarını içeren dizin taşınmaz.
 - Kayıt yazımında geçici Windows paylaşım/kilit hataları en fazla beş kez, 150 ms aralıkla denenir. Kalıcı hatada Windows hata kodu gösterilir; geçici kayıt temizlenir ve etkin kayıt silinerek üzerine yazılmaz.
 - Paket doğrulanıp açık Pofis kapatıldıktan sonra yeni sürüm etkinleştirilir; eski sürüm klasörleri pencere açılışını beklemeden kaldırılır. Açılış hatası bildirilir; otomatik sürüm geri dönüşü yoktur. İndirme veya bütünlük hatası mevcut kurulumu değiştirmez.
 - Profil `%APPDATA%/Pofis/`, sunucu oturumları `sessions/` altındadır. Sürüm dosyalarından bağımsızdır.
 
 Kurulum parametreleri `-ManifestUrl`, `-InstallRoot`, `-ShortcutPath`, `-UserDataDir` izole testlerde kullanılabilir. Profil kurulum kökünün içinde olamaz. Profil ve oturumlar hassastır; Windows kullanıcı izinleriyle korunur.
+
+### Açık uygulamada onaylı güncelleme
+
+Windows ve macOS installer'ları yeni paketi indirip doğruladıktan sonra çalışan Pofis için **Yeni sürüm hazır. Pofis'i kapatıp güncelleyelim mi? [e/H]** sorusunu gösterir. Yalnız `e` veya `evet` yanıtı onaydır; boş yanıt ve diğer yanıtlar iptaldir. Aynı sürümde kapanış istenmez. Sistem mesajları [Pofis ton rehberini](brand/pofi-tone-guide.md) izler.
+
+- İlk onaydan sonra Windows pencereye normal kapanış isteği gönderir; macOS tam uygulama yoluna AppleScript `quit` isteği gönderir. Electron'un normal kapanışı yerel sunucuyu da durdurur. Installer süreçlerin bitmesini en fazla 10 saniye bekler; macOS quit isteğinin kendi zaman aşımı 5 saniyedir.
+- Süreçler bitmezse **Pofis henüz kapanmadı. Zorla kapatıp güncelleyelim mi?** sorusu ayrıca sorulur ve kaydedilmemiş değişikliklerin kaybolabileceği açıklanır. İkinci açık onaydan sonra yalnız ilgili kurulum yolundaki Pofis ve yardımcı süreçler zorla kapatılır; süreç adına göre toplu kapatma yapılmaz. Süreçler bitmeden yeni sürüm etkinleştirilmez.
+- İlk sorunun iptalinde uygulama çalışmaya devam eder. İkinci sorunun iptalinde zorla kapatma yapılmaz; normal kapanış isteği daha önce gönderilmiş olabilir. İki durumda da kurulu sürüm kaydı ve profil korunur, geçici paket temizlenir ve kurulum başarısız sonuçla durur.
+- Yanıt alınamayan çalıştırmada onay varsayılmaz. PowerShell `-NonInteractive` modunda durur. macOS, `curl | bash` girdisinden yanıt okumaz; terminal çıktısı ve `/dev/tty` üzerinden yanıt gerekir. Etkileşimsiz çalıştırmada Pofis önce elle kapatılır.
+- Güncellemeden sonra mevcut başlangıç sonucu sözleşmesi yeni sürümün gerçek PID, executable ve görünür pencere sonucunu doğrular. Otomatik sürüm geri dönüşü yoktur.
 
 ## macOS kurulum ve güncellemesi
 
@@ -120,7 +148,7 @@ curl -fsSL https://pofis.app/install.sh | bash
 - Gerçek uygulama paketi `~/Applications/Pofis.app` konumundadır; sembolik bağlantı kullanılmaz. Kurulum kaydı `~/Library/Application Support/Pofis Installer/installed.json` dosyasıdır. Yeni paket geçici `versions/<kimlik>/` dizininde doğrulanır, uygulama konumuna taşınır ve eski paket açılış beklenmeden temizlenir. Installer'ın yönetmediği mevcut uygulamanın üzerine yazılmaz.
 - Profil ve oturumlar `~/Library/Application Support/Pofis/` altında kalır. Güncelleme bu dizini taşımaz veya silmez. Profil ve kurulum dizinleri birbirinin içinde olamaz.
 - Aynı sürüm/hash yeniden indirilmez; paket ve pencere doğrulanıp mevcut Pofis öne getirilir. Sürüm düşürme ve aynı sürümde farklı hash reddedilir.
-- Güncelleme ayrı dizinde hazırlanır. Bu kurulumun Pofis/yardımcı süreçleri açıksa kapatıp komutu yeniden çalıştırma mesajı verilir. Kontroller tamamlandığında uygulama simgesi yeni sürüme çevrilir.
+- Güncelleme ayrı dizinde hazırlanır. Bu kurulumun Pofis/yardımcı süreçleri açıksa [onaylı kapanış](#açık-uygulamada-onaylı-güncelleme) uygulanır. Kontroller tamamlandığında uygulama simgesi yeni sürüme çevrilir.
 - `open -n` istek kimliğini Electron'a ulaştırır; tek örnek kilidi ikinci sunucuyu engeller. Installer 45 saniye içinde gerçek sürüm/PID/executable ve görünür pencere sonucunu doğrular. Electron hata sonucu döndürürse istek kimliği ve sürümü doğrulandıktan sonra özgün hata mesajı gösterilir; kurulum başarısız çıkar. Yalnız port dinlenmesi yeterli değildir.
 - Dosya taşıma veya kurulum kaydını yazma başarısızsa mevcut uygulama geri yerleştirilir. Yeni sürüm etkinleştikten sonra açılış hatası açıkça bildirilir; eski paket saklanmaz ve otomatik sürüm geri dönüşü yapılmaz. Kullanıcı verileri korunur.
 - Atomik `install.lock` dizini eşzamanlı installer'ları engeller; normal hata/sinyalde kaldırılır. Installer SIGKILL veya sistem çökmesiyle durduysa, başka kurulum çalışmadığı doğrulandıktan sonra mesajda verilen kilit dizini elle kaldırılır. Normal uygulama açılışı bu kilidi kullanmaz.

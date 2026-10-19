@@ -26,6 +26,8 @@ Build komutu `bun install --frozen-lockfile && bun run build`, statik çıktı `
 
 Landing'in `public/_headers` dosyası installer ve manifestlere `Cache-Control: no-store` uygular. Canlı HTTPS kabulü bu başlıkları ayrıca doğrular. Uygulama ZIP'leri GitHub Releases üzerinden sunulur.
 
+Paketli Electron uygulaması açılışta bu manifestlerden kendi hedefine ait olanı kullanır. Yeni sürüm bildirimi ve kurulum komutunu kopyalama davranışı [masaüstü sözleşmesinde](desktop.md#açılışta-sürüm-denetimi) yönetilir.
+
 ## İlk test sürümü
 
 Pofis uygulaması `0.1.0` ile test edilir; yeni içerik yayımlanacaksa `0.1.1` gibi yeni bir sürüm kullanılır. `1.0.0`, ürün hazır olduğunda seçilir. Landing'in kendi `package.json` sürümü uygulama sürümünden bağımsızdır ve `1.0.0` kalabilir.
@@ -39,7 +41,7 @@ Pofis uygulaması `0.1.0` ile test edilir; yeni içerik yayımlanacaksa `0.1.1` 
 1. `https://pofis.app/` sayfasını, macOS ve Windows PowerShell sekmelerini, iki komutu ve kopyalama düğmesini kontrol et. macOS komutu: `curl -fsSL https://pofis.app/install.sh | bash`.
 2. `https://pofis.app/install.ps1` ve `https://pofis.app/install.sh` düz metin ve UTF-8, üç `https://pofis.app/releases/<hedef>/latest.json` adresi JSON dönmeli. Installer ve manifestlerde `Cache-Control: no-store` bulunmalı; içerikler beklenen dosyalarla eşleşmeli.
 3. Public manifestlerdeki ZIP'leri anonim indir; boyut ve SHA-256 değerlerini karşılaştır.
-4. Windows'ta `irm https://pofis.app/install.ps1 | iex` komutuyla kurulum → otomatik açılış → simgeden açılış → aynı komutla güncel sürüm kontrolünü tamamla. Yeni sürümde veri koruma, eski sürüm temizliği ve kaldırmayı doğrula.
+4. Windows'ta `irm https://pofis.app/install.ps1 | iex` komutuyla kurulum → otomatik açılış → simgeden açılış → aynı komutla güncel sürüm kontrolünü tamamla. Yeni sürümde [onaylı kapanışın](desktop.md#açık-uygulamada-onaylı-güncelleme) iptal, normal kapanış ve ayrı zorla kapatma onayını; veri koruma, eski sürüm temizliği ve kaldırmayı doğrula. macOS'ta aynı kapanış zincirini `curl -fsSL https://pofis.app/install.sh | bash` üzerinden doğrula.
 
 Bu adımlar canlı hosting ve paket yayını sonrasında uygulanır. Yerel hazırlığın kanıt sınırı aşağıda açıklanır.
 

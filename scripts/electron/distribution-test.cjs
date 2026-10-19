@@ -98,10 +98,11 @@ async function run() {
   } });
   const base = `http://127.0.0.1:${host.port}`;
   const flags = `-ManifestUrl ${quote(base + "/latest.json")} -InstallRoot ${quote(install)} -ShortcutPath ${quote(shortcut)} -UserDataDir ${quote(profile)} -RegistryPath ${quote(registry)}`;
-  const installer = bootstrap => ps(bootstrap
+  const installer = (bootstrap, consent = false) => ps((consent ? "$global:PofisTestUpdatePrompts=0; function Read-Host { $global:PofisTestUpdatePrompts++; 'e' }; " : "") + (bootstrap
     ? siteCommand ? siteCommand.replace("https://pofis.app/install.ps1", base + "/install.ps1")
       : `& ([scriptblock]::Create((Invoke-RestMethod ${quote(base + "/install.ps1")}).TrimStart([char]0xFEFF))) ${flags}`
-    : `& ${quote(join(__dirname, "install.ps1"))} ${flags}`, bootstrap ? "Restricted" : "Bypass");
+    : `& ${quote(join(__dirname, "install.ps1"))} ${flags}`) + (consent
+      ? "; if ($global:PofisTestUpdatePrompts -ne 1) { throw 'Normal kapanış bir onayla tamamlanmalı.' }" : ""), bootstrap ? "Restricted" : "Bypass");
   const state = async () => JSON.parse(await readFile(join(install, "installed.json"), "utf8"));
   const executable = async () => join(install, "versions", (await state()).directory, "Pofis.exe");
   const healthy = async () => fetch(`${ORIGIN}/api/health`, { signal: AbortSignal.timeout(500) })
@@ -119,8 +120,8 @@ async function run() {
       return result.output.trim() === "0";
     });
   };
-  const expectInstall = async (success, bootstrap = false) => {
-    const result = await installer(bootstrap).done;
+  const expectInstall = async (success, bootstrap = false, consent = false) => {
+    const result = await installer(bootstrap, consent).done;
     assert.equal(result.code === 0, success, result.output);
     return result;
   };
@@ -182,7 +183,7 @@ async function run() {
       cdp.close(); cdp = null;
       await until(async () => !(await healthy()));
       active = JSON.parse((await readFile(join(directory, `${updatedVersion}.json`), "utf8")).replace(/^\uFEFF/, ""));
-      // The installer must refuse activation while the installed release is running.
+      // Non-interactive execution must refuse to close the running release without consent.
       await ps(`Start-Process -FilePath ${quote(shortcut)} -WindowStyle Normal`).done;
       await until(healthy);
       const blocked = await expectInstall(false);
@@ -190,8 +191,8 @@ async function run() {
       assert.equal((await state()).version, first.version);
       assert.equal(await healthy(), true);
       passed("açık uygulamada güncelleme mevcut sürümü bozmuyor");
-      await close();
-      await expectInstall(true);
+      // Supply only the answer; exercise real window closure, server shutdown and relaunch.
+      await expectInstall(true, false, true);
       assert.equal((await state()).version, updatedVersion);
       assert.notEqual((await state()).directory, initial.directory);
       assert.deepEqual(await readdir(join(install, 'versions')), [(await state()).directory]);

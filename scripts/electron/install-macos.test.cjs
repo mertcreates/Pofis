@@ -14,6 +14,64 @@ const localCommand = script => process.platform === "win32"
   ? script.replaceAll("/bin/bash", "'" + bash.replaceAll("\\", "/") + "'") : script;
 const command = (code, args = []) => execute(bash, ["-c", 'source "$1"; ' + code, "pofis-test", installer, ...args]);
 
+const closeFixture = `
+running=42; prompts=0; closes=0; kills=0
+running_pids() { printf '%s' "$running"; }
+wait_closed() { [[ -z "$running" ]]; }
+request_close() { closes=$((closes + 1)); running=''; }
+force_close() { kills=$((kills + 1)); running=''; }
+`;
+
+shellTest("macOS yanıtsız kurulum açık uygulamayı kapatmaz", async () => {
+  const failure = await command(closeFixture + 'close_for_update').then(() => null, error => error);
+  expect(failure?.code).toBe(1);
+  expect(failure?.stderr).toContain("Onay alınamadı");
+});
+
+shellTest("macOS iptalde kapanış isteği veya kill göndermez", async () => {
+  await command(closeFixture + `
+confirm_close() { prompts=$((prompts + 1)); return 1; }
+! close_for_update
+[[ "$running" == 42 && "$prompts" == 1 && "$closes" == 0 && "$kills" == 0 ]]
+`);
+});
+
+shellTest("macOS normal kapanış bir onayla tamamlanır; kapalı uygulamada soru sorulmaz", async () => {
+  await command(closeFixture + `
+confirm_close() { prompts=$((prompts + 1)); return 0; }
+close_for_update
+[[ -z "$running" && "$prompts" == 1 && "$closes" == 1 && "$kills" == 0 ]]
+confirm_close() { return 1; }
+close_for_update
+`);
+});
+
+shellTest("macOS zorla kapatma reddi mevcut süreci korur", async () => {
+  await command(closeFixture + `
+request_close() { closes=$((closes + 1)); return 1; }
+confirm_close() { prompts=$((prompts + 1)); [[ "$prompts" == 1 ]]; }
+! close_for_update
+[[ "$running" == 42 && "$prompts" == 2 && "$closes" == 1 && "$kills" == 0 ]]
+`);
+});
+
+shellTest("macOS zorla kapatma ikinci onaydan sonra çalışır; bitmeyen süreç başarı sayılmaz", async () => {
+  await command(closeFixture + `
+request_close() { closes=$((closes + 1)); }
+confirm_close() { prompts=$((prompts + 1)); return 0; }
+close_for_update
+[[ -z "$running" && "$prompts" == 2 && "$kills" == 1 ]]
+running=42
+force_close() { kills=$((kills + 1)); }
+! close_for_update
+[[ "$running" == 42 && "$kills" == 2 ]]
+`);
+});
+
+shellTest("macOS süreç listesi okunamazsa güncelleme devam etmez", async () => {
+  await command('running_pids() { return 1; }; confirm_close() { exit 99; }; ! close_for_update');
+});
+
 shellTest("macOS installer gerçek Bash ile geçerli ve geçersiz sürümleri ayırır", async () => {
   await command('valid_version 1.2.3; valid_version 1.10.0; older 1.9.9 1.10.0; ! older 1.10.0 1.9.9; ! older 1.0.0 1.0.0');
   for (const version of ["01.2.3", "1.2", "1.2.3-beta", "-1.2.3", "9999999.0.0"]) {

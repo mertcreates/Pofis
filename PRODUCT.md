@@ -8,6 +8,8 @@ web
 
 Web uygulaması, Windows x64 ve macOS Apple Silicon/Intel için ortak Electron kabuğuyla da çalışır. Paketleme kapsamı [masaüstü rehberinde](docs/desktop.md), üç hedefin yayın otomasyonu [sürüm yayınında](docs/release.md), bekleyen cihaz ve yayın kabulü [görev listesinde](tasks/todo.md) tutulur.
 
+Paketli masaüstü uygulaması açılışta yeni sürümü denetler; güncelleme varsa kurulum komutunu kopyalama seçeneği sunar. Davranışın sahibi [masaüstü sözleşmesidir](docs/desktop.md#açılışta-sürüm-denetimi).
+
 ## Stack
 
 Next.js + React + Bun. Yerel üretim önizlemesi standart Next komutlarını, Docker dağıtımı standalone çıktıyı kullanır. Mevcut dağıtım tek Bun süreci ve kalıcı oturum dizini kullanır. [Mimari](docs/architecture/multi-user-sessions.md) · [Dağıtım](docs/deployment.md).

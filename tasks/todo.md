@@ -12,9 +12,11 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 
 ## Windows masaüstü kabulü
 
+- [ ] Canlı manifestlerle paketli uygulamada yeni sürüm bildirimi → platform komutunu kopyalama → installer ile güncelleme zincirini doğrula. macOS Apple Silicon/Intel üzerinde yerel dialog, Daha sonra/pencereyi kapatma ve pano davranışını kontrol et. Windows'taki fixture testi gerçek macOS veya canlı HTTPS yayını kanıtlamaz.
 - [ ] [Masaüstü rehberindeki](../docs/desktop.md) gerçek PDKS giriş → rapor → yenileme → çıkış zincirini kurum ağı ve gerçek hesapla tamamla.
 - [ ] Node/Bun kurulmamış temiz Windows x64 cihazında tek komutla kurulum, simgeden açılış, imzasız ZIP/EXE için SmartScreen uyarıları, güncelleme ve normal çıkışta süreç temizliğini doğrula. PATH kısıtlı yerel kabul temiz cihaz testinin yerine geçmez.
 - [ ] Gerçek PDKS oturumunun sürüm güncellemesinde mevcut TTL içinde korunduğunu doğrula.
+- [ ] Windows ve macOS terminalinde açık uygulamada güncelleme için ilk onay/iptal, normal kapanış, kapanamayan uygulamada ayrı zorla kapatma onayı/iptali ve yeni sürümün açılışını doğrula. macOS native `osascript` kabulünü iki mimaride çalıştır; otomatik testlerdeki yanıt taklitleri gerçek terminal etkileşiminin yerine geçmez.
 - [ ] Temiz Windows cihazında Yüklü uygulamalar → Pofis → Kaldır onay/iptal ekranlarını; macOS Apple Silicon/Intel cihazında gerçek `.app` paketini Finder’dan Çöp Sepeti’ne taşıma ve tekrar kurmayı doğrula. İki platformda güncelleme eski paketleri açılış öncesinde temizlemeli; kaldırma kullanıcı profilini korumalı.
 - [ ] Gerçek PDKS oturumuyla 3210 başka uygulamadayken açılışı ve port değişiminden sonra oturum devamını doğrula. Yerel paket kabulü boş port, ayar kalıcılığı ve HttpOnly çerez temizleme yolunu kapsar.
 - [ ] [Release akışında](../docs/release.md) üç native job ve release → anonim ZIP → Workers HTTPS kabulünü gerçek yetkili çalıştırmada doğrula; ardından canlı Windows tek komut kurulum/güncellemesini sına. Landing public deposu ve pofis.app Workers bağlantısı hazır; yerel testler uzaktan paket yayınının kanıtı değildir.
