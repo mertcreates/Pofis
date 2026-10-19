@@ -58,7 +58,7 @@ Oklar bir kuralın sonucunun nerede kullanıldığını gösterir. Rapor uyarlam
 | Alan | Sahip ve görev |
 | --- | --- |
 | Rapor hazırlığı ve saat izdüşümü | [report.ts](../../src/domain/report.ts): kaynak ve planı ekran modeline uyarlar; hesapları ilgili kurallardan alır |
-| Pofi notları | [İçerik yönetim rehberi](../pofi-notes.md): katalog, tek havuz ve seçim motorunun sahipleri; [sunucu](../../src/server/pofi-notes.js) gerçek kişi anahtarını üretir |
+| Pofi notları | [İçerik yönetim rehberi](../pofi-notes.md): katalog, tek havuz ve seçim motorunun sahipleri; [kaynak adaptörü](../../src/server/pdks.js) hesap anahtarını üretir; [sunucu](../../src/server/pofi-notes.js) not seçimine bağlar |
 | Plan kalıcılığı | [plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulama; [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamı; [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonra durum güncelleme |
 | Tema | [theme](../../src/lib/theme.js) tercih değerleri ve `pofis:theme:v1` depolama anahtarı; [use-appearance](../../src/data/use-appearance.ts) işletim sistemi ve depolama olayları |
 | Metin ve marka | [ui-text](../../src/lib/ui-text.js), [ton rehberi](../brand/pofi-tone-guide.md) ve [görsel kaynaklar](../brand/assets.md) |

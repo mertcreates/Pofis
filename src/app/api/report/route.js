@@ -36,7 +36,7 @@ export async function GET(request) {
     assertSessionActive(session);
     return json({
       ...report,
-      pofiNotes: pofiNotesForWeek(dateKey(Date.now()), person.sourceId),
+      pofiNotes: pofiNotesForWeek(dateKey(Date.now()), person.pofiKey),
     });
   } catch (error) {
     return failure(error, request);

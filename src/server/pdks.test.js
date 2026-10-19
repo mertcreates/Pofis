@@ -1,4 +1,5 @@
 import { test, expect, spyOn } from "bun:test";
+import { pofiNotesForWeek } from "./pofi-notes.js";
 import {
   PdksClient,
   PDKS_ORIGIN,
@@ -10,17 +11,54 @@ import {
 
 const name = "Fixture Person";
 
-test("kaynağın bozuk form, yönlendirme ve menü adresleri uygulama hatası sayılmaz", async () => {
+test("menüsüz yönetici girişi sabit hesap anahtarı üretir; aynı adlı hesapları ayırır", async () => {
+  async function login(username, origin = PDKS_ORIGIN) {
+    const calls = [];
+    const client = new PdksClient({ origin, fetchImpl: async (url) => {
+      calls.push(url.pathname);
+      if (url.pathname.endsWith("/Giris.aspx"))
+        return new Response('<form><input name="tbUserName"><input name="tbPassword"></form>');
+      if (url.pathname.endsWith("/PizzyMain.aspx"))
+        return new Response('<span id="ctl_RPPersonel_LblKisiAdiSoyadi">Same Name</span>');
+      throw new Error("Unexpected request: menu must not be required");
+    } });
+    await client.login(username, "fixture-password");
+    expect(calls).toEqual([
+      "/PizzyKurumWeb/Giris.aspx", "/PizzyKurumWeb/Giris.aspx", "/PizzyKurumWeb/PizzyMain.aspx",
+    ]);
+    expect(JSON.stringify(client)).not.toContain(username.trim());
+    expect(JSON.stringify(client)).not.toContain("fixture-password");
+    return client.self.pofiKey;
+  }
+  const key = await login("manager-account");
+  expect(key).toMatch(/^[a-f0-9]{64}$/);
+  expect(await login("  manager-account  ")).toBe(key);
+  expect(await login("another-account")).not.toBe(key);
+  expect(await login("Manager-account")).not.toBe(key);
+  expect(await login("manager-account", "https://fixture.example")).not.toBe(key);
+  expect(pofiNotesForWeek("2026-10-16", await login("manager-account")))
+    .toEqual(pofiNotesForWeek("2026-10-16", key));
+});
+
+test.each(["", "<span id=ctl_RPPersonel_LblKisiAdiSoyadi> </span>",
+  "<span id=a_RPPersonel_LblKisiAdiSoyadi>A</span><span id=b_RPPersonel_LblKisiAdiSoyadi>B</span>"])(
+  "bozuk profil girişe ve Pofi anahtarı üretimine izin vermez: %s", async (profile) => {
+    const client = new PdksClient({ fetchImpl: async url => new Response(
+      url.pathname.endsWith("/Giris.aspx") ? '<form><input name="tbUserName"><input name="tbPassword"></form>' : profile,
+    ) });
+    await expect(client.login("fixture-user", "fixture-password"))
+      .rejects.toMatchObject({ code: "SOURCE_CHANGED", status: 502 });
+    expect(client.self).toBeNull();
+  },
+);
+
+test("kaynağın bozuk form ve yönlendirme adresleri uygulama hatası sayılmaz", async () => {
   try {
     readForm('<form action="http://[invalid"></form>', `${PDKS_ORIGIN}/PizzyKurumWeb/Giris.aspx`);
     throw new Error("Expected invalid source address");
   } catch (error) { expect(error).toMatchObject({ code: "SOURCE_CHANGED", status: 502 }); }
   const redirect = new PdksClient({ fetchImpl: async () => new Response("", { status: 302, headers: { location: "http://[invalid" } }) });
   await expect(redirect.request(PASSAGES_PATH)).rejects.toMatchObject({ code: "SOURCE_CHANGED", status: 502 });
-  const profile = new PdksClient({ fetchImpl: async url => new Response(url.pathname.endsWith("PizzyMain.aspx")
-    ? '<span id="ctl_RPPersonel_LblKisiAdiSoyadi">Fixture</span>'
-    : '<a href="http://[invalid?KisiID=private">Profile</a>') });
-  await expect(profile.personalProfile()).rejects.toMatchObject({ code: "SOURCE_CHANGED", status: 502 });
 });
 
 test("istek öncesi uygulama hatası bağlantı hatasına çevrilmez", async () => {
@@ -93,10 +131,6 @@ test("tam giriş ve kendi raporu WebForms/DevExpress sözleşmesini uygular; par
         return new Response(
           '<span id="ctl_RPPersonel_LblKisiAdiSoyadi">Fixture Person</span>',
         );
-      if (url.pathname.endsWith("/PizzyLeft.aspx"))
-        return new Response(
-          '<a href="/PizzyKurumWeb/personal?KisiID=fixture-id">Kişisel bilgiler</a>',
-        );
       if (url.pathname.endsWith("/TarihKisiBazliTumGecisler.aspx"))
         return new Response(
           options.method === "POST"
@@ -107,6 +141,7 @@ test("tam giriş ve kendi raporu WebForms/DevExpress sözleşmesini uygular; par
     },
   });
   await client.login("fixture-user", "fixture-password");
+  expect(client.self.pofiKey).toMatch(/^[a-f0-9]{64}$/);
   const report = await client.report("self", "2026-10-12", "2026-10-18");
   expect(report.person).toEqual({ id: "self", name, unit: "", title: "" });
   expect(report.passages).toEqual(events);
@@ -128,7 +163,6 @@ test("tam giriş ve kendi raporu WebForms/DevExpress sözleşmesini uygular; par
     ["/PizzyKurumWeb/Giris.aspx", "GET"],
     ["/PizzyKurumWeb/Giris.aspx", "POST"],
     ["/PizzyKurumWeb/PizzyMain.aspx", "GET"],
-    ["/PizzyKurumWeb/PizzyLeft.aspx", "GET"],
     [PASSAGES_PATH, "GET"],
     [PASSAGES_PATH, "POST"],
   ]);
@@ -233,7 +267,7 @@ function paginatedClient(fault) {
       return dx(html);
     },
   });
-  client.self = { name, unit: "", title: "", sourceId: "fixture" };
+  client.self = { name, unit: "", title: "", pofiKey: "fixture" };
   return { client, calls, all };
 }
 
@@ -270,7 +304,7 @@ function cachedReportClient(clock, name = "Fixture Person") {
   });
   let loads = 0;
   client.personalProfile = async () => ({
-    name, unit: "", title: "", sourceId: name,
+    name, unit: "", title: "", pofiKey: name,
   });
   client.personalPassages = async () => {
     loads++;

@@ -16,7 +16,7 @@ Mesai raporunun tek veri kaynağı kişisel turnike geçişleridir. `PdksClient`
 
 Arayüz haftalık sorgular. Sayfa boyutu kurumun DevExpress ayarıdır; uygulama sayfa boyutunu varsaymak yerine kaynağın sayfalama bilgisini izler.
 
-Giriş doğrulaması profil ve kişisel menüden kişi adını ve Pofi notlarının sabit kişi anahtarını alır. Bu kimlik bilgisi sunucu oturumunda kalır; rapor yalnız `self` kişisine açılır.
+Giriş doğrulaması `PizzyMain.aspx` profilinde tek ve boş olmayan kişi adını doğrular. Sol menü ve `KisiID` gerekmez; yönetici menüsünde kişisel bağlantı bulunmasa da aynı kişisel turnike raporu doğrudan açılır. Rapor yalnız `self` kişisine açılır; kaynak kişi kapsamını kendi oturumundan belirler. Pofi hesap anahtarı başarılı girişten sonra kaynak adaptöründe üretilir; ayrıntılar [not sözleşmesindedir](../pofi-notes.md#hesap-anahtarı).
 
 Farklı oturumların kaynak istekleri birbirinden bağımsız başlar. Uygulama genelinde eşzamanlılık kotası, ortak bekleme kuyruğu veya bunlardan doğan yoğunluk hatası yoktur. Aynı oturumdaki WebForms işlemleri kendi istemcisinin `run` sırasında yürür; böylece çerez ve form durumu tutarlı kalır. Her HTTP isteği 30 saniyelik zaman aşımı ve oturum iptal sinyalini kullanır.
 

@@ -6,6 +6,10 @@ Masaüstü güncellemesinde [onaylı kapanış](desktop.md#açık-uygulamada-ona
 
 Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Her kullanıcı kendi PDKS istemcisi, CookieJar ve kısa rapor önbelleğine sahiptir. Kubernetes'te bir replica kullanılır; güncellemede eski pod durduktan sonra yenisi başlatılır (`Recreate`). Aynı dizini iki süreçten kullanmak için ortak kilit/iptal koordinasyonu henüz yoktur.
 
+## Hesap anahtarı geçişi
+
+Menüdeki kişi ID’si yerine [Pofi hesap anahtarı](pofi-notes.md#hesap-anahtarı) kullanılır. Bu alanı içermeyen mevcut oturumlar güncelleme sonrasında yeniden giriş ister; oturum dosyalarını elle dönüştürmeyin. Yeni girişler aynı anahtarla diskten geri yüklenir. Not seçimleri geçmiş tarihler dahil değişebilir.
+
 ## Çalışma zamanı ayarları
 
 | Ayar                  | Değer / görev                                                                                                                                                                |

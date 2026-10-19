@@ -10,7 +10,8 @@ export {
   SESSION_SECONDS,
 } from "./session-manager.js";
 
-const key = Symbol.for("pofis.session-manager");
+// A new identity contract must also replace cached clients and their login factory.
+const key = Symbol.for("pofis.session-manager:account-key-v1");
 function manager() {
   return (globalThis[key] ||= createSessionManager({
     storage: createSessionStorage(
@@ -18,8 +19,21 @@ function manager() {
     ),
   }));
 }
-export const sessionFor = (request) => manager().sessionFor(request);
-export const requireSession = (request) => manager().requireSession(request);
+export async function sessionFor(request) {
+  const session = await manager().sessionFor(request);
+  // Next dev can retain a manager created before the account-key contract changed.
+  if (
+    typeof session?.client.self?.pofiKey !== "string" ||
+    !session.client.self.pofiKey.trim()
+  ) return null;
+  return session;
+}
+export async function requireSession(request) {
+  const session = await sessionFor(request);
+  if (!session)
+    throw new PdksError(ui.apiErrors.sessionRequired, "SESSION_EXPIRED", 401);
+  return session;
+}
 export const replaceSession = (request, body) =>
   manager().replaceSession(request, body);
 export const disconnect = (request) => manager().disconnect(request);

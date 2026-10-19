@@ -14,6 +14,8 @@ Tek uygulama süreci, süreç belleğinde oturumlar ve yerel JSON dosyaları kul
 
 ## Oturum yaşam döngüsü
 
+Bellekteki yönetici `pofis.session-manager:account-key-v1` anahtarıyla tutulur. Hesap anahtarı sözleşmesi, geliştirme sunucusunun önceki kişi-ID tabanlı yöneticisini ve giriş istemcisi fabrikasını yeniden kullanmaz. API sınırı anahtarsız oturumu bağlı saymaz; rapor erişimi `SESSION_EXPIRED` / 401 ile yeniden giriş ister.
+
 1. Girişte ayrı istemci oluşturulur; parola yalnız kaynak girişinde kullanılır. Oturum yöneticisi yeni oturumu kaydeder, mevcut oturumu kapatır ve ardından tarayıcıya yeni token verilir. Yeni kimlik doğrulama veya ilk kayıt başarısızsa mevcut oturum korunur. Eski oturumun diskten silinmesi başarısızsa yeni oturum da iptal edilip dosyası silinmeye çalışılır; istek başarısız döner.
 2. İstek yalnız güncel oturum çerezindeki kimliği arar. Bellekte yoksa v1 biçimindeki ilgili dosya asenkron okunur; aynı kimliğin eşzamanlı okumaları birleştirilir. Desteklenmeyen dosya biçimi yeniden kimlik doğrulama gerektirir.
 3. Kaynak çerezleri değiştiğinde kayıt asenkron yazılır. Oturum başına yazma/silme sırası korunur. Yeniden adlandırma kısmi JSON görünmesini önler; elektrik kesintisine karşı fsync garantisi verilmez. İstek sırasında kayıt hatasının yanıta, önbelleğe ve özgün kaynak hatasına etkisi [oturum politikasında](../rules/session-policy.md) tanımlıdır.
@@ -25,7 +27,7 @@ Bozuk bir dosya diğer kullanıcıların yüklenmesini etkilemez; yeniden giriş
 
 ## Kaynak istekleri
 
-Giriş profil ve kişisel menü üzerinden kimliği doğrular. Mesai raporu seçili haftanın kişisel turnike hareketlerini alır, bütün sayfaları birleştirir ve API'de zorunlu `passages` olarak sunar. Günlük ilk giriş–son çıkış ve süreler [kayıtlı süre sahibinde](../rules/recorded-time.md), açık giriş güvenilirliği [geçiş sahibinde](../rules/passages.md) çözülür. Sabit kişi anahtarı Pofi notları için sunucu oturumunda korunur.
+Giriş `PizzyMain.aspx` profilini doğrular; sol menüye veya `KisiID` bağlantısına bağlı değildir. Mesai raporu seçili haftanın kişisel turnike hareketlerini alır, bütün sayfaları birleştirir ve API'de zorunlu `passages` olarak sunar. Günlük ilk giriş–son çıkış ve süreler [kayıtlı süre sahibinde](../rules/recorded-time.md), açık giriş güvenilirliği [geçiş sahibinde](../rules/passages.md) çözülür. Başarılı girişte üretilen `self.pofiKey`, Pofi notları için sunucu oturumunda korunur ve diskten aynı değerle yüklenir. Ham kullanıcı adı ve parola saklanmaz. Anahtarı olmayan eski oturumlar yeniden giriş gerektirir; kişi ID’sinden yeni hesap anahtarı türetilmez. [Anahtar sözleşmesi](../pofi-notes.md#hesap-anahtarı).
 
 Farklı kullanıcıların istekleri ortak bir sıra beklemeden başlar. Aynı oturumdaki WebForms işlemleri kendi istemcisinde sıralanır; diğer oturumlar bağımsız çalışır. Her HTTP isteğinde 30 saniyelik zaman aşımı ve oturumun iptal sinyali uygulanır. Aynı oturum/aralıktaki başarılı rapor 20 saniye ilgili istemcinin belleğinde tutulur; ortak yanıt önbelleği kullanılmaz. Ayrıntılar [kaynak sözleşmesinde](../rules/source-policy.md).
 

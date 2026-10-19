@@ -69,7 +69,7 @@ try {
           "/PizzyKurumWeb/Giris.aspx",
           new URLSearchParams({ username }),
         );
-        client.self = { sourceId: username, name: username };
+        client.self = { pofiKey: username, name: username };
       };
       return client;
     };
@@ -88,7 +88,7 @@ try {
     const coldStart = performance.now();
     await batch(ids, async (id, i) => {
       const session = await restored.requireSession(request(id));
-      if (session.client.self.sourceId !== `fixture-${i}`)
+      if (session.client.self.pofiKey !== `fixture-${i}`)
         throw new Error("Restored identity mismatch");
     });
     const restoreMs = performance.now() - coldStart;

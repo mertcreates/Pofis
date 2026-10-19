@@ -14,9 +14,18 @@ Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kıs
 | İçerik doğrulama ve tek havuz üretimi | [catalogue.ts](../src/lib/pofi-notes/catalogue.ts) |
 | Kişi / hafta / tarih üzerinden seçim | [notebook.ts](../src/lib/pofi-notes/notebook.ts) |
 | Uygulamanın bağlandığı giriş | [index.ts](../src/lib/pofi-notes/index.ts) |
-| Kişi anahtarının sunucuda oluşturulması | [sunucu adaptörü](../src/server/pofi-notes.js) |
+| Hesap anahtarının başarılı girişte oluşturulması | [kaynak adaptörü](../src/server/pdks.js) |
+| Hesap anahtarıyla not seçimine bağlanma | [sunucu adaptörü](../src/server/pofi-notes.js) |
 | Not yönetimi ve önizleme komutları | [CLI](../scripts/pofi-notes.ts) |
 | Tarih uygunluğu / gösterim | [takvim kuralı](rules/notebook-calendar.md), [not defteri](../src/components/pofi/notebook.js) |
+
+## Hesap anahtarı
+
+Başarılı PDKS girişinde `SHA-256(JSON.stringify(["pofis:pofi-account:v1", kurumOrigin, kullanıcıAdı.trim()]))` hesaplanır. Sonuç yalnız sunucu oturumundaki `self.pofiKey` alanında saklanır; ham kullanıcı adı/parola tutulmaz, anahtar API yanıtına çıkmaz. Bu anahtar not seçimi içindir; rapor erişim yetkisini kaynak oturumu belirler. `KisiID`, sol menü ve ad soyad not anahtarı olarak kullanılmaz.
+
+Aynı origin ve aynı kullanıcı adı farklı cihaz/oturumlarda aynı anahtarı üretir. Yalnız dış boşluklar temizlenir; harf büyüklüğü veya giriş adı takma adları birleştirilmez. Kullanıcı adı değişirse seçim değişebilir; aynı adlı farklı hesaplar ayrı anahtar alır. Normal notlarda farklı anahtarlar her gün farklı metin garantisi vermez. Anahtar bir sır veya yetkilendirme tokenı değildir.
+
+Kişi ID’sinden hesap anahtarına geçiş mevcut ve geçmiş tarihlerin not seçimlerini değiştirebilir; kaydedilmiş günlük içeriği taşınmaz, notlar güncel havuzdan hesaplanır. Yeni anahtarı olmayan oturumlar yeniden giriş ister.
 
 ## Tek havuz
 

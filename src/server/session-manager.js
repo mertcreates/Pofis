@@ -53,7 +53,10 @@ export function createSessionManager({
     const state = { cancelled: false, promise: null };
     state.promise = (async () => {
       const record = await storage.read(id);
-      if (state.cancelled || !record) return null;
+      if (
+        state.cancelled || !record ||
+        typeof record.self?.pofiKey !== "string" || !record.self.pofiKey.trim()
+      ) return null;
       if (record.expiresAt <= clock()) {
         await storage.remove(id);
         return null;
@@ -271,7 +274,10 @@ export function createSessionManager({
     if (!validSessionId(id)) return null;
     if (loading.get(id)?.cancelled) return null;
     const session = sessions.get(id) || (await loadSession(id));
-    if (!session) return null;
+    if (
+      !session || typeof session.client.self?.pofiKey !== "string" ||
+      !session.client.self.pofiKey.trim()
+    ) return null;
     if (session.expiresAt <= clock()) {
       await removeSession(id);
       return null;

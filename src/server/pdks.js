@@ -4,6 +4,7 @@ import { ui } from "../lib/ui-text.js";
 import { isSessionExpired } from "../lib/pdks-failure";
 import { load } from "cheerio";
 import { CookieJar } from "tough-cookie";
+import { createHash } from "node:crypto";
 import { dateKey, sourceTimestamp } from "../domain/rules/calendar";
 
 export const PDKS_ORIGIN = SOURCE_POLICY.origin;
@@ -650,6 +651,7 @@ export class PdksClient {
   }
 
   async login(username, password) {
+    this.self = null;
     const page = await this.request(LOGIN_PATH);
     const form = readForm(page.html, page.url);
     form.fields.set("tbUserName", username);
@@ -658,34 +660,25 @@ export class PdksClient {
     form.fields.set("__CALLBACKPARAM", "c0:login");
     try {
       await this.request(form.url, form.fields);
+      await this.verify();
+      this.self.pofiKey = createHash("sha256")
+        .update(JSON.stringify(["pofis:pofi-account:v1", this.origin, username.trim()]))
+        .digest("hex");
     } finally {
       form.fields.delete("tbUserName");
       form.fields.delete("tbPassword");
       username = undefined;
       password = undefined;
     }
-    await this.verify();
   }
 
   async personalProfile() {
-    if (this.self?.sourceId) return this.self;
+    if (this.self?.name) return this.self;
     const main = await this.request(PROFILE_PATH);
-    const menu = await this.request("/PizzyKurumWeb/PizzyLeft.aspx");
     const $main = load(main.html);
     const names = $main('span[id$="_RPPersonel_LblKisiAdiSoyadi"]');
     const name = names.text().trim();
-    const $menu = load(menu.html);
-    const links = $menu("a[href]")
-      .map((_, link) => readSourceUrl($menu(link).attr("href"), menu.url))
-      .get()
-      .filter((url) => url.searchParams.get("KisiID"));
-    if (
-      names.length !== 1 ||
-      !name ||
-      links.length !== 1 ||
-      links[0].origin !== this.origin ||
-      !links[0].pathname.toLowerCase().startsWith("/pizzykurumweb/")
-    )
+    if (names.length !== 1 || !name)
       throw new PdksError(
         ui.sourceErrors.selfReportUnverified,
         "SOURCE_CHANGED",
@@ -695,7 +688,6 @@ export class PdksClient {
       name,
       unit: "",
       title: "",
-      sourceId: links[0].searchParams.get("KisiID"),
     };
     return this.self;
   }

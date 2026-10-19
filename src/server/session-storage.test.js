@@ -13,7 +13,19 @@ const request = (id) => ({
 const record = () => ({
   expiresAt: Date.now() + 60_000,
   jar: new CookieJar().serializeSync(),
-  self: { sourceId: "alice" },
+  self: { pofiKey: "alice" },
+});
+
+test.each([undefined, "", "  ", 123])("Pofi anahtarı olmayan eski veya bozuk oturum yeniden giriş gerektirir: %s", async (pofiKey) => {
+  const id = "f".repeat(64);
+  const stored = { ...record(), self: { sourceId: "old-person", pofiKey } };
+  const manager = createSessionManager({ storage: {
+    read: async () => stored,
+    save: async () => { throw new Error("Must not rewrite old identity"); },
+    remove: async () => {},
+  } });
+  expect(await manager.sessionFor(request(id))).toBeNull();
+  await expect(manager.requireSession(request(id))).rejects.toMatchObject({ code: "SESSION_EXPIRED", status: 401 });
 });
 
 test("yazma sırası ve silme atomik dosya değiştirme ile korunur; silinen oturum geri oluşmaz", async () => {
@@ -25,9 +37,9 @@ test("yazma sırası ve silme atomik dosya değiştirme ile korunur; silinen otu
     const id = "a".repeat(64);
     await Promise.all([
       storage.save(id, record()),
-      storage.save(id, { ...record(), self: { sourceId: "bob" } }),
+      storage.save(id, { ...record(), self: { pofiKey: "bob" } }),
     ]);
-    expect((await storage.read(id)).self.sourceId).toBe("bob");
+    expect((await storage.read(id)).self.pofiKey).toBe("bob");
     await Promise.all([storage.save(id, record()), storage.remove(id)]);
     expect(await storage.read(id)).toBeNull();
     expect(await readdir(directory)).toEqual([]);
@@ -35,12 +47,12 @@ test("yazma sırası ve silme atomik dosya değiştirme ile korunur; silinen otu
     await writeFile(join(directory, `${bad}.json`), "{broken");
     expect(await storage.read(bad)).toBeNull();
     await storage.save(id, record());
-    expect((await storage.read(id)).self.sourceId).toBe("alice");
+    expect((await storage.read(id)).self.pofiKey).toBe("alice");
     const expired = "e".repeat(64);
     await storage.save(expired, { ...record(), expiresAt: Date.now() - 1 });
     await storage.pruneExpired(Date.now());
     expect(await storage.read(expired)).toBeNull();
-    expect((await storage.read(id)).self.sourceId).toBe("alice");
+    expect((await storage.read(id)).self.pofiKey).toBe("alice");
     expect(await storage.read("../escape")).toBeNull();
   } finally {
     if (relative(root, directory).startsWith(".."))

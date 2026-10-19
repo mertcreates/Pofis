@@ -4,6 +4,8 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 
 ## Gerçek PDKS kabulü
 
+- [ ] Menüde kişisel bağlantısı olmayan gerçek yönetici hesabıyla giriş → kişisel turnike raporu → Pofi notları → yeniden giriş zincirini doğrula. Kullanıcı adının harf/takma ad eşdeğerliğini kaynakla ayrıca kontrol et; mevcut anahtar yalnız dış boşlukları temizler.
+
 - [ ] Son hareketi giriş olan gerçek günde kayıtlı süre, canlı tahmin ve hedefi birlikte kontrol et.
 - [ ] Gerçek PDKS haftasında [plan sözleşmesini](../docs/rules/work-plan.md) doğrula: saniyeli kilitli kayıt, izin sonrası hedef, sıfır süreli açık günün yeni kayıtla borç alması, devir/kapasite bakiyesi ve günlük hedef–çıkış eşitliği. Kayıtsız/belirsiz günün planla ilişkisini de kontrol et.
 - [ ] Gerçek hesapta eski rapor, kısa önbellek, kurtarma bekleme süresi, yeniden bağlantı ve 8 saatlik oturum bitişini doğrula.

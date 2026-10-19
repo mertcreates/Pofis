@@ -32,6 +32,7 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 - [Kayıtlı süre](docs/rules/recorded-time.md) ilk giriş–son çıkıştır; ara molalar düşülmez. Güvenilir açık girişte [anlık tahmin](docs/rules/duration.md) üretilir. Eski raporda tahmin durur.
 - [Günlük kayıt durumu](docs/rules/record-status.md) kayıt bütünlüğünü hedef farkından ayrı değerlendirir. Eksik kayıt sıfır çalışma veya devamsızlık sayılmaz; belirsizlik çıkış hedefini engelleyebilir.
 - [Mesai planı](docs/rules/work-plan.md), kullanıcıya varsayılan şablonu ve mevcut haftanın gereken çalışma sürelerini düzenleme olanağı verir. PDKS kayıtları gerçekleşen süreyi sağlar; planlar tarayıcıda saklanır. Günlük sınırlar, devir, tamamlama ve haftalık hedef sözleşmesi kural belgesindedir.
+- PDKS girişi profil sayfasıyla doğrulanır; kişisel menü bağlantısı bulunmayan yönetici hesapları da kişisel turnike raporunu kullanır. Pofi notları [hesap anahtarıyla](docs/pofi-notes.md#hesap-anahtarı) seçilir.
 - PDKS girişi sunucuda işlenir. Parola yalnız girişte kullanılır; kaynak çerezleri her oturuma özel tutulur. Oturum politikası ve kaynak önbelleği [kural haritasından](docs/rules/README.md) yönetilir.
 - [Mesaim demosu](docs/demo.md) aynı görünüm ve hesap sahiplerini kullanır; yakalanmış veriyi gün/hafta seçimi ve sanal ek süreyle sunar.
 - Pofi durumları, albüm, notlar ve sürprizler ortak ekranlarda sunulur. [Durum seçimi](docs/rules/pofi.md), [sürprizler](docs/rules/pofi-surprises.md) ve [not içeriği](docs/pofi-notes.md) kendi sahiplerinde yönetilir.

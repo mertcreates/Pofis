@@ -20,7 +20,7 @@ Secure çerezi doğrudan HTTPS veya proxy'nin ilk `X-Forwarded-Proto` değeri `h
 
 ## Güvenceler
 
-- Her oturum ayrı kişi kimliği, `PdksClient` ve CookieJar kullanır; toplam oturum kotası yoktur. Yalnız güncel çerez adı okunur ve temizlenir.
+- Her oturum ayrı profil, Pofi hesap anahtarı (`self.pofiKey`), `PdksClient` ve CookieJar kullanır; toplam oturum kotası yoktur. Yalnız güncel çerez adı okunur ve temizlenir. Pofi anahtarı olmayan eski veya bozuk oturum yeniden giriş gerektirir; eski kişi ID’sinden dönüşüm yapılmaz.
 - Parola yalnız girişte kullanılır; oturum, önbellek veya dosyaya yazılmaz. İstek kimlik alanları ve form şifresi işlem sonunda bırakılır. Kullanıcı adı tekrar deneme için açık formda kalabilir; uygulama depolamasına yazılmaz. JavaScript belleğinin fiziksel sıfırlanması garanti edilmez.
 - TTL erişimde ve kaynak işi tamamlandığında yeniden denetlenir. Çıkış devam eden kaynak işini iptal eder; geciken yanıtlar veya dosya okumaları kişiyi geri getiremez.
 - Yeniden bağlantıda yeni kimlik doğrulama/ilk kayıt başarısızsa mevcut oturum korunur. Eski kaydı silme ve geri alma hatalarının sınırları [yaşam döngüsünde](../architecture/multi-user-sessions.md#oturum-yaşam-döngüsü) tanımlıdır.

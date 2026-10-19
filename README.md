@@ -34,6 +34,8 @@ Windows ve macOS Electron kabuğu aynı uygulamayı Next standalone ve dahili No
 
 Paketli uygulama açılışta [yeni sürümü denetler](docs/desktop.md#açılışta-sürüm-denetimi) ve güncelleme varsa kurulum komutunu kopyalama seçeneği sunar.
 
+Giriş, profil sayfasıyla doğrulanır; sol menüde kişisel bağlantı bulunması gerekmez. Pofi notları için kullanıcı adına bağlı sunucu anahtarı kullanılır. [Hesap anahtarı ve geçiş etkisi](docs/pofi-notes.md#hesap-anahtarı).
+
 ## Belgeler
 
 - [Belge haritası](docs/README.md): konu sahipleri ve okuma yolları.
