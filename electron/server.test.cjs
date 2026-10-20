@@ -6,7 +6,7 @@ const { createServer } = require("node:net");
 const { spawn } = require("node:child_process");
 const { createDesktopServer } = require("./server.cjs");
 
-async function fixture(mode, run) {
+async function fixture(mode, run, { timeoutMs = 1800 } = {}) {
   const root = await mkdtemp(join(tmpdir(), "pofis-desktop-test-"));
   const previous = process.env.POFIS_DESKTOP_TEST_MODE;
   process.env.POFIS_DESKTOP_TEST_MODE = mode;
@@ -24,7 +24,7 @@ async function fixture(mode, run) {
     return child;
   };
   const options = { root, fork, sessionDirectory: join(root, "sessions"), port,
-    timeoutMs: 1800, onUnexpectedExit: error => exits.push(error) };
+    timeoutMs, onUnexpectedExit: error => exits.push(error) };
   const server = createDesktopServer(options);
   try { await run({ server, options, exits }); }
   finally {
@@ -45,9 +45,10 @@ test("hazır olmayı bekler; yalnız kendi sunucusunu açar ve kapatır", () => 
   expect(exits).toEqual([]);
 }));
 
-test.each(["exit", "hang", "wrong-token"])("başarısız açılışı reddeder: %s", mode => fixture(mode, async ({ server }) => {
-  await expect(server.start()).rejects.toThrow(mode === "exit" ? "23" : "hazır olmadı");
-}));
+test.each(["exit", "hang", "wrong-token"])("başarısız açılışı reddeder: %s", mode =>
+  fixture(mode, async ({ server }) => {
+    await expect(server.start()).rejects.toThrow(mode === "exit" ? "23" : "hazır olmadı");
+  }, { timeoutMs: mode === "exit" ? 1800 : 250 }));
 
 test("dolu portta boş port seçer; başka sürece bağlanmaz veya onu kapatmaz", () => fixture("ok", async ({ server, options }) => {
   const occupied = createServer();

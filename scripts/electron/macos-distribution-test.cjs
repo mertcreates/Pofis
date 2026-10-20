@@ -76,7 +76,8 @@ async function run() {
     const folder = join(directory, `fixture-${version}`);
     await mkdir(folder);
     const app = join(folder, "Pofis.app");
-    await cp(bundle, app, { recursive: true, verbatimSymlinks: true });
+    await execute("/bin/cp", ["-c", "-R", bundle, app]).catch(() =>
+      cp(bundle, app, { recursive: true, verbatimSymlinks: true }));
     const resources = join(app, "Contents/Resources");
     const pkgPath = join(resources, "app/package.json");
     const pkg = JSON.parse(await readFile(pkgPath, "utf8"));
@@ -86,9 +87,11 @@ async function run() {
       await execute("/usr/libexec/PlistBuddy", ["-c", `Set :${key} ${version}`, join(app, "Contents/Info.plist")]);
     }
     if (broken) await writeFile(join(resources, "app/electron/server-entry.cjs"), "process.exit(23);\n");
-    await signMacBundle(app);
+    await execute("/usr/bin/codesign", ["--force", "--sign", "-", "--preserve-metadata=entitlements,flags", app]);
+    await execute("/usr/bin/codesign", ["--verify", "--deep", "--strict", app]);
     const archive = join(directory, `${version}.zip`);
-    await execute("/usr/bin/ditto", ["-c", "-k", "--sequesterRsrc", "--keepParent", app, archive]);
+    await execute("/usr/bin/zip", ["-q", "-r", "-1", "-y", archive, "Pofis.app"], { cwd: folder })
+      .catch(() => execute("/usr/bin/ditto", ["-c", "-k", "--sequesterRsrc", "--keepParent", app, archive]));
     const bytes = Bun.file(archive);
     const manifest = releaseManifest(target, version, bytes.size,
       createHash("sha256").update(Buffer.from(await bytes.arrayBuffer())).digest("hex"));
@@ -176,7 +179,7 @@ async function run() {
     const [onePid] = await (async () => { await expectInstall(); return pids(); })();
     process.kill(onePid, "SIGKILL");
     await until(async () => (await pids()).length === 0);
-    await Bun.sleep(1500);
+    await Bun.sleep(100);
     await expectInstall();
     await close();
     console.log(`PASS: ${target.id}; kurulum kilidi, beklenmedik kapanış, yeniden başlatma ve normal kapanış`);

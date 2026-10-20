@@ -96,11 +96,12 @@ test("HTTP, JSON ve ağ hataları bildirim veya panoya ulaşmaz", async () => {
   expect(f.copies).toEqual([]);
 });
 
-test("yanıt vermeyen istek beş saniyede iptal edilir", async () => {
+test("yanıt vermeyen istek zaman aşımında iptal edilir", async () => {
   const f = fixture();
+  f.options.timeoutMs = 50;
   f.options.fetchManifest = (_url, { signal }) => new Promise((_resolve, reject) => {
     signal.addEventListener("abort", () => reject(signal.reason), { once: true });
   });
   await expect(checkForUpdates(f.options)).rejects.toThrow();
   expect(f.dialogs).toEqual([]);
-}, 7000);
+}, 1000);

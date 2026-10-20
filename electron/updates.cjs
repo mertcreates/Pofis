@@ -8,11 +8,11 @@ function versionParts(version) {
 }
 
 async function checkForUpdates({ target, currentVersion, isActive, showMessageBox, writeClipboard,
-  fetchManifest = globalThis.fetch }) {
+  fetchManifest = globalThis.fetch, timeoutMs = 5000 }) {
   if (!isActive()) return;
   const directory = target.releaseDirectory.replaceAll("\\", "/");
   const response = await fetchManifest(`https://pofis.app/releases/${directory}/latest.json`, {
-    signal: AbortSignal.timeout(5000), cache: "no-store", credentials: "omit", redirect: "error",
+    signal: AbortSignal.timeout(timeoutMs), cache: "no-store", credentials: "omit", redirect: "error",
   });
   if (!response.ok) throw new Error("Sürüm bilgisi alınamadı.");
   const manifest = await response.json();
