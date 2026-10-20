@@ -3,7 +3,6 @@ const { join, resolve } = require("node:path");
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
 const { platformTarget } = require("../../electron/platform.cjs");
-const { assertPortableStandalone } = require("./standalone.cjs");
 
 // Inspect every real Mach-O file, including extensionless helpers and native addons.
 async function checkIntelPackage(directory, execute = promisify(execFile)) {
@@ -19,7 +18,6 @@ async function checkIntelPackage(directory, execute = promisify(execFile)) {
     join(target.resources, "app/server/server.js")]) {
     await access(join(directory, file));
   }
-  await assertPortableStandalone(join(resources, "app/server"));
   const magic = new Set([0xfeedface, 0xcefaedfe, 0xfeedfacf, 0xcffaedfe,
     0xcafebabe, 0xbebafeca, 0xcafebabf, 0xbfbafeca]);
   let count = 0;

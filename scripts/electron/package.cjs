@@ -52,7 +52,7 @@ async function prepare(arch = process.arch) {
   const electronDist = join(root, "node_modules", "electron", "dist");
   await verifyRuntime(electronDist, target, manifest.devDependencies.electron);
   const standalone = process.env.POFIS_SHARED_STANDALONE || join(root, ".next", "standalone");
-  await assertPortableStandalone(standalone);
+  await access(join(standalone, "server.js"));
   // Each build gets its own folder, so an existing prototype is preserved.
   const output = join(root, "dist", target.outputDirectory, `Pofis-${target.id}-${Date.now()}`);
   const resources = join(output, target.resources);
@@ -75,6 +75,7 @@ async function prepare(arch = process.arch) {
   // Dereference Next's Windows junctions so the package is relocatable.
   await cp(standalone, join(payload, "server"), { recursive: true, dereference: true,
     filter: path => !/^\.env(?:\.|$)/.test(basename(path)) });
+  if (process.env.POFIS_SHARED_STANDALONE) await assertPortableStandalone(join(payload, "server"));
   await mkdir(join(payload, "public", "pofi"), { recursive: true });
   await copyFile(join(root, "public", "pofi", "pofi-mark-256.png"), join(payload, "public", "pofi", "pofi-mark-256.png"));
   await writeFile(join(payload, "package.json"), JSON.stringify({

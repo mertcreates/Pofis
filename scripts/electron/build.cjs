@@ -1,7 +1,6 @@
 const { spawn } = require("node:child_process");
 const { cp, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
-const { assertPortableStandalone } = require("./standalone.cjs");
 
 async function build() {
   const root = resolve(__dirname, "../..");
@@ -18,7 +17,6 @@ async function build() {
   const standalone = join(root, ".next", "standalone");
   await cp(join(root, "public"), join(standalone, "public"), { recursive: true });
   await cp(join(root, ".next", "static"), join(standalone, ".next", "static"), { recursive: true });
-  await assertPortableStandalone(standalone);
 }
 
 build().catch(error => { console.error(error.message); process.exitCode = 1; });

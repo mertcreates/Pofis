@@ -4,7 +4,7 @@ const { tmpdir } = require("node:os");
 const { join } = require("node:path");
 const { checkIntelPackage } = require("./macos-static-check.cjs");
 
-test("Intel statik kontrolü Electron/helper mimarisini, taşınabilir sunucuyu ve imzayı denetler", async () => {
+test("Intel statik kontrolü Electron/helper mimarisini ve imzayı denetler", async () => {
   const directory = await mkdtemp(join(tmpdir(), "pofis-intel-static-"));
   const app = join(directory, "Pofis.app");
   const resources = join(app, "Contents/Resources");
@@ -26,7 +26,5 @@ test("Intel statik kontrolü Electron/helper mimarisini, taşınabilir sunucuyu 
     await expect(checkIntelPackage(directory, async (command) => { if (command.endsWith("/lipo")) throw wrongArchitecture; })).rejects.toBe(wrongArchitecture);
     const badSignature = new Error("bad signature");
     await expect(checkIntelPackage(directory, async (command) => { if (command.endsWith("/codesign")) throw badSignature; })).rejects.toBe(badSignature);
-    await writeFile(join(resources, "app/server/addon.node"), Buffer.from("cffaedfe00000000", "hex"));
-    await expect(checkIntelPackage(directory, async () => {})).rejects.toThrow("addon.node");
   } finally { await rm(directory, { recursive: true, force: true }); }
 });

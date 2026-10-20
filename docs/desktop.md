@@ -20,7 +20,7 @@ Tek dağıtım kanalı ve mevcut üç manifest yolu kullanılır. Profil yolu, `
 | macOS Apple Silicon | `Pofis.app` | `dist/macos/Pofis-darwin-arm64-<zaman>/` | `dist/releases/macos/arm64/latest.json` |
 | macOS Intel | `Pofis.app` | `dist/macos/Pofis-darwin-x64-<zaman>/` | `dist/releases/macos/x64/latest.json` |
 
-[Ortak sunucu kontrolü](../scripts/electron/standalone.cjs), Next çıktısında native eklenti/kitaplık uzantılarını ve uzantısız Mach-O/PE/ELF dosyalarını reddeder; Next bağlantılarını da takip eder. Bu kontrol derleme, paketleme ve Intel statik kabulünde uygulanır. Yeni bir native sunucu bağımlılığı eklenirse hedef mimariye göre paketleme tasarımı gerekir. [Intel statik kontrolü](../scripts/electron/macos-static-check.cjs), Electron ve helper'lar dahil tüm Mach-O dosyalarında x86_64 mimarisini ve derin imzayı doğrular.
+[Ortak sunucu kontrolü](../scripts/electron/standalone.cjs), Next çıktısında native eklenti/kitaplık uzantılarını ve uzantısız Mach-O/PE/ELF dosyalarını reddeder; Next bağlantılarını da takip eder. Bu kontrol yalnız ortak çıktıyı kullanan Intel paketleyicisinde, sunucu dosyaları kopyalandıktan sonra uygulanır. Yeni bir native sunucu bağımlılığı eklenirse hedef mimariye göre paketleme tasarımı gerekir. [Intel statik kontrolü](../scripts/electron/macos-static-check.cjs), Electron ve helper'lar dahil tüm Mach-O dosyalarında x86_64 mimarisini ve derin imzayı doğrular.
 
 Her hedefte aynı geliştirici komutları kullanılır:
 

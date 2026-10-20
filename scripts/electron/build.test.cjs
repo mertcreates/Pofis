@@ -12,7 +12,6 @@ test("standalone build aynı Bun mimarisini korur ve eski çıktıyı temizleyer
       await mkdir(join(root, folder), { recursive: true });
     }
     await copyFile(join(__dirname, "build.cjs"), join(root, "scripts/electron/build.cjs"));
-    await copyFile(join(__dirname, "standalone.cjs"), join(root, "scripts/electron/standalone.cjs"));
     await writeFile(join(root, "public/asset.txt"), "public asset");
     await writeFile(join(root, ".next/standalone/stale.txt"), "previous build");
     // A local Next CLI fixture observes the real child process without compiling the app.

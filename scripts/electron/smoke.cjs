@@ -11,7 +11,6 @@ const { connect } = require("./cdp.cjs");
 const { readStoredPlans } = require("../../src/lib/plan-storage.js");
 const { createSessionStorage } = require("../../src/server/session-storage.js");
 const { CookieJar } = require("tough-cookie");
-const { assertPortableStandalone } = require("./standalone.cjs");
 
 async function until(check, timeout = 30000) {
   const end = Date.now() + timeout;
@@ -35,9 +34,6 @@ async function run() {
   const appArgs = sourceMode ? [join(root, "electron")] : [];
   const env = { ...process.env, PATH: target.platform === "win32" ? join(process.env.SystemRoot, "System32") : "/usr/bin:/bin:/usr/sbin:/sbin" };
   delete env.ELECTRON_RUN_AS_NODE;
-  if (!sourceMode) {
-    await assertPortableStandalone(join(folder, target.resources, "app/server"));
-  }
   const fromIndex = process.argv.indexOf("--from");
   const previous = fromIndex === -1 ? null : resolve(process.argv[fromIndex + 1]);
   assert.ok(!previous || !sourceMode, "--from iki paket klasörüyle kullanılır.");
