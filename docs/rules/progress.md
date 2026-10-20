@@ -10,13 +10,13 @@ Arayüz: `targetProgress`, `percentage`, `chartMaximum`.
 
 ## Sözleşme
 
-`targetProgress`, yüzde ve kalan süreyi döndürür. Hedef altında yüzde aşağı, hedefe ulaşınca ve üzerinde en yakına yuvarlanır; hedef üstü yüzde saklanmaz. Geçersiz süre veya negatif hedefte ilerleme bilinmez. Devirle sıfıra inen etkin hedef, geçerli süre için %100 karşılanmıştır; kalan sıfırdır. Tamamen kapalı haftada kart yüzde rozeti göstermez. Kalan süre negatif olmaz. Görsel ölçek sınırları bu modüldedir; CSS boyutları ve renkleri tasarım sisteminde kalır.
+`targetProgress`, yüzde ve kalan süreyi döndürür. Hedef altında yüzde aşağı, hedefe ulaşınca ve üzerinde en yakına yuvarlanır; hedef üstü yüzde gerçek değeriyle gösterilir. Geçersiz süre veya negatif hedefte ilerleme bilinmez. Devirle sıfıra inen etkin hedef, geçerli süre için %100 karşılanmıştır; kalan sıfırdır. Tamamen kapalı haftada kart yüzde rozeti göstermez. Kalan sürenin alt sınırı sıfırdır. Görsel ölçek sınırları bu modüldedir; CSS boyutları ve renkleri tasarım sisteminde kalır.
 
 Haftalık grafik, `chartMaximum` sahibine yalnız gösterdiği günlük süreleri verir. En az 10 saatlik tavan, 2 saatlik adımlarla büyür. Hedeflerin yüksek olması bu grafiğin ölçeğini değiştirmez; ilerleme göstergeleri hedeflerini kullanmayı sürdürür.
 
 ## Bağımlılıklar
 
-Başka ürün kuralına bağlı değildir.
+Temel ilerleme hesabını bu modül sağlar.
 
 ## Kullanan yerler
 

@@ -10,7 +10,7 @@ Arayüz: `POFI_SURPRISES`, `specialMinuteRemaining`, `nextSurpriseTap`.
 
 ## Sözleşme
 
-Oda bekleme süresi, tekrar dokunma eşiği, çağırma sözcüğü ve görünme süresi tek politikadadır. Özel dakika yalnız panel o dakikada açıldıysa görünür ve dakika sonunda biter. Bileşenler DOM olaylarını/odakları yönetir; süre ve eşik uydurmaz.
+Oda bekleme süresi, tekrar dokunma eşiği, çağırma sözcüğü ve görünme süresi tek politikadadır. Özel dakika yalnız panel o dakikada açıldıysa görünür ve dakika sonunda biter. Bileşenler DOM olaylarını/odakları yönetir; süre ve eşikleri bu politikadan alır.
 
 Kaynak footer'daki sürüm notu `versionRevealTaps: 5` dokunuşla `versionWindowMs: 5000` içinde açılır. Süre dolunca yeni dizi başlar; odak ayrılınca dizi temizlenir. Oda içindeki üç dokunuş eşiği ayrı davranıştır.
 

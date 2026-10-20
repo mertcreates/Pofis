@@ -43,7 +43,7 @@ asset with Pofi's recognized identity. Keep the tabii badge mark visually faithf
 to Image B and check legibility at small UI sizes.
 ```
 
-## Dashboard kullanımında prompt yerine gerçek asset
+## Dashboard için mevcut dosya seçimi
 
 Uygulamada kullanılacak mevcut dosyalar [görsel kaynaklar](../../../docs/brand/assets.md) belgesinden seçilir. Panel durum görselleri, tam gövde ve marka simgesi kendi kullanım alanlarında korunur. Yeni üretimler inceleme ve kullanıcı seçimi sonrasında uygulamaya alınır.
 
@@ -60,4 +60,4 @@ Uygulamada kullanılacak mevcut dosyalar [görsel kaynaklar](../../../docs/brand
 - Kart ve gerçek tabii işareti doğru mu?
 - 64, 128, 160 px'de silüet ve yüz okunuyor mu?
 
-Herhangi bir ana özellik kayarsa yeni çıktı kanonik dosyanın yerini almaz.
+Yeni çıktı, tüm ana özellikler kanonik referansla eşleştikten ve kullanıcı tarafından seçildikten sonra uygulamaya alınır.

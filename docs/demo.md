@@ -10,14 +10,14 @@ Mesaim, Hata ekranları ve Bildirimler sekmeleri arasında seçimler korunur. Me
 
 | Önizleme | Kontrol ve sonuç |
 | --- | --- |
-| Gün | Pazartesi–Cuma seçicisi günü sanal “bugün” yapar. Günün akışı, rapordaki “Bugün” ve Pofi aynı günü gösterir. Grafik gün seçme kontrolü değildir. |
+| Gün | Pazartesi–Cuma seçicisi günü sanal “bugün” yapar. Günün akışı, rapordaki “Bugün” ve Pofi aynı günü gösterir. Gün seçimi Pazartesi–Cuma seçicisinden yapılır. |
 | Geçmiş hafta | “Hazır senaryo → Geçmiş hafta” önceki haftanın tüm kayıtlarını yakalama saatiyle açar. Gün ve ek süre kontrolleri gizlenir. Hafta seçiciyle diğer geçmiş haftalara geçilebilir; yakalama haftasına geçmek veya gün senaryosu seçmek gün önizlemesine döner. |
 
 Gün senaryoları: Hedefin altında → 15 Ekim; Belirsiz kayıt → 7 Ekim; Kayıt olmayan gün → 9 Ekim; Devam eden mesai → 15 Ekim'e 120 dakika sanal ek süre. Hedef farkı kayıtlı demo planına göre hesaplanır. Elle seçim bir senaryoyla eşleşmezse “Özel seçim” görünür.
 
 “Demoyu sıfırla” yakalama gününü sıfır ek süreyle açar; hata önizlemesini bağlantı, bildirim önizlemesini çıkış hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince geçici seçimler sıfırlanır.
 
-[Demo kontrolleri](../src/demo/controls.tsx) sekmeleri ve sıfırlamayı sunar; durum [demo istemcisinde](../src/demo/dashboard.tsx) tutulur. Ortak DashboardView demo kontrol yapısını bilmez; içeriği standart `children` ile alır.
+[Demo kontrolleri](../src/demo/controls.tsx) sekmeleri ve sıfırlamayı sunar; durum [demo istemcisinde](../src/demo/dashboard.tsx) tutulur. Ortak DashboardView içeriği standart `children` ile alır.
 
 ## Hata ekranları ve bildirimler
 
@@ -28,20 +28,20 @@ Senaryolar canlı ekranlarla aynı [hata bileşenini](../src/components/request-
 | Bağlantı/DNS, kaynak HTTP 500, uygulama hatası | Ortak Pofi sahnesi ve açık teknik ayrıntılar; kopyalama izinli alanları ve özgün zaman damgasını taşır |
 | Girişe dön | Örnek formu açar; gönderim formu temizleyip seçili örnek hatayı gösterir. API/PDKS isteği göndermez |
 | 404 | Canlı [NotFoundState](../src/components/not-found-state.tsx); Mesaim bağlantısı demoya döner |
-| Uygulama içi hata | Ortak runtime hata görünümü; gerçek istisna oluşturmaz, framework yeniden denemesini kanıtlamaz |
+| Uygulama içi hata | Ortak runtime hata görünümünün sunumu; framework yeniden denemesi kontrollü gerçek istisna senaryosuyla doğrulanır |
 | Rapor yenileme/çıkış hatası | Rapor üzerinde ortak bildirim; yeniden deneme yalnız örnek hatanın zamanını yeniler |
 | Tema/plan depolama ve eski rapor | Kompakt bildirim. Eski rapor senaryosu durum mesajıdır; tazelik durum makinesini çalıştırmaz |
-| Plan süre sınırları | “Planı aç” gerçek PlanEditor'ü açar; eksi/artı ile 0–16 saat, İzin/Aç ve açık günlere uygulama denenir. Ayrı saat giriş alanı yoktur |
+| Plan süre sınırları | “Planı aç” gerçek PlanEditor'ü açar; eksi/artı ile 0–16 saat, İzin/Aç ve açık günlere uygulama denenir. Süre düzenlemesi stepper üzerinden yapılır |
 | Plan kayıt hatası | Yazma reddedilir, son örnek plan korunur |
 | Eksik Pofi notu | “Defteri aç” gerçek Notebook/Modal'ı açar; ilk seçilecek günün notu önizleme girdisinden çıkarılır, tarih ve gezinme korunur |
 
-Yerel modal ve örnek plan senaryo/sekme değişiminde sıfırlanır. Bu örnekler bellektedir; plan depolamasına veya kaynak fixture'a yazmaz.
+Yerel modal ve örnek plan senaryo/sekme değişiminde sıfırlanır. Bu örneklerin saklama alanı yalnız süreç belleğidir.
 
 Önizleme sahipleri: [hatalar](../src/demo/error-preview.tsx), [bildirimler](../src/demo/notice-preview.tsx), [yerel modal senaryoları](../src/demo/local-preview.tsx). Ortak DashboardView bu senaryoları bilmez.
 
 ## Veri ve zaman
 
-[Yakalanan turnike verisi](../src/demo/passages.json) 21 Eylül–16 Ekim 2026 aralığındaki 297 hareketi içerir. Her hareket yalnız `date`, `time`, `direction` taşır. Kişi adı, personel/turnike kimliği, parola ve oturum çerezi fixture içinde bulunmaz; ekranda “Örnek kullanıcı” görünür. Gerçek tarih ve saatler korunmuştur; veri tam anonim sayılmaz.
+[Yakalanan turnike verisi](../src/demo/passages.json) 21 Eylül–16 Ekim 2026 aralığındaki 297 hareketi içerir. Her hareket yalnız `date`, `time`, `direction` taşır. Ekranda “Örnek kullanıcı” görünür. Fixture yalnız tarih, saat ve yön içerir; gerçek tarih ve saatler korunmuştur. Veri paylaşımında bu zamanların kaynak kişiyi tanımlama olasılığı dikkate alınır.
 
 Başlangıç günü 16 Ekim 2026, saati 11:24 Europe/Istanbul'dur. Bir gün seçildiğinde demo o günü “bugün” kabul eder. Normal görünümde önceki günler İstanbul saatinde 23:59:59, yakalama günü özgün yakalama saatiyle gösterilir. Anlık ek süre seçildiğinde yalnız seçili günün sanal saati, o günün son geçerli hareketinden seçilen süre kadar sonrasına alınır. Son hareket çıkışsa aynı saniyeye demo amaçlı açık giriş eklenir; yakalanmış hareketler ve kayıtlı toplam değişmez. Süre 15 dakika adımlıdır, gün sonunu aşamaz ve seçili gün değişince sıfırlanır. Hareketi olmayan veya belirsiz olan günlerde kontrol kapalıdır. Bilgisayarın tarihi sonucu etkilemez. Seçilen tarihten sonraki hareketler ve Pofi notları önizleme girdisine katılmaz; fixture korunur. Böylece haftalık toplam yalnız seçilen güne kadarki gerçek kayıtlardan oluşur.
 
@@ -66,7 +66,7 @@ Gün önizlemesinde örnekler:
 - 15 Ekim: 2 saatlik ek süre seçimi 04:51:52 kayıtlı süreyi korur ve 02:00:00 anlık tahmin üretir.
 - 16 Ekim: henüz giriş yok; 17–18 Ekim gelecek gün.
 
-Yakalanan veride gerçek son hareketi giriş olan gün bulunmuyor. Demo ek süre seçeneği son hareket saatinde sanal açık giriş kurarak ortak süre hesabını örnekler; canlı PDKS açık girişi, eskimiş rapor, ağ hatası ve oturum bitişi kabulü değildir. İlgili kural/oturum testleri ayrı kanıttır.
+Yakalanan veride gerçek son hareketi giriş olan gün bulunmuyor. Demo ek süre seçeneği son hareket saatinde sanal açık giriş kurarak ortak süre hesabını örnekler; canlı PDKS açık girişi, eskimiş rapor, ağ hatası ve oturum bitişi gerçek kaynak kabulünde kontrol edilir. İlgili kural/oturum testleri kendi davranış sözleşmelerini doğrular.
 
 ## Sahiplik ve kalıcılık
 

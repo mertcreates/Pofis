@@ -6,7 +6,7 @@ Bu klasör özgün karakter dosyalarını, üretim referanslarını ve bağıms�
 
 ## Başlangıç
 
-`index.html` dosyasını modern bir tarayıcıda açın. Dashboard örnek verilerle çalışır. Ayarlar'dan günlük/haftalık hedefleri değiştirebilir, Raporlar'dan CSV indirebilirsiniz. Gerçek PDKS sistemiyle herhangi bir bağlantı **yoktur**.
+`index.html` dosyasını modern bir tarayıcıda açın. Dashboard örnek verilerle çalışır. Ayarlar'dan günlük/haftalık hedefleri değiştirebilir, Raporlar'dan CSV indirebilirsiniz. Veri kaynağı paket içindeki örnek kayıtlardır.
 
 Önizleme dosyaları: `preview/dashboard-desktop.png`, `preview/dashboard-mobile.png`, `preview/character-sheet.png`.
 
@@ -23,6 +23,8 @@ Bu klasör özgün karakter dosyalarını, üretim referanslarını ve bağıms�
 - `docs/MASTER_PROMPT.md` — Referans dosyalı üretim promptu
 - `references/` — Orijinal logo ve keşif görselleri, üretim referansları
 
+Görsel üretimde CHARACTER_BIBLE ve MASTER_PROMPT birlikte kullanılır. Sahnenin karaktere uygunluğu, Pofi'nin sesi ve metin örnekleri [ton rehberinden](../../docs/brand/pofi-tone-guide.md#4-dilin-karakteristik-özellikleri) değerlendirilir.
+
 ## Prototipin kapsamı
 
 Demo verileri `app.js` içindeki `sample` objesindedir. Mola düşen hesap ve CSV dışa aktarma bu bağımsız prototipe aittir. Uygulamanın [kayıtlı süre](../../docs/rules/recorded-time.md) hesabı ilk giriş–son çıkışı kullanır; ara molaları düşmez. Güncel ekranı incelemek için uygulamanın [Mesaim demosunu](../../docs/demo.md) kullanın.
@@ -31,4 +33,4 @@ Demo verileri `app.js` içindeki `sample` objesindedir. Mola düşen hesap ve CS
 
 Pofi'nin **önden tam gövde** illüstrasyonu yüz ve karakter kimliğinin referansıdır; yeni üretimlerin dik duruşu karakter kurallarında tanımlanır. Diğer AI üretimi perspektif görsellerde küçük şekil farkları bulunabilir. Uygulamanın marka simgesi `public/pofi/pofi-mark-256.png` dosyasıdır. Personel kartındaki küçük logo görsel üretiminden geldiği için gerçek logo referansıyla karşılaştırılmalıdır.
 
-`references/pofi-original-ai-sheet.png` üzerindeki “tabii Mascot” başlığı eski AI çıktısından gelmiştir ve ürün adı olarak doğru değildir. Nihai adlar **Pofis / Pofi** olarak bu pakette düzeltilmiştir.
+Ürün adı **Pofis**, maskot adı **Pofi** olarak kullanılır. `references/pofi-original-ai-sheet.png` ilk görsel üretimin referansıdır.

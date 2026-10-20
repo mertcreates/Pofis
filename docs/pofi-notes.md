@@ -2,7 +2,7 @@
 
 [Kural haritası](rules/README.md) · [Terimler](../GLOSSARY.md)
 
-Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kısa notlardır. İçerik kataloğu, tek not havuzu, seçim motoru ve ekran kendi sahiplerinde kalır. Mesai kayıtlarıyla ilişkili hesap yapmaz.
+Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kısa notlardır. İçerik kataloğu, tek not havuzu, seçim motoru ve ekran kendi sahiplerinde kalır. Not seçimi kişi anahtarı, hafta ve tarihe dayanır.
 
 ## Tek sahipler
 
@@ -21,11 +21,11 @@ Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kıs
 
 ## Hesap anahtarı
 
-Başarılı PDKS girişinde `SHA-256(JSON.stringify(["pofis:pofi-account:v1", kurumOrigin, kullanıcıAdı.trim()]))` hesaplanır. Sonuç yalnız sunucu oturumundaki `self.pofiKey` alanında saklanır; ham kullanıcı adı/parola tutulmaz, anahtar API yanıtına çıkmaz. Bu anahtar not seçimi içindir; rapor erişim yetkisini kaynak oturumu belirler. `KisiID`, sol menü ve ad soyad not anahtarı olarak kullanılmaz.
+Başarılı PDKS girişinde `SHA-256(JSON.stringify(["pofis:pofi-account:v1", kurumOrigin, kullanıcıAdı.trim()]))` hesaplanır. Saklanan sonuç, sunucu oturumuna özel `self.pofiKey` alanıdır. API yalnız seçilen notları döndürür. Bu anahtar not seçimi içindir; rapor erişim yetkisini kaynak oturumu belirler.
 
-Aynı origin ve aynı kullanıcı adı farklı cihaz/oturumlarda aynı anahtarı üretir. Yalnız dış boşluklar temizlenir; harf büyüklüğü veya giriş adı takma adları birleştirilmez. Kullanıcı adı değişirse seçim değişebilir; aynı adlı farklı hesaplar ayrı anahtar alır. Normal notlarda farklı anahtarlar her gün farklı metin garantisi vermez. Anahtar bir sır veya yetkilendirme tokenı değildir.
+Aynı origin ve aynı kullanıcı adı farklı cihaz/oturumlarda aynı anahtarı üretir. Dış boşluklar temizlenir; harf büyüklüğü ve giriş adı takma adları ayrı anahtar üretir. Kullanıcı adı değişirse seçim değişebilir; aynı adlı farklı hesaplar ayrı anahtar alır. Farklı anahtarlar aynı normal notu seçebilir. Anahtarın görevi deterministik not seçimidir.
 
-Kişi ID’sinden hesap anahtarına geçiş mevcut ve geçmiş tarihlerin not seçimlerini değiştirebilir; kaydedilmiş günlük içeriği taşınmaz, notlar güncel havuzdan hesaplanır. Yeni anahtarı olmayan oturumlar yeniden giriş ister.
+Kişi ID’sinden hesap anahtarına geçiş mevcut ve geçmiş tarihlerin not seçimlerini değiştirebilir; tüm tarihlerde notlar güncel havuzdan hesaplanır. Yeni anahtarı olmayan oturumlar yeniden giriş ister.
 
 ## Tek havuz
 
@@ -33,7 +33,7 @@ Güncel katalog **16 tema ve 1.024 normal not** içerir: Kahve, Toplantı, Asans
 
 Katalog giriş × gelişme × kapanış kombinasyonlarından havuz sırasını bir kez kurar; aynı havuz tüm tarihler için kullanılır. Seçim kişi anahtarına, haftaya ve güne göre deterministiktir. Normal havuz boşken haftalık sonuç yalnız o haftanın özel notlarını içerir; diğer günler için not dönmez. Defter mevcut nötr boş durumunu ve tarih gezinmesini korur. Doğrudan normal gün seçimi içerik yokluğu hatası verir. Dolu normal havuz haftalık tekrarı önlemek için en az beş benzersiz not içermelidir.
 
-Tarih bazlı yayın kaydı veya eski havuz seçimi yoktur. İçerik eklemek ya da düzenlemek mevcut tek havuzu günceller ve her tarihteki seçimi etkileyebilir. Proje yayımlanmadığı için geçmiş seçimler dondurulmaz. Özel tarihler yalnız `special-days.ts` içinde tanımlanır; varyantlar `specials.js` kataloğundan alınır. 8 Aralık `little-star:v1` herkes için ortaktır.
+İçerik eklemek ya da düzenlemek mevcut tek havuzu günceller ve geçmiş tarihler dahil her tarihteki seçimi etkileyebilir. Özel tarihler yalnız `special-days.ts` içinde tanımlanır; varyantlar `specials.js` kataloğundan alınır. 8 Aralık `little-star:v1` herkes için ortaktır.
 
 Güncel tema ve özel not metinleri [içerik fixture'ındaki](../src/lib/pofi-notes/fixtures/current-content.json) hash'lerle izlenir; başlangıç kaynağının ZIP hash'i ayrıca korunur. Ton düzenlemelerinde yalnız incelenen metinlerin hash'lerini ve etkilenen seçim referanslarını güncelleyin. Tema sırası ve havuz sırası seçim sonucunu etkiler; bunları değiştirirken [önizleme](#yerel-komutlar) ile sonuçları inceleyin.
 
@@ -47,7 +47,7 @@ Güncel tema ve özel not metinleri [içerik fixture'ındaki](../src/lib/pofi-no
 
 Özel not eklerken metni `specials.js` içine, `MM-DD → note` eşleştirmesini `special-days.ts` içine ekleyin. `sharedVariant` varsa herkes o varyantı görür; yoksa kişi anahtarıyla seçim yapılır.
 
-Özel notların her varyantı bağımsız, üç parçalı bir hikâyedir; farklı varyantların parçaları birbirine karıştırılmaz. Katalogda 13 özel tarih vardır. 23 Nisan Ulusal Egemenlik ve Çocuk Bayramı, 29 Ekim Cumhuriyet Bayramı ve 10 Kasım Atatürk'ü Anma Günü bu tarihler arasındadır. Bayram notları küçük katılım ve gözlem anlarını, 10 Kasım notları saygılı anma davranışlarını anlatır. Kâğıt gemi serisi 12 Mart (İlk gün), 9 Nisan (Bir süre sonra) ve 7 Mayıs (Yeniden) sırasıyla ilerler. Her tarihin varyantı ayrı seçildiği için devamlılık belirli bir önceki varyantı görmeyi gerektirmez. 8 Aralık'ın ortak `little-star:v1` metni korunur; tarih eşlemesi ve tam metni davranış testiyle doğrulanır.
+Özel notların her varyantı bağımsız, üç parçalı bir hikâyedir; her seçim bir varyantın kendi giriş, gelişme ve kapanışını birlikte kullanır. Katalogda 13 özel tarih vardır. 23 Nisan Ulusal Egemenlik ve Çocuk Bayramı, 29 Ekim Cumhuriyet Bayramı ve 10 Kasım Atatürk'ü Anma Günü bu tarihler arasındadır. Bayram notları küçük katılım ve gözlem anlarını, 10 Kasım notları saygılı anma davranışlarını anlatır. Kâğıt gemi serisi 12 Mart (İlk gün), 9 Nisan (Bir süre sonra) ve 7 Mayıs (Yeniden) sırasıyla ilerler. Her tarihin varyantı ayrı seçilir ve kendi içinde anlamlı bir hikâye sunar. 8 Aralık'ın ortak `little-star:v1` metni korunur; tarih eşlemesi ve tam metni davranış testiyle doğrulanır.
 
 ## Yerel komutlar
 

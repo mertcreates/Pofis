@@ -87,7 +87,7 @@ Sayısal veriler tabular gösterilir. Saat/dakika baskın, saniye ikincildir. Bi
 [DayFlow](src/components/attendance/day-flow.tsx), geçen süreyi “Bugünkü mesai”, yanındaki küçük farkı “Hedefe kalan / Hedefin üzerinde” olarak gösterir. Tarih başlık yanındadır; canlı durum ve altta tekrarlayan saat özeti gösterilmez.
 
 - Ortak [DurationTrack](src/components/primitives.tsx): kayıtlı bölüm mor, ek tahmin açık lavanta ve düz dolgu; hedef nötr çizgidir. Lejant “Kayıtlı / Tahmini” der, süreleri tekrarlamaz.
-- Uç etiketi canlı günde “Şimdi”, hedefi aşan kapalı günde “Çıkış”, diğer kapalı günlerde “Son kayıt” olur. Lavanta etiket metin kadar geniştir; kaydırma tutamacı/top bulunmaz.
+- Uç etiketi canlı günde “Şimdi”, hedefi aşan kapalı günde “Çıkış”, diğer kapalı günlerde “Son kayıt” olur. Lavanta uç etiketi metin kadar geniştir.
 - “Hedef çıkış” saat ve nötr kesik bağlantıyla rayın altında yer alır; bağlantı rayın üst kenarından başlar. Satır mutlak konumlanır, lejant için alan ayrılır.
 - İşaret çizgileri gerçek zaman konumunu korur; etiketler rayın kenarlarında içeri kayar. Eksen saatleri opak kart zeminiyle okunur. Eksen ilk girişten son kayıt/şimdi ile hedefin en ilerisine uzanır; hedef sondaysa saat yalnız hedef etiketinde görünür.
 
@@ -97,9 +97,9 @@ Sayısal veriler tabular gösterilir. Saat/dakika baskın, saniye ikincildir. Bi
 
 [WeeklyTotal](src/components/dashboard/weekly-total.tsx), toplam ve sakin hedefi aynı satırda “toplam / hedef” olarak sunar. Yüzde başlıkta dolgusuz mor metindir; kalan/aşan süre alta yaslanır. Hedefe tam eşit toplam “Hedefle eşit” olarak sunulur. Yaklaşık yüzde ve farkın erişilebilir etiketleri kayıt eksikliği veya belirsizliğini açıklar. Tamamlanmış haftada hedefin altındaki süre “Hedefin altında” etiketiyle gösterilir. Eksik veya belirsiz kayıtlarda geçmiş haftanın farkı ve yüzdesi yaklaşık işaretiyle sunulur; güncel haftada fark gösterilmez.
 
-Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedir. Bölümler kendi etkin günlük hedeflerine göre dolar; günlük hedefler farklıysa eşit bölümler haftalık toplamın eşit paylarını temsil etmez. Hedef aşımı sonraki bölüme taşmaz. Sıfır süreli açık gün görünür kalır; bilinmeyen süre sıfır diye adlandırılmaz. Gün adı, süre ve hedef ortak tooltip'te görünür.
+Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedir. Bölümler kendi etkin günlük hedeflerine göre dolar; her bölümün doluluğu kendi günlük hedefine göre hesaplanır ve kendi sınırında kalır. Sıfır süreli açık gün görünür kalır; bilinmeyen süre belirsiz olarak gösterilir. Gün adı, süre ve hedef ortak tooltip'te görünür.
 
-[Haftalık grafik](src/components/attendance/week-chart.tsx) geçmiş haftada günlük süre sütunlarını gösterir. Geçmiş günler `--chart-past`, bugün `--accent` kullanır; hedef çizgisi yoktur. Ölçek yalnız görünen sürelerden gelir. Canlı girdi verildiğinde kayıtlı bölümün üstüne açık tahmin eklenir; tooltip kayıtlı süre ve canlı toplamı ayırır. Lejant “Günlük kayıtlı süre”dir.
+[Haftalık grafik](src/components/attendance/week-chart.tsx) geçmiş haftada günlük süre sütunlarını gösterir. Geçmiş günler `--chart-past`, bugün `--accent` kullanır; ölçek yalnız görünen sürelerden gelir. Canlı girdi verildiğinde kayıtlı bölümün üstüne açık tahmin eklenir; tooltip kayıtlı süre ve canlı toplamı ayırır. Lejant “Günlük kayıtlı süre”dir.
 
 ## Gezinme ve kontroller
 
@@ -108,7 +108,7 @@ Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedi
 - **Hafta seçici:** aylık native popover, ayla kesişen pazartesi haftaları ve güncel haftaya dönüş. Gelecek haftalar kapalıdır; demo yakalama aralığıyla sınırlıdır. Seçim kapanır ve odağı tetikleyiciye döndürür.
 - **Demo:** gün seçimi, sanal saat, hata ve bildirim senaryoları [demo rehberinde](docs/demo.md) yönetilir. Karşılaştırma demoları karar sonrasında temizlenir; durum demoları korunur.
 - **Plan:** [PlanEditor](src/components/plan-editor.tsx), varsayılan plan ve tarih etiketli hafta sekmelerini kullanır; özel hafta noktası sekmededir. Pazartesi–cuma kartları tek sırada kalır. Açık gün nötr, kilitli gün lavanta ve kilit ikonlu, kapalı gün sakin nötr, seçili gün mor kenarlıdır.
-- **Plan düzenleme:** gün adı/İzin–Aç eylemi solda, stepper sağdadır. Varsayılan sekmesinde Kapat–Aç kullanılır. Haftalık kart ve stepper aynı gereken süreyi gösterir. İzinli gün “İzinli”, şablondan kapalı gün “Kapalı”, sıfır süreli açık gün `0 sa` der. Kilitli gerçekleşen süre düzenlenmez; kayıtlı plan ve farklıysa şablon alt bilgide görünür.
+- **Plan düzenleme:** gün adı/İzin–Aç eylemi solda, stepper sağdadır. Varsayılan sekmesinde Kapat–Aç kullanılır. Haftalık kart ve stepper aynı gereken süreyi gösterir. İzinli gün “İzinli”, şablondan kapalı gün “Kapalı”, sıfır süreli açık gün `0 sa` der. Tamamlanan günün gerçekleşen süresi kilitli gösterilir; kayıtlı plan ve farklıysa şablon alt bilgide görünür.
 - **Plan toplamları:** ana toplam hedeftir; beklenen toplam farklıysa ayrıca gösterilir. Tamamla ve Sıfırla uygulanabilir olduklarında görünür; kapasite yetmiyorsa açıklama sunulur. [Hesap ve kayıt sözleşmesi](docs/rules/work-plan.md) bu belgedeki görsel kararlardan ayrıdır.
 - **Mobil plan:** kontroller ve eylemler satır kırabilir; sayı ile birimi birlikte kalır. Dokunmatik kontroller 44px olur; diğer ölçüler plan CSS sahibindedir. Tam süreler erişilebilir etiketlerde korunur.
 - **Rapor:** güncel ve geçmiş hafta günleri bağımsız native akordeondur. Kapalı satır gün, süre ve ilk giriş/son çıkış özetini gösterir; belirsizlik uyarısı görünür kalır. Hedef farkı, kayıtlı süre, durum ve ham hareketler ayrıntıdadır. Hafta sonları yalnız kayıt/süre verisi varsa görünür. Ham liste ilk açılışta oluşturulur ve korunur. [Kayıt durumu sözleşmesi](docs/rules/record-status.md) ortaktır.
@@ -116,7 +116,7 @@ Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedi
 
 ## Odak, modal ve tooltip
 
-Buton ve `.button-link` metni seçilmez; normal bağlantılar, açıklamalar, girdiler ve teknik ayrıntılar seçilebilir. Klavye odağı ton, alt çizgi ve 2px iç kenarla gösterilir; dış halka eklenmez. Rapor akordeonunda metin rengi ve alt çizgi değişmez, iç kenar tüm satırı çevreler. Fare tıklaması klavye halkasını göstermez.
+Metin seçimi normal bağlantılar, açıklamalar, girdiler ve teknik ayrıntılarda açıktır; buton ve `.button-link` üzerinde kapalıdır. Klavye odağı ton, alt çizgi ve 2px iç kenarla gösterilir; odak göstergesi kontrolün içinde kalır. Rapor akordeonunda metin rengi ve alt çizgi değişmez, iç kenar tüm satırı çevreler. Odak halkası klavye etkileşiminde görünür.
 
 Ortak [Modal](src/components/modal.js) native dialog kullanır: Escape, kapatma düğmesi, açan kontrole odak dönüşü ve içeride kaydırma. Varsayılan başlangıç odağı kapatma düğmesinde, plan modalında başlıktadır. Mobil tutamak aşağı sürükleyerek kapatır.
 

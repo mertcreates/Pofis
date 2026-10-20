@@ -82,7 +82,7 @@ Bakiye son uygun günden geriye doğru uygulanır. Her gereken süre 0–16 saat
 
 Tam hafta hesabında `beklenen toplam + unallocatedSeconds = haftalık hedef` eşitliği korunur. Kalan uygun gün veya kapasite bulunmadığında fark bu bakiyede kalır.
 
-Aynı plan, kayıt, tarih ve haftalık hedef aynı sonucu üretir. Otomatik hesap güncel planı okuyarak sonuç döndürür; kalıcı kayıt kullanıcı düzenlemesinde yapılır. Gün seçimi dağıtım sırasını belirlemez. Elle düzenleme sonrasında da kalan bakiye aynı sırayla uygulanır; kapasite sınırlarında elle düzenlenen günün gereken süresi yeniden değişebilir. İzinli günler dağıtıma katılmaz.
+Aynı plan, kayıt, tarih ve haftalık hedef aynı sonucu üretir. Otomatik hesap güncel planı okuyarak sonuç döndürür; kalıcı kayıt kullanıcı düzenlemesinde yapılır. Dağıtım sırası her gün seçiminde aynı kurala göre belirlenir. Elle düzenleme sonrasında da kalan bakiye aynı sırayla uygulanır; kapasite sınırlarında elle düzenlenen günün gereken süresi yeniden değişebilir. İzinli günler dağıtıma katılmaz.
 
 Gereken sürenin otomatik olarak sıfıra inmesi günün açık durumunu korur. Elle düzenleme veya Tamamla sonucu kaydedilirken sıfır süreli açık gün işareti saklanır. Kayıtlar sonraki gün değiştiğinde bu gün yeniden borç alabilir. Örnek: Pzt–Çar toplam 32 sa, Per gereken 8 sa, Cum gereken 0 iken Per 7,5 saate ayarlanırsa hedef 39,5 sa olur. Per gerçekleşeni ertesi gün 7 sa olduğunda Cum gereken 30 dk olur.
 
@@ -98,7 +98,7 @@ Toplu uygulama, seçili gereken süreyi diğer uygun açık günlere uygular. Ta
 
 ### İzinli gün
 
-Haftalık düzenlemede günü kapatmak veya süresini elle sıfıra indirmek o günü izinli yapar. Günün çalışma planı sıfırlanır; haftalık hedeften **o günün güncel varsayılan şablon süresi** düşülür. Hedefin alt sınırı sıfırdır. Aynı günü tekrar izinli yapmak ek indirim üretmez. İzin, kullanıcının kişisel planlama tercihidir; resmî PDKS izin kaydı oluşturmaz.
+Haftalık düzenlemede günü kapatmak veya süresini elle sıfıra indirmek o günü izinli yapar. Günün çalışma planı sıfırlanır; haftalık hedeften **o günün güncel varsayılan şablon süresi** düşülür. Hedefin alt sınırı sıfırdır. Aynı günün izin karşılığı hedefte bir kez uygulanır. İzin, uygulamadaki kişisel planlama tercihidir ve bu planın hedefini günceller.
 
 İzni kaldırıp yeniden açmak o günün varsayılan şablon süresini kullanır; şablonda kapalıysa ilk şablondaki 480 dakika uygulanır. Açılan süre haftalık hedefe eklenir. İzin karşılığı güncel şablondan okunur; izin işareti haftaya aittir. PDKS geçişleri ve şablon bu işlemle değişmez. İzinli günde gerçek kayıt oluşursa kayıtlı süre normal kayıt kurallarıyla hesaba katılır.
 
@@ -156,7 +156,7 @@ Saklanan `WorkPlans` durumu `{ defaultPlan, weekOverrides, weekTargets?, weekLea
 - `weekLeaves`: pazartesi tarihiyle anahtarlanan, tekil 0–4 gün indeksleri. Okunan haftalık planda bu günler sıfırlanır. Boş liste kaldırılır. Güncel şablon izin karşılığının tek kaynağıdır.
 - `weekZeroOpenDays`: sıfır plan süresine rağmen açık kalan günlerin tekil 0–4 indeksleri. Önceki açık gün kullanıcı düzenlemesinde veya Tamamla sonucunda sıfırla kaydedilirse işaretlenir. İzin verme işareti kaldırır; pozitif plan değeri açık durumu zaten taşır. Sıfırla tamamlanmamış işaretleri kaldırıp şablonu uygular; tamamlanan günün işareti korunur. Boş ve pozitif plan için gereksiz işaretler temizlenir; izinle çelişen işaretler reddedilir.
 
-[plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulamayı, [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamını, [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonraki durum güncellemesini yönetir. Güncel şema tek `pofis:work-plans:v1` anahtarında saklanır; demo aynı şemayı `demo:pofis:work-plans:v1` anahtarında tutar. Yalnız bu anahtar okunur; kayıt yoksa varsayılan plan açılır. Eski anahtarlar ve `{ weekdays, hours }` şeması içe aktarılmaz. Güncel anahtardaki geçersiz veri görünür hata üretir ve düzenleme kilitlenir. Yazı hatasında son başarılı kayıt korunur.
+[plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulamayı, [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamını, [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonraki durum güncellemesini yönetir. Güncel şema tek `pofis:work-plans:v1` anahtarında saklanır; demo aynı şemayı `demo:pofis:work-plans:v1` anahtarında tutar. Yalnız bu anahtar okunur; kayıt yoksa varsayılan plan açılır. Depolama sözleşmesi güncel v1 şemasıdır. Güncel anahtardaki geçersiz veri görünür hata üretir ve düzenleme kilitlenir. Yazı hatasında son başarılı kayıt korunur.
 
 Ana Ayarlar mevcut haftanın planını, geçmiş hafta başlığındaki düzenleme eylemi ilgili haftanın planını açar. Düzenleme için kaynak rapor ve yerel planın yüklenmesi gerekir. Modal açıkken hatalar modalda, kapalıyken rapor üzerinde gösterilir.
 

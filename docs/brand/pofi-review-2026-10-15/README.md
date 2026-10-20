@@ -11,7 +11,7 @@ Depoda iki görsel seti bulunur:
 
 Klasör adları korunur. Uygulamanın etkin görselleri [görsel kaynaklar](../assets.md) belgesindedir; bu setlerin uygulamaya alınması ayrıca seçilmelidir.
 
-[prompts.json](prompts.json) ilk üretim denemesinin metinlerini ve eski engel durumunu içerir; güncel dosya envanteri değildir. Yeni üretim için [karakter kuralları](../../../extras/pofis-brand-kit/docs/CHARACTER_BIBLE.md) ve [ana prompt](../../../extras/pofis-brand-kit/docs/MASTER_PROMPT.md) kullanılır.
+[prompts.json](prompts.json) ilk üretim denemesinin metinlerini ve o denemenin durumunu içerir. Güncel dosya envanteri yukarıdaki tabloda tutulur. Yeni üretim için [karakter kuralları](../../../extras/pofis-brand-kit/docs/CHARACTER_BIBLE.md) ve [ana prompt](../../../extras/pofis-brand-kit/docs/MASTER_PROMPT.md) kullanılır.
 
 ## Kaynaklar ve sabitler
 
@@ -20,7 +20,7 @@ Klasör adları korunur. Uygulamanın etkin görselleri [görsel kaynaklar](../a
 - Karakter kuralları: marka kitindeki CHARACTER_BIBLE.md ve MASTER_PROMPT.md; güncel proje ton rehberi.
 - Aynı krem-lavanta kedi; yuvarlak baş, tek kıvrımlı perçem, koyu oval gözler, pembe yanaklar, lavanta kuyruk ve kart askısı korunur.
 - Uygulamaya alınacak görselde yüz/kimlik, kart, dört uzuv, gerçek şeffaflık ve küçük boyutta okunurluk incelenir.
-- Onay almadan uygulama dosyaları değiştirilmeyecek.
+- Kullanıcı uygulamaya alınacak dosyaları seçip onayladıktan sonra görseller uygulanır.
 
 ## Hazırlanan sahneler
 

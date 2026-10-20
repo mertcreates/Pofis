@@ -35,8 +35,8 @@
     },
     {
       "path": "docs/CHARACTER_BIBLE.md",
-      "size_bytes": 4089,
-      "sha256": "c60e851ba99704a403464a4a883591f8075d661f4ee8c9beb8085162b0a58acd"
+      "size_bytes": 4321,
+      "sha256": "4add3b113a9b2fd5f181c342d86d98a8a8809ffdca26cdd26ab3f726811987eb"
     },
     {
       "path": "docs/COLOR_TOKENS.json",
@@ -45,8 +45,8 @@
     },
     {
       "path": "docs/MASTER_PROMPT.md",
-      "size_bytes": 3369,
-      "sha256": "4028c69f848c65fb2861093d9e17cf4bbcff01df16c177b85a58d9669688145a"
+      "size_bytes": 3409,
+      "sha256": "728eecbb11ce54725b31d72075eb5c7fdf8a9baf7595874c8bedd2ad6b74c3b0"
     },
     {
       "path": "index.html",
@@ -75,8 +75,8 @@
     },
     {
       "path": "README.md",
-      "size_bytes": 2713,
-      "sha256": "bae75c0d3eb18e614723d5e75f0feb7e9dbdd5e54944c56a460f3e421a5b23a4"
+      "size_bytes": 2910,
+      "sha256": "4bf355d098606e3d537c6f997a164730c0b903ee034a5052de2167149b8cba41"
     },
     {
       "path": "references/ChatGPT Görseli 15 Eki 2026 18_10_21.png",

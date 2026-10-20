@@ -11,7 +11,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Hesaplar, politikalar ve kod sahipleri | [Kural haritası](rules/README.md) |
 | Oturum yaşam döngüsü ve tek süreç sınırları | [Çok kullanıcılı yapı](architecture/multi-user-sessions.md) |
 | Çalışma ortamı, proxy ve Docker | [Dağıtım](deployment.md) |
-| Ortak Windows/macOS Electron altyapısı, paketleme ve Windows kurulumu | [Masaüstü](desktop.md) |
+| Ortak Windows/macOS Electron altyapısı, paketleme, kurulum ve kabul durumu | [Masaüstü](desktop.md) |
 | Üç platformlu GitHub Actions release, Cloudflare Workers ayarları ve HTTPS kabulü | [Sürüm yayını](release.md) |
 | Demo verisi, saat ve gezinme | [Mesaim demosu](demo.md) |
 | Pofi içeriği ve tek havuz seçimi | [Pofi notları](pofi-notes.md) |

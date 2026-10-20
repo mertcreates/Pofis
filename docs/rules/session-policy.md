@@ -9,7 +9,7 @@
 | Politika | Değer |
 | --- | --- |
 | Oturum çerezi | `pofis_session`; HttpOnly, SameSite=strict, Path=/ |
-| Sabit TTL | 8 saat; istekler süreyi uzatmaz |
+| Sabit TTL | oluşturulma anından itibaren sabit 8 saat |
 | Token | 32 rastgele bayt |
 | İstemci heartbeat / zaman aşımı | 1 dakika / 10 saniye |
 | Etkin istemci lease'i / kaynak keepalive | 10 dakika / 20 dakika |
@@ -20,15 +20,15 @@ Secure çerezi doğrudan HTTPS veya proxy'nin ilk `X-Forwarded-Proto` değeri `h
 
 ## Güvenceler
 
-- Her oturum ayrı profil, Pofi hesap anahtarı (`self.pofiKey`), `PdksClient` ve CookieJar kullanır; toplam oturum kotası yoktur. Yalnız güncel çerez adı okunur ve temizlenir. Pofi anahtarı olmayan eski veya bozuk oturum yeniden giriş gerektirir; eski kişi ID’sinden dönüşüm yapılmaz.
-- Parola yalnız girişte kullanılır; oturum, önbellek veya dosyaya yazılmaz. İstek kimlik alanları ve form şifresi işlem sonunda bırakılır. Kullanıcı adı tekrar deneme için açık formda kalabilir; uygulama depolamasına yazılmaz. JavaScript belleğinin fiziksel sıfırlanması garanti edilmez.
-- TTL erişimde ve kaynak işi tamamlandığında yeniden denetlenir. Çıkış devam eden kaynak işini iptal eder; geciken yanıtlar veya dosya okumaları kişiyi geri getiremez.
+- Her oturum ayrı profil, Pofi hesap anahtarı (`self.pofiKey`), `PdksClient` ve CookieJar kullanır; her doğrulanmış kullanıcıya ayrı oturum açılır. Yalnız güncel çerez adı okunur ve temizlenir. Pofi anahtarı olmayan eski veya bozuk oturum yeniden girişle yeni anahtar alır.
+- Parolanın kullanım alanı giriş isteğiyle sınırlıdır. İstek kimlik alanları ve form şifresi işlem sonunda temizlenir. Kullanıcı adı tekrar deneme için yalnız açık formda kalabilir. Bu temizlik uygulamadaki referansları bırakır; belleğin fiziksel yönetimi JavaScript çalışma zamanına aittir.
+- TTL erişimde ve kaynak işi tamamlandığında yeniden denetlenir. Çıkış devam eden kaynak işini iptal eder; iptal edilmiş oturum durumu geciken yanıtlara ve dosya okumalarına karşı korunur.
 - Yeniden bağlantıda yeni kimlik doğrulama/ilk kayıt başarısızsa mevcut oturum korunur. Eski kaydı silme ve geri alma hatalarının sınırları [yaşam döngüsünde](../architecture/multi-user-sessions.md#oturum-yaşam-döngüsü) tanımlıdır.
-- Başarılı raporun oturum kaydı yazılamazsa API `INTERNAL_ERROR` / 500 döner; rapor veya başarı önbelleği üretilmez. Etkin oturum korunur; depolama düzeldikten sonraki deneme kaynağı yeniden çağırır. Kaynak işi zaten hata verdiyse özgün hata korunur, ikincil disk hatası güvenli koduyla loglanır.
-- Temizlik ve keepalive hataları sağlıklı oturumları durdurmaz. Dosya yazma/silme sırası, yeniden başlatma ve silinemeyen dosyanın sınırları mimari sahibinde yönetilir.
-- Yalnız `SESSION_EXPIRED` + 401 oturumu bitirir. Yanlış şifre mevcut oturumu iptal etmez. İstemci GET'te boolean, giriş/heartbeat başarısında `true`, çıkışta `false` bekler. [Yanıt ve toparlanma sözleşmesi](../pdks-errors.md).
+- Başarılı raporun oturum kaydı yazılamazsa işlem API `INTERNAL_ERROR` / 500 yanıtıyla sona erer; başarı önbelleği yalnız kayıt tamamlandığında oluşturulur. Etkin oturum korunur; depolama düzeldikten sonraki deneme kaynağı yeniden çağırır. Kaynak işi zaten hata verdiyse özgün hata korunur, ikincil disk hatası güvenli koduyla loglanır.
+- Temizlik ve keepalive hatalarında sağlıklı oturumlar çalışmayı sürdürür. Dosya yazma/silme sırası, yeniden başlatma ve silinemeyen dosyanın sınırları mimari sahibinde yönetilir.
+- Yalnız `SESSION_EXPIRED` + 401 oturumu bitirir. Yanlış şifrede mevcut oturum korunur. İstemci GET'te boolean, giriş/heartbeat başarısında `true`, çıkışta `false` bekler. [Yanıt ve toparlanma sözleşmesi](../pdks-errors.md).
 
-[Windows/macOS masaüstü](../desktop.md) aynı kuralları kullanır; normal uygulama kapanışı PDKS çıkışı sayılmaz. Rapor önbelleği ve kaynak kapasitesi [kaynak politikasına](source-policy.md) aittir.
+[Windows/macOS masaüstü](../desktop.md) aynı kuralları kullanır; normal uygulama kapanışında mevcut PDKS oturumunun TTL süresi korunur. Rapor önbelleği ve kaynak kapasitesi [kaynak politikasına](source-policy.md) aittir.
 
 ## Kullanan yerler
 

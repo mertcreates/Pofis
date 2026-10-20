@@ -5,7 +5,7 @@
 - Ürün davranışını etkileyen değişikliklerde [kural haritasından](docs/rules/README.md) ilgili kuralın belgesini, kod sahibini ve kullanan yerleri bul. Terimleri [GLOSSARY.md](GLOSSARY.md) ile eşleştir.
 - Kural değişikliğini mevcut sahibinde uygula; bağlı hesaplar, sunucu adaptörleri ve görünümler aynı sahibin sonucunu kullansın. Yeni bir kural için tek sahip belirleyip haritaya ekle.
 - Davranış değiştiğinde sözleşme belgesini ve bağımlı davranış testlerini birlikte güncelle. Beklenen sonucu ürün sözleşmesinden alınmış somut senaryoyla doğrula.
-- Pofi günlüklerinde [içerik yönetim rehberini](docs/pofi-notes.md) izle. Tema/metin düzenlemelerini katalogda, seçim davranışını seçim motorunda ve özel günleri tek listede yönet. Tek güncel not havuzu tüm tarihler için kullanılır; tarih bazlı eski havuz veya arşiv uyumluluğu ekleme.
+- Pofi günlüklerinde [içerik yönetim rehberini](docs/pofi-notes.md) izle. Tema/metin düzenlemelerini katalogda, seçim davranışını seçim motorunda ve özel günleri tek listede yönet. Tüm tarihlerde tek güncel not havuzunu kullan.
 - Ürün kapsamı için [PRODUCT.md](PRODUCT.md), arayüz kararları için [DESIGN.md](DESIGN.md), Pofi metinleri için [ton rehberini](docs/brand/pofi-tone-guide.md) ilgili değişiklik kapsamında kullan.
 - Belge sahiplerini [belge haritasından](docs/README.md) bul; her konunun ayrıntısını kendi belgesinde yönet, diğer belgelerden bağlantı ver.
 - Doğrulamayı [doğrulama rehberine](docs/verification.md) göre seç: kural testleri, tür kontrolü ve görünür akış değiştiğinde tarayıcı kabulü. Sonucu ve kanıtın sınırlarını kullanıcıya bildir.
@@ -14,7 +14,7 @@
 
 ## Talimat ve iletişim dili
 
-İstenen davranışı somut, olumlu eylemlerle anlat. Her yönlendirme ilgili işi, sahibini ve beklenen sonucu açıkça söylesin; açıklamayı mevcut görev ve gözlenen kanıt üzerinden kur.
+İstenen davranışı somut, olumlu eylemlerle anlat. Her yönlendirme ilgili işi, sahibini ve beklenen sonucu açıkça söylesin; açıklamayı mevcut görev ve gözlenen kanıt üzerinden kur. Teknik koşulları, güvenlik sınırlarını ve hata durumlarını geçerli koşul ve uygulanacak eylemle tarif et. Örneklerde doğrudan kullanılacak metni göster.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

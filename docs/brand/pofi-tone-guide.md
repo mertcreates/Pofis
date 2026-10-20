@@ -8,7 +8,7 @@
 
 Pofis, mesai saatlerini ve PDKS kayıtlarını takip etmek için geliştirilmiş, gayriresmî fakat özenli bir üründür.
 
-Arayüzü minimalist, modern, temiz ve anlaşılırdır. Ürünün ciddi bir işlevi vardır fakat kendisini gereğinden fazla ciddiye almaz.
+Arayüzü minimalist, modern, temiz ve anlaşılırdır. İşlevini özenle sunar; dili rahat ve doğaldır.
 
 Pofi ise krem ve lavanta tonlarında, boynunda personel kartı taşıyan küçük bir kedi maskottur. Pofis'e insani bir sıcaklık ve kendine özgü bir karakter kazandırır.
 
@@ -21,11 +21,11 @@ Pofi ise krem ve lavanta tonlarında, boynunda personel kartı taşıyan küçü
 Pofis'in sistem arayüzü:
 
 - Açık, kısa, anlaşılır ve güvenilir konuşur.
-- Gereksiz kelimeler kullanmaz.
+- Her kelime açık bir bilgi veya yönlendirme taşır.
 - Teknik doğruluğu sıcaklığın önünde tutar.
 - Kullanıcının ne olduğunu ilk bakışta anlamasını sağlar.
-- Yapay bir kurumsallıktan kaçınır.
-- Başarıyı abartmaz, eksiklikleri dramatize etmez.
+- Gündelik, doğal Türkçe kullanır.
+- Başarıyı ve eksiklikleri gözlenen durumun ölçüsünde anlatır.
 - Kullanıcıyı yönlendirmesi gerekiyorsa doğrudan konuşur.
 
 Örnekler:
@@ -39,7 +39,7 @@ Pofis'in sistem arayüzü:
 - "Son çıkış kaydı"
 - "Haftalık toplam"
 
-Bu ifadeler şiirselleştirilmez, gereksiz esprilerle süslenmez.
+Bu ifadelerde doğrudan sistem bilgisi verilir.
 
 ### Pofi'nin sesi
 
@@ -48,13 +48,12 @@ Pofi ise:
 - Sakin, meraklı, sevecen ve biraz kendine özgüdür.
 - Küçük şeyleri fark eder.
 - Gündelik olaylara bazen beklenmedik bir açıdan bakar.
-- Kendini komik bulmaz.
-- Şaka yapmak için konuşmaz.
+- Mizahı gündelik olaylara verdiği doğal tepkilerden doğar.
 - Biraz safça görünen ama kendi içinde tutarlı bir mantığı vardır.
-- Olayları büyütmez.
-- Bazen yalnızca gözlemler, bazen küçük bir şey yapar, bazen de hiçbir özel sonuca varmaz.
+- Olayları kendi küçük ölçeğinde yaşar.
+- Bazen gözlemler, bazen küçük bir şey yapar, bazen de anı olduğu gibi bırakır.
 
-**Pofi komiklik yapmaz. Pofi'nin varoluş biçimi bazen komiktir.**
+**Mizah, Pofi'nin kendine özgü bakışından doğar.**
 
 ## 3. Pofi'nin mizahı
 
@@ -76,7 +75,7 @@ Mizahın mekanizması çoğunlukla şöyledir:
 >
 > Biraz oturdum.
 
-Burada komiklik son cümleye zorla yerleştirilmiş bir espriden doğmaz. Pofi'nin durumu ele alışından doğar.
+Burada mizah, Pofi'nin durumu ele alışından doğar.
 
 Başka bir örnek:
 
@@ -86,63 +85,64 @@ Başka bir örnek:
 >
 > Bilmiyorlarmış.
 
-Pofi'nin bitkinin adını merak etmesi yeterlidir. Anlatıcı bunu açıklamaz. Sonuna bir espri daha eklenmez.
+Pofi'nin bitkinin adını merak etmesi hikâyeyi tamamlar. Not bu küçük merakla biter.
 
 ## 4. Dilin karakteristik özellikleri
 
-**Sade ama mekanik değil.**
+**Sade ve doğal.**
 
-Kısa cümleler tercih edilir, ancak her cümlenin kısa olması zorunlu değildir. Türkçe doğal akmalıdır.
+Cümlelerin uzunluğu Türkçenin doğal akışını izler. Kısa cümleler, konuşurken verilecek duraklar ve gündelik sözcükler birlikte kullanılır. Pofi'nin sesi, olayı kendi ağzından anlatırken duyulur: “Herkes bilgisayarını açtı. Ben de açtım.”
 
-**Sevimli ama çocuksu değil.**
+**Sakin bir sevimlilik.**
 
-Bebeksi konuşmalar, abartılı ünlemler, sürekli miyavlamalar ve aşırı tatlılaştırma kullanılmaz.
+Sevimlilik, Pofi'nin merakından ve küçük davranışlarından gelir. Sözcükleri gündelik, noktalaması sakindir. Masasına konan bitkinin adını sorması, bu merakı tek başına hissettirir.
 
-**Samimi ama laubali değil.**
+**Ölçülü bir yakınlık.**
 
-Pofi kullanıcıyla yakın bir ilişki kurabilir, ancak onunla gereğinden fazla konuşmaz.
+Pofi kendi yaptığını veya fark ettiğini paylaşarak yakınlık kurar. “Ben biraz daha oturuyorum.” gibi bir cümle, yanında birinin olduğu hissini verir ve kullanıcıya kendi seçimi için alan bırakır. Hitaplar ve konuşmanın uzunluğu o anın ihtiyacına göre ölçülü tutulur.
 
-**Komik ama şakacı değil.**
+**Kendiliğinden doğan mizah.**
 
-Kelime oyunları, espri kalıpları, sosyal medya mizahı ve zorlanmış sürpriz sonlardan kaçınılır.
+Mizah, olayın küçük ayrıntısından ve Pofi'nin tutarlı tepkisinden doğar. Pofi yaşadığı anı kendi açısından ciddiyetle anlatır; okur o bakıştaki küçük tuhaflığı fark eder. Bilgisayar açılmayınca bir süre oturması hikâyenin mizahını taşır. Son cümlede o anın içinde kalınır.
 
-**Duygulu ama duygusallaştırılmış değil.**
+**Küçük ayrıntılarda sıcaklık.**
 
-Sıcaklık, büyük duygusal açıklamalardan değil, küçük davranışlardan ve ayrıntılardan doğar.
+Sıcaklık, küçük davranışlardan ve ayrıntılardan doğar. Bitkinin baktığı yere sandalyesini çevirmesi, Pofi'nin ilgisini ve eşlik etme biçimini gösterir. Duygu, anlatılan hareketin ve paylaşılan anın içinde hissedilir.
 
-**Özgün ama tuhaf olmak için tuhaf değil.**
+**Kendi içinde tutarlı özgünlük.**
 
-Pofi'nin davranışlarının kendi dünyasında bir mantığı olmalıdır.
+Pofi'nin davranışları kendi dünyasında anlaşılır bir nedeni izler. Bitkinin yaprağı pencereye dönünce sandalyesini o tarafa çevirmesi, gözlem ile tepki arasında bağ kurar. Her küçük tuhaflık sahnedeki nesneden veya olaydan doğar; metin bu bağı okura hissettirecek kadar somut kalır.
 
-## 5. Özellikle kaçınılacak şeyler
+## 5. Metin üretme yaklaşımı
 
-Şunları üretme:
+- Sistem mesajını gözlenen durum ve uygulanabilir sonraki adımla kur.
+- Pofi'yi kendi küçük dünyasından, çoğunlukla birinci tekil şahısla konuştur.
+- Yakınlığı gündelik Türkçe ve kısa, yerinde cümlelerle kur.
+- Noktalama ve emoji kullanımını sahnenin sakin ritmine göre ölçülü tut.
+- Her notta nesneyi, olayı ve Pofi'nin tepkisini bir bütün olarak işle.
+- Notların eylemlerini ve sonlarını çeşitlendir: yardım etme, öğrenme, tamamlama, merak etme ve gözlemleme.
+- Son cümleyi olayın içindeki küçük tepki veya fark edişle tamamla.
+- Kullanıcının mesaisini sistemin kayıt ve hedef bilgileriyle anlat; Pofi'nin sözlerini kendi deneyimine odakla.
 
-- "Harikasın! Bugün de muhteşem iş çıkardın!" gibi yapay motivasyon cümleleri.
-- "Haydi bakalım, mesai canavarı!" gibi zorlama samimiyet.
-- Sürekli ünlem işaretleri ve emoji.
-- "Miyavvv! Pofi çok mutlu!" gibi çocuklaştırılmış maskot dili.
-- Her gün sonunda aforizma veya hayat dersi.
-- Sürekli "biraz oturdum", "bekledim", "vazgeçtim" sonucuna ulaşan birbirinin aynısı hikâyeler.
-- Yalnızca komik olmak için mantıksızlaşan olaylar.
-- Metnin anlamını okuyucuya açıklayan son cümleler.
-- Kullanıcının çalışkanlığı, üretkenliği veya yorgunluğu hakkında temelsiz yargılar.
+Örnek:
 
-Örneğin:
+> Ben biraz daha oturuyorum.
 
-**İstenmeyen:**
+Bu cümle Pofi'nin o anki davranışını anlatır ve kullanıcıya kendi seçimi için alan bırakır.
 
-"Bugün hedefini aştın! Pofi seninle gurur duyuyor, artık dinlenmeyi hak ettin!"
+### Örnekleri okuma
 
-**Tercih edilen:**
+Rehberdeki notlar, anlatım kararlarını değerlendirmek için referanstır. Yeni metni kendi nesnesi, olayı ve tepkisiyle kur.
 
-"Ben biraz daha oturuyorum."
+| Örnek | Taşıdığı karakter özelliği | Yeni metinde korunan ilişki |
+| --- | --- | --- |
+| Bilgisayarın açılmadığı not | Kuru mizah, sakin tepki | Küçük aksaklık ile Pofi'nin o ana verdiği tepki birbirini tamamlar. |
+| Bitkinin adını sorduğu not | Merak, kendi içinde tutarlı bakış | Pofi'nin sıradan bir nesneye sorduğu soru, gündelik sahneye kendine özgü bir açı verir. |
+| Bitkiyle pencereye baktığı not | Davranışla kurulan sıcaklık | Gözlem küçük bir harekete dönüşür; ortak an hikâyeyi tamamlar. |
 
-İkinci cümle kullanıcıya bir davranış dayatmaz, onu değerlendirmez. Yalnızca Pofi'nin varlığını hissettirir.
+Notlar boyunca bu ilişkileri farklı eylemlerle kur: bir işi tamamlama, yardım etme, bir şey öğrenme veya küçük bir ayrıntıyı keşfetme. Her notun ritmini ve kapanışını kendi olayı belirlesin.
 
 ## 6. Pofi'nin davranışları
-
-Pofi yalnızca sorun yaşayan, bekleyen veya beceriksiz bir karakter değildir.
 
 Bazen işini bitirir. Bazen birine yardım eder. Bazen yeni bir şey öğrenir. Bazen de yalnızca hoşuna giden bir ayrıntıyı fark eder.
 
@@ -158,7 +158,7 @@ Bazen nesnelere sanki kendilerine özgü bir iradeleri varmış gibi yaklaşabil
 >
 > Bir süre aynı yere baktık.
 
-Burada bitkinin ne düşündüğünü anlatmaya gerek yoktur. Pofi'nin davranışı hikâyeyi taşır.
+Pofi'nin davranışı hikâyeyi taşır; not ortak bakış anıyla tamamlanır.
 
 ## 7. Pofi'nin not defteri
 
@@ -170,23 +170,21 @@ Notlar genellikle üç parçalıdır:
 - **Gelişme:** Olayın doğal ya da beklenmedik ilerleyişi.
 - **Sonuç:** Pofi'nin küçük tepkisi, davranışı veya fark edişi.
 
-Ancak bu yapı katı bir formüle dönüşmemelidir.
+Parçaların uzunluğu ve ritmi olayın doğal akışına göre değişebilir.
 
-Her notun komik bitmesi gerekmez. Bazılarının sakin, bazılarının hafif tuhaf, bazılarının sıcak, bazılarının tamamen sıradan olması doğaldır.
+Notlar sakin, hafif tuhaf, sıcak veya tamamen sıradan bir anla bitebilir.
 
 Yüzlerce not boyunca karakter çeşitlilik göstermelidir.
 
 Birbirini takip eden notlarda küçük nesneler veya olaylar yeniden ortaya çıkabilir. Ancak her not kendi başına da anlamlı olmalıdır.
 
-Özellikle kaçınılması gereken şey, rastgele bir giriş, gelişme ve sonuç cümlesinin teknik olarak birleşmesine rağmen anlamsal olarak tutarsız kalmasıdır.
+Her giriş, gelişme ve kapanış birleşimi anlam, nesne ve olay sürekliliği açısından birlikte okunup doğrulanır.
 
 **Kombinasyon sayısından önce hikâyenin doğallığı gelir.**
 
 ## 8. Gizli oda ve easter egg dili
 
-Pofis'in küçük sürprizleri gösterişli olmamalıdır.
-
-Keşfedildiklerinde kullanıcıyı ödüllendiren büyük kutlamalar yerine, sanki orada zaten var olan küçük bir şeye rastlamış hissi vermelidirler.
+Pofis'in küçük sürprizleri, kullanıcının zaten orada duran küçük bir ayrıntıyı keşfetmesi gibi hissettirmelidir.
 
 Örnek:
 
@@ -208,43 +206,43 @@ Keşfedildiklerinde kullanıcıyı ödüllendiren büyük kutlamalar yerine, san
 
 "12:34. Her şey sırayla."
 
-Easter egg'ler gereksiz açıklamalarla boğulmaz. Bazen tek bir cümle yeterlidir.
+Küçük sürprizlerin açıklaması kısa tutulur; bazen tek bir cümle yeterlidir.
 
 ## 9. Teknik doğruluk ve karakter dili arasındaki sınır
 
-Pofi'nin sevimliliği, Pofis'in güvenilirliğinin önüne geçmemelidir.
+Sistem bilgisi teknik doğruluğunu ve açık etiketlerini korur.
 
-Örneğin tahmini süre kesinleşmiş süre gibi sunulmaz. Son çıkış kaydı, kullanıcının gününün kesin olarak sona erdiği anlamına gelmez.
+Tahmini süre “Tahmini”, gerçekleşen süre “Kayıtlı” olarak sunulur. Son çıkış, gözlenen son turnike hareketini belirtir.
 
-Günlük çalışma süresi Pofis'in mevcut iş kuralında ilk girişten son çıkışa kadar hesaplanır. Ara giriş–çıkış süreleri düşülmez.
+Günlük çalışma süresi Pofis'in mevcut iş kuralında ilk girişten son çıkışa kadar hesaplanır. Ara giriş–çıkış aralıkları bu süreye dahildir.
 
 Gerçek veri ve hesaplama bilgileri sistem arayüzünde net biçimde sunulur.
 
-Pofi'nin mesajları ise teknik bilgiyi tekrar etmek yerine, deneyime karakter katar.
+Pofi'nin mesajları kendi gözlemleriyle deneyime karakter katar.
 
 **Sistem gerçeği söyler. Pofi ona eşlik eder.**
 
-Ciddi hatalarda ve veri belirsizliklerinde öncelik açıklıktır, mizah değildir.
+Ciddi hatalarda ve veri belirsizliklerinde gözlenen sorun ve uygulanabilir sonraki adım açıkça anlatılır.
 
-## 10. Dilin ruhunu anlatan kısa karşılaştırma
+## 10. Dilin temel özellikleri
 
 Pofis ve Pofi'nin dili şu özellikleri taşımalıdır:
 
-- Az konuşur, ama eksik konuşmaz.
-- Sıcak davranır, ama ilgi dilenmez.
-- Küçük ayrıntıları fark eder, ama onları büyütmez.
-- Gülümsetir, ama espri yaptığını ilan etmez.
-- Kullanıcının yanında durur, ama kullanıcıyı yargılamaz.
-- Özenli hissettirir, ama gösteriş yapmaz.
+- Kısa ve yeterli bilgi verir.
+- Sıcak, rahat bir yakınlık kurar.
+- Küçük ayrıntıları kendi ölçeğinde anlatır.
+- Doğal tepkileriyle gülümsetir.
+- Kullanıcıya kendi seçimleri için alan bırakır.
+- Özenini yerinde ayrıntılarla hissettirir.
 
 ## 11. Arayüzde tutarlılık
 
 - Yönlendirmelerde tekil ve doğrudan konuş: “Kontrol et”, “Yeniden dene”, “PDKS’ye bağlan”.
 - Aynı eylemi aynı adla göster. PDKS oturumu için “Bağlan / Bağlantıyı kes”, turnike hareketleri için “Giriş / Çıkış” kullan.
-- Başlık, düğme ve kısa durum etiketlerinde son nokta kullanma. Açıklamalarda ve Pofi'nin cümlelerinde noktalama işaretlerini koru; süren işlemleri “…” ile belirt.
-- Kayıt yokluğunu gözlenen bilgiyle anlat: “Henüz giriş kaydı yok”. Geçmiş bir açık girişte “Eşleşen çıkış kaydı yok” de; kullanıcının hâlâ çalıştığını varsayma.
+- Başlık, düğme ve kısa durum etiketlerini noktasız yaz. Açıklamalarda ve Pofi'nin cümlelerinde noktalama işaretlerini koru; süren işlemleri “…” ile belirt.
+- Kayıt yokluğunu gözlenen bilgiyle anlat: “Henüz giriş kaydı yok”. Geçmiş bir açık girişte gözlenen kayıt durumunu “Eşleşen çıkış kaydı yok” diye belirt.
 - Sürelerde kayıtlı süre, canlı toplam ve ek tahmin ayrımını koru. Günün akışında “Bugünkü mesai”, “Kayıtlı” ve “Tahmini” kullan; diğer bağlamların etiketleri [süre sözleşmesindedir](../rules/duration.md). Hedef karşılaştırmalarında “Hedefe kalan”, “Hedefin üzerinde” ve “Hedefle aynı” kullan.
-- Hata açıklaması sorunu ve uygulanabilir sonraki adımı söylesin. Teknik ayrıntılarda kullanılan HTTP, API ve PDKS terimlerini kullanıcıya yönelik ana mesajlara gereksiz yere taşıma.
+- Hata açıklaması sorunu ve uygulanabilir sonraki adımı söylesin. HTTP, API ve PDKS tanılarını teknik ayrıntılar alanında göster.
 - Pofi'nin sistem durumunu bildiren başlığı ile kendi gözlemini anlatan mesajını ayır. Kayıt belirsizliğinde açık yönlendirme önceliklidir.
 
 Ortak arayüz metinlerinin sahibi [ui-text.js](../../src/lib/ui-text.js) dosyasıdır. Pofi notlarının metinleri [içerik kataloğunda](../pofi-notes.md) yönetilir.
@@ -253,7 +251,7 @@ Ortak arayüz metinlerinin sahibi [ui-text.js](../../src/lib/ui-text.js) dosyas�
 
 Kurulum, derleme, paketleme, yayın ve uygulama açılışında Pofis'in sistem sesini kullan. Kısa durumlar “Pofis indiriliyor…”, “Paket doğrulanıyor…” ve “Pofis hazır” gibi doğrudan olsun. Hatalarda gözlenen sorunu ve uygulanabilir sonraki adımı söyle: “Pofis açık. Uygulamayı kapatıp aynı komutu yeniden çalıştır.”
 
-Komutları, dosya yollarını, sürümleri ve tanılama için gerekli teknik ayrıntıları koru. Açıklamalarda “build”, “installer” ve “draft release” yerine “derleme”, “kurulum betiği” ve “sürüm taslağı” kullan. Bu metinler ilgili betiklerde yönetilir. Teknik durumları Pofis’in sesiyle, hata mesajlarını doğrudan yönlendirmeyle anlat.
+Komutları, dosya yollarını, sürümleri ve tanılama için gerekli teknik ayrıntıları koru. Açıklamalarda “derleme”, “kurulum betiği” ve “sürüm taslağı” terimlerini kullan. Bu metinler ilgili betiklerde yönetilir. Teknik durumları Pofis’in sesiyle, hata mesajlarını doğrudan yönlendirmeyle anlat.
 
 ## 12. Yeni metin üretirken kontrol et
 
@@ -262,14 +260,16 @@ Her öneriden sonra şu soruları sor:
 1. Bu cümle doğal Türkçe mi?
 2. Gereksiz kelimeleri çıkarabilir miyim?
 3. Pofi konuşuyorsa gerçekten onun karakterine uygun mu?
-4. Mizah kendiliğinden mi doğuyor, yoksa zorlanmış mı?
-5. Metin kullanıcı hakkında varsayımda veya yargıda bulunuyor mu?
+4. Mizah olaydan ve karakterin tepkisinden doğal biçimde doğuyor mu?
+5. Metin, sistemin gözlediği bilgiyi veya Pofi'nin kendi deneyimini mi anlatıyor?
 6. Bir açıklama cümlesini çıkarınca metin daha güçlü oluyor mu?
 7. Bu metin yüzlerce farklı metin arasında okunduğunda hâlâ özgün hissedilir mi?
+8. Pofi'nin tepkisi sahnedeki olaydan anlaşılır biçimde doğuyor mu?
+9. Metnin sıcaklığı veya mizahı hangi somut davranışta hissediliyor?
 
-Gerektiğinde metinleri kısalt. Bir fikri daha komik hâle getirmek için doğallığından ödün verme.
+Gerektiğinde metinleri kısalt. Mizahı doğal anlatımın içinde kur.
 
-**En önemli ilke: Pofis'in küçük ayrıntılarında emek hissedilmeli, ancak bu emek kendini göstermeye çalışmamalı.**
+**En önemli ilke: Pofis'in özeni küçük, yerinde ve doğal ayrıntılarda hissedilir.**
 
 Pofis'in sloganı:
 

@@ -12,9 +12,9 @@ Arayüz: `dailyDurationState`, `dailyRecordState`, `durationTotals`.
 
 Arayüzde **Kayıtlı süre**, ilk giriş ile son çıkış arasındaki süreyi; **Canlı toplam**, güvenilir açık giriş varken ilk girişten şimdiki ana kadar olan süreyi; **Anlık tahmin**, canlı toplamın kayıtlı süreyi aşan bölümünü adlandırır. Grafik ayrıntısındaki canlı toplam ile çubuğun anlık tahmin bölümü bu adlarla ayrılır. Günün akışı kartında toplam “Bugünkü mesai”, lejant bölümleri “Kayıtlı” ve “Tahmini” olarak gösterilir. Haftalık toplam başlığı her durumda “Haftalık toplam” olarak gösterilir.
 
-Canlı toplam ilk girişten şimdiki İstanbul saatine kadar geçen süredir. Yalnız bugün, güncel rapor, geçerli ilk giriş ve güvenilir son açık giriş varsa kullanılır. Günlük özet ve açık giriş aynı zorunlu hareket listesinden üretilir. Şimdiki an açık girişten önceyse veya canlı toplam kayıtlı sürenin gerisindeyse kayıtlı sonuca dönülür. Anlık tahmin = canlı toplam − kayıtlı süre; bir kez burada hesaplanır. Bilinmeyen kayıt sıfır çalışılmış sayılmaz.
+Canlı toplam ilk girişten şimdiki İstanbul saatine kadar geçen süredir. Yalnız bugün, güncel rapor, geçerli ilk giriş ve güvenilir son açık giriş varsa kullanılır. Günlük özet ve açık giriş aynı zorunlu hareket listesinden üretilir. Şimdiki an açık girişten önceyse veya canlı toplam kayıtlı sürenin gerisindeyse kayıtlı sonuca dönülür. Anlık tahmin = canlı toplam − kayıtlı süre; bir kez burada hesaplanır. Bilinmeyen kayıt belirsiz olarak korunur.
 
-08:00 giriş / 12:00 çıkış / 13:00 giriş / 15:00 şimdi → 4 saat kayıtlı + 3 saat anlık tahmin = 7 saat. Ara molalar hesaplanmaz veya düşülmez. Son hareket çıkışsa veya hareketler belirsizse anlık tahmin durur.
+08:00 giriş / 12:00 çıkış / 13:00 giriş / 15:00 şimdi → 4 saat kayıtlı + 3 saat anlık tahmin = 7 saat. Ara mola aralıkları canlı toplama dahildir. Son hareket çıkışsa veya hareketler belirsizse anlık tahmin durur.
 
 ## Bağımlılıklar
 

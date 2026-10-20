@@ -10,7 +10,7 @@ Arayüz: `isOwnReport`, `reportRangeIssue`.
 
 ## Sözleşme
 
-Tek uygulamada yalnız self raporu kabul edilir. Tarih aralığı gerçek günlerden oluşur, başlangıç bitişten sonra olamaz; üst sınır dahil gün sayısıyla hesaplanır. Route, kaynak adaptörü ve istemci yanıtı aynı kişi kuralını kullanır. HTTP hata metni/durumu sunucu adaptöründe kalır.
+Tek uygulamada yalnız self raporu kabul edilir. Tarih aralığı gerçek günlerden oluşur, başlangıç bitişle aynı gün veya daha önce olmalıdır; üst sınır dahil gün sayısıyla hesaplanır. Route, kaynak adaptörü ve istemci yanıtı aynı kişi kuralını kullanır. HTTP hata metni/durumu sunucu adaptöründe kalır.
 
 ## Bağımlılıklar
 

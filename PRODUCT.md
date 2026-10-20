@@ -6,7 +6,7 @@
 
 web
 
-Web uygulaması, Windows x64 ve macOS Apple Silicon/Intel için ortak Electron kabuğuyla da çalışır. Paketleme kapsamı [masaüstü rehberinde](docs/desktop.md), üç hedefin yayın otomasyonu [sürüm yayınında](docs/release.md), bekleyen cihaz ve yayın kabulü [görev listesinde](tasks/todo.md) tutulur.
+Pofis, web üzerinde ve ortak Electron kabuğuyla Windows x64 ile macOS Apple Silicon/Intel için sunulur. Windows ve macOS sürümleri aktif kullanımdadır. Paketleme ve masaüstü kabul durumu [masaüstü rehberinde](docs/desktop.md), üç hedefin yayın otomasyonu [sürüm yayınında](docs/release.md) açıklanır.
 
 Paketli masaüstü uygulaması açılışta yeni sürümü denetler; güncelleme varsa kurulum komutunu kopyalama seçeneği sunar. Davranışın sahibi [masaüstü sözleşmesidir](docs/desktop.md#açılışta-sürüm-denetimi).
 
@@ -20,7 +20,7 @@ Kendi PDKS hesabıyla günlük ve haftalık mesaisini takip eden kullanıcılar.
 
 ## Product Purpose
 
-PDKS kayıtlarını değiştirmeden kişisel mesaiyi anlaşılır biçimde sunmak. Sistem sayısal gerçeği söyler; Pofi ona eşlik eder.
+Kişisel mesaiyi PDKS kayıtlarından hesaplayıp anlaşılır biçimde sunmak. Sistem sayısal gerçeği söyler; Pofi ona eşlik eder.
 
 ## Operating Context
 
@@ -28,9 +28,9 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 
 ## Capabilities and Constraints
 
-- Gerçekleşen mesainin kaynağı kişisel turnike hareketleridir. Seçilen haftanın bütün sayfaları alınır. Kullanıcı kişisel haftalık planında günleri izinli işaretleyebilir; izinler plan hedefini günceller. Resmî izin bilgisi PDKS kaynağından alınmaz.
-- [Kayıtlı süre](docs/rules/recorded-time.md) ilk giriş–son çıkıştır; ara molalar düşülmez. Güvenilir açık girişte [anlık tahmin](docs/rules/duration.md) üretilir. Eski raporda tahmin durur.
-- [Günlük kayıt durumu](docs/rules/record-status.md) kayıt bütünlüğünü hedef farkından ayrı değerlendirir. Eksik kayıt sıfır çalışma veya devamsızlık sayılmaz; belirsizlik çıkış hedefini engelleyebilir.
+- Gerçekleşen mesainin kaynağı kişisel turnike hareketleridir. Seçilen haftanın bütün sayfaları alınır. Kullanıcı kişisel haftalık planında günleri izinli işaretleyebilir; izinler uygulamadaki kişisel plan hedefini günceller.
+- [Kayıtlı süre](docs/rules/recorded-time.md) ara molalar dahil ilk giriş–son çıkış aralığıdır. Güvenilir açık girişte [anlık tahmin](docs/rules/duration.md) üretilir. Eski raporda tahmin durur.
+- [Günlük kayıt durumu](docs/rules/record-status.md) kayıt bütünlüğünü hedef farkından ayrı değerlendirir. Eksik kayıt kendi kayıt durumu etiketiyle gösterilir; belirsizlik çıkış hedefini engelleyebilir.
 - [Mesai planı](docs/rules/work-plan.md), kullanıcıya varsayılan şablonu ve mevcut haftanın gereken çalışma sürelerini düzenleme olanağı verir. PDKS kayıtları gerçekleşen süreyi sağlar; planlar tarayıcıda saklanır. Günlük sınırlar, devir, tamamlama ve haftalık hedef sözleşmesi kural belgesindedir.
 - PDKS girişi profil sayfasıyla doğrulanır; kişisel menü bağlantısı bulunmayan yönetici hesapları da kişisel turnike raporunu kullanır. Pofi notları [hesap anahtarıyla](docs/pofi-notes.md#hesap-anahtarı) seçilir.
 - PDKS girişi sunucuda işlenir. Parola yalnız girişte kullanılır; kaynak çerezleri her oturuma özel tutulur. Oturum politikası ve kaynak önbelleği [kural haritasından](docs/rules/README.md) yönetilir.
@@ -47,4 +47,4 @@ Güncel davranış sözleşmeleri [kural belgelerinde](docs/rules/README.md), te
 
 ## Product Principles
 
-Veri dürüstlüğü, düşük bilişsel yük, açık modül sahipliği ve kullanıcıyı yargılamayan doğal Türkçe. Güncel davranış kural belgeleriyle, arayüz DESIGN ile yönetilir. Uygulama kodu açık sınırlar, okunabilir akış ve bağımsız davranış testleriyle geliştirilir.
+Veri dürüstlüğü, düşük bilişsel yük, açık modül sahipliği ve gözlenen bilgiye dayalı doğal Türkçe. Güncel davranış kural belgeleriyle, arayüz DESIGN ile yönetilir. Uygulama kodu açık sınırlar, okunabilir akış ve bağımsız davranış testleriyle geliştirilir.

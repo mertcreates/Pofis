@@ -10,11 +10,11 @@ Arayüz: `isNotebookDate(date, specialDates)`, `pofiNotebookDates(today, special
 
 ## Sözleşme
 
-Mevcut haftanın hafta içi günleri ve özel tarihe denk gelen hafta sonları seçilir. Takvim özel tarihleri parametre olarak alır. [Not motoru](../../src/lib/pofi-notes/notebook.ts) tek [özel gün listesini](../../src/lib/pofi-notes/special-days.ts) kullanır; tüm tarihler güncel tek not havuzundan seçilir. Ekran sunucudan gelen notların tarihlerinden aynı takvimi oluşturur; UI'da ayrı özel gün listesi tutulmaz. Bugün listede değilse son hafta içi günü açılır. Bu takvim kişinin çalışma planından bağımsızdır. İçerik ve seçim yönetimi [Pofi notları rehberinde](../pofi-notes.md) açıklanır.
+Mevcut haftanın hafta içi günleri ve özel tarihe denk gelen hafta sonları seçilir. Takvim özel tarihleri parametre olarak alır. [Not motoru](../../src/lib/pofi-notes/notebook.ts) tek [özel gün listesini](../../src/lib/pofi-notes/special-days.ts) kullanır; tüm tarihler güncel tek not havuzundan seçilir. Ekran sunucudan gelen notların tarihlerinden aynı takvimi oluşturur; UI aynı özel gün takvimini kullanır. Bugün listede değilse son hafta içi günü açılır. Bu takvim kişinin çalışma planından bağımsızdır. İçerik ve seçim yönetimi [Pofi notları rehberinde](../pofi-notes.md) açıklanır.
 
 ## Arayüz davranışı
 
-Seçilen tarihte not bulunamazsa defter tarihini ve gezinme kontrollerini korur; not alanında nötr durum mesajı gösterilir. Hafta değiştiğinde eski seçim kullanılabilir tarihler arasında değilse aynı takvim sahibinin varsayılan günü gösterilir. Eksik not için başka tarihin metni veya yeni bir not üretilmez.
+Seçilen tarihte not bulunamazsa defter tarihini ve gezinme kontrollerini korur; not alanında nötr durum mesajı gösterilir. Hafta değiştiğinde eski seçim kullanılabilir tarihler arasında değilse aynı takvim sahibinin varsayılan günü gösterilir. Eksik notta seçili tarihe ait nötr durum mesajı korunur.
 
 Normal tema havuzu boşken motor yalnız özel tarihlere ait notları döndürür. Normal günlerin notsuz olması takvimdeki hafta içi tarihlerini kaldırmaz; özel hafta sonu tarihleri dönen özel notlarla takvime katılır.
 

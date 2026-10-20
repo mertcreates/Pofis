@@ -30,11 +30,11 @@ Yerelde `build` doğrudan `next build`, `start` ise `next start --hostname 127.0
 
 ## Masaüstü altyapısı
 
-Windows ve macOS Electron kabuğu aynı uygulamayı Next standalone ve dahili Node.js ile açar; son kullanıcıda Node/Bun kurulumu gerekmez. Geliştirme/paketleme komutları ve Windows kurulumu [masaüstü rehberinde](docs/desktop.md), üç platformun GitHub Actions/Workers akışı [sürüm yayınında](docs/release.md) açıklanır. Açık kabul işleri [görev listesinde](tasks/todo.md) tutulur.
+Pofis, Windows ve macOS üzerinde aktif kullanımdadır. Electron kabuğu aynı uygulamayı Next standalone ve paketle gelen Node.js ile açar. Geliştirme/paketleme komutları, kurulum ve masaüstü kabul durumu [masaüstü rehberinde](docs/desktop.md), üç platformun GitHub Actions/Workers akışı [sürüm yayınında](docs/release.md) açıklanır. Açık işler [görev listesinde](tasks/todo.md) tutulur.
 
 Paketli uygulama açılışta [yeni sürümü denetler](docs/desktop.md#açılışta-sürüm-denetimi) ve güncelleme varsa kurulum komutunu kopyalama seçeneği sunar.
 
-Giriş, profil sayfasıyla doğrulanır; sol menüde kişisel bağlantı bulunması gerekmez. Pofi notları için kullanıcı adına bağlı sunucu anahtarı kullanılır. [Hesap anahtarı ve geçiş etkisi](docs/pofi-notes.md#hesap-anahtarı).
+Giriş, profil sayfasıyla doğrulanır. Kişisel turnike raporu doğrudan açılır. Pofi notları için kullanıcı adına bağlı sunucu anahtarı kullanılır. [Hesap anahtarı ve geçiş etkisi](docs/pofi-notes.md#hesap-anahtarı).
 
 ## Belgeler
 

@@ -6,15 +6,15 @@ Kişisel PDKS mesaisini takip ederken kullanılan ortak terimler.
 
 **Kayıtlı süre**:
 Turnike hareketlerinden türetilen günlük ilk giriş ile son çıkış arasındaki süre.
-_Avoid_: İçeride kalınan süre, geçiş çiftleri toplamı
+_Gösterim_: Kayıtlı süre
 
 **Canlı toplam**:
 Güncel ve güvenilir açık giriş bulunduğunda, ilk girişten şimdiki ana kadar uzanan toplam süre.
-_Avoid_: Son girişten geçen süre
+_Gösterim_: Canlı toplam
 
 **Anlık tahmin**:
 Canlı toplamın kayıtlı süreyi aşan bölümü; süre çubuğunun açık tonlu parçası.
-_Avoid_: Canlı toplam, mola süresi
+_Gösterim_: Anlık tahmin; günün akışında Tahmini
 
 **Planlanan günlük hedef**:
 Varsayılan veya özel hafta planında belirlenen günlük çalışma süresi.
@@ -45,19 +45,19 @@ Tamamlanan günlerin gerçekleşen süreleri ile tamamlanmamış günlerin günc
 
 **Açık giriş**:
 Ardından güvenilir bir çıkış bulunmayan son turnike girişi.
-_Avoid_: Kesin içeride olma bilgisi
+_Kapsam_: Son hareketin giriş olması ve kayıt güvenilirliği
 
 **Belirsiz kayıt**:
 Tutarlı bir giriş/çıkış yorumu yapılamayan hareket bilgisi veya türetilmiş günlük kayıt.
-_Avoid_: Devamsızlık, sıfır çalışma
+_Gösterim_: Kayıt bütünlüğüne ait belirsizlik
 
 **Kayıt durumu**:
 Günlük geçiş bütünlüğü, raporun İstanbul tarihi, açık giriş ve çalışma planı bağlamından seçilen durum. Hedefin altında veya üzerinde kalmak ayrı bir süre karşılaştırmasıdır.
-_Avoid_: Hedef durumu, mesai onayı
+_Kapsam_: Turnike kaydının bütünlüğü
 
 **Eski rapor**:
 Kaynak yenilemesi başarısız olduğu için güncelliği doğrulanamayan son rapor.
-_Avoid_: Güncel rapor, oturumu bitmiş rapor
+_Gösterim_: Son alınan rapor ve güncellik uyarısı
 
 **Açık çalışma günü**:
 Mesai planına dahil olan hafta günü. Gereken süresi sıfır olsa da çalışma planında açıktır.
@@ -70,12 +70,12 @@ Plan düzenleyicisinde ayrıntıları ve süre kontrolleri gösterilen gün.
 
 **Pofi notu**:
 Mesai kaydından bağımsız, belirli bir tarih ve kişi anahtarı için seçilen günlük metni.
-_Avoid_: PDKS kaydı
+_Kapsam_: Pofi'nin günlük metni
 
 **Not teması**:
 Giriş, gelişme ve kapanış metin parçalarını bir araya getiren içerik ailesi.
-_Avoid_: Arayüz renk teması
+_Kapsam_: Notun konusu ve anlatı parçaları
 
 **Not havuzu**:
 Tüm tarihlerde günlük seçim için kullanılan güncel normal Pofi notlarının bütünü.
-_Avoid_: Tarihli not yayını, arşiv havuzu
+_Kapsam_: Geçmiş ve güncel tarihler için tek güncel katalog

@@ -4,11 +4,11 @@ Bu rehber kurum sunucusundaki Docker/ingress dağıtımını yönetir. Electron 
 
 Masaüstü güncellemesinde [onaylı kapanış](desktop.md#açık-uygulamada-onaylı-güncelleme), eski paketlerin temizlenmesi ve Windows/macOS [kaldırma davranışı](desktop.md#kaldırma) masaüstü rehberinde yönetilir; kullanıcı profili uygulama dosyalarından bağımsız korunur.
 
-Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Her kullanıcı kendi PDKS istemcisi, CookieJar ve kısa rapor önbelleğine sahiptir. Kubernetes'te bir replica kullanılır; güncellemede eski pod durduktan sonra yenisi başlatılır (`Recreate`). Aynı dizini iki süreçten kullanmak için ortak kilit/iptal koordinasyonu henüz yoktur.
+Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Her kullanıcı kendi PDKS istemcisi, CookieJar ve kısa rapor önbelleğine sahiptir. Kubernetes'te bir replica kullanılır; güncellemede eski pod durduktan sonra yenisi başlatılır (`Recreate`). Oturum dizininin sahibi tek uygulama sürecidir.
 
 ## Hesap anahtarı geçişi
 
-Menüdeki kişi ID’si yerine [Pofi hesap anahtarı](pofi-notes.md#hesap-anahtarı) kullanılır. Bu alanı içermeyen mevcut oturumlar güncelleme sonrasında yeniden giriş ister; oturum dosyalarını elle dönüştürmeyin. Yeni girişler aynı anahtarla diskten geri yüklenir. Not seçimleri geçmiş tarihler dahil değişebilir.
+[Pofi hesap anahtarı](pofi-notes.md#hesap-anahtarı) başarılı girişte oluşturulur. Bu alanı içermeyen mevcut oturumlar güncelleme sonrasında yeniden girişle yenilenir. Yeni girişler aynı anahtarla diskten geri yüklenir. Not seçimleri geçmiş tarihler dahil değişebilir.
 
 ## Çalışma zamanı ayarları
 
@@ -20,17 +20,17 @@ Menüdeki kişi ID’si yerine [Pofi hesap anahtarı](pofi-notes.md#hesap-anahta
 | `PORT`                | Varsayılan `3000`                                                                                                                                                            |
 | `POFIS_SESSION_DIR`   | Docker'da `/var/lib/pofis/sessions`; uygulama kullanıcısının yazabildiği kalıcı volume                                                                                       |
 
-Ürün gün/hafta/saat hesapları [takvim sahibinde](../src/domain/rules/calendar.ts) açıkça İstanbul saat dilimini kullanır. İşletim sisteminin TZ ayarı ürün hesabının yerine geçmez. `fetchedAt` ve tanı zamanları UTC ISO olarak taşınır; arayüz İstanbul saatine çevirir.
+Ürün gün/hafta/saat hesapları [takvim sahibinde](../src/domain/rules/calendar.ts) açıkça İstanbul saat dilimini kullanır. Ürün hesaplarında bu açık saat dilimi tanımı esas alınır. `fetchedAt` ve tanı zamanları UTC ISO olarak taşınır; arayüz İstanbul saatine çevirir.
 
 Kalıcı dizinin yazı hataları için [oturum politikasındaki](rules/session-policy.md) API ve yeniden deneme sözleşmesini doğrulayın; kaynak hatasıyla birlikte oluşan disk hatasının tanısı sunucu loglarında izlenir.
 
 ## Proxy / ingress
 
-TLS ingress üzerinde sonlanabilir; pod HTTP dinler. Secure çerezi doğrudan HTTPS bağlantısında veya `X-Forwarded-Proto` başlığının ilk değeri `https` olduğunda kullanılır. Ingress bu başlığı tarayıcının bağlantı protokolüne göre yeniden yazmalı, Host bilgisini doğru iletmeli ve pod'a erişim kurumun ingress ağıyla sınırlandırılmalıdır. Giriş, heartbeat ve çıkış uçları Origin/Sec-Fetch-Site değerlerinden bağımsız çalışır; dış adres ayarı gerekmez. Ingress erişim logları parola/gövde, Cookie ve Set-Cookie alanlarını kaydetmemelidir.
+TLS ingress üzerinde sonlanabilir; pod HTTP dinler. Secure çerezi doğrudan HTTPS bağlantısında veya `X-Forwarded-Proto` başlığının ilk değeri `https` olduğunda kullanılır. Ingress bu başlığı tarayıcının bağlantı protokolüne göre yeniden yazmalı, Host bilgisini doğru iletmeli ve pod'a erişim kurumun ingress ağıyla sınırlandırılmalıdır. Giriş, heartbeat ve çıkış uçları Origin/Sec-Fetch-Site değerlerinden bağımsız çalışır; bağlantı protokolü istekten belirlenir. Ingress erişim loglarını yöntem, yol, durum ve süre gibi operasyon alanlarıyla sınırlandırın; hassas gövde ve çerez alanlarını maskeleyin.
 
 Kişisel API yanıtlarında `Cache-Control: no-store` vardır; ingress/CDN bu yanıtları ortak önbelleğe almamalıdır. 20 saniyelik rapor önbelleği sunucudaki ilgili oturuma aittir. Aynı tarih aralığındaki eşzamanlı raporlar birleşir; farklı kullanıcılar bağımsız çalışır. Kaynak [sözleşmesi](rules/source-policy.md).
 
-Haftalık mesai raporu kişisel turnike listesinin bütün sayfalarını toplar. Kaynaktaki sayfa boyutu uygulamanın ortam ayarı değildir; adaptör kaynağın sayfalama bilgisini izler. Giriş/profil, turnike sorgusu ve sayfa callback'leri kurum ağı üzerinden erişilebilir olmalıdır.
+Haftalık mesai raporu kişisel turnike listesinin bütün sayfalarını toplar. Sayfa boyutunu kaynak belirler; adaptör kaynağın sayfalama bilgisini izler. Giriş/profil, turnike sorgusu ve sayfa callback'leri kurum ağı üzerinden erişilebilir olmalıdır.
 
 Kaynak erişim kabulünde bağlantı/DNS hatası (`CONNECTION_FAILED`) ile PDKS HTTP hata yanıtını (`SOURCE_ERROR`) ayrı doğrulayın. `ENOTFOUND` DNS çözümlemesinin başarısız olduğunu belirtir; tek başına VPN durumunu belirlemez. Kaynağın `403/429/5xx` hata sayfası oturumu düşürmemelidir. [Hata sözleşmesi](pdks-errors.md).
 
@@ -40,7 +40,7 @@ Yerelde `bun run build` standart Next çıktısı üretir; `bun run start` bunu 
 
 Dockerfile derleme sırasında `POFIS_STANDALONE=1` ayarlar. Çalışma imajına standalone sunucuyu, `public` ve `.next/static` dizinlerini ayrı ayrı kopyalar; sunucu `bun server.js` ile başlar.
 
-`/demo` statik sayfası aynı derlemeye dahildir ve oturum gerektirmez. Yakalanan veride kişi adı/kimliği çıkarılmış, gerçek geçiş tarihleri/saatleri korunmuştur. `noindex, nofollow` erişim kontrolü değildir. [Veri kapsamı ve sahipliği](demo.md).
+`/demo` statik sayfası aynı derlemeye dahildir ve oturum gerektirmez. Yakalanan veride kişi adı/kimliği çıkarılmış, gerçek geçiş tarihleri/saatleri korunmuştur. Sayfa herkese açıktır; `noindex, nofollow` arama motoru indeksleme yönergesidir. [Veri kapsamı ve sahipliği](demo.md).
 
 ```sh
 docker build -t pofis:local .
