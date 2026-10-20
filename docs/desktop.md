@@ -20,6 +20,8 @@ Tek dağıtım kanalı ve mevcut üç manifest yolu kullanılır. Profil yolu, `
 | macOS Apple Silicon | `Pofis.app` | `dist/macos/Pofis-darwin-arm64-<zaman>/` | `dist/releases/macos/arm64/latest.json` |
 | macOS Intel | `Pofis.app` | `dist/macos/Pofis-darwin-x64-<zaman>/` | `dist/releases/macos/x64/latest.json` |
 
+[Intel statik kontrolü](../scripts/electron/macos-static-check.cjs), sharp bağlayıcısının sürümlü dosya adını paketteki `@img/sharp-darwin-x64/package.json` sürümünden belirler. Sharp ve libvips dosya hatalarında çıktı, ilgili yolu ve kontrol edilecek adımı gösterir.
+
 Her hedefte aynı geliştirici komutları kullanılır:
 
 ```sh

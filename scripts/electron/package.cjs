@@ -11,7 +11,7 @@ async function verifyRuntime(electronDist, target, version, run = promisify(exec
   await access(electronExecutable);
   let installed;
   if (target.id === "darwin-x64") {
-    // Intel packaging has a static contract; launching Electron under Rosetta can stall.
+    // Intel packaging verifies runtime metadata and Mach-O architecture statically.
     const framework = join(electronDist, "Electron.app/Contents/Frameworks/Electron Framework.framework/Versions/A");
     const { stdout } = await run("/usr/libexec/PlistBuddy",
       ["-c", "Print :CFBundleVersion", join(framework, "Resources/Info.plist")], { timeout: 15000 });
@@ -85,7 +85,7 @@ async function prepare() {
   if (target.platform === "darwin") {
     await signMacBundle(join(output, "Pofis.app"));
   }
-  console.log(`Pofis paketi (${target.id}): ${output}\n${target.platform === "darwin" ? "Pofis.app" : "Pofis.exe"} dosyasını aç. Node/Bun kurulumu gerekmez.`);
+  console.log(`Pofis paketi (${target.id}): ${output}\n${target.platform === "darwin" ? "Pofis.app" : "Pofis.exe"} dosyasını aç.`);
 }
 
 if (require.main === module) prepare().catch((error) => { console.error(error.message); process.exitCode = 1; });

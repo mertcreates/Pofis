@@ -12,16 +12,23 @@ async function checkIntelPackage(directory, execute = promisify(execFile)) {
   const metadata = JSON.parse(await readFile(join(resources, "release.json"), "utf8"));
   const manifest = JSON.parse(await readFile(join(resources, "app/package.json"), "utf8"));
   if (metadata.schemaVersion !== 1 || metadata.platform !== "darwin" || metadata.arch !== "x64" || metadata.version !== manifest.version) {
-    throw new Error("Intel paket hedefi ve sürümü eşleşmiyor.");
+    throw new Error("Intel paket bilgileri uyuşmuyor. release.json ile uygulamanın platform, mimari ve sürümünü kontrol et.");
   }
   for (const file of [target.executable, join(target.resources, "app/electron/main.cjs"),
-    join(target.resources, "app/server/server.js"),
-    join(target.resources, "app/server/node_modules/@img/sharp-darwin-x64/lib/sharp-darwin-x64.node")]) {
+    join(target.resources, "app/server/server.js")]) {
     await access(join(directory, file));
   }
-  const libvips = join(resources, "app/server/node_modules/@img/sharp-libvips-darwin-x64/lib");
-  if (!(await readdir(libvips)).some(name => /^libvips-cpp\..+\.dylib$/.test(name))) {
-    throw new Error("Intel libvips kitaplığı eksik.");
+  try {
+    const sharp = join(resources, "app/server/node_modules/@img/sharp-darwin-x64");
+    const { version } = JSON.parse(await readFile(join(sharp, "package.json"), "utf8"));
+    // sharp's loader selects the native filename using its package version.
+    await access(join(sharp, "lib", `sharp-darwin-x64-${version}.node`));
+    const libvips = join(resources, "app/server/node_modules/@img/sharp-libvips-darwin-x64/lib");
+    if (!(await readdir(libvips)).some(name => /^libvips-cpp\..+\.dylib$/.test(name))) {
+      throw new Error(`Intel libvips kitaplığı eksik: ${libvips}`);
+    }
+  } catch (error) {
+    throw new Error(`Intel sharp ve libvips kontrolü tamamlanamadı. Standalone çıktısındaki @img paketlerini kontrol et.\n${error.message}`, { cause: error });
   }
   const magic = new Set([0xfeedface, 0xcefaedfe, 0xfeedfacf, 0xcffaedfe,
     0xcafebabe, 0xbebafeca, 0xcafebabf, 0xbfbafeca]);
@@ -46,7 +53,7 @@ async function checkIntelPackage(directory, execute = promisify(execFile)) {
     }
   }
   await visit(bundle);
-  if (!count) throw new Error("Intel paketinde Mach-O bulunamadı.");
+  if (!count) throw new Error("Intel paketinde Mach-O dosyası bulunamadı. Paket klasörünü kontrol et.");
   await execute("/usr/bin/codesign", ["--verify", "--deep", "--strict", bundle]);
   console.log(`Intel statik paket kontrolü: ${count} Mach-O, imza ve zorunlu dosyalar doğrulandı.`);
 }
