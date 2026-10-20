@@ -14,7 +14,9 @@ Arayüzde **Kayıtlı süre**, ilk giriş ile son çıkış arasındaki süreyi;
 
 Canlı toplam ilk girişten şimdiki İstanbul saatine kadar geçen süredir. Yalnız bugün, güncel rapor, geçerli ilk giriş ve güvenilir son açık giriş varsa kullanılır. Günlük özet ve açık giriş aynı zorunlu hareket listesinden üretilir. Şimdiki an açık girişten önceyse veya canlı toplam kayıtlı sürenin gerisindeyse kayıtlı sonuca dönülür. Anlık tahmin = canlı toplam − kayıtlı süre; bir kez burada hesaplanır. Bilinmeyen kayıt belirsiz olarak korunur.
 
-08:00 giriş / 12:00 çıkış / 13:00 giriş / 15:00 şimdi → 4 saat kayıtlı + 3 saat anlık tahmin = 7 saat. Ara mola aralıkları canlı toplama dahildir. Son hareket çıkışsa veya hareketler belirsizse anlık tahmin durur.
+08:00 giriş / 12:00 çıkış / 13:00 giriş / 15:00 şimdi → 4 saat kayıtlı + 3 saat anlık tahmin = 7 saat. Ara mola aralıkları canlı toplama dahildir. Son hareket çıkışsa veya son açık giriş güvenilir değilse anlık tahmin durur. Önceki yön tekrarları uyarı olarak korunur; geçiş sahibinin `hasReliableOpenEntry` sonucu doğruysa canlı hesabı engellemez. Okunamayan saat/yön ve son girişin tekrarı canlı hesabı engeller.
+
+06:16:23 ilk giriş; 12:48:51 ve 12:48:54 art arda giriş; 12:57:14 ve 12:57:27 art arda çıkış; 13:24:46 son giriş; 15:00 şimdi → 06:41:04 kayıtlı + 02:02:33 tahmin = 08:43:37 canlı toplam. Tekrar uyarıları korunur.
 
 ## Bağımlılıklar
 

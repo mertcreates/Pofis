@@ -28,7 +28,7 @@ export function passageRecordRows(passages, date, today) {
         index++;
         continue;
       }
-      if (!next && date === today && !unmatched.has(index - 1)) {
+      if (!next && date === today) {
         rows.push({ type: "open", entry: event });
         continue;
       }
@@ -76,5 +76,6 @@ export function passageDay(passages, date, today) {
     uncertain = true;
     issues.push({ kind: "missing-exit", time: events.findLast(event => event.direction === "in")?.time ?? null });
   }
-  return { events, intervals, openEntry: entry, uncertain, issues };
+  const hasReliableOpenEntry = entry !== null && !issues.some(issue => issue.kind === "invalid-record");
+  return { events, intervals, openEntry: entry, hasReliableOpenEntry, uncertain, issues };
 }

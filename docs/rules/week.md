@@ -10,7 +10,7 @@ Arayüz: `summarizeWeek`.
 
 ## Sözleşme
 
-Toplam bugüne kadar olan günleri kapsar. Turnikeden türetilen günlük kayıtlı süreler toplanır ve duration sahibinin ürettiği ek tahmin bir kez eklenir. Geçmiş eksik veya belirsiz gün haftayı eksik yapar. Giriş ya da çıkışı bulunan gün kayıtlı gün sayılır.
+Toplam bugüne kadar olan günleri kapsar. Turnikeden türetilen günlük kayıtlı süreler toplanır ve duration sahibinin ürettiği ek tahmin bir kez eklenir. Eksik veya belirsiz gün ve `recordIssues` taşıyan gün haftayı eksik yapar. Bugünkü güvenilir açık giriş canlı süre üretse de önceki yön tekrarları haftalık bütünlük uyarısını korur. Giriş ya da çıkışı bulunan gün kayıtlı gün sayılır.
 
 ```text
 Görünen gerçekleşen toplam = kayıtlı süreler toplamı + canlı ek tahmin

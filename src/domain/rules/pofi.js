@@ -50,7 +50,7 @@ function resolveBreakContext({ passages, day, today, isToday }) {
     return { uncertain: false, onBreak: false };
   }
   const passage = passageDay(passages, day.date, today ?? day.date);
-  if (passage.uncertain) {
+  if (passage.uncertain && !(isToday && passage.hasReliableOpenEntry)) {
     return { uncertain: true, onBreak: false };
   }
   const onBreak =

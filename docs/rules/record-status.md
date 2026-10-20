@@ -15,6 +15,7 @@ Girdiler günlük ilk giriş/son çıkış özeti, geçiş analizi, raporun İst
 | Koşul | Durum | Gösterim |
 | --- | --- | --- |
 | Tarih raporun bugün değerinden ileride | `future` | Gelecek gün |
+| Günlük özet belirsiz değil, bugün ve güvenilir açık giriş var | Canlı süre varsa `ongoing`, yoksa `open` | Mesai devam ediyor / Son hareket: giriş; önceki kayıt sorunları ayrıca korunur |
 | Günlük özet veya geçiş eşleşmesi belirsiz | `uncertain` | Kayıt sorununun nedeni ve ilgili saat |
 | Hareket yok, plan dışı | `non-working` | Planlı mesai yok |
 | Hareket yok, bugün ve planlı | `awaiting-entry` | Henüz giriş kaydı yok |
@@ -26,6 +27,8 @@ Girdiler günlük ilk giriş/son çıkış özeti, geçiş analizi, raporun İst
 | Giriş/çıkış kaydı tutarlı, geçmiş | `recorded` | Giriş–çıkış kaydı var |
 
 [Geçiş analizi](passages.md) kayıt sorunlarını belirler. İlk giriş ve son çıkış bulunması ara geçişlerdeki sorunu gidermez. Plan dışı günlerde de kayıtlar değerlendirilir; plan dışı bilgisi ayrıca gösterilir.
+
+Bugünkü güvenilir açık giriş, önceki yön tekrarlarından bağımsız değerlendirilir. Örneğin 12:48:51/12:48:54 giriş ve 12:57:14/12:57:27 çıkış tekrarlarından sonra 13:24:46 tek girişi, güncel rapor ve uygun saatte `ongoing` olur. `recordIssues` ve durum metnindeki önceki tekrar uyarıları korunur. Rapor eskiyse veya saat son girişten önceyse `open` olur. Gün geçmişe geçtiğinde aynı sorunlar yeniden `uncertain` sonucuna girer; geçmiş devir kuralları korunur.
 
 Hedefin altında, hedefte veya üzerinde olmak kayıt bütünlüğünü değiştirmez. Örneğin 08:00–12:00 tutarlı geçmiş kayıt, dört saat süreyle `recorded` olur; hedef farkında dört saat eksik görünür. Eksik süre ile eksik geçiş ayrı bilgilerdir. Boş geçmiş günün kayıt durumu plan kapsamına göre `missing` veya `non-working` olur.
 
@@ -41,7 +44,7 @@ Rapor modeli `recordIssues` ile [geçiş sahibinin nedenlerini](passages.md#kay�
 
 - [Rapor uyarlaması](../../src/domain/report.ts) durumu bir kez hazırlanan geçiş analizi ve süre sonucundan üretir. Belirsiz kayıt `state: "uncertain"` sonucuyla aktarılır.
 - `recorded` gün haftalık plan düzenlemesinde kayıtlı süresiyle kilitlenir. Bugünün `outside` durumunda tekrar giriş olasılığı için plan düzenlemesi açık kalır; hedef farkı ve devir [plan sözleşmesinden](work-plan.md) gelir.
-- Belirsiz gün [plan sahibine](work-plan.md) `uncertain` olarak aktarılır. Geçmişteyse devir hesabı o günün gerçekleşen süresini belirsiz bırakır; bugünün kendi kaydı belirsizse bugünkü çıkış hedefi engellenir. Kayıtsız geçmiş günün plan süresi beklenen toplamda korunur.
+- Belirsiz gün [plan sahibine](work-plan.md) `uncertain` olarak aktarılır. Geçmişteyse devir hesabı o günün gerçekleşen süresini belirsiz bırakır; bugünün durumu `uncertain` ise bugünkü çıkış hedefi engellenir. Önceki yön tekrarlarından sonra güvenilir açık girişle `open`/`ongoing` olan bugün, plan hesabında açık kalır. Kayıtsız geçmiş günün plan süresi beklenen toplamda korunur.
 - [Haftalık toplam](week.md) bilinen ilk giriş–son çıkış sürelerini korur. Belirsiz günün günlük hedef farkı gösterilmez; haftalık farkın sunumu [DESIGN](../../DESIGN.md#haftalık-toplam-ve-grafik) belgesindedir.
 - [Gün akışı](../../src/components/attendance/day-flow.tsx) ve [giriş–çıkış raporu](../../src/components/attendance/report-table.tsx) aynı durum etiketini tüketir.
 - [Pofi](pofi.md) karakter davranışını kendi sahibinde seçer; aynı geçiş belirsizliği girdisini kullanır.

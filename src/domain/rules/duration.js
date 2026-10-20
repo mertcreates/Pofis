@@ -33,7 +33,7 @@ export function dailyDurationState({
   if (!["open", "recorded"].includes(record) || !isToday || stale || !now)
     return fallback;
   const passage = passageDay(passages, day.date, day.date);
-  if (passage.uncertain || passage.openEntry === null) return fallback;
+  if (!passage.hasReliableOpenEntry) return fallback;
   const seconds = liveElapsedSeconds(day.date, day.firstEntry, now);
   if (seconds === null) return fallback;
   if (

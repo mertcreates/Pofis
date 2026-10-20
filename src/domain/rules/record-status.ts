@@ -28,6 +28,7 @@ export function dailyRecordStatus({
     events: readonly unknown[];
     uncertain: boolean;
     openEntry: number | null;
+    hasReliableOpenEntry: boolean;
   };
   today: string;
   workingDay: boolean;
@@ -35,6 +36,8 @@ export function dailyRecordStatus({
 }): DayState {
   if (day.date > today) return "future";
   const record = dailyRecordState(day);
+  if (record !== "uncertain" && day.date === today && passage.hasReliableOpenEntry)
+    return live ? "ongoing" : "open";
   if (record === "uncertain" || passage.uncertain) return "uncertain";
   if (record === "empty") {
     if (passage.events.length > 0) return "uncertain";

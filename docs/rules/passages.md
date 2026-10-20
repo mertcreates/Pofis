@@ -25,6 +25,8 @@ Raporun zorunlu hareket listesi giriş/çıkış çiftlerini ve son açık giri�
 
 Bugünkü güvenilir açık giriş geçerli durumdur. Geçersiz saatte `time` alanı `null` olur.
 
+`hasReliableOpenEntry`, son girişin kendi eşleşmesi güvenilir olduğunda ve gün içinde okunamayan saat/yön bulunmadığında `true` olur. Önceki tekrarlı giriş/çıkışlar `uncertain` ve `issues` alanlarında korunur; sonradan gelen tek açık girişi engellemez. Son girişin kendisi tekrarlıysa güvenilir açık giriş yoktur. Kayıt satırlarında önceki çıkışın eşleşmemesi, son tek girişin açık satır olarak gösterilmesini engellemez.
+
 ## Bağımlılıklar
 
 - [Takvim ve kaynak saati](calendar.md)

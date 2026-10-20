@@ -4,6 +4,7 @@ import { DEFAULT_WORK_PLAN, type WorkPlan } from "./work-plan";
 import { summarizeWeek } from "./week";
 import type { DayState } from "./record-status";
 import { passageDay } from "./passages.js";
+import { stateLabel } from "../../components/attendance/labels";
 
 const today = "2026-10-16";
 const now = Date.parse(`${today}T15:00:00+03:00`);
@@ -49,6 +50,69 @@ function fixture(date: string, events: Events): Report {
     passages: events.map(([time, direction]) => ({ date, time, direction })),
   };
 }
+
+const repeatedPassages: Events = [
+  ["06:16:23", "in"], ["06:37:01", "out"],
+  ["06:37:52", "in"], ["07:06:43", "out"],
+  ["07:11:54", "in"], ["08:36:57", "out"],
+  ["08:39:02", "in"], ["10:30:02", "out"],
+  ["10:34:05", "in"], ["12:03:28", "out"],
+  ["12:48:51", "in"], ["12:48:54", "in"],
+  ["12:57:14", "out"], ["12:57:27", "out"],
+  ["13:24:46", "in"],
+];
+
+test("ara tekrarlar korunurken son güvenilir giriş canlı mesaiyi sürdürür", () => {
+  const report = fixture(today, repeatedPassages);
+  const view = presentReport(report, DEFAULT_WORK_PLAN, now, false);
+  const day = view.days[4];
+  expect(day.state).toBe("ongoing");
+  expect(day.recordedSeconds).toBe(24064);
+  expect(day.liveSeconds).toBe(31417);
+  expect(day.source.estimated).toBe(7353);
+  expect(day.source.total).toBe(31417);
+  expect(day.source.pofi.state).toBe("working");
+  expect(day.source.pofi.basis).toBe("live");
+  expect(day.recordIssues).toEqual([
+    { kind: "repeated-entry", time: "12:48:54" },
+    { kind: "unmatched-exit", time: "12:57:27" },
+  ]);
+  expect(stateLabel(day)).toContain("Mesai devam ediyor");
+  expect(stateLabel(day)).toContain("12:48:54");
+  expect(stateLabel(day)).toContain("12:57:27");
+  expect(day.intervals.at(-1)).toEqual({ entry: Date.parse(`${today}T13:24:46+03:00`), exit: null });
+  expect(summarizeWeek([day], today).incomplete).toBe(true);
+  expect(summarizeWeek([day], today).totalSeconds).toBe(31417);
+  const next = presentReport(report, DEFAULT_WORK_PLAN, now + 1000, false).days[4];
+  expect(next.liveSeconds).toBe(31418);
+  expect(next.source.estimated).toBe(7354);
+});
+
+test.each([
+  { name: "eski rapor", stale: true, clock: "15:00:00", state: "open" },
+  { name: "girişten önceki saat", stale: false, clock: "13:00:00", state: "open" },
+  { name: "ertesi gün", stale: false, clock: "15:00:00", nextDay: true, state: "uncertain" },
+  { name: "son giriş tekrarlı", stale: false, clock: "15:00:00", extra: [["13:24:49", "in"]], state: "uncertain" },
+  { name: "son hareket çıkış", stale: false, clock: "15:00:00", extra: [["14:00:00", "out"]], state: "uncertain" },
+] as const)("ara tekrarlar sonrası güven sınırı: $name", (scenario) => {
+  const events: Events = [...repeatedPassages, ...(scenario.extra ?? [])];
+  const day = presentReport(fixture(today, events), DEFAULT_WORK_PLAN,
+    Date.parse(`${"nextDay" in scenario ? "2026-10-17" : today}T${scenario.clock}+03:00`), scenario.stale).days[4];
+  expect(day.state).toBe(scenario.state);
+  expect(day.liveSeconds).toBeNull();
+  expect(day.recordedSeconds).toBe("extra" in scenario && scenario.name === "son hareket çıkış" ? 27817 : 24064);
+  expect(day.recordIssues.length).toBeGreaterThanOrEqual(2);
+  if (scenario.state === "uncertain") expect(day.source.pofi.state).toBe("error");
+});
+
+test("okunamayan hareket varken sonraki açık giriş canlı süreyi açmaz", () => {
+  const report = fixture(today, open);
+  report.passages.push({ date: today, time: "12:30:00", direction: "unknown" as "in" });
+  const day = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4];
+  expect(day.state).toBe("uncertain");
+  expect(day.liveSeconds).toBeNull();
+  expect(day.source.pofi.state).toBe("error");
+});
 
 const cases: {
   name: string;
