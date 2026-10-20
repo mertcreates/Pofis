@@ -136,6 +136,7 @@ async function run() {
       assert.equal(result.schemaVersion, 1);
       assert.equal(result.status, "ready", result.message);
       assert.equal(result.windowReady, true);
+      assert.notEqual(result.pid, probe.pid, "Açılış kontrolü önceden çalışan uygulamayı doğrulamalı.");
       assert.equal(result.version, (await state()).version);
       assert.equal(result.executable.toLowerCase(), file.toLowerCase());
       const url = new URL(result.origin);
@@ -170,6 +171,20 @@ async function run() {
     assert.equal(result.code === 0, success, result.output);
     if (success) await identifyServer();
     return result;
+  };
+  const shortcutOpen = async () => {
+    const file = await executable();
+    // The shell may return before the shortcut's target has acquired Electron's instance lock.
+    const result = await ps(`Start-Process -FilePath ${quote(shortcut)} -WindowStyle Normal;
+      $deadline=[DateTime]::UtcNow.AddSeconds(20);
+      do {
+        $windows=@(Get-Process | Where-Object { try { $_.Path -eq ${quote(file)} -and $_.MainWindowHandle -ne 0 } catch { $false } });
+        if ($windows.Count) { break }
+        Start-Sleep -Milliseconds 100
+      } while ([DateTime]::UtcNow -lt $deadline);
+      if (-not $windows.Count) { throw 'Kısayol Pofis penceresini açmadı.' }`).done;
+    assert.equal(result.code, 0, result.output);
+    await identifyServer();
   };
   const evaluate = async expression => {
     const result = await cdp.send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
@@ -222,9 +237,7 @@ async function run() {
       passed("Restricted politikası altında aynı sürüm tekrar indirilmiyor; çalışan tek örnek korunuyor");
       if (!startupOnly) {
         await close();
-        const shortcutLaunch = await ps(`Start-Process -FilePath ${quote(shortcut)} -WindowStyle Normal`).done;
-        assert.equal(shortcutLaunch.code, 0, shortcutLaunch.output);
-        await identifyServer();
+        await shortcutOpen();
         passed("normal uygulama simgesinden açılış");
         await close();
         await debugOpen();
@@ -239,8 +252,7 @@ async function run() {
         active = previousManifest ? candidate
           : JSON.parse((await readFile(join(directory, `${updatedVersion}.json`), "utf8")).replace(/^\uFEFF/, ""));
         // Non-interactive execution must refuse to close the running release without consent.
-        await ps(`Start-Process -FilePath ${quote(shortcut)} -WindowStyle Normal`).done;
-        await identifyServer();
+        await shortcutOpen();
         const blocked = await expectInstall(false);
         assert.match(blocked.output, /Pofis açık/);
         assert.equal((await state()).version, first.version);

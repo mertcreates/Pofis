@@ -1,6 +1,6 @@
 const { test, expect, spyOn } = require("bun:test");
 const { existsSync } = require("node:fs");
-const { mkdtemp, readFile, rm, mkdir, copyFile, writeFile } = require("node:fs/promises");
+const { mkdtemp, readFile, rm, mkdir, copyFile, writeFile, realpath } = require("node:fs/promises");
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
 const { tmpdir } = require("node:os");
@@ -168,7 +168,7 @@ test("Intel derlemesi ARM paketini bekler; paket veya Intel hatası yayın önce
 });
 
 test("Intel derlemesi kendi Bun'ını, paketleme araçları native Bun ve açık x64 hedefini kullanır", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pofis-intel-ci-"));
+  const directory = await realpath(await mkdtemp(join(tmpdir(), "pofis-intel-ci-")));
   try {
     for (const path of ["scripts/electron", "electron", "dist/macos/Pofis-darwin-x64-fixture"]) {
       await mkdir(join(directory, path), { recursive: true });
