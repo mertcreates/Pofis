@@ -1,31 +1,45 @@
 const { test, expect } = require("bun:test");
 const { mkdtemp, readFile, rm } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
-const { join } = require("node:path");
-const { timed, preflight } = require("./ci-build.cjs");
+const { join, basename } = require("node:path");
+const { timed, build } = require("./ci-build.cjs");
+const { version } = require("../../package.json");
+const intel = process.platform === "darwin" && process.arch === "x64";
 
-test("pano kabulü kurulmuş Electron ile çalışır ve hata sonraki aşamaya geçmez", async () => {
-  const commands = [];
-  let packaged = false;
-  const failure = new Error("pano başarısız");
-  const build = async () => {
-    await preflight(true, async (_command, args) => {
-      commands.push(args);
-      if (args[0].endsWith("clipboard-smoke.cjs")) throw failure;
-    }, null);
-    packaged = true;
-  };
-  await expect(build()).rejects.toBe(failure);
-  expect(commands[0]).toEqual(["run", "desktop:install"]);
-  expect(commands[1]).toEqual(["test", "./electron", "./scripts/electron"]);
-  expect(commands[2][1]).toBe("--isolated-desktop");
-  expect(packaged).toBe(false);
+test("gerçek CI build'i erken kontroldeki hatada derleme ve paketleme başlatmaz", async () => {
+  for (const failedStep of intel ? ["desktop:install"] : ["desktop:install", "test", "clipboard-smoke.cjs"]) {
+    const commands = [];
+    const failure = new Error(`${failedStep} başarısız`);
+    await expect(build(version, "unused-site", {
+      summary: null,
+      execute: async (_command, args) => {
+        const step = args[0] === "run" ? args[1] : basename(args[0]);
+        commands.push(step);
+        if (step === failedStep) throw failure;
+        if (step === "build.cjs" || step === "package.cjs") throw new Error("Pahalı aşama erken başladı.");
+      },
+    })).rejects.toBe(failure);
+    expect(commands).not.toContain("build.cjs");
+    expect(commands).not.toContain("package.cjs");
+    expect(commands.at(-1)).toBe(failedStep);
+  }
 });
 
-test("Intel hazırlığı kabul testlerini çalıştırmadan runtime kurar", async () => {
+test("gerçek CI build'i platformun erken kontrollerinden sonra Next derlemesine geçer", async () => {
   const commands = [];
-  await preflight(false, async (_command, args) => { commands.push(args); }, null);
-  expect(commands).toEqual([["run", "desktop:install"]]);
+  const stop = new Error("Next sınırında dur");
+  await expect(build(version, "unused-site", {
+    summary: null,
+    execute: async (_command, args) => {
+      commands.push(args);
+      if (basename(args[0]) === "build.cjs") throw stop;
+    },
+  })).rejects.toBe(stop);
+  const expected = [["run", "desktop:install"]];
+  if (!intel) expected.push(["test", "./electron", "./scripts/electron"],
+    [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]);
+  expected.push([join(__dirname, "build.cjs")]);
+  expect(commands).toEqual(expected);
 });
 
 test("süre özeti başarılı ve hatalı aşamayı kaydeder; hata korunur", async () => {

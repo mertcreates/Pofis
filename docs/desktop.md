@@ -127,7 +127,7 @@ bun test ./scripts/electron/prepare-site.test.cjs
 | `electron/` | İnce kabuk, başlangıç sonucu ve Node UtilityProcess yaşam döngüsü |
 | `scripts/electron/` | Hazırlama, paketleme, kurulum ve tekrar kullanılabilir kabul betikleri |
 | `dist/windows/` | Açılmış Windows paketleri |
-| `dist/macos/` | Apple Silicon/Intel `.app` paketleri; hedef cihazda üretilir |
+| `dist/macos/` | Apple Silicon/Intel `.app` paketleri; CI iki mimariyi tek Apple Silicon runner'da ayrı ortamlarda üretir |
 | `dist/releases/windows/` | Dağıtılacak `install.ps1`, `latest.json`, sürüm klasörlerinde ZIP ve `manifest.json` |
 | `dist/releases/macos/<mimari>/` | Aynı şemadaki manifestler ve `.app` ZIP arşivleri |
 | `dist/electron/` | Üretilmiş ICO/ICNS ve geçici kabul çıktıları |

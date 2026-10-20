@@ -54,7 +54,7 @@ async function preflight(acceptance, execute = run, summary = process.env.GITHUB
   }
 }
 
-async function build(version, siteDirectory) {
+async function build(version, siteDirectory, { execute = run, summary = process.env.GITHUB_STEP_SUMMARY } = {}) {
   await checkVersion(version);
   const target = platformTarget();
   if (process.env.RELEASE_TARGET && process.env.RELEASE_TARGET !== target.id) {
@@ -63,29 +63,30 @@ async function build(version, siteDirectory) {
   if (!siteDirectory) throw new Error("CI kurulum testi için tanıtım sitesinin klasörü gerekli.");
   // Intel CI deliberately keeps static package checks only; all other targets retain full acceptance.
   const acceptance = target.id !== "darwin-x64";
-  if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY,
+  const stage = (label, task) => timed(label, task, summary);
+  if (summary) await appendFile(summary,
     `\n## ${target.id} aşama süreleri\n\n| Aşama | Sonuç | Saniye |\n| --- | --- | --- |\n`);
-  await preflight(acceptance);
-  await timed("Next standalone derlemesi", () => run(process.execPath, [join(__dirname, "build.cjs")]));
-  await timed("Electron paketleme ve imza", () => run(process.execPath, [join(__dirname, "package.cjs")]));
+  await preflight(acceptance, execute, summary);
+  await stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")]));
+  await stage("Electron paketleme ve imza", () => execute(process.execPath, [join(__dirname, "package.cjs")]));
   const packages = join(root, "dist", target.outputDirectory);
   const names = (await readdir(packages)).filter(name => name.startsWith(`Pofis-${target.id}-`));
   if (names.length !== 1) throw new Error("CI temiz çalışma alanında tam bir yeni paket üretmeli.");
   const directory = join(packages, names[0]);
-  if (acceptance) await timed("Paket açılış ve süreç kabulü", () => run(process.execPath, ["run", "test:desktop:smoke", directory]));
-  else await timed("Intel statik paket kontrolü", () => run(process.execPath, [join(__dirname, "macos-static-check.cjs"), directory]));
-  await timed("Dağıtım ZIP ve manifest", () => run(process.execPath, ["run", "desktop:release", "-PackageDirectory", directory]));
-  if (!acceptance) await timed("Intel ZIP bütünlüğü", () => run("/usr/bin/unzip", ["-tq",
+  if (acceptance) await stage("Paket açılış ve süreç kabulü", () => execute(process.execPath, ["run", "test:desktop:smoke", directory]));
+  else await stage("Intel statik paket kontrolü", () => execute(process.execPath, [join(__dirname, "macos-static-check.cjs"), directory]));
+  await stage("Dağıtım ZIP ve manifest", () => execute(process.execPath, ["run", "desktop:release", "-PackageDirectory", directory]));
+  if (!acceptance) await stage("Intel ZIP bütünlüğü", () => execute("/usr/bin/unzip", ["-tq",
     join(root, "dist/releases", target.releaseDirectory, version, `Pofis-${version}-${target.id}.zip`)]));
   const { prepareSite } = require("./prepare-site.cjs");
-  await timed("Dağıtım dosyalarını doğrula ve siteyi hazırla", () => prepareSite({ siteDirectory, releaseDirectory: join(root, "dist/releases", target.releaseDirectory),
+  await stage("Dağıtım dosyalarını doğrula ve siteyi hazırla", () => prepareSite({ siteDirectory, releaseDirectory: join(root, "dist/releases", target.releaseDirectory),
     installerPath: join(__dirname, target.platform === "win32" ? "install.ps1" : "install.sh") }));
   if (!acceptance) return;
-  await timed("Kurulum ve güncelleme kabulü", async () => {
+  await stage("Kurulum ve güncelleme kabulü", async () => {
     if (target.platform === "win32") {
-      await run(process.execPath, ["run", "test:desktop:distribution", "--site", siteDirectory]);
+      await execute(process.execPath, ["run", "test:desktop:distribution", "--site", siteDirectory]);
     } else {
-      await run(process.execPath, [join(__dirname, "macos-distribution-test.cjs"), "--site", siteDirectory]);
+      await execute(process.execPath, [join(__dirname, "macos-distribution-test.cjs"), "--site", siteDirectory]);
     }
   });
 }
@@ -97,4 +98,4 @@ if (require.main === module) {
     : Promise.reject(new Error("Kullanım: RELEASE_VERSION=x.y.z bun scripts/electron/ci-build.cjs check|build")))
     .catch(error => { console.error(error.message); process.exitCode = 1; });
 }
-module.exports = { assertVersion, run, checkVersion, timed, preflight };
+module.exports = { assertVersion, run, checkVersion, timed, build };
