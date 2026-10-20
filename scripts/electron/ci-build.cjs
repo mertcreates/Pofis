@@ -15,13 +15,12 @@ function assertVersion(version, actual) {
 
 async function run(command, args, cwd = root, env = process.env) {
   try {
-    const result = await execute(command, args, { cwd, env, windowsHide: true, maxBuffer: 16 * 1024 * 1024 });
-    if (result.stdout) process.stdout.write(result.stdout);
-    if (result.stderr) process.stderr.write(result.stderr);
+    const pending = execute(command, args, { cwd, env, windowsHide: true, maxBuffer: 16 * 1024 * 1024 });
+    pending.child.stdout.on("data", chunk => process.stdout.write(chunk));
+    pending.child.stderr.on("data", chunk => process.stderr.write(chunk));
+    const result = await pending;
     return result.stdout.trim();
   } catch (error) {
-    if (error.stdout) process.stdout.write(error.stdout);
-    if (error.stderr) process.stderr.write(error.stderr);
     throw new Error(`${command.split(/[\\/]/).at(-1)} başarısız (${error.code}).`);
   }
 }
@@ -31,14 +30,15 @@ async function checkVersion(version) {
 }
 
 async function timed(label, task, summary = process.env.GITHUB_STEP_SUMMARY) {
-  const start = performance.now();
+  const start = Date.now();
+  console.log(`${label} başlıyor…`);
   let status = "başarısız";
   try {
     const result = await task();
     status = "başarılı";
     return result;
   } finally {
-    const seconds = ((performance.now() - start) / 1000).toFixed(2);
+    const seconds = ((Date.now() - start) / 1000).toFixed(2);
     console.log(`${label}: ${status}, ${seconds} s`);
     if (summary) {
       try { await appendFile(summary, `| ${label} | ${status} | ${seconds} |\n`); }
@@ -80,7 +80,7 @@ async function preflight(target, acceptance, execute = run, summary = process.en
   }
 }
 
-async function build(version, siteDirectory, { execute = run, summary = process.env.GITHUB_STEP_SUMMARY } = {}) {
+async function build(version, siteDirectory, { execute = run, summary = process.env.GITHUB_STEP_SUMMARY, distribution = true } = {}) {
   await checkVersion(version);
   const target = platformTarget();
   if (process.env.RELEASE_TARGET && process.env.RELEASE_TARGET !== target.id) {
@@ -89,39 +89,55 @@ async function build(version, siteDirectory, { execute = run, summary = process.
   if (!siteDirectory) throw new Error("CI kurulum testi için tanıtım sitesinin klasörü gerekli.");
   // Intel CI deliberately keeps static package checks only; all other targets retain full acceptance.
   const acceptance = target.id !== "darwin-x64";
+  // Compilation keeps x64 Bun/SWC; filesystem work can use the runner's native Bun.
+  const packagingBun = target.id === "darwin-x64" && process.env.HOST_BUN_PATH || process.execPath;
   const stage = (label, task) => timed(label, task, summary);
   if (summary) await appendFile(summary,
     `\n## ${target.id} aşama süreleri\n\n| Aşama | Sonuç | Saniye |\n| --- | --- | --- |\n`);
   await preflight(target, acceptance, execute, summary);
   await stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")]));
-  await stage("Electron paketleme ve imza", () => execute(process.execPath, [join(__dirname, "package.cjs")]));
+  await stage("Electron paketleme ve imza", () => execute(packagingBun, [join(__dirname, "package.cjs"), target.arch]));
   const packages = join(root, "dist", target.outputDirectory);
   const names = (await readdir(packages)).filter(name => name.startsWith(`Pofis-${target.id}-`));
   if (names.length !== 1) throw new Error("CI temiz çalışma alanında tam bir yeni paket üretmeli.");
   const directory = join(packages, names[0]);
-  if (acceptance) await stage("Paket açılış ve süreç kabulü", () => execute(process.execPath, ["run", "test:desktop:smoke", directory]));
-  else await stage("Intel statik paket kontrolü", () => execute(process.execPath, [join(__dirname, "macos-static-check.cjs"), directory]));
-  await stage("Dağıtım ZIP ve manifest", () => execute(process.execPath, ["run", "desktop:release", "-PackageDirectory", directory]));
+  // Both stages read the sealed bundle. Wait for both before installer acceptance or staging.
+  const checks = await Promise.allSettled([
+    acceptance
+      ? stage("Paket açılış ve süreç kabulü", () => execute(process.execPath, ["run", "test:desktop:smoke", directory]))
+      : stage("Intel statik paket kontrolü", () => execute(packagingBun, [join(__dirname, "macos-static-check.cjs"), directory])),
+    stage("Dağıtım ZIP ve manifest", () => execute(packagingBun, [join(__dirname, "release.cjs"), "-PackageDirectory", directory, "-Arch", target.arch])),
+  ]);
+  const failures = checks.filter(result => result.status === "rejected").map(result => result.reason);
+  if (failures.length) throw new AggregateError(failures, failures.map(error => error.message).join("\n"));
   if (!acceptance) await stage("Intel ZIP bütünlüğü", () => execute("/usr/bin/unzip", ["-tq",
     join(root, "dist/releases", target.releaseDirectory, version, `Pofis-${version}-${target.id}.zip`)]));
   const { prepareSite } = require("./prepare-site.cjs");
   await stage("Dağıtım dosyalarını doğrula ve siteyi hazırla", () => prepareSite({ siteDirectory, releaseDirectory: join(root, "dist/releases", target.releaseDirectory),
     installerPath: join(__dirname, target.platform === "win32" ? "install.ps1" : "install.sh") }));
-  if (!acceptance) return;
-  await stage("Kurulum ve güncelleme kabulü", async () => {
+  if (acceptance && distribution) await accept(version, siteDirectory, { execute, summary });
+}
+
+async function accept(version, siteDirectory, { execute = run, summary = process.env.GITHUB_STEP_SUMMARY } = {}) {
+  await checkVersion(version);
+  if (!siteDirectory) throw new Error("Kurulum kabulü için tanıtım sitesinin klasörü gerekli.");
+  const target = platformTarget();
+  if (target.id === "darwin-x64") throw new Error("Intel paketi statik kontrollerle doğrulanır.");
+  await timed("Kurulum ve güncelleme kabulü", async () => {
     if (target.platform === "win32") {
       await execute(process.execPath, ["run", "test:desktop:distribution", "--site", siteDirectory]);
     } else {
       await execute(process.execPath, [join(__dirname, "macos-distribution-test.cjs"), "--site", siteDirectory]);
     }
-  });
+  }, summary);
 }
 
 if (require.main === module) {
   const action = process.argv[2];
   const version = process.env.RELEASE_VERSION;
-  (action === "check" ? checkVersion(version) : action === "build" ? build(version, process.env.SITE_DIRECTORY)
-    : Promise.reject(new Error("Kullanım: RELEASE_VERSION=x.y.z bun scripts/electron/ci-build.cjs check|build")))
+  (action === "check" ? checkVersion(version) : action === "accept" ? accept(version, process.env.SITE_DIRECTORY)
+    : ["build", "package"].includes(action) ? build(version, process.env.SITE_DIRECTORY, { distribution: action === "build" })
+    : Promise.reject(new Error("Kullanım: RELEASE_VERSION=x.y.z bun scripts/electron/ci-build.cjs check|build|package|accept")))
     .catch(error => { console.error(error.message); process.exitCode = 1; });
 }
-module.exports = { assertVersion, run, checkVersion, timed, build };
+module.exports = { assertVersion, run, checkVersion, timed, build, accept };

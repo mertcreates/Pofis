@@ -5,7 +5,7 @@ const { mkdtemp, mkdir, writeFile, readFile, readdir, rm, symlink } = require("n
 const { join, resolve } = require("node:path");
 const { tmpdir } = require("node:os");
 const execute = promisify(execFile);
-const windowsTest = process.platform === "win32" ? test : test.skip;
+const windowsTest = process.platform === "win32" ? test.concurrent : test.skip;
 const quote = text => "'" + text.replaceAll("'", "''") + "'";
 const helper = resolve(__dirname, "../../electron/uninstall.ps1");
 const powershell = join(process.env.SystemRoot || "", "System32/WindowsPowerShell/v1.0/powershell.exe");

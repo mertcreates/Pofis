@@ -1,6 +1,11 @@
 name: Pofis sürümünü yayımla
 on:
   workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Paketler doğrulandıktan sonra sürümü yayımla'
+        type: boolean
+        default: true
 permissions:
   contents: read
 concurrency:
@@ -39,6 +44,7 @@ jobs:
           "SITE_DIRECTORY=$siteDirectory" >> $env:GITHUB_ENV
           git clone --depth 1 --branch main https://github.com/mertcreates/pofis-landing.git "$siteDirectory"
       - name: Sürüm taslağını hazırla
+        if: inputs.publish
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs begin
@@ -72,6 +78,7 @@ jobs:
           "SITE_DIRECTORY=$siteDirectory" >> $env:GITHUB_ENV
           git clone --depth 1 --branch main https://github.com/mertcreates/pofis-landing.git "$siteDirectory"
       - name: Tamamlanmış platform paketinden devam et
+        if: inputs.publish
         id: recover
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
@@ -80,10 +87,9 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/pofis-downloads
-          key: downloads-v1-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}-${{ github.sha }}
+          key: downloads-v2-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}
           restore-keys: |
-            downloads-v1-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}-
-            downloads-v1-${{ matrix.target }}-bun-1.4.3-
+            downloads-v2-${{ matrix.target }}-bun-1.4.3-
       - name: İndirme cache yollarını ayarla
         shell: pwsh
         run: |
@@ -105,11 +111,11 @@ jobs:
       - name: Testleri çalıştır
         if: steps.recover.outputs.reuse != 'true'
         run: bun test
-      - name: Yerel platform paketini üret ve gerçek uygulamayı sına
-        if: steps.recover.outputs.reuse != 'true'
+      - name: Windows paketini üret ve gerçek uygulamayı sına
+        if: runner.os == 'Windows' && steps.recover.outputs.reuse != 'true'
         run: bun scripts/electron/ci-build.cjs build
-      - name: Doğrulanmış paketi sürüm taslağına aktar
-        if: steps.recover.outputs.reuse != 'true'
+      - name: Doğrulanmış Windows paketini sürüm taslağına aktar
+        if: inputs.publish && runner.os == 'Windows' && steps.recover.outputs.reuse != 'true'
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs stage
@@ -119,6 +125,7 @@ jobs:
         run: |
           git clone --no-hardlinks "$GITHUB_WORKSPACE" "$RUNNER_TEMP/pofis-intel"
           git -C "$RUNNER_TEMP/pofis-intel" checkout --detach "$GITHUB_SHA"
+          git clone --no-hardlinks "$SITE_DIRECTORY" "${SITE_DIRECTORY}-intel"
       - name: Intel Next derleme cache'ini yükle
         if: runner.os == 'macOS'
         uses: actions/cache@v4
@@ -127,68 +134,30 @@ jobs:
           key: next-v1-darwin-x64-bun-1.4.3-${{ hashFiles('bun.lock') }}-${{ github.sha }}
           restore-keys: |
             next-v1-darwin-x64-bun-1.4.3-${{ hashFiles('bun.lock') }}-
-      - name: Intel derleme ortamını hazırla
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          if ! /usr/bin/arch -x86_64 /usr/bin/true; then
-            /usr/sbin/softwareupdate --install-rosetta --agree-to-license
-          fi
-          echo 'RELEASE_TARGET=darwin-x64' >> "$GITHUB_ENV"
-          echo 'npm_config_arch=x64' >> "$GITHUB_ENV"
-          echo 'npm_config_platform=darwin' >> "$GITHUB_ENV"
-          echo 'npm_config_target_arch=x64' >> "$GITHUB_ENV"
-          echo 'ELECTRON_INSTALL_ARCH=x64' >> "$GITHUB_ENV"
-          echo 'ELECTRON_INSTALL_PLATFORM=darwin' >> "$GITHUB_ENV"
-      - name: Intel Bun 1.4.3 kur
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          archive="$RUNNER_TEMP/pofis-downloads/bun-darwin-x64-1.4.3.zip"
-          mkdir -p "$RUNNER_TEMP/pofis-downloads"
-          if [ ! -f "$archive" ]; then
-            curl --fail --location --output "$archive" https://github.com/oven-sh/bun/releases/download/bun-v1.4.3/bun-darwin-x64.zip
-          fi
-          unzip -q "$archive" -d "$RUNNER_TEMP/pofis-bun-intel"
-          echo "$RUNNER_TEMP/pofis-bun-intel/bun-darwin-x64" >> "$GITHUB_PATH"
       - name: Tamamlanmış Intel paketinden devam et
-        if: runner.os == 'macOS'
+        if: inputs.publish && runner.os == 'macOS'
         id: recover_intel
         working-directory: ${{ runner.temp }}/pofis-intel
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+          RELEASE_TARGET: darwin-x64
         run: bun scripts/electron/publish.cjs recover
-      - name: Intel bağımlılıklarını kur
-        if: runner.os == 'macOS' && steps.recover_intel.outputs.reuse != 'true'
-        working-directory: ${{ runner.temp }}/pofis-intel
+      - name: ARM64 üretimi, Intel hazırlığı ve iki hedefin kabulünü tamamla
+        if: runner.os == 'macOS'
         env:
-          npm_config_arch: x64
-          npm_config_platform: darwin
-          npm_config_target_arch: x64
-          ELECTRON_INSTALL_ARCH: x64
-          ELECTRON_INSTALL_PLATFORM: darwin
-        run: |
-          bun -e 'if (process.platform !== "darwin" || process.arch !== "x64" || Bun.version !== "1.4.3") throw Error("Intel Bun 1.4.3 gerekli")'
-          bun install --frozen-lockfile
-      - name: Intel paketini üret ve statik kontrolleri çalıştır
-        if: runner.os == 'macOS' && steps.recover_intel.outputs.reuse != 'true'
-        working-directory: ${{ runner.temp }}/pofis-intel
-        env:
-          npm_config_arch: x64
-          npm_config_platform: darwin
-          npm_config_target_arch: x64
-          ELECTRON_INSTALL_ARCH: x64
-          ELECTRON_INSTALL_PLATFORM: darwin
-        run: bun scripts/electron/ci-build.cjs build
-      - name: Intel paketini sürüm taslağına aktar
-        if: runner.os == 'macOS' && steps.recover_intel.outputs.reuse != 'true'
-        working-directory: ${{ runner.temp }}/pofis-intel
+          REUSE_NATIVE: ${{ steps.recover.outputs.reuse }}
+          REUSE_INTEL: ${{ steps.recover_intel.outputs.reuse }}
+        run: bun scripts/electron/macos-ci.cjs
+      - name: Doğrulanmış macOS paketlerini sürüm taslağına aktar
+        if: inputs.publish && runner.os == 'macOS'
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
-        run: bun scripts/electron/publish.cjs stage
+          REUSE_NATIVE: ${{ steps.recover.outputs.reuse }}
+          REUSE_INTEL: ${{ steps.recover_intel.outputs.reuse }}
+        run: bun scripts/electron/macos-ci.cjs stage
   cleanup:
     needs: [begin, build]
-    if: ${{ always() && needs.begin.result == 'success' && needs.build.result == 'failure' }}
+    if: ${{ always() && inputs.publish && needs.begin.result == 'success' && needs.build.result == 'failure' }}
     runs-on: windows-2022
     timeout-minutes: 10
     env:
@@ -209,6 +178,7 @@ jobs:
         run: |
           "## Pofis $env:RELEASE_VERSION`nDerleme başarısız oldu. Taslak temizleme adımı tamamlandı.`n`nDüzeltmeden sonra Run workflow veya Re-run all jobs ile tüm akışı yeniden başlat." >> $env:GITHUB_STEP_SUMMARY
   publish:
+    if: inputs.publish
     needs: [begin, build]
     runs-on: windows-2022
     timeout-minutes: 30

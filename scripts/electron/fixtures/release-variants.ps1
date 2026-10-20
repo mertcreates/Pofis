@@ -1,9 +1,11 @@
-param([string]$SourceArchive, [string]$OutputDirectory, [Parameter(Mandatory)][string]$BaseVersion)
+param([string]$SourceArchive, [string]$OutputDirectory, [Parameter(Mandatory)][string]$BaseVersion,
+    [ValidateSet('all', 'update', 'recovery')][string]$Group = 'all')
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 Add-Type -AssemblyName System.IO.Compression
 $parts = [version]$BaseVersion
-foreach ($offset in 1..3) {
+$offsets = switch ($Group) { 'update' { 1 }; 'recovery' { 2; 3 }; 'all' { 1; 2; 3 } }
+foreach ($offset in $offsets) {
     $version = '{0}.{1}.{2}' -f $parts.Major, $parts.Minor, ($parts.Build + $offset)
     $path = Join-Path $OutputDirectory "$version.zip"
     Copy-Item -LiteralPath $SourceArchive -Destination $path

@@ -84,7 +84,7 @@ test("Diğer platformlarda (arm64, win32) dinamik runtime sorgusu çalıştırı
       stdout: JSON.stringify({ platform: "darwin", arch: "x64", electron: "43.8.1" }),
     });
     await expect(verifyRuntime(directory, target, "43.8.1", mismatchRun))
-      .rejects.toThrow("Bun darwin-arm64");
+      .rejects.toThrow("paket hedefi darwin-arm64");
   } finally {
     await rm(directory, { recursive: true, force: true });
   }

@@ -177,6 +177,9 @@ async function run() {
     const artifactDirectory = join(checks, "preview");
     await mkdir(artifactDirectory, { recursive: true });
     const screenshot = async name => {
+      const fontLoaded = await evaluate(`document.fonts.ready.then(() =>
+        [...document.fonts].some(font => font.family === 'GeistSans' && font.status === 'loaded'))`);
+      assert.equal(fontLoaded, true, "Görsel kabul için Geist fontu yüklenmeli.");
       const shot = await cdp.send("Page.captureScreenshot", { format: "png" });
       await writeFile(join(artifactDirectory, name), Buffer.from(shot.data, "base64"));
     };

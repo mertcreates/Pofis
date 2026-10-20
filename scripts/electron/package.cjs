@@ -37,13 +37,13 @@ async function verifyRuntime(electronDist, target, version, run = promisify(exec
     throw new Error(`Electron ${installed.electron}, kilitli sürüm ${version}. Önce bun install ve bun run desktop:install çalıştır.`);
   }
   if (installed.platform !== target.platform || installed.arch !== target.arch) {
-    throw new Error(`Electron ${installed.platform}/${installed.arch}, Bun ${target.id}. İkisini aynı platform ve mimariyle hazırla.`);
+    throw new Error(`Electron ${installed.platform}/${installed.arch}, paket hedefi ${target.id}. Electron'u paket hedefiyle aynı platform ve mimaride kur.`);
   }
 }
 
-async function prepare() {
+async function prepare(arch = process.arch) {
   if (!process.versions.bun) throw new Error("Paketleyiciyi Bun ile çalıştır.");
-  const target = platformTarget();
+  const target = platformTarget(process.platform, arch);
   const root = resolve(__dirname, "../..");
   const icons = await prepareIcons(join(root, "public", "pofi", "pofi-mark-256.png"), join(root, "dist", "electron", "icons"));
   const manifest = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
@@ -88,5 +88,5 @@ async function prepare() {
   console.log(`Pofis paketi (${target.id}): ${output}\n${target.platform === "darwin" ? "Pofis.app" : "Pofis.exe"} dosyasını aç.`);
 }
 
-if (require.main === module) prepare().catch((error) => { console.error(error.message); process.exitCode = 1; });
+if (require.main === module) prepare(process.argv[2]).catch((error) => { console.error(error.message); process.exitCode = 1; });
 module.exports = { verifyRuntime };

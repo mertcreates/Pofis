@@ -1,9 +1,12 @@
-const { test, expect } = require("bun:test");
+const { test, expect, spyOn } = require("bun:test");
 const { existsSync } = require("node:fs");
-const { mkdtemp, readFile, rm } = require("node:fs/promises");
+const { mkdtemp, readFile, rm, mkdir, copyFile, writeFile } = require("node:fs/promises");
+const { execFile } = require("node:child_process");
+const { promisify } = require("node:util");
 const { tmpdir } = require("node:os");
 const { join, basename } = require("node:path");
-const { timed, build } = require("./ci-build.cjs");
+const { timed, build, accept } = require("./ci-build.cjs");
+const { finishMacBuild, stageMacBuild } = require("./macos-ci.cjs");
 const { version } = require("../../package.json");
 const intel = process.platform === "darwin" && process.arch === "x64";
 
@@ -56,4 +59,189 @@ test("süre özeti başarılı ve hatalı aşamayı kaydeder; hata korunur", asy
     await expect(timed("kabul", async () => { throw failure; }, summary)).rejects.toBe(failure);
     expect(await readFile(summary, "utf8")).toMatch(/^\| build \| başarılı \| \d+\.\d{2} \|\n\| kabul \| başarısız \| \d+\.\d{2} \|\n$/);
   } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test("süre özeti duvar saatindeki geçen süreyi raporlar", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-wall-time-"));
+  const summary = join(directory, "summary.md");
+  const clock = spyOn(Date, "now").mockReturnValueOnce(1000).mockReturnValueOnce(58310);
+  try {
+    await timed("Next", async () => {}, summary);
+    expect(await readFile(summary, "utf8")).toBe("| Next | başarılı | 57.31 |\n");
+  } finally { clock.mockRestore(); await rm(directory, { recursive: true, force: true }); }
+});
+
+test("ayrı kurulum kabulü üretimi tekrarlamaz ve kabul hatasını korur", async () => {
+  if (intel) return;
+  const calls = [];
+  const failure = new Error("kurulum reddedildi");
+  await expect(accept(version, "site", { summary: null, execute: async (_command, args) => {
+    calls.push(args);
+    throw failure;
+  } })).rejects.toBe(failure);
+  expect(calls).toEqual([process.platform === "win32"
+    ? ["run", "test:desktop:distribution", "--site", "site"]
+    : [join(__dirname, "macos-distribution-test.cjs"), "--site", "site"]]);
+});
+
+test("macOS Intel hazırlığını paketlemeyle örtüştürür; hazırlık hatasında ARM kabulünü bekler", async () => {
+  const calls = [];
+  let finishPackage;
+  let finishPreparation;
+  let finishNative;
+  let nativeStarted;
+  const nativeReady = new Promise(done => { nativeStarted = done; });
+  let settled = false;
+  const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", intelBun: "intel-bun", summary: null,
+    execute: async (command, args, cwd, env) => {
+      calls.push({ command, args, cwd, env });
+      if (args.at(-1) === "package") return new Promise(done => { finishPackage = done; });
+      if (command === "/bin/bash") {
+        await new Promise(done => { finishPreparation = done; });
+        throw new Error("Intel hazırlığı başarısız");
+      }
+      nativeStarted();
+      return new Promise(done => { finishNative = done; });
+    },
+  }).finally(() => { settled = true; });
+  await Promise.resolve();
+  expect(calls).toHaveLength(2);
+  expect(settled).toBe(false);
+  expect(calls[0].args.at(-1)).toBe("package");
+  expect(calls[0].env.RELEASE_TARGET).toBe("darwin-arm64");
+  expect(basename(calls[1].args[0])).toBe("prepare-intel.sh");
+  expect(calls[1].args[1]).toBe("intel-bun");
+  expect(calls[1].cwd).toBe("intel");
+  expect(calls[1].env).toMatchObject({ RELEASE_TARGET: "darwin-x64", SITE_DIRECTORY: "site-intel", npm_config_arch: "x64" });
+  finishPackage();
+  await nativeReady;
+  expect(calls[2].args.at(-1)).toBe("accept");
+  finishPreparation();
+  await Promise.resolve();
+  expect(settled).toBe(false);
+  finishNative();
+  await expect(pending).rejects.toThrow("Intel hazırlığı başarısız");
+  expect(calls.some(call => call.command === "intel-bun")).toBe(false);
+});
+
+test("macOS kurtarılan hedefin kabulünü veya üretimini tekrarlamaz", async () => {
+  for (const [reuseNative, reuseIntel, expected] of [[true, false, ["prepare-intel.sh", "build"]], [false, true, ["package", "accept"]], [true, true, []]]) {
+    const calls = [];
+    await finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", intelBun: "intel-bun",
+      reuseNative, reuseIntel, summary: null, execute: async (command, args) => { calls.push(command === "/bin/bash" ? basename(args[0]) : args.at(-1)); },
+    });
+    expect(calls).toEqual(expected);
+  }
+});
+
+test("Intel derlemesi ARM paketini bekler; paket veya Intel hatası yayın öncesinde korunur", async () => {
+  for (const failedStep of ["package", "build"]) {
+    const calls = [];
+    const failure = new Error(`${failedStep} başarısız`);
+    let finishPackage, rejectPackage, finishAccept, startedIntel;
+    const packageGate = new Promise((done, fail) => { finishPackage = done; rejectPackage = fail; });
+    const intelStarted = new Promise(done => { startedIntel = done; });
+    let settled = false;
+    const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", intelBun: "intel-bun", summary: null,
+      execute: async (command, args) => {
+        const step = command === "/bin/bash" ? "prepare" : args.at(-1);
+        calls.push(step);
+        if (step === "package") return packageGate;
+        if (step === "accept") return new Promise(done => { finishAccept = done; });
+        if (step === "build") { startedIntel(); throw failure; }
+      },
+    }).finally(() => { settled = true; });
+    expect(calls).toEqual(["package", "prepare"]);
+    if (failedStep === "package") {
+      rejectPackage(failure);
+      await expect(pending).rejects.toThrow(failure.message);
+      expect(calls).toEqual(["package", "prepare"]);
+    } else {
+      finishPackage();
+      await intelStarted;
+      expect(calls).toEqual(["package", "prepare", "accept", "build"]);
+      expect(settled).toBe(false);
+      finishAccept();
+      await expect(pending).rejects.toThrow(failure.message);
+    }
+  }
+});
+
+test("Intel derlemesi kendi Bun'ını, paketleme araçları native Bun ve açık x64 hedefini kullanır", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-intel-ci-"));
+  try {
+    for (const path of ["scripts/electron", "electron", "dist/macos/Pofis-darwin-x64-fixture"]) {
+      await mkdir(join(directory, path), { recursive: true });
+    }
+    await copyFile(join(__dirname, "ci-build.cjs"), join(directory, "scripts/electron/ci-build.cjs"));
+    await writeFile(join(directory, "package.json"), JSON.stringify({ version }));
+    await writeFile(join(directory, "electron/platform.cjs"), `module.exports.platformTarget = () => ({
+      id: 'darwin-x64', platform: 'darwin', arch: 'x64', outputDirectory: 'macos', releaseDirectory: 'macos/x64',
+      electronExecutable: 'Electron.app/Contents/MacOS/Electron'
+    });`);
+    await writeFile(join(directory, "scripts/electron/prepare-site.cjs"), "module.exports.prepareSite = async () => {};");
+    await promisify(execFile)(process.execPath, ["-e", `
+      const { build } = require('./scripts/electron/ci-build.cjs');
+      const calls = [];
+      await build(${JSON.stringify(version)}, 'site', { summary: null,
+        execute: async (command, args) => { calls.push({ command, args }); }
+      });
+      await Bun.write('calls.json', JSON.stringify(calls));
+    `], { cwd: directory, env: { ...process.env, RELEASE_TARGET: "darwin-x64", HOST_BUN_PATH: "native-bun" }, windowsHide: true });
+    const calls = JSON.parse(await readFile(join(directory, "calls.json"), "utf8"));
+    const scriptCall = name => calls.find(call => basename(call.args[0]) === name);
+    expect(scriptCall("build.cjs").command).toBe(process.execPath);
+    expect(scriptCall("package.cjs")).toEqual({ command: "native-bun", args: [join(directory, "scripts/electron/package.cjs"), "x64"] });
+    expect(scriptCall("macos-static-check.cjs").command).toBe("native-bun");
+    expect(scriptCall("release.cjs").command).toBe("native-bun");
+    expect(scriptCall("release.cjs").args.slice(-2)).toEqual(["-Arch", "x64"]);
+    expect(calls.some(call => call.args.some(arg => /clipboard|distribution|test:desktop:smoke/.test(arg)))).toBe(false);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+});
+
+test("yayınsız workflow ölçümü sürümü doğrulayıp paketleri üretir; yayın komutlarını atlar", async () => {
+  const workflow = Bun.YAML.parse(await readFile(join(__dirname, "../../.github/workflows/desktop-release.yml"), "utf8"));
+  expect(workflow.on.workflow_dispatch.inputs.publish).toMatchObject({ type: "boolean", default: true });
+  const active = (expression, publish, os) => !expression || Function("inputs", "runner", "steps", "needs", "github", "always",
+    `return (${expression.replace(/^\$\{\{\s*|\s*\}\}$/g, "")})`)(
+    { publish }, { os }, { recover: { outputs: {} }, recover_intel: { outputs: {} } },
+    { begin: { result: "success" }, build: { result: "failure" } }, { ref: "refs/heads/master" }, () => true);
+  for (const os of ["Windows", "macOS"]) {
+    const commands = [];
+    for (const job of Object.values(workflow.jobs)) {
+      if (!active(job.if, false, os)) continue;
+      for (const step of job.steps) if (active(step.if, false, os) && step.run) commands.push(step.run);
+    }
+    expect(commands.some(command => /publish\.cjs|macos-ci\.cjs stage/.test(command))).toBe(false);
+    expect(commands.some(command => command.includes("ci-build.cjs check"))).toBe(true);
+    expect(commands.some(command => command.includes(os === "Windows" ? "ci-build.cjs build" : "macos-ci.cjs"))).toBe(true);
+    if (os === "macOS") expect(commands.some(command => command.includes("macos-ci.cjs"))).toBe(true);
+  }
+  const steps = workflow.jobs.build.steps;
+  const finish = steps.findIndex(step => step.run?.includes("macos-ci.cjs"));
+  const macStages = steps.map((step, index) => ({ step, index }))
+    .filter(({ step }) => step.run?.includes("macos-ci.cjs stage") && active(step.if, true, "macOS"));
+  expect(macStages).toHaveLength(1);
+  expect(macStages.every(({ index }) => index > finish)).toBe(true);
+});
+
+test("macOS paket aktarımı hedeflerin ayrı dosyalarını paralel işler; kurtarılan hedefi atlar", async () => {
+  const calls = [];
+  let release;
+  const gate = new Promise(done => { release = done; });
+  const pending = stageMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", execute: async (command, args, cwd, env) => {
+    calls.push({ command, args, cwd, target: env.RELEASE_TARGET, site: env.SITE_DIRECTORY });
+    await gate;
+  } });
+  try {
+    expect(calls.map(call => call.target)).toEqual(["darwin-arm64", "darwin-x64"]);
+    expect(calls.every(call => call.command === process.execPath && call.args.at(-1) === "stage")).toBe(true);
+    expect(calls[1]).toMatchObject({ cwd: "intel", site: "site-intel" });
+  } finally { release(); }
+  await pending;
+  calls.length = 0;
+  await stageMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", reuseNative: true,
+    execute: async (_command, _args, _cwd, env) => { calls.push(env.RELEASE_TARGET); },
+  });
+  expect(calls).toEqual(["darwin-x64"]);
 });

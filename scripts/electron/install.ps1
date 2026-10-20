@@ -22,14 +22,23 @@ function Get-DownloadUri([string]$Value, [Uri]$Base) {
 }
 
 function Save-Download([Uri]$Uri, [string]$Target) {
+    $response = $null; $inputStream = $null; $outputStream = $null
     try {
-        $response = Invoke-WebRequest -UseBasicParsing -Uri $Uri.AbsoluteUri -OutFile $Target -PassThru -TimeoutSec 180
-        if ($response.BaseResponse.PSObject.Properties['ResponseUri']) {
-            $null = Get-DownloadUri $response.BaseResponse.ResponseUri.AbsoluteUri $null
-        } elseif ($response.BaseResponse.PSObject.Properties['RequestMessage']) {
-            $null = Get-DownloadUri $response.BaseResponse.RequestMessage.RequestUri.AbsoluteUri $null
-        }
+        # Stream the archive directly; Windows PowerShell's web cmdlet copies large responses through its pipeline.
+        $request = [Net.HttpWebRequest]::Create($Uri)
+        $request.Timeout = 180000
+        $request.ReadWriteTimeout = 180000
+        $response = $request.GetResponse()
+        $null = Get-DownloadUri $response.ResponseUri.AbsoluteUri $null
+        $inputStream = $response.GetResponseStream()
+        $outputStream = [IO.File]::Open($Target, [IO.FileMode]::CreateNew)
+        $inputStream.CopyTo($outputStream)
     } catch { throw "İndirme tamamlanamadı: $($Uri.AbsolutePath)" }
+    finally {
+        if ($outputStream) { $outputStream.Dispose() }
+        if ($inputStream) { $inputStream.Dispose() }
+        if ($response) { $response.Dispose() }
+    }
 }
 
 function Write-AtomicJson([string]$Path, $Value) {

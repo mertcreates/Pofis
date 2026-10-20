@@ -12,8 +12,8 @@ function releaseManifest(target, version, size, sha256) {
     url: `${version}/Pofis-${version}-${target.id}.zip` };
 }
 
-async function release(packageDirectory) {
-  const target = platformTarget();
+async function release(packageDirectory, arch = process.arch) {
+  const target = platformTarget(process.platform, arch);
   const root = resolve(__dirname, "../..");
   const directory = resolve(packageDirectory);
   const app = JSON.parse(await readFile(join(directory, target.resources, "app", "package.json"), "utf8"));
@@ -21,7 +21,7 @@ async function release(packageDirectory) {
   const metadataPath = join(directory, target.metadataFile);
   const metadata = JSON.parse(await readFile(metadataPath, "utf8"));
   if (metadata.version !== app.version || metadata.platform !== target.platform || metadata.arch !== target.arch) {
-    throw new Error("Paket hedefi bu bilgisayarın platform ve mimarisiyle eşleşmiyor.");
+    throw new Error("Paket bilgileri seçilen platform ve mimariyle eşleşmiyor.");
   }
   await access(join(directory, target.executable));
   await access(join(directory, target.resources, "app", "server", "server.js"));
@@ -68,6 +68,10 @@ if (require.main === module) {
   const index = process.argv.indexOf("-PackageDirectory");
   const directory = index === -1 ? null : process.argv[index + 1];
   if (!directory) { console.error("Kullanım: bun run desktop:release -PackageDirectory <paket-klasörü>"); process.exitCode = 1; }
-  else release(directory).catch(error => { console.error(error.message); process.exitCode = 1; });
+  else {
+    const archIndex = process.argv.indexOf("-Arch");
+    release(directory, archIndex === -1 ? process.arch : process.argv[archIndex + 1])
+      .catch(error => { console.error(error.message); process.exitCode = 1; });
+  }
 }
 module.exports = { releaseManifest };

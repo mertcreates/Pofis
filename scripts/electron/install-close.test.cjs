@@ -8,7 +8,7 @@ const { once } = require("node:events");
 const execute = promisify(execFile);
 // Keep Bun's deadline outside the bounded PowerShell invocation, including cold CI startup.
 const windowsTest = (name, body, timeout = 25000) =>
-  (process.platform === "win32" ? test : test.skip)(name, body, timeout);
+  (process.platform === "win32" ? test.concurrent : test.skip)(name, body, timeout);
 const powershell = join(process.env.SystemRoot || "", "System32/WindowsPowerShell/v1.0/powershell.exe");
 const installer = resolve(__dirname, "install.ps1");
 const quote = text => "'" + text.replaceAll("'", "''") + "'";
@@ -147,6 +147,13 @@ windowsTest("Windows gerçek zorla kapatma yalnız izole kurulum sürecini durdu
     await run(`
 $InstallRoot=${quote(root)}; $script:prompts=0;
 function Read-Host { $script:prompts++; return 'e' }
+# The fixture has no window: go directly to force-close consent, then use the real process-exit wait.
+$script:waits=0; $realWait=(Get-Item Function:Wait-PofisClosed).ScriptBlock;
+function Wait-PofisClosed {
+    $script:waits++;
+    if ($script:waits -eq 1) { return $false }
+    & $realWait
+}
 Close-PofisForUpdate;
 Assert ($script:prompts -eq 2);
 Assert (@(Get-InstalledProcess).Count -eq 0);
