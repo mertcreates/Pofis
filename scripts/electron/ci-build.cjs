@@ -1,6 +1,6 @@
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
-const { readFile, readdir, appendFile } = require("node:fs/promises");
+const { readFile, readdir, appendFile, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
 const execute = promisify(execFile);
@@ -46,8 +46,31 @@ async function timed(label, task, summary = process.env.GITHUB_STEP_SUMMARY) {
   }
 }
 
-async function preflight(acceptance, execute = run, summary = process.env.GITHUB_STEP_SUMMARY) {
-  await timed("Electron kurulumu", () => execute(process.execPath, ["run", "desktop:install"]), summary);
+async function preflight(target, acceptance, execute = run, summary = process.env.GITHUB_STEP_SUMMARY) {
+  if (typeof target === "boolean") {
+    summary = execute;
+    execute = acceptance || run;
+    acceptance = target;
+    target = platformTarget();
+  }
+  const electronDist = join(root, "node_modules", "electron", "dist");
+  if (target.id === "darwin-x64") {
+    const binary = join(electronDist, target.electronExecutable);
+    const isX64 = await execute("/usr/bin/lipo", [binary, "-verify_arch", "x86_64"]).then(() => true, () => false);
+    if (!isX64) await rm(electronDist, { recursive: true, force: true });
+  }
+  const env = {
+    ...process.env,
+    npm_config_arch: target.arch,
+    npm_config_platform: target.platform,
+    ELECTRON_INSTALL_ARCH: target.arch,
+    ELECTRON_INSTALL_PLATFORM: target.platform,
+  };
+  await timed("Electron kurulumu", () => execute(process.execPath, ["run", "desktop:install"], root, env), summary);
+  if (target.id === "darwin-x64") {
+    const binary = join(electronDist, target.electronExecutable);
+    await execute("/usr/bin/lipo", [binary, "-verify_arch", "x86_64"]);
+  }
   if (acceptance) {
     await timed("Masaüstü birim testleri", () => execute(process.execPath, ["test", "./electron", "./scripts/electron"]), summary);
     await timed("Pano kabulü", () => execute(process.execPath, [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]), summary);
@@ -66,7 +89,7 @@ async function build(version, siteDirectory, { execute = run, summary = process.
   const stage = (label, task) => timed(label, task, summary);
   if (summary) await appendFile(summary,
     `\n## ${target.id} aşama süreleri\n\n| Aşama | Sonuç | Saniye |\n| --- | --- | --- |\n`);
-  await preflight(acceptance, execute, summary);
+  await preflight(target, acceptance, execute, summary);
   await stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")]));
   await stage("Electron paketleme ve imza", () => execute(process.execPath, [join(__dirname, "package.cjs")]));
   const packages = join(root, "dist", target.outputDirectory);

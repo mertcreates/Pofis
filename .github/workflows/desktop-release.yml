@@ -137,6 +137,10 @@ jobs:
           echo "NATIVE_BUN_PATH=$(which bun)" >> "$GITHUB_ENV"
           echo 'RELEASE_TARGET=darwin-x64' >> "$GITHUB_ENV"
           echo 'npm_config_arch=x64' >> "$GITHUB_ENV"
+          echo 'npm_config_platform=darwin' >> "$GITHUB_ENV"
+          echo 'npm_config_target_arch=x64' >> "$GITHUB_ENV"
+          echo 'ELECTRON_INSTALL_ARCH=x64' >> "$GITHUB_ENV"
+          echo 'ELECTRON_INSTALL_PLATFORM=darwin' >> "$GITHUB_ENV"
       - name: Intel Bun 1.4.3 kur
         if: runner.os == 'macOS'
         shell: bash
@@ -158,12 +162,24 @@ jobs:
       - name: Intel bağımlılıklarını kur
         if: runner.os == 'macOS' && steps.recover_intel.outputs.reuse != 'true'
         working-directory: ${{ runner.temp }}/pofis-intel
+        env:
+          npm_config_arch: x64
+          npm_config_platform: darwin
+          npm_config_target_arch: x64
+          ELECTRON_INSTALL_ARCH: x64
+          ELECTRON_INSTALL_PLATFORM: darwin
         run: |
           bun -e 'if (process.platform !== "darwin" || process.arch !== "x64" || Bun.version !== "1.4.3") throw Error("Intel Bun 1.4.3 gerekli")'
           bun install --frozen-lockfile
       - name: Intel paketini üret ve statik kontrolleri çalıştır
         if: runner.os == 'macOS' && steps.recover_intel.outputs.reuse != 'true'
         working-directory: ${{ runner.temp }}/pofis-intel
+        env:
+          npm_config_arch: x64
+          npm_config_platform: darwin
+          npm_config_target_arch: x64
+          ELECTRON_INSTALL_ARCH: x64
+          ELECTRON_INSTALL_PLATFORM: darwin
         run: bun scripts/electron/ci-build.cjs build
       - name: Intel paketini sürüm taslağına aktar
         if: runner.os == 'macOS' && steps.recover_intel.outputs.reuse != 'true'
