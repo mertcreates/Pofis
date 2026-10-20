@@ -11,6 +11,7 @@ const { connect } = require("./cdp.cjs");
 const { readStoredPlans } = require("../../src/lib/plan-storage.js");
 const { createSessionStorage } = require("../../src/server/session-storage.js");
 const { CookieJar } = require("tough-cookie");
+const { assertPortableStandalone } = require("./standalone.cjs");
 
 async function until(check, timeout = 30000) {
   const end = Date.now() + timeout;
@@ -35,14 +36,7 @@ async function run() {
   const env = { ...process.env, PATH: target.platform === "win32" ? join(process.env.SystemRoot, "System32") : "/usr/bin:/bin:/usr/sbin:/sbin" };
   delete env.ELECTRON_RUN_AS_NODE;
   if (!sourceMode) {
-    // Exercise the native binding and its sibling libraries with the shipped runtime.
-    const { stdout } = await promisify(execFile)(executable, ["-e",
-      `require('sharp')({create:{width:1,height:1,channels:4,background:'#000000'}}).png().toBuffer().then(buffer => {
-        if (buffer.subarray(0,8).toString('hex') !== '89504e470d0a1a0a') throw Error('PNG üretilemedi');
-        console.log('PASS: paketli sharp ve native yan kitaplıkları PNG üretti.');
-      })`], { cwd: join(folder, target.resources, "app/server"),
-      env: { ...env, ELECTRON_RUN_AS_NODE: "1" }, windowsHide: true, timeout: 15000 });
-    console.log(stdout.trim());
+    await assertPortableStandalone(join(folder, target.resources, "app/server"));
   }
   const fromIndex = process.argv.indexOf("--from");
   const previous = fromIndex === -1 ? null : resolve(process.argv[fromIndex + 1]);
@@ -151,6 +145,11 @@ async function run() {
     }
     await launch();
     if (previous) await checkTransition();
+    const image = await fetch(`${serverOrigin}/pofi/pofi-mark-256.png`);
+    assert.equal(image.status, 200);
+    assert.deepEqual(Buffer.from(await image.arrayBuffer()), await readFile(join(root, "public/pofi/pofi-mark-256.png")));
+    assert.equal((await fetch(`${serverOrigin}/_next/image?url=%2Fpofi%2Fpofi-mark-256.png&w=256&q=75`)).status, 404);
+    console.log("PASS: paketli görsel aynı baytlarla sunuluyor; görseller doğrudan yükleniyor.");
     await until(() => evaluate("!!document.querySelector('input[name=username]') && !document.querySelector('input[name=username]').disabled"));
     assert.equal(await evaluate("typeof require + ':' + typeof process"), "undefined:undefined");
     const health = await fetch(`${ORIGIN}/api/health`);

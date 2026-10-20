@@ -90,20 +90,23 @@ async function preflight(target, acceptance, execute = run, summary = process.en
 async function build(version, siteDirectory, { execute = run, summary = process.env.GITHUB_STEP_SUMMARY, distribution = true } = {}) {
   await checkVersion(version);
   const target = platformTarget(process.platform,
-    process.platform === "darwin" && process.env.RELEASE_TARGET === "darwin-x64" && process.env.INTEL_BUN_PATH ? "x64" : process.arch);
+    process.platform === "darwin" && process.env.RELEASE_TARGET === "darwin-x64" ? "x64" : process.arch);
   if (process.env.RELEASE_TARGET && process.env.RELEASE_TARGET !== target.id) {
     throw new Error("Derleme ortamının mimarisi seçilen yayın hedefiyle eşleşmiyor.");
   }
   if (!siteDirectory) throw new Error("CI kurulum testi için tanıtım sitesinin klasörü gerekli.");
   // Intel CI deliberately keeps static package checks only; all other targets retain full acceptance.
   const acceptance = target.id !== "darwin-x64";
-  // Only the Intel compiler needs Rosetta; orchestration and system tools use native Bun.
-  const compilerBun = target.id === "darwin-x64" && process.env.INTEL_BUN_PATH || process.execPath;
   const stage = (label, task) => timed(label, task, summary);
   if (summary) await appendFile(summary,
     `\n## ${target.id} aşama süreleri\n\n| Aşama | Sonuç | Saniye |\n| --- | --- | --- |\n`);
   await preflight(target, acceptance, execute, summary);
-  await stage("Next standalone derlemesi", () => execute(compilerBun, [join(__dirname, "build.cjs")]));
+  if (process.env.POFIS_SHARED_STANDALONE) {
+    if (target.id !== "darwin-x64") throw new Error("Ortak standalone çıktısını Intel macOS paketinde kullan.");
+    console.log("Intel paketi ARM64 kabulüyle aynı Next çıktısını kullanıyor.");
+  } else {
+    await stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")]));
+  }
   await stage("Electron paketleme ve imza", () => execute(process.execPath, [join(__dirname, "package.cjs"), target.arch]));
   const packages = join(root, "dist", target.outputDirectory);
   const names = (await readdir(packages)).filter(name => name.startsWith(`Pofis-${target.id}-`));

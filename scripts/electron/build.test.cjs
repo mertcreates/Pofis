@@ -12,12 +12,13 @@ test("standalone build aynı Bun mimarisini korur ve eski çıktıyı temizleyer
       await mkdir(join(root, folder), { recursive: true });
     }
     await copyFile(join(__dirname, "build.cjs"), join(root, "scripts/electron/build.cjs"));
+    await copyFile(join(__dirname, "standalone.cjs"), join(root, "scripts/electron/standalone.cjs"));
     await writeFile(join(root, "public/asset.txt"), "public asset");
     await writeFile(join(root, ".next/standalone/stale.txt"), "previous build");
     // A local Next CLI fixture observes the real child process without compiling the app.
     await writeFile(join(root, "node_modules/next/dist/bin/next"), `
       const { mkdirSync, writeFileSync } = require("node:fs");
-      if (process.env.POFIS_STANDALONE !== "1" || process.argv.at(-1) !== "build") process.exit(2);
+      if (process.env.POFIS_STANDALONE !== "1" || process.env.POFIS_DESKTOP_BUILD !== "1" || process.argv.at(-1) !== "build") process.exit(2);
       mkdirSync(".next/standalone", { recursive: true });
       mkdirSync(".next/static", { recursive: true });
       writeFileSync(".next/standalone/server.js", JSON.stringify({ arch: process.arch, bun: process.versions.bun }));

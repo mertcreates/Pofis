@@ -3,6 +3,7 @@ const { join, resolve } = require("node:path");
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
 const { platformTarget } = require("../../electron/platform.cjs");
+const { assertPortableStandalone } = require("./standalone.cjs");
 
 // Inspect every real Mach-O file, including extensionless helpers and native addons.
 async function checkIntelPackage(directory, execute = promisify(execFile)) {
@@ -18,18 +19,7 @@ async function checkIntelPackage(directory, execute = promisify(execFile)) {
     join(target.resources, "app/server/server.js")]) {
     await access(join(directory, file));
   }
-  try {
-    const sharp = join(resources, "app/server/node_modules/@img/sharp-darwin-x64");
-    const { version } = JSON.parse(await readFile(join(sharp, "package.json"), "utf8"));
-    // sharp's loader selects the native filename using its package version.
-    await access(join(sharp, "lib", `sharp-darwin-x64-${version}.node`));
-    const libvips = join(resources, "app/server/node_modules/@img/sharp-libvips-darwin-x64/lib");
-    if (!(await readdir(libvips)).some(name => /^libvips-cpp\..+\.dylib$/.test(name))) {
-      throw new Error(`Intel libvips kitaplığı eksik: ${libvips}`);
-    }
-  } catch (error) {
-    throw new Error(`Intel sharp ve libvips kontrolü tamamlanamadı. Standalone çıktısındaki @img paketlerini kontrol et.\n${error.message}`, { cause: error });
-  }
+  await assertPortableStandalone(join(resources, "app/server"));
   const magic = new Set([0xfeedface, 0xcefaedfe, 0xfeedfacf, 0xcffaedfe,
     0xcafebabe, 0xbebafeca, 0xcafebabf, 0xbfbafeca]);
   let count = 0;

@@ -1,9 +1,9 @@
 const { appendFile, readFile } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
-const { run, timed } = require("./ci-build.cjs");
+const { run } = require("./ci-build.cjs");
 const root = resolve(__dirname, "../..");
 
-async function finishMacBuild({ version, siteDirectory, intelDirectory, intelBun,
+async function finishMacBuild({ version, siteDirectory, intelDirectory,
   reuseNative = false, reuseIntel = false, execute = run, summary = process.env.GITHUB_STEP_SUMMARY }) {
   const intelSummary = join(intelDirectory, "ci-summary.md");
   const nativePackage = reuseNative ? Promise.resolve()
@@ -18,14 +18,20 @@ async function finishMacBuild({ version, siteDirectory, intelDirectory, intelBun
     const env = {
       ...process.env, RELEASE_VERSION: version, RELEASE_TARGET: "darwin-x64",
       SITE_DIRECTORY: `${siteDirectory}-intel`, GITHUB_STEP_SUMMARY: summary ? intelSummary : "",
-      INTEL_BUN_PATH: intelBun,
+      POFIS_SHARED_STANDALONE: reuseNative
+        ? join(root, ".next/recovered-arm64/Pofis.app/Contents/Resources/app/server")
+        : join(root, ".next/standalone"),
       npm_config_arch: "x64", npm_config_platform: "darwin", npm_config_target_arch: "x64",
       ELECTRON_INSTALL_ARCH: "x64", ELECTRON_INSTALL_PLATFORM: "darwin",
     };
-    await timed("Intel ortam hazırlığı", () => execute("/bin/bash",
-      [join(__dirname, "prepare-intel.sh"), intelBun], intelDirectory, env), summary ? intelSummary : null);
-    // Prepare Intel while ARM64 packages; start its compiler alongside ARM64 installer acceptance.
-    await nativePackage;
+    // Install native build tools while ARM64 packages; Electron's download still targets x64.
+    const preparation = execute(process.execPath, ["install", "--frozen-lockfile"], intelDirectory, env);
+    const source = reuseNative ? execute("/usr/bin/ditto", ["-x", "-k",
+      join(root, "dist/releases/macos/arm64", version, `Pofis-${version}-darwin-arm64.zip`),
+      join(root, ".next/recovered-arm64")], root) : nativePackage;
+    const prepared = await Promise.allSettled([preparation, source]);
+    const failures = prepared.filter(result => result.status === "rejected").map(result => result.reason);
+    if (failures.length) throw new AggregateError(failures, failures.map(error => error.message).join("\n"));
     await execute(process.execPath, [join(intelDirectory, "scripts/electron/ci-build.cjs"), "build"], intelDirectory, env);
   })());
   // Both chains finish before staging. A failure in either chain rejects the job.
@@ -59,7 +65,6 @@ if (require.main === module) {
   if (action && action !== "stage") throw new Error("Kullanım: bun macos-ci.cjs [stage]");
   (action === "stage" ? stageMacBuild : finishMacBuild)({ version: process.env.RELEASE_VERSION, siteDirectory: process.env.SITE_DIRECTORY,
     intelDirectory: join(process.env.RUNNER_TEMP, "pofis-intel"),
-    intelBun: join(process.env.RUNNER_TEMP, "pofis-bun-intel/bun-darwin-x64/bun"),
     reuseNative: process.env.REUSE_NATIVE === "true", reuseIntel: process.env.REUSE_INTEL === "true",
   }).catch(error => { console.error(error.message); process.exitCode = 1; });
 }

@@ -145,8 +145,6 @@ async function run() {
     occupied = Bun.serve({ hostname: "127.0.0.1", port: 3210, fetch: () => new Response("another app") });
     await expectInstall();
     assert.equal(await (await fetch("http://127.0.0.1:3210")).text(), "another app");
-    await close();
-    occupied.stop(true); occupied = null;
     console.log("PASS: uygulama simgesi, yeniden açılış ve dolu 3210'da alternatif port; diğer süreç korunur");
     active = { ...first, url: `${base}/missing.zip`, version: "999.0.0" };
     await expectFailure(/İndirme tamamlanamadı/);
@@ -157,8 +155,7 @@ async function run() {
     const failure = variants.find(result => result.status === "rejected");
     if (failure) throw failure.reason;
     const [next, broken, repaired] = variants.map(result => result.value);
-    active = first;
-    await expectInstall();
+    // The port-fallback instance remains open for the denied/consented update chain.
     active = next;
     await expectFailure(/Pofis açık/);
     assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, first.version);
@@ -168,6 +165,8 @@ async function run() {
     assert.deepEqual(await readdir(join(installRoot, 'versions')), []);
     assert.equal(await readFile(marker, "utf8"), "settings/session-file boundary preserved");
     await close();
+    assert.equal(await (await fetch("http://127.0.0.1:3210")).text(), "another app");
+    occupied.stop(true); occupied = null;
     console.log("PASS: bozuk/eksik indirme, onaysız güncelleme reddi, onaylı normal kapanış ve sürüm yükseltme, profil korunması");
     active = broken;
     await expectFailure(/Pofis sunucusu kapandı \(kod: 23\)/);
@@ -185,8 +184,9 @@ async function run() {
     const result = await one;
     assert.equal(result.code, 0, result.output);
     slow = false;
-    await close();
-    const [onePid] = await (async () => { await expectInstall(); return pids(); })();
+    // The lock winner is the repaired app; exercise its crash and recovery directly.
+    const [onePid] = await pids();
+    assert.ok(onePid);
     process.kill(onePid, "SIGKILL");
     await until(async () => (await pids()).length === 0);
     await Bun.sleep(100);

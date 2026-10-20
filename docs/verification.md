@@ -62,7 +62,7 @@ Installer kapanış sözleşmesi `bun test ./scripts/electron/install-close.test
 
 ## Sonuçların yönetimi
 
-Electron motoru değiştiğinde [motor geçişi kabulünü](desktop.md#motor-geçişi-kabulü) gerçek önceki/yeni paketlerle çalıştırın. Aynı paketin sürümünü değiştiren installer fixture'ları profilin farklı Chromium sürümleri arasında okunmasını kanıtlamaz. Ortak paket kabulü native sharp yüklemesini de sınar; pano kabulü yalnız izole CI/VM masaüstünde çalışır. Monterey için iki mimaride gerçek macOS 12 kabulü gerekir.
+Electron motoru değiştiğinde [motor geçişi kabulünü](desktop.md#motor-geçişi-kabulü) gerçek önceki/yeni paketlerle çalıştırın. Aynı paketin sürümünü değiştiren installer fixture'ları profilin farklı Chromium sürümleri arasında okunmasını kanıtlamaz. Ortak paket kabulü taşınabilir sunucuyu, gerçek görsel baytlarını ve Geist fontunun yüklenmesini de sınar; pano kabulü yalnız izole CI/VM masaüstünde çalışır. Monterey için iki mimaride gerçek macOS 12 kabulü gerekir.
 
 macOS installer için `bun scripts/electron/macos-distribution-test.cjs --site ../pofis-landing` gerçek macOS runner'ında gerçek ZIP kullanır; ARM64 release işi bunu otomatik çalıştırır. Intel paketi aynı runner üzerinde yalnız statik mimari, imza, paket içeriği ve ZIP kontrollerinden geçer; Intel pencere/kurulum/güncelleme kabulü otomatik çalışmaz. İlk kurulum/pencere, Finder uygulama yolu, aynı sürüm/tek örnek, alternatif port, indirme hatası, açıkken güncelleme, sürüm yükseltme, gerçek sunucu hatasının raporlanması, profil dosyası kalıcılığı, kurulum kilidi ve çökme sonrası yeniden açılışı sınar. Bash/sürüm/arşiv yolu birim testleri betik sözleşmelerini doğrular. Gatekeeper ve gerçek PDKS oturumu hedef cihazda kontrol edilir.
 

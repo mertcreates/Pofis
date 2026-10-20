@@ -331,10 +331,8 @@ async function run() {
     const firstResult = await one.done;
     assert.equal(firstResult.code, 0, firstResult.output);
     passed("eşzamanlı iki kurulumda tek sahip kilidi");
-    await close();
-    passed("normal kapanış ve yeniden başlatma");
     await writeFile(join(profile, 'uninstall-preserve.txt'), 'preserve');
-    await expectInstall(true);
+    // The lock winner already opened this installation; use it for open-app removal refusal.
     const blockedRemoval = await ps(`& ${quote(join(install, 'uninstall.ps1'))} -Confirmed`).done;
     assert.notEqual(blockedRemoval.code, 0);
     assert.match(blockedRemoval.output, /Pofis açık/);

@@ -120,14 +120,6 @@ jobs:
           git clone --no-hardlinks "$GITHUB_WORKSPACE" "$RUNNER_TEMP/pofis-intel"
           git -C "$RUNNER_TEMP/pofis-intel" checkout --detach "$GITHUB_SHA"
           git clone --no-hardlinks "$SITE_DIRECTORY" "${SITE_DIRECTORY}-intel"
-      - name: Intel Next derleme cache'ini yükle
-        if: runner.os == 'macOS'
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/pofis-intel/.next/cache
-          key: next-v1-darwin-x64-bun-1.4.3-${{ hashFiles('bun.lock') }}-${{ github.sha }}
-          restore-keys: |
-            next-v1-darwin-x64-bun-1.4.3-${{ hashFiles('bun.lock') }}-
       - name: Tamamlanmış Intel paketinden devam et
         if: inputs.publish && runner.os == 'macOS'
         id: recover_intel

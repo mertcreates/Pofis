@@ -5,6 +5,7 @@ const { promisify } = require("node:util");
 const { platformTarget } = require("../../electron/platform.cjs");
 const { rebrandMacBundle, signMacBundle } = require("./macos.cjs");
 const { prepareIcons } = require("./icons.cjs");
+const { assertPortableStandalone } = require("./standalone.cjs");
 
 async function verifyRuntime(electronDist, target, version, run = promisify(execFile)) {
   const electronExecutable = join(electronDist, target.electronExecutable);
@@ -50,8 +51,8 @@ async function prepare(arch = process.arch) {
   if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) throw new Error("Pofis sürümü x.y.z biçiminde olmalı.");
   const electronDist = join(root, "node_modules", "electron", "dist");
   await verifyRuntime(electronDist, target, manifest.devDependencies.electron);
-  const standalone = join(root, ".next", "standalone");
-  await access(join(standalone, "server.js"));
+  const standalone = process.env.POFIS_SHARED_STANDALONE || join(root, ".next", "standalone");
+  await assertPortableStandalone(standalone);
   // Each build gets its own folder, so an existing prototype is preserved.
   const output = join(root, "dist", target.outputDirectory, `Pofis-${target.id}-${Date.now()}`);
   const resources = join(output, target.resources);
