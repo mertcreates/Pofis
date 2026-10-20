@@ -18,7 +18,7 @@ async function release(packageDirectory) {
   const directory = resolve(packageDirectory);
   const app = JSON.parse(await readFile(join(directory, target.resources, "app", "package.json"), "utf8"));
   if (!/^\d+\.\d+\.\d+$/.test(app.version)) throw new Error("Dağıtım sürümü x.y.z biçiminde olmalı.");
-  const metadataPath = join(target.platform === "darwin" ? join(directory, target.resources) : directory, "release.json");
+  const metadataPath = join(directory, target.metadataFile);
   const metadata = JSON.parse(await readFile(metadataPath, "utf8"));
   if (metadata.version !== app.version || metadata.platform !== target.platform || metadata.arch !== target.arch) {
     throw new Error("Paket hedefi bu bilgisayarın platform ve mimarisiyle eşleşmiyor.");

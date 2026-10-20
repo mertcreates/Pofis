@@ -4,7 +4,7 @@ Pofis, mevcut Next.js standalone uygulamasını Electron'un dahili Node.js runti
 
 ## Motor ve macOS alt sınırı
 
-0.4.1 kaynağı üç hedefte de tam `43.8.1` Electron sürümünü kullanır. [Electron 44](https://www.electronjs.org/blog/electron-44-0) macOS alt sınırını 13'e yükseltir; 43 ile hedef alt sınır macOS Monterey 12'dir. İki mimaride Monterey açılış, imza/Gatekeeper ve native kabulü tamamlanmadan bu sürüm için macOS 12 desteği doğrulanmış sayılmaz. Açık kabuller [görev listesinde](../tasks/todo.md) izlenir.
+0.4.2 kaynağı üç hedefte de tam `43.8.1` Electron sürümünü kullanır. [Electron 44](https://www.electronjs.org/blog/electron-44-0) macOS alt sınırını 13'e yükseltir; 43 ile hedef alt sınır macOS Monterey 12'dir. İki mimaride Monterey açılış, imza/Gatekeeper ve native kabulü tamamlanmadan bu sürüm için macOS 12 desteği doğrulanmış sayılmaz. Açık kabuller [görev listesinde](../tasks/todo.md) izlenir.
 
 Geçişte Chromium 152'den 150'ye, V8 15.2'den 15.0'a iner; Node 24.22.0 korunur. Electron yerel eklenti ABI'si 149'dan 148'e değişir. Node-API 10 kullanan mevcut sharp için gerçek paket üzerinde PNG üretimi sınanır. Next dosya izleme ayarı, native bağlayıcının yanındaki DLL/dylib dosyalarını da taşır. İki macOS mimarisinin mevcut sharp/libvips dosyaları statik olarak incelenmiştir: arm64 minimum 11.0, x64 minimum 10.15; bu inceleme native cihaz kabulünün yerine geçmez.
 

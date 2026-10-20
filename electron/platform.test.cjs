@@ -11,6 +11,7 @@ test.each(["x64", "arm64"])("macOS %s aynı paket ve runtime sözleşmesini kull
   expect(target.resources).toBe(join("Pofis.app", "Contents", "Resources"));
   expect(target.executable).toBe(join("Pofis.app", "Contents", "MacOS", "Pofis"));
   expect(target.electronExecutable).toBe(join("Electron.app", "Contents", "MacOS", "Electron"));
+  expect(target.metadataFile).toBe(join("Pofis.app", "Contents", "Resources", "release.json"));
   expect(releaseManifest(target, "1.2.3", 42, "hash")).toEqual({
     schemaVersion: 1, platform: "darwin", arch, version: "1.2.3", size: 42, sha256: "hash",
     url: `1.2.3/Pofis-1.2.3-darwin-${arch}.zip`,
@@ -21,6 +22,7 @@ test("Windows x64 paketi mevcut installer sözleşmesini korur", () => {
   const target = platformTarget("win32", "x64");
   expect(target.resources).toBe("resources");
   expect(target.executable).toBe("Pofis.exe");
+  expect(target.metadataFile).toBe("release.json");
   expect(releaseManifest(target, "1.0.0", 5, "abc").url).toBe("1.0.0/Pofis-1.0.0-win32-x64.zip");
   expect(() => platformTarget("linux", "x64")).toThrow("Desteklenmeyen");
   expect(() => platformTarget("darwin", "ia32")).toThrow("Desteklenmeyen");

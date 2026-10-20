@@ -13,6 +13,7 @@ function platformTarget(platform = process.platform, arch = process.arch) {
     executable: mac ? join("Pofis.app", "Contents", "MacOS", "Pofis") : "Pofis.exe",
     resources: mac ? join("Pofis.app", "Contents", "Resources") : "resources",
     electronExecutable: mac ? join("Electron.app", "Contents", "MacOS", "Electron") : "electron.exe",
+    metadataFile: mac ? join("Pofis.app", "Contents", "Resources", "release.json") : "release.json",
   };
 }
 

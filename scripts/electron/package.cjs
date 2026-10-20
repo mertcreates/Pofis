@@ -6,6 +6,41 @@ const { platformTarget } = require("../../electron/platform.cjs");
 const { rebrandMacBundle, signMacBundle } = require("./macos.cjs");
 const { prepareIcons } = require("./icons.cjs");
 
+async function verifyRuntime(electronDist, target, version, run = promisify(execFile)) {
+  const electronExecutable = join(electronDist, target.electronExecutable);
+  await access(electronExecutable);
+  let installed;
+  if (target.id === "darwin-x64") {
+    // Intel packaging has a static contract; launching Electron under Rosetta can stall.
+    const framework = join(electronDist, "Electron.app/Contents/Frameworks/Electron Framework.framework/Versions/A");
+    const { stdout } = await run("/usr/libexec/PlistBuddy",
+      ["-c", "Print :CFBundleVersion", join(framework, "Resources/Info.plist")], { timeout: 15000 });
+    const frameworkVersion = stdout.trim();
+    const distVersion = (await readFile(join(electronDist, "version"), "utf8")).trim().replace(/^v/, "");
+    if (frameworkVersion !== distVersion) throw new Error(`Electron framework ${frameworkVersion}, dist/version ${distVersion}; kurulum tutarsız.`);
+    for (const binary of [electronExecutable, join(framework, "Electron Framework")]) {
+      await run("/usr/bin/lipo", [binary, "-verify_arch", "x86_64"], { timeout: 15000 });
+    }
+    installed = { platform: "darwin", arch: "x64", electron: frameworkVersion };
+  } else {
+    try {
+      const { stdout } = await run(electronExecutable,
+        ["-p", "JSON.stringify({platform:process.platform,arch:process.arch,electron:process.versions.electron})"], {
+          env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" }, windowsHide: true, timeout: 15000,
+        });
+      installed = JSON.parse(stdout.trim());
+    } catch (error) {
+      throw new Error(`Electron runtime sorgusu başarısız (code=${error.code}, signal=${error.signal}, killed=${error.killed}): ${error.stderr || error.message}`, { cause: error });
+    }
+  }
+  if (installed.electron !== version) {
+    throw new Error(`Electron ${installed.electron}, kilitli sürüm ${version}. Önce bun install ve bun run desktop:install çalıştır.`);
+  }
+  if (installed.platform !== target.platform || installed.arch !== target.arch) {
+    throw new Error(`Electron ${installed.platform}/${installed.arch}, Bun ${target.id}. İkisini aynı platform ve mimariyle hazırla.`);
+  }
+}
+
 async function prepare() {
   if (!process.versions.bun) throw new Error("Paketleyiciyi Bun ile çalıştır.");
   const target = platformTarget();
@@ -14,20 +49,7 @@ async function prepare() {
   const manifest = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
   if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) throw new Error("Pofis sürümü x.y.z biçiminde olmalı.");
   const electronDist = join(root, "node_modules", "electron", "dist");
-  const electronExecutable = join(electronDist, target.electronExecutable);
-  await access(electronExecutable);
-  // Electron's installer can select arm64 under Rosetta while Bun is x64.
-  const { stdout } = await promisify(execFile)(electronExecutable,
-    ["-p", "JSON.stringify({platform:process.platform,arch:process.arch,electron:process.versions.electron})"], {
-      env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" }, windowsHide: true, timeout: 15000,
-    });
-  const installed = JSON.parse(stdout.trim());
-  if (installed.electron !== manifest.devDependencies.electron) {
-    throw new Error(`Electron ${installed.electron}, kilitli sürüm ${manifest.devDependencies.electron}. Önce bun install ve bun run desktop:install çalıştır.`);
-  }
-  if (installed.platform !== target.platform || installed.arch !== target.arch) {
-    throw new Error(`Electron ${installed.platform}/${installed.arch}, Bun ${target.id}. İkisini aynı platform ve mimariyle hazırla.`);
-  }
+  await verifyRuntime(electronDist, target, manifest.devDependencies.electron);
   const standalone = join(root, ".next", "standalone");
   await access(join(standalone, "server.js"));
   // Each build gets its own folder, so an existing prototype is preserved.
@@ -59,11 +81,12 @@ async function prepare() {
     private: true, main: "electron/main.cjs",
   }, null, 2));
   const release = { schemaVersion: 1, version: manifest.version, platform: target.platform, arch: target.arch };
-  await writeFile(join(target.platform === "darwin" ? resources : output, "release.json"), JSON.stringify(release, null, 2));
+  await writeFile(join(output, target.metadataFile), JSON.stringify(release, null, 2));
   if (target.platform === "darwin") {
     await signMacBundle(join(output, "Pofis.app"));
   }
   console.log(`Pofis paketi (${target.id}): ${output}\n${target.platform === "darwin" ? "Pofis.app" : "Pofis.exe"} dosyasını aç. Node/Bun kurulumu gerekmez.`);
 }
 
-prepare().catch((error) => { console.error(error.message); process.exitCode = 1; });
+if (require.main === module) prepare().catch((error) => { console.error(error.message); process.exitCode = 1; });
+module.exports = { verifyRuntime };
