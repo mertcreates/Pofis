@@ -52,8 +52,6 @@ jobs:
             runner: windows-2022
           - target: darwin-arm64
             runner: macos-15
-          - target: darwin-x64
-            runner: macos-15-intel
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
     env:
@@ -78,6 +76,26 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs recover
+      - name: Bun ve Electron indirme cache'ini yükle
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/pofis-downloads
+          key: downloads-v1-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}-${{ github.sha }}
+          restore-keys: |
+            downloads-v1-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}-
+            downloads-v1-${{ matrix.target }}-bun-1.4.3-
+      - name: İndirme cache yollarını ayarla
+        shell: pwsh
+        run: |
+          "BUN_INSTALL_CACHE_DIR=$(Join-Path $env:RUNNER_TEMP 'pofis-downloads/bun')" >> $env:GITHUB_ENV
+          "electron_config_cache=$(Join-Path $env:RUNNER_TEMP 'pofis-downloads/electron')" >> $env:GITHUB_ENV
+      - name: Next derleme cache'ini yükle
+        uses: actions/cache@v4
+        with:
+          path: .next/cache
+          key: next-v1-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}-${{ github.sha }}
+          restore-keys: |
+            next-v1-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}-
       - name: Kilitli bağımlılıkları kur
         if: steps.recover.outputs.reuse != 'true'
         run: bun install --frozen-lockfile
@@ -92,6 +110,63 @@ jobs:
         run: bun scripts/electron/ci-build.cjs build
       - name: Doğrulanmış paketi sürüm taslağına aktar
         if: steps.recover.outputs.reuse != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+        run: bun scripts/electron/publish.cjs stage
+      - name: Intel kaynaklarını ayrı çalışma dizinine al
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          git clone --no-hardlinks "$GITHUB_WORKSPACE" "$RUNNER_TEMP/pofis-intel"
+          git -C "$RUNNER_TEMP/pofis-intel" checkout --detach "$GITHUB_SHA"
+      - name: Intel Next derleme cache'ini yükle
+        if: runner.os == 'macOS'
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/pofis-intel/.next/cache
+          key: next-v1-darwin-x64-bun-1.4.3-${{ hashFiles('bun.lock') }}-${{ github.sha }}
+          restore-keys: |
+            next-v1-darwin-x64-bun-1.4.3-${{ hashFiles('bun.lock') }}-
+      - name: Intel derleme ortamını hazırla
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          if ! /usr/bin/arch -x86_64 /usr/bin/true; then
+            /usr/sbin/softwareupdate --install-rosetta --agree-to-license
+          fi
+          echo 'RELEASE_TARGET=darwin-x64' >> "$GITHUB_ENV"
+          echo 'npm_config_arch=x64' >> "$GITHUB_ENV"
+      - name: Intel Bun 1.4.3 kur
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          archive="$RUNNER_TEMP/pofis-downloads/bun-darwin-x64-1.4.3.zip"
+          mkdir -p "$RUNNER_TEMP/pofis-downloads"
+          if [ ! -f "$archive" ]; then
+            curl --fail --location --output "$archive" https://github.com/oven-sh/bun/releases/download/bun-v1.4.3/bun-darwin-x64.zip
+          fi
+          unzip -q "$archive" -d "$RUNNER_TEMP/pofis-bun-intel"
+          echo "$RUNNER_TEMP/pofis-bun-intel/bun-darwin-x64" >> "$GITHUB_PATH"
+      - name: Tamamlanmış Intel paketinden devam et
+        if: runner.os == 'macOS'
+        id: recover_intel
+        working-directory: ${{ runner.temp }}/pofis-intel
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+        run: bun scripts/electron/publish.cjs recover
+      - name: Intel bağımlılıklarını kur
+        if: runner.os == 'macOS' && steps.recover_intel.outputs.reuse != 'true'
+        working-directory: ${{ runner.temp }}/pofis-intel
+        run: |
+          bun -e 'if (process.platform !== "darwin" || process.arch !== "x64" || Bun.version !== "1.4.3") throw Error("Intel Bun 1.4.3 gerekli")'
+          bun install --frozen-lockfile
+      - name: Intel paketini üret ve statik kontrolleri çalıştır
+        if: runner.os == 'macOS' && steps.recover_intel.outputs.reuse != 'true'
+        working-directory: ${{ runner.temp }}/pofis-intel
+        run: bun scripts/electron/ci-build.cjs build
+      - name: Intel paketini sürüm taslağına aktar
+        if: runner.os == 'macOS' && steps.recover_intel.outputs.reuse != 'true'
+        working-directory: ${{ runner.temp }}/pofis-intel
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs stage

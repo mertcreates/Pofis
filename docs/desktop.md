@@ -46,7 +46,7 @@ Masaüstü standalone derlemesinde `experimental.isrFlushToDisk: false` kullanı
 
 [İzin işleyicisi](../electron/permissions.cjs), yalnız ana Pofis penceresinin `http://127.0.0.1:3210` adresindeki ana çerçevesine `clipboard-sanitized-write` izni verir. Böylece hata ekranındaki **Teknik ayrıntıları kopyala** işlemi tarayıcının pano API'siyle çalışır. Pano okuma, alt çerçeveler, diğer pencereler/adresler ve diğer izinler reddedilir. Hem izin kontrolü hem izin isteği aynı sınırı uygular; renderer'a Node.js veya yeni bir IPC arayüzü açılmaz.
 
-`bun run test:desktop` izin sınırlarını sınar. `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`, geçici profilde gerçek Electron ve örnek metinle eski ret politikasındaki hatayı, izinli yazmayı, güncelleme komutunun panoya kopyalanmasını ve pano okuma reddini kontrol eder. Sistem panosu profiller arasında ortaktır; bu komut panoyu temizler ve yalnız geçici CI/VM masaüstünde çalıştırılır. Ortak CI build'i üç native hedefte bu kontrolü çağırır. Hedef pakette ayrıca hata ekranı → **Teknik ayrıntıları kopyala** → metin alanına yapıştır zincirini doğrulayın.
+`bun run test:desktop` izin sınırlarını sınar. `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`, geçici profilde gerçek Electron ve örnek metinle eski ret politikasındaki hatayı, izinli yazmayı, güncelleme komutunun panoya kopyalanmasını ve pano okuma reddini kontrol eder. Sistem panosu profiller arasında ortaktır; bu komut panoyu temizler ve yalnız geçici CI/VM masaüstünde çalıştırılır. Ortak CI build'i Windows ve ARM64 hedeflerinde bu kontrolü paketlemeden önce çağırır; Intel CI statik paket kontrolleriyle sınırlıdır. Hedef pakette ayrıca hata ekranı → **Teknik ayrıntıları kopyala** → metin alanına yapıştır zincirini doğrulayın.
 
 ## Dış bağlantılar
 
@@ -118,7 +118,7 @@ bun test ./scripts/electron/prepare-site.test.cjs
 
 [Hazırlama aracı](../scripts/electron/prepare-site.cjs), yerel manifestin gerçek ZIP boyutunu ve SHA-256 değerini doğrular. Hedef public depo adresini landing `package.json` içindeki `repository.url` alanından okur; göreli ZIP adresini `https://github.com/<hesap>/<repo>/releases/download/v<sürüm>/<dosya>.zip` yapar. Yalnız ilgili platformun `public/releases/<hedef>/latest.json` dosyasını ve canonical installer'ın (`install.ps1` veya `install.sh`) public kopyasını yazar. Çıktı, landing deposundaki manifest ve installer dosyalarıdır; yayın [sürüm akışında](release.md) gerçekleştirilir.
 
-[Otomatik sürüm yayını](release.md), Cloudflare build ayarlarının, cache başlıklarının ve DNS/HTTPS kabulünün sahibidir. Windows x64 ve macOS Apple Silicon/Intel native build'lerini aynı release altında toplar: ortak paket kabulü → draft asset'leri → üç paket hazır olduğunda release → anonim indirme doğrulaması → landing commit'i → Workers HTTPS doğrulaması. ZIP dosyaları GitHub Releases üzerinde tutulur. Yerel hazırlık dosyaları üretir; canlı paket ve alan adı kabulü yayın akışında yapılır. Yayın ve DNS değişiklikleri kullanıcı yetkisiyle gerçekleştirilir.
+[Otomatik sürüm yayını](release.md), Cloudflare build ayarlarının, cache başlıklarının ve DNS/HTTPS kabulünün sahibidir. Windows x64 ve tek Apple Silicon runner üzerinde hazırlanan iki macOS paketini aynı release altında toplar: Windows/ARM64 tam kabulü ve Intel statik kontrolü → draft asset'leri → üç paket hazır olduğunda release → anonim indirme doğrulaması → landing commit'i → Workers HTTPS doğrulaması. ZIP dosyaları GitHub Releases üzerinde tutulur. Yerel hazırlık dosyaları üretir; canlı paket ve alan adı kabulü yayın akışında yapılır. Yayın ve DNS değişiklikleri kullanıcı yetkisiyle gerçekleştirilir.
 
 ## Depo ve çıktı yerleşimi
 
@@ -175,7 +175,7 @@ curl -fsSL https://pofis.app/install.sh | bash
 - Dosya taşıma veya kurulum kaydını yazma başarısızsa mevcut uygulama geri yerleştirilir. Yeni sürüm etkinleştikten sonra açılış hatası açıkça bildirilir; eski paket temizlenir ve kurtarma kullanıcı tarafından başlatılır. Kullanıcı verileri korunur.
 - Atomik `install.lock` dizini eşzamanlı installer'ları engeller; normal hata/sinyalde kaldırılır. Installer SIGKILL veya sistem çökmesiyle durduysa, başka kurulum çalışmadığı doğrulandıktan sonra mesajda verilen kilit dizini elle kaldırılır. Kilidin kapsamı installer çalıştırmalarıdır.
 
-İzole kabul için `--manifest-url`, `--install-root`, `--app-path`, `--user-data-dir` kullanılabilir; yerel testte loopback HTTP desteklenir. Gatekeeper açılışı engellerse sistemin güvenlik kararı korunur ve anlaşılır hata gösterilir. İki native CI runner'ı [macOS dağıtım kabulünü](../scripts/electron/macos-distribution-test.cjs) gerçek ZIP ve gerçek Electron/Next süreçleriyle çalıştırır.
+İzole kabul için `--manifest-url`, `--install-root`, `--app-path`, `--user-data-dir` kullanılabilir; yerel testte loopback HTTP desteklenir. Gatekeeper açılışı engellerse sistemin güvenlik kararı korunur ve anlaşılır hata gösterilir. Apple Silicon CI runner'ı [macOS dağıtım kabulünü](../scripts/electron/macos-distribution-test.cjs) ARM64 ZIP ve gerçek Electron/Next süreçleriyle çalıştırır. Intel paketi aynı runner üzerinde Rosetta ile derlenir ve statik olarak doğrulanır; Intel açılış/kurulum/güncelleme kabulü otomatik çalışmaz.
 
 ## Kaldırma
 

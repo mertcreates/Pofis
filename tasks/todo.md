@@ -4,8 +4,9 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 
 ## Electron 43 ve macOS 12 geçişi
 
+- [ ] Sonraki yetkili yayında tek Apple Silicon runner üzerinde ARM64 tam kabul → ayrı x64 Bun ortamında Intel statik kontrol zincirini doğrula; ikinci kaynak commit'inde cache isabetini ve yükleme/kaydetme dahil job sürelerini karşılaştır. Intel açılış/kurulum/güncelleme kabulü CI kapsamı dışındadır; [yayın sözleşmesi](../docs/release.md#cache-ve-süre-ölçümü).
 - [ ] [Geçiş planındaki](electron-43-gecis-plani.md) native kabulleri tamamla: macOS 12 arm64/x64 ilk kurulum ve 43 → 43 güncelleme; macOS 13+ iki mimaride gerçek 44 → 43 profil/installer geçişi; imza, Gatekeeper ve uyku/uyanma. Kaynak 0.4.1 / Electron 43.8.1'e geçirildi; Windows gerçek ZIP/profil/installer geçişi ve native sharp PNG üretimi doğrulandı. [Ortak kabul komutları](../docs/desktop.md#motor-geçişi-kabulü).
-- [ ] İzole CI/VM masaüstünde üç hedefin gerçek pano kabulünü çalıştır; geçerli gerçek PDKS oturumuyla güncelleme sonrası devamı ve mevcut TTL'yi kontrol et. Yayın workflow'u bu kabuller ve hedef sürüme yönelik kullanıcı yetkisi tamamlanınca başlatılır.
+- [ ] İzole CI/VM masaüstünde Windows ve ARM64 hedeflerinin gerçek pano kabulünü çalıştır; geçerli gerçek PDKS oturumuyla güncelleme sonrası devamı ve mevcut TTL'yi kontrol et. Intel pano/kurulum/güncelleme kabulü yayın kapısı değildir; Intel paketi statik kontrollerden geçer. Yayın workflow'u hedef sürüme yönelik kullanıcı yetkisiyle başlatılır.
 
 ## Gerçek PDKS kabulü
 

@@ -51,24 +51,32 @@ Bu adımlar canlı hosting ve paket yayını sonrasında uygulanır. Yerel hazı
 2. GitHub → Actions → **Pofis sürümünü yayımla** → Run workflow; `master` dalını seç. Sürüm, çalıştırılan commit'in `package.json` dosyasından otomatik alınır ve tüm platformlara aktarılır.
 3. Akışın tamamlanmasını bekle. Push/PR kontrolleri ayrı [CI akışında](../.github/workflows/ci.yml) çalışır; push otomatik release başlatmaz.
 
-Electron 43'e ilk geçişte workflow başlatılmadan [motor geçişi kabulünü](desktop.md#motor-geçişi-kabulü) ve iki mimaride macOS 12 cihaz kabulünü tamamlayın. Workflow testten sonra otomatik yayın ve landing push adımlarına ilerler. Üç hedef aynı tam Electron sürümünü kullanır; motor düşürülse de yeni paket daha yüksek Pofis sürümüyle yayımlanır. Açık platform kabulleri [görev listesinde](../tasks/todo.md) tutulur.
+Electron 43'e ilk geçişte workflow başlatılmadan [motor geçişi kabulünü](desktop.md#motor-geçişi-kabulü) ve ARM64 macOS 12 cihaz kabulünü tamamlayın. Intel gerçek cihaz kabulleri ayrı izlenir; kullanıcı kararıyla Intel yayını statik kontrollerle ilerler. Workflow testten sonra otomatik yayın ve landing push adımlarına ilerler. Üç hedef aynı tam Electron sürümünü kullanır; motor düşürülse de yeni paket daha yüksek Pofis sürümüyle yayımlanır. Açık platform kabulleri [görev listesinde](../tasks/todo.md) tutulur.
 
-| Hedef | Native runner | Dağıtım dosyası |
+| Hedef | Derleme ortamı | Dağıtım dosyası |
 | --- | --- | --- |
 | Windows x64 | `windows-2022` | `Pofis-<sürüm>-win32-x64.zip` |
 | macOS Apple Silicon | `macos-15` | `Pofis-<sürüm>-darwin-arm64.zip` |
-| macOS Intel | `macos-15-intel` | `Pofis-<sürüm>-darwin-x64.zip` |
+| macOS Intel | Aynı `macos-15` runner, Rosetta altında x64 Bun | `Pofis-<sürüm>-darwin-x64.zip` |
 
-Üç hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Her biri kilitli bağımlılıkları kurar, tür kontrolünü ve testleri çalıştırır; Next standalone/Electron paketini üretir. İzole runner masaüstünde pano kabulü, gerçek paket üzerinde native bağımlılık ve ortak pencere/süreç kabulü çalışır. Windows ayrıca gerçek ZIP ve landing komutuyla izole PowerShell kurulum, güncelleme, hata, temizlik ve kaldırma kabulünü çalıştırır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
+Üç hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Windows ve ARM64 işleri kilitli bağımlılıklar, tür kontrolü ve testlerden sonra Electron kurulumunu ve pano kabulünü Next derlemesi/paketlemeden önce çalıştırır. Intel paketi aşağıdaki statik kontrollerden geçer. Windows ve ARM64 için izole runner masaüstünde pano kabulü, gerçek paket üzerinde native bağımlılık ve ortak pencere/süreç kabulü çalışır. Windows ayrıca gerçek ZIP ve landing komutuyla izole PowerShell kurulum, güncelleme, hata, temizlik ve kaldırma kabulünü çalıştırır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
 
-macOS paketleyici native dosyaları ve iç bundle’ları içten dışa ad-hoc imzalar; entitlement/runtime bayraklarını koruyup dış `.app` imzasını en son üretir. `--deep` yalnız imza doğrulamasında kullanılır; ZIP `ditto` ile izin ve bağlantıları korur. Dağıtım ad-hoc imza kullanır. Ortak Bash 3.2 installer'ı iki mimaride kullanılır. Her macOS job'u gerçek ZIP ile ilk kurulum, simgeden açılış, aynı sürüm/ikinci açılış, güncelleme, bozuk indirme, dolu port, gerçek sunucu hatasının raporlanması, profil kalıcılığı ve kurulum kilidi kabulünü çalıştırır. İndirilen uygulamanın Gatekeeper davranışı temiz hedef cihazda kontrol edilir.
+macOS paketleyici native dosyaları ve iç bundle’ları içten dışa ad-hoc imzalar; entitlement/runtime bayraklarını koruyup dış `.app` imzasını en son üretir. `--deep` yalnız imza doğrulamasında kullanılır; ZIP `ditto` ile izin ve bağlantıları korur. Dağıtım ad-hoc imza kullanır. Ortak Bash 3.2 installer'ı iki mimaride kullanılır. ARM64 paketi gerçek ZIP ile ilk kurulum, simgeden açılış, aynı sürüm/ikinci açılış, güncelleme, bozuk indirme, dolu port, gerçek sunucu hatasının raporlanması, profil kalıcılığı ve kurulum kilidi kabulünü çalıştırır. İndirilen uygulamanın Gatekeeper davranışı temiz hedef cihazda kontrol edilir.
+
+## Cache ve süre ölçümü
+
+Tek Apple Silicon runner önce ARM64 paketini tam kabulden geçirir, sonra aynı commit'i runner'ın geçici dizinine ayrı klonlayıp Rosetta altında x64 Bun 1.4.3 ile Intel paketini üretir. Her mimarinin bağımlılıkları, Electron kurulumu ve standalone çıktısı ayrıdır. `npm_config_arch=x64`, Electron kurulumunun Rosetta altında ARM64 seçmesini engeller. Intel için tekrarlanan tür/birim testleri, pano, pencere/süreç ve installer kabulü çalıştırılmaz. [Statik kontrol](../scripts/electron/macos-static-check.cjs), zorunlu paket dosyalarını, sharp/libvips varlığını, tüm Mach-O dosyalarının x86_64 desteğini ve derin imza doğrulamasını denetler. ZIP bütünlüğü, boyut ve SHA-256 ayrıca kontrol edilir. Intel açılış/kurulum/güncelleme davranışı bu akışın kanıt kapsamı dışındadır.
+
+`actions/cache` Bun paketlerini ve Electron indirmelerini runner'ın geçici dizininde saklar. Windows ile macOS indirmeleri ayrıdır; macOS indirme cache'i iki mimarinin arşivlerini içerir. Next yalnız `.next/cache` dizinini saklar; ARM64 ve x64 anahtarları ve dizinleri ayrıdır. Anahtarlar Bun sürümü, hedef, kilit dosyası ve kaynak commit'ini içerir; restore önekleri önceki commit'in cache'ini kullanır. Next cache'i yalnız aynı kilit dosyasıyla geri yüklenir. Her hedef yeniden derlenir; `node_modules`, standalone çıktısı, profil ve dağıtım paketi cache'e eklenmez.
+
+Build betiği Electron kurulumu, masaüstü testleri, pano, Next derlemesi, paketleme/imza, paket kabulü, ZIP/manifest ve installer kabulünün sürelerini ayrı ayrı loga ve Actions özetine yazar. Hatalı aşamanın süresi de gösterilir ve işlem durur. Cache yükleme/kaydetme süreleri Actions adımlarında görünür. Gerçek tasarruf ilk cache'in oluşmasından sonraki yayın çalıştırmalarında ölçülür; tek runner'a geçiş sabit bir hızlanma veya tasarruf oranı garantilemez.
 
 ## Yayın sırası ve hata davranışı
 
 [Yayın betiği](../scripts/electron/publish.cjs):
 
 1. Sürümü, public hedef depoyu, uygulamanın `master` dalını ve sürüm düşürülmediğini doğrular; draft release açar.
-2. Üç native job test edilmiş ZIP'lerini draft'a yükler. Her platformda manifest son yüklenir. Windows `install.ps1`, macOS job'ları mimariyle adlandırılan `install-darwin-<mimari>.sh` asset'lerini yükler. İki macOS installer'ının aynı canonical kaynakla eşleşmesi doğrulanır; public sitede ortak `install.sh` sunulur.
+2. Windows ve macOS işleri üç hedefin doğrulanmış ZIP'lerini draft'a yükler. Her platformda manifest son yüklenir. Windows `install.ps1`, macOS işi iki mimari için mimariyle adlandırılan `install-darwin-<mimari>.sh` asset'lerini yükler. İki macOS installer'ının aynı canonical kaynakla eşleşmesi doğrulanır; public sitede ortak `install.sh` sunulur.
 3. Tüm işler başarılıysa paketler tekrar indirilip boyut/SHA-256 ile doğrulanır; üç public manifest ve iki installer hazırlanır. Landing typecheck/static build çalışır.
 4. Release yayımlanır. Üç ZIP anonim HTTPS üzerinden tekrar indirilip doğrulanır. Ancak bu kontrol geçerse landing değişiklikleri Mert Ercan (`me@mertercan.com`) kimliğiyle commit edilip `main` dalına gönderilir. Git'e yalnız beş izinli public dosya girebilir; kaynak ve ZIP aktarımı reddedilir.
 5. Cloudflare commit'i yayımlar. Betik en fazla beş dakika HTTPS landing, üç manifestin tam içeriği/cache başlıkları ve iki installer'ın içeriği/başlıklarını kontrol eder; tüm kontroller geçince beklemeden tamamlanır. Installer metni BOM olmadan LF ile hazırlanır; karşılaştırma CRLF/LF farkını yok sayar, gerçek içerik değişikliğini reddeder. Her başarısız denemede bekleme nedeni loga yazılır. Süre dolarsa workflow başarısız olur; mevcut paketi silmez veya başarı göstermez.
@@ -86,6 +94,9 @@ Yerel birim testleri sürüm/manifest, public dosya sınırı, kaynak commit eş
 ## Kaynaklar
 
 - [GitHub native runner'ları](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+- [GitHub Actions cache](https://github.com/actions/cache)
+- [Bun indirme cache'i](https://bun.sh/docs/install/cache)
+- [Next CI build cache'i](https://nextjs.org/docs/app/guides/ci-build-caching)
 - [GitHub Actions kullanım ücretleri ve kotaları](https://docs.github.com/en/billing/concepts/product-billing/github-actions)
 - [GitHub kimlik doğrulama](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/about-authentication-to-github)
 - [Cloudflare Workers Git entegrasyonu](https://developers.cloudflare.com/workers/ci-cd/builds/git-integration/)
