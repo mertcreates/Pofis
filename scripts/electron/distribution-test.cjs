@@ -169,7 +169,8 @@ async function run() {
         if (@(Get-Process | Where-Object { ${owned} }).Count -eq 0) { return }
         Start-Sleep -Milliseconds 100
       } while ([DateTime]::UtcNow -lt $deadline);
-      throw 'Pofis süreçleri kapanmadı.'`).done;
+      $remaining=Get-Process | Where-Object { ${owned} } | Select-Object Id,ProcessName,MainWindowHandle,Path | ConvertTo-Json -Compress;
+      throw ('Pofis süreçleri kapanmadı: '+$remaining)`).done;
     assert.equal(result.code, 0, result.output);
     assert.equal(await healthy(), false);
   };
@@ -179,33 +180,32 @@ async function run() {
     if (success) await identifyServer();
     return result;
   };
-  const shortcutOpen = async () => {
-    const file = await executable();
-    // The shell may return before the shortcut's target has acquired Electron's instance lock.
-    const result = await ps(`Start-Process -FilePath ${quote(shortcut)} -WindowStyle Normal;
-      $deadline=[DateTime]::UtcNow.AddSeconds(20);
-      do {
-        $windows=@(Get-Process | Where-Object { try { $_.Path -eq ${quote(file)} -and $_.MainWindowHandle -ne 0 } catch { $false } });
-        if ($windows.Count) { break }
-        Start-Sleep -Milliseconds 100
-      } while ([DateTime]::UtcNow -lt $deadline);
-      if (-not $windows.Count) { throw 'Kısayol Pofis penceresini açmadı.' }`).done;
-    assert.equal(result.code, 0, result.output);
-    await identifyServer();
-  };
   const evaluate = async expression => {
     const result = await cdp.send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
     if (result.exceptionDetails) throw Error(JSON.stringify(result.exceptionDetails));
     return result.result.value;
   };
-  const debugOpen = async () => {
-    let stderr = "";
-    debugChild = spawn(await executable(), [`--user-data-dir=${profile}`, "--remote-debugging-port=0"],
-      { env, windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
-    debugChild.stderr.on("data", chunk => { stderr += chunk; });
-    const address = await until(() => stderr.match(/DevTools listening on (ws:\/\/[^\s]+)/)?.[1]);
-    const origin = address.replace(/^ws:/, "http:").split("/devtools/")[0];
-    const target = await until(async () => (await (await fetch(`${origin}/json/list`)).json()).find(t => t.url.startsWith(ORIGIN)));
+  const debugOpen = async (throughShortcut = false) => {
+    let origin;
+    if (throughShortcut) {
+      const reservation = Bun.serve({ hostname: "127.0.0.1", port: 0, fetch: () => new Response("") });
+      const port = reservation.port;
+      reservation.stop(true);
+      const result = await ps(`Start-Process -FilePath ${quote(shortcut)} -ArgumentList ${quote(`--remote-debugging-port=${port}`)} -WindowStyle Normal`).done;
+      assert.equal(result.code, 0, result.output);
+      origin = `http://127.0.0.1:${port}`;
+    } else {
+      let stderr = "";
+      debugChild = spawn(await executable(), [`--user-data-dir=${profile}`, "--remote-debugging-port=0"],
+        { env, windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
+      debugChild.stderr.on("data", chunk => { stderr += chunk; });
+      const address = await until(() => stderr.match(/DevTools listening on (ws:\/\/[^\s]+)/)?.[1]);
+      origin = address.replace(/^ws:/, "http:").split("/devtools/")[0];
+    }
+    const target = await until(async () => {
+      try { return (await (await fetch(`${origin}/json/list`)).json()).find(t => t.url.startsWith(ORIGIN)); }
+      catch (error) { if (error.code !== "ECONNREFUSED") throw error; }
+    });
     cdp = await connect(target.webSocketDebuggerUrl);
     await until(() => evaluate(`location.origin === ${JSON.stringify(ORIGIN)} && document.readyState === 'complete' && !!document.body`));
     await identifyServer();
@@ -244,10 +244,8 @@ async function run() {
       passed("Restricted politikası altında aynı sürüm tekrar indirilmiyor; çalışan tek örnek korunuyor");
       if (!startupOnly) {
         await close();
-        await shortcutOpen();
+        await debugOpen(true);
         passed("normal uygulama simgesinden açılış");
-        await close();
-        await debugOpen();
         const plan = JSON.stringify({ defaultPlan: [480, 480, 480, 480, 420, 0, 0], weekOverrides: {} });
         readStoredPlans(plan);
         await evaluate(`localStorage.setItem('pofis:theme:v1','dark'); localStorage.setItem('pofis:work-plans:v1',${JSON.stringify(plan)}); true`);
@@ -311,8 +309,6 @@ async function run() {
       assert.deepEqual(await state(), previousState);
       passed("başarısız indirme ve bozuk pakette kurulumun korunması");
       active = JSON.parse((await readFile(join(directory, `${repairedVersion}.json`), "utf8")).replace(/^\uFEFF/, ""));
-      await expectInstall(true);
-      await close();
     }
     if (group === "update") return;
     // Grouped acceptance shares the parent's outside app on 3210; profiles use their own origins.

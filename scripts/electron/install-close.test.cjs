@@ -15,6 +15,7 @@ const quote = text => "'" + text.replaceAll("'", "''") + "'";
 // Load only function declarations: tests never download, install or touch a user profile.
 const definitions = `
 $ErrorActionPreference='Stop'; Set-StrictMode -Version 2;
+[Console]::OutputEncoding=[Text.UTF8Encoding]::new();
 $tokens=$null; $errors=$null;
 $ast=[Management.Automation.Language.Parser]::ParseFile(${quote(installer)}, [ref]$tokens, [ref]$errors);
 if ($errors.Count) { throw ($errors | Out-String) }
@@ -36,51 +37,38 @@ function Get-InstalledProcess { if ($script:running) { $script:owned } }
 function Wait-PofisClosed { return (-not $script:running) }
 `;
 
-windowsTest("Windows açık uygulamada yanıtsız çalıştırma onay varsaymaz", async () => {
-  const error = await run(fixture + 'Close-PofisForUpdate').then(() => null, error => error);
-  expect(error?.code).not.toBe(0);
-  // PowerShell 5.1 output encoding varies with the runner's code page.
-  expect(error?.stderr).toContain("Pofis");
-});
-
-windowsTest("Windows yalnız açık onay kabul eder; boş veya hayır yanıtı reddedilir", async () => {
-  await run(`
+windowsTest("Windows kapanış onayları, iptal ve sahiplik senaryoları ayrı kapsamlarda doğrulanır", async () => {
+  const scenarios = [
+    ["yanıtsız çalıştırma", fixture + `
+$denied=$false;
+try { Close-PofisForUpdate } catch { Assert ($_.Exception.Message -like '*Pofis*'); $denied=$true }
+Assert ($denied -and $script:running -and $script:closed -eq 0 -and $script:killed -eq 0);
+`],
+    ["açık onay yanıtları", `
 foreach ($reply in @('', 'h', 'hayır', 'yes', 'evet ekstra')) {
   $script:reply=$reply; function Read-Host { return $script:reply }
   Assert (-not (Confirm-PofisClose 'test'))
 }
 foreach ($reply in @('e', 'E', 'evet', 'EVET')) {
   $script:reply=$reply; Assert (Confirm-PofisClose 'test')
-}`);
-});
-
-windowsTest("Windows ilk onay iptalinde kapanış veya kill yapılmaz", async () => {
-  await run(fixture + `
+}`],
+    ["ilk onay iptali", fixture + `
 function Read-Host { $script:prompts++; return 'h' }
 try { Close-PofisForUpdate; throw 'unexpected success' } catch { Assert ($_.Exception.Message -like '*iptal*') }
 Assert ($script:running -and $script:closed -eq 0 -and $script:killed -eq 0 -and $script:prompts -eq 1);
-`);
-});
-
-windowsTest("Windows normal kapanıştan sonra zorla kapatma sorulmaz", async () => {
-  await run(fixture + `
+`],
+    ["normal kapanış", fixture + `
 function Read-Host { $script:prompts++; return 'e' }
 Close-PofisForUpdate;
 Assert (-not $script:running -and $script:closed -eq 1 -and $script:killed -eq 0 -and $script:prompts -eq 1);
-`);
-});
-
-windowsTest("Windows ikinci onay reddinde takılı süreç zorla kapatılmaz", async () => {
-  await run(fixture + `
+`],
+    ["zorla kapatma iptali", fixture + `
 $script:owned | Add-Member ScriptMethod CloseMainWindow { $script:closed++; return $false } -Force;
 function Read-Host { $script:prompts++; if ($script:prompts -eq 1) { return 'e' }; return 'h' }
 try { Close-PofisForUpdate; throw 'unexpected success' } catch { Assert ($_.Exception.Message -like '*iptal*') }
 Assert ($script:running -and $script:closed -eq 1 -and $script:killed -eq 0 -and $script:prompts -eq 2);
-`);
-});
-
-windowsTest("Windows zorla kapatma iki onaydan sonra çalışır; bitmeyen süreç başarı sayılmaz", async () => {
-  await run(fixture + `
+`],
+    ["iki onay ve bitmeyen süreç", fixture + `
 $script:owned | Add-Member ScriptMethod CloseMainWindow { return $false } -Force;
 function Read-Host { $script:prompts++; return 'e' }
 Close-PofisForUpdate;
@@ -89,11 +77,8 @@ $script:running=$true;
 $script:owned | Add-Member ScriptMethod Kill { $script:killed++ } -Force;
 try { Close-PofisForUpdate; throw 'unexpected success' } catch { Assert ($_.Exception.Message -like '*kapanmadı*') }
 Assert $script:running;
-`);
-});
-
-windowsTest("Windows kapalı uygulamada soru sorulmaz; yalnız kurulum kökündeki süreçler seçilir", async () => {
-  await run(`
+`],
+    ["kapalı uygulama ve sahiplik", `
 $InstallRoot='C:\\fixture\\Pofis';
 function Get-Process { @(
   [pscustomobject]@{ Id=1; Path='C:\\fixture\\Pofis\\versions\\abc\\Pofis.exe' },
@@ -104,7 +89,12 @@ $selected=@(Get-InstalledProcess); Assert ($selected.Count -eq 1 -and $selected[
 function Get-InstalledProcess { @() }
 function Read-Host { throw 'must not ask' }
 Close-PofisForUpdate; Assert (Wait-PofisClosed);
-`);
+`],
+  ];
+  // Each child scope gets fresh function definitions and fixture state, sharing one PowerShell startup.
+  const { stdout } = await run(scenarios.map(([name, code]) =>
+    `& { ${definitions}\n${code}\nWrite-Output ${quote(`PASS ${name}`)} }`).join("\n"));
+  for (const [name] of scenarios) expect(stdout).toContain(`PASS ${name}`);
 });
 
 windowsTest("Windows gerçek zorla kapatma yalnız izole kurulum sürecini durdurur", async () => {

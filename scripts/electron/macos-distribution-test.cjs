@@ -7,6 +7,7 @@ const { mkdtemp, mkdir, readFile, writeFile, cp, rm, realpath, readdir, access, 
 const { tmpdir } = require("node:os");
 const { join, resolve } = require("node:path");
 const { createHash } = require("node:crypto");
+const { createReadStream } = require("node:fs");
 const { platformTarget } = require("../../electron/platform.cjs");
 const { signMacBundle } = require("./macos.cjs");
 const { releaseManifest } = require("./release.cjs");
@@ -27,7 +28,7 @@ async function run() {
   const installRoot = join(directory, "installer");
   const appPath = join(directory, "Applications/Pofis.app");
   const profile = join(directory, "profile");
-  let host, occupied, active, bundle;
+  let host, occupied, active, bundle, fixturePreparation;
   const installer = await readFile(join(__dirname, "install.sh"), "utf8");
   const siteIndex = process.argv.indexOf("--site");
   const command = MAC_INSTALL_COMMAND;
@@ -90,11 +91,13 @@ async function run() {
     await execute("/usr/bin/codesign", ["--force", "--sign", "-", "--preserve-metadata=entitlements,flags", app]);
     await execute("/usr/bin/codesign", ["--verify", "--deep", "--strict", app]);
     const archive = join(directory, `${version}.zip`);
-    await execute("/usr/bin/zip", ["-q", "-r", "-1", "-y", archive, "Pofis.app"], { cwd: folder })
-      .catch(() => execute("/usr/bin/ditto", ["-c", "-k", "--sequesterRsrc", "--keepParent", app, archive]));
+    // Fixture archives stay on loopback: store bytes directly and preserve symlinks.
+    await execute("/usr/bin/zip", ["-q", "-r", "-0", "-y", archive, "Pofis.app"], { cwd: folder })
+      .catch(() => execute("/usr/bin/ditto", ["-c", "-k", "--zlibCompressionLevel", "0", "--sequesterRsrc", "--keepParent", app, archive]));
     const bytes = Bun.file(archive);
-    const manifest = releaseManifest(target, version, bytes.size,
-      createHash("sha256").update(Buffer.from(await bytes.arrayBuffer())).digest("hex"));
+    const hash = createHash("sha256");
+    for await (const chunk of createReadStream(archive)) hash.update(chunk);
+    const manifest = releaseManifest(target, version, bytes.size, hash.digest("hex"));
     archives.set("/" + manifest.url, archive);
     return manifest;
   };
@@ -121,6 +124,13 @@ async function run() {
     assert.ok(initialPid);
     await writeFile(marker, "settings/session-file boundary preserved");
     console.log("PASS: gerçek ZIP, HTTP kurulum komutu, otomatik pencere ve Node/Bun içermeyen PATH");
+    const [a, b, c] = first.version.split(".").map(Number);
+    // These copies read the installed bundle; launches write only to the separate profile.
+    fixturePreparation = Promise.allSettled([
+      fixture(`${a}.${b}.${c + 1}`),
+      fixture(`${a}.${b}.${c + 2}`, true),
+      fixture(`${a}.${b}.${c + 3}`),
+    ]);
     const requests = zipRequests;
     await expectInstall();
     assert.equal(zipRequests, requests);
@@ -143,10 +153,10 @@ async function run() {
     active = { ...first, url: `${base}/corrupt.zip`, version: "999.0.0" };
     await expectFailure(/SHA-256/);
     assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, first.version);
-    const [a, b, c] = first.version.split(".").map(Number);
-    const next = await fixture(`${a}.${b}.${c + 1}`);
-    const broken = await fixture(`${a}.${b}.${c + 2}`, true);
-    const repaired = await fixture(`${a}.${b}.${c + 3}`);
+    const variants = await fixturePreparation;
+    const failure = variants.find(result => result.status === "rejected");
+    if (failure) throw failure.reason;
+    const [next, broken, repaired] = variants.map(result => result.value);
     active = first;
     await expectInstall();
     active = next;
@@ -197,6 +207,7 @@ async function run() {
   } finally {
     await close().catch(() => {});
     occupied?.stop(true); host?.stop(true);
+    await fixturePreparation;
     await rm(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
   }
 }

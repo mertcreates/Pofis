@@ -75,7 +75,14 @@ async function preflight(target, acceptance, execute = run, summary = process.en
     await timed("Intel Electron mimarisi", () => execute("/usr/bin/lipo", [binary, "-verify_arch", "x86_64"]), summary);
   }
   if (acceptance) {
-    await timed("Masaüstü birim testleri", () => execute(process.execPath, ["test", "./electron", "./scripts/electron"]), summary);
+    const results = await Promise.allSettled([
+      timed("Tür kontrolü", () => execute(process.execPath, ["run", "typecheck"]), summary),
+      timed("Uygulama testleri", () => execute(process.execPath, ["test", "./src"]), summary),
+      timed("Masaüstü birim testleri", () => execute(process.execPath, ["test", "--parallel=2", "./electron", "./scripts/electron"]), summary),
+    ]);
+    const failures = results.filter(result => result.status === "rejected").map(result => result.reason);
+    if (failures.length === 1) throw failures[0];
+    if (failures.length) throw new AggregateError(failures, "Derleme öncesi doğrulamaları kontrol et.");
     await timed("Pano kabulü", () => execute(process.execPath, [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]), summary);
   }
 }

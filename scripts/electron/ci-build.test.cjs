@@ -11,13 +11,14 @@ const { version } = require("../../package.json");
 const intel = process.platform === "darwin" && process.arch === "x64";
 
 test("gerçek CI build'i erken kontroldeki hatada derleme ve paketleme başlatmaz", async () => {
-  for (const failedStep of intel ? ["desktop:install"] : ["desktop:install", "test", "clipboard-smoke.cjs"]) {
+  for (const failedStep of intel ? ["desktop:install"] : ["desktop:install", "typecheck", "application-tests", "desktop-tests", "clipboard-smoke.cjs"]) {
     const commands = [];
     const failure = new Error(`${failedStep} başarısız`);
     await expect(build(version, "unused-site", {
       summary: null,
       execute: async (_command, args) => {
-        const step = args[0] === "run" ? args[1] : basename(args[0]);
+        const step = args[0] === "run" ? args[1] : args[0] === "test"
+          ? args.includes("./src") ? "application-tests" : "desktop-tests" : basename(args[0]);
         commands.push(step);
         if (step === failedStep) throw failure;
         if (step === "build.cjs" || step === "package.cjs") throw new Error("Pahalı aşama erken başladı.");
@@ -25,7 +26,7 @@ test("gerçek CI build'i erken kontroldeki hatada derleme ve paketleme başlatma
     })).rejects.toBe(failure);
     expect(commands).not.toContain("build.cjs");
     expect(commands).not.toContain("package.cjs");
-    expect(commands.at(-1)).toBe(failedStep);
+    expect(commands).toContain(failedStep);
   }
 });
 
@@ -44,10 +45,42 @@ test("gerçek CI build'i platformun erken kontrollerinden sonra Next derlemesine
   if (intel && existsSync(intelBinary)) expected.push([intelBinary, "-verify_arch", "x86_64"]);
   expected.push(["run", "desktop:install"]);
   if (intel) expected.push([intelBinary, "-verify_arch", "x86_64"]);
-  if (!intel) expected.push(["test", "./electron", "./scripts/electron"],
+  if (!intel) expected.push(["run", "typecheck"], ["test", "./src"], ["test", "--parallel=2", "./electron", "./scripts/electron"],
     [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]);
   expected.push([join(__dirname, "build.cjs")]);
   expect(commands).toEqual(expected);
+});
+
+test("derleme bütün paralel doğrulamaları bekler; tek doğrulama hatası panoyu ve derlemeyi durdurur", async () => {
+  if (intel) return;
+  for (const failApplication of [false, true]) {
+    const calls = [];
+    const failure = new Error("uygulama testleri başarısız");
+    const stop = new Error("pano sınırında dur");
+    let finishTypes, finishDesktop, gatesStarted;
+    const ready = new Promise(done => { gatesStarted = done; });
+    let settled = false;
+    const pending = build(version, "unused-site", { summary: null,
+      execute: async (_command, args) => {
+        calls.push(args);
+        if (args[1] === "typecheck") return new Promise(done => { finishTypes = done; });
+        if (args[0] === "test" && args.includes("./src") && failApplication) throw failure;
+        if (args.includes("--parallel=2")) {
+          gatesStarted();
+          return new Promise(done => { finishDesktop = done; });
+        }
+        if (basename(args[0]) === "clipboard-smoke.cjs") throw stop;
+      },
+    }).finally(() => { settled = true; });
+    await ready;
+    finishTypes();
+    await Promise.resolve();
+    expect(settled).toBe(false);
+    expect(calls.some(args => /clipboard-smoke|build\.cjs|package\.cjs/.test(args[0]))).toBe(false);
+    finishDesktop();
+    await expect(pending).rejects.toBe(failApplication ? failure : stop);
+    expect(calls.some(args => basename(args[0]) === "clipboard-smoke.cjs")).toBe(!failApplication);
+  }
 });
 
 test("süre özeti başarılı ve hatalı aşamayı kaydeder; hata korunur", async () => {

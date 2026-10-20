@@ -105,12 +105,6 @@ jobs:
       - name: Kilitli bağımlılıkları kur
         if: steps.recover.outputs.reuse != 'true'
         run: bun install --frozen-lockfile
-      - name: Türleri doğrula
-        if: steps.recover.outputs.reuse != 'true'
-        run: bun run typecheck
-      - name: Testleri çalıştır
-        if: steps.recover.outputs.reuse != 'true'
-        run: bun test
       - name: Windows paketini üret ve gerçek uygulamayı sına
         if: runner.os == 'Windows' && steps.recover.outputs.reuse != 'true'
         run: bun scripts/electron/ci-build.cjs build
