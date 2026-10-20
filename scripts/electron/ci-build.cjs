@@ -38,6 +38,7 @@ async function build(version, siteDirectory) {
   // bunfig's default test root is src/; desktop/installer tests need explicit paths.
   await run(process.execPath, ["test", "./electron", "./scripts/electron"]);
   await run(process.execPath, ["run", "desktop:package"]);
+  await run(process.execPath, [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]);
   const packages = join(root, "dist", target.outputDirectory);
   const names = (await readdir(packages)).filter(name => name.startsWith(`Pofis-${target.id}-`));
   if (names.length !== 1) throw new Error("CI temiz çalışma alanında tam bir yeni paket üretmeli.");

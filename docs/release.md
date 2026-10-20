@@ -51,13 +51,15 @@ Bu adımlar canlı hosting ve paket yayını sonrasında uygulanır. Yerel hazı
 2. GitHub → Actions → **Pofis sürümünü yayımla** → Run workflow; `master` dalını seç. Sürüm, çalıştırılan commit'in `package.json` dosyasından otomatik alınır ve tüm platformlara aktarılır.
 3. Akışın tamamlanmasını bekle. Push/PR kontrolleri ayrı [CI akışında](../.github/workflows/ci.yml) çalışır; push otomatik release başlatmaz.
 
+Electron 43'e ilk geçişte workflow başlatılmadan [motor geçişi kabulünü](desktop.md#motor-geçişi-kabulü) ve iki mimaride macOS 12 cihaz kabulünü tamamlayın. Workflow testten sonra otomatik yayın ve landing push adımlarına ilerler. Üç hedef aynı tam Electron sürümünü kullanır; motor düşürülse de yeni paket daha yüksek Pofis sürümüyle yayımlanır. Açık platform kabulleri [görev listesinde](../tasks/todo.md) tutulur.
+
 | Hedef | Native runner | Dağıtım dosyası |
 | --- | --- | --- |
 | Windows x64 | `windows-2022` | `Pofis-<sürüm>-win32-x64.zip` |
 | macOS Apple Silicon | `macos-15` | `Pofis-<sürüm>-darwin-arm64.zip` |
 | macOS Intel | `macos-15-intel` | `Pofis-<sürüm>-darwin-x64.zip` |
 
-Üç hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Her biri kilitli bağımlılıkları kurar, tür kontrolünü ve testleri çalıştırır; Next standalone/Electron paketini üretir. Gerçek paket üzerinde ortak pencere/süreç kabulü çalışır. Windows ayrıca gerçek ZIP ve landing komutuyla izole PowerShell kurulum, güncelleme, hata, temizlik ve kaldırma kabulünü çalıştırır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
+Üç hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Her biri kilitli bağımlılıkları kurar, tür kontrolünü ve testleri çalıştırır; Next standalone/Electron paketini üretir. İzole runner masaüstünde pano kabulü, gerçek paket üzerinde native bağımlılık ve ortak pencere/süreç kabulü çalışır. Windows ayrıca gerçek ZIP ve landing komutuyla izole PowerShell kurulum, güncelleme, hata, temizlik ve kaldırma kabulünü çalıştırır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
 
 macOS paketleyici native dosyaları ve iç bundle’ları içten dışa ad-hoc imzalar; entitlement/runtime bayraklarını koruyup dış `.app` imzasını en son üretir. `--deep` yalnız imza doğrulamasında kullanılır; ZIP `ditto` ile izin ve bağlantıları korur. Dağıtım ad-hoc imza kullanır. Ortak Bash 3.2 installer'ı iki mimaride kullanılır. Her macOS job'u gerçek ZIP ile ilk kurulum, simgeden açılış, aynı sürüm/ikinci açılış, güncelleme, bozuk indirme, dolu port, gerçek sunucu hatasının raporlanması, profil kalıcılığı ve kurulum kilidi kabulünü çalıştırır. İndirilen uygulamanın Gatekeeper davranışı temiz hedef cihazda kontrol edilir.
 

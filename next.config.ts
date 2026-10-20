@@ -7,6 +7,8 @@ const config: NextConfig = {
   outputFileTracingExcludes: { "/*": ["./dist/**/*"] },
   // Next's standalone trace omits the runtime loaded by Turbopack API routes.
   outputFileTracingIncludes: {
+    // Native loaders resolve sibling DLL/dylib files outside the JavaScript import graph.
+    "/*": ["./node_modules/@img/sharp-*/lib/**/*"],
     "/api/*": ["./node_modules/next/dist/compiled/next-server/app-route-turbo.runtime.prod.js"],
   },
   poweredByHeader: false,

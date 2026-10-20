@@ -18,10 +18,13 @@ async function prepare() {
   await access(electronExecutable);
   // Electron's installer can select arm64 under Rosetta while Bun is x64.
   const { stdout } = await promisify(execFile)(electronExecutable,
-    ["-p", "JSON.stringify({platform:process.platform,arch:process.arch})"], {
+    ["-p", "JSON.stringify({platform:process.platform,arch:process.arch,electron:process.versions.electron})"], {
       env: { ...process.env, ELECTRON_RUN_AS_NODE: "1" }, windowsHide: true, timeout: 15000,
     });
   const installed = JSON.parse(stdout.trim());
+  if (installed.electron !== manifest.devDependencies.electron) {
+    throw new Error(`Electron ${installed.electron}, kilitli sürüm ${manifest.devDependencies.electron}. Önce bun install ve bun run desktop:install çalıştır.`);
+  }
   if (installed.platform !== target.platform || installed.arch !== target.arch) {
     throw new Error(`Electron ${installed.platform}/${installed.arch}, Bun ${target.id}. İkisini aynı platform ve mimariyle hazırla.`);
   }

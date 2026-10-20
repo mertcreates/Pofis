@@ -1,7 +1,7 @@
 // All successful startup checks below use the packaged Electron/Next standalone application.
 const { spawn } = require("node:child_process");
 const { mkdir, mkdtemp, readFile, writeFile, rm, readdir, access } = require("node:fs/promises");
-const { join, resolve } = require("node:path");
+const { join, resolve, dirname, basename } = require("node:path");
 const assert = require("node:assert/strict");
 const { randomBytes } = require("node:crypto");
 const { connect } = require("./cdp.cjs");
@@ -70,9 +70,14 @@ async function run() {
     }
   }
   const releases = join(root, "dist/releases/windows");
-  const first = JSON.parse(await readFile(join(releases, "latest.json"), "utf8"));
-  const [major, minor, patch] = first.version.split(".").map(Number);
-  const [updatedVersion, brokenVersion, repairedVersion] = [1, 2, 3].map(offset => `${major}.${minor}.${patch + offset}`);
+  const candidate = JSON.parse(await readFile(join(releases, "latest.json"), "utf8"));
+  const fromIndex = process.argv.indexOf("--from-release");
+  const previousManifest = fromIndex === -1 ? null : resolve(process.argv[fromIndex + 1]);
+  const first = previousManifest ? JSON.parse(await readFile(previousManifest, "utf8")) : candidate;
+  if (previousManifest) first.url = basename(new URL(first.url, "https://fixture.invalid").pathname);
+  const [major, minor, patch] = candidate.version.split(".").map(Number);
+  const updatedVersion = previousManifest ? candidate.version : `${major}.${minor}.${patch + 1}`;
+  const [brokenVersion, repairedVersion] = [2, 3].map(offset => `${major}.${minor}.${patch + offset}`);
   let active = first;
   let delayManifest = false;
   let manifestRequests = 0;
@@ -91,6 +96,7 @@ async function run() {
     }
     if (path === "/broken.zip") return new Response("corrupt archive");
     if (path.endsWith(".zip")) zipRequests++;
+    if (previousManifest && path === `/${first.url}`) return new Response(Bun.file(join(dirname(previousManifest), first.url)));
     const local = [updatedVersion, brokenVersion, repairedVersion].some(version => path === `/${version}.zip`)
       ? join(directory, path.slice(1)) : resolve(releases, `.${path}`);
     if (!local.startsWith(directory) && !local.startsWith(releases)) return new Response("", { status: 404 });
@@ -145,7 +151,7 @@ async function run() {
   try {
     if (!startupOnly) {
       console.log("Dağıtım testleri için ZIP paketleri hazırlanıyor…");
-      const variants = await ps(`& ${quote(join(__dirname, "fixtures/release-variants.ps1"))} -SourceArchive ${quote(join(releases, first.url))} -OutputDirectory ${quote(directory)} -BaseVersion ${quote(first.version)}`).done;
+      const variants = await ps(`& ${quote(join(__dirname, "fixtures/release-variants.ps1"))} -SourceArchive ${quote(join(releases, candidate.url))} -OutputDirectory ${quote(directory)} -BaseVersion ${quote(candidate.version)}`).done;
       assert.equal(variants.code, 0, variants.output);
     }
     const policy = await ps("Get-ExecutionPolicy", "Restricted").done;
@@ -182,7 +188,8 @@ async function run() {
       await evaluate("window.close(); true").catch(() => {});
       cdp.close(); cdp = null;
       await until(async () => !(await healthy()));
-      active = JSON.parse((await readFile(join(directory, `${updatedVersion}.json`), "utf8")).replace(/^\uFEFF/, ""));
+      active = previousManifest ? candidate
+        : JSON.parse((await readFile(join(directory, `${updatedVersion}.json`), "utf8")).replace(/^\uFEFF/, ""));
       // Non-interactive execution must refuse to close the running release without consent.
       await ps(`Start-Process -FilePath ${quote(shortcut)} -WindowStyle Normal`).done;
       await until(healthy);
