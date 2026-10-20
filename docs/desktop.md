@@ -12,7 +12,7 @@ Tek dağıtım kanalı ve mevcut üç manifest yolu kullanılır. Profil yolu, `
 
 ## Ortak platform sözleşmesi
 
-[Platform tanımı](../electron/platform.cjs) desteklenen işletim sistemi/mimariyi, executable adlarını, kaynak yollarını ve çıktı dizinini tek yerde belirler. Windows ve macOS ortak uygulama girişini ve iş mantığını kullanır. Her paket kendi işletim sistemi ve mimarisindeki Bun/Electron ile hazırlanır. Hazırlama, Electron'un gerçek platform/mimarisini Bun hedefiyle ve motor sürümünü kök bağımlılıktaki tam sürümle karşılaştırır; farklı hedef veya motor bulunursa paket kopyalanmadan durur.
+[Platform tanımı](../electron/platform.cjs) desteklenen işletim sistemi/mimariyi, executable adlarını, kaynak yollarını, çıktı dizinini ve `metadataFile` meta veri yolunu tek yerde belirler. Windows ve macOS ortak uygulama girişini ve iş mantığını kullanır. Her paket kendi işletim sistemi ve mimarisindeki Bun/Electron ile hazırlanır. Hazırlama, Electron'un platform/mimarisini Bun hedefiyle ve motor sürümünü kök bağımlılıktaki tam sürümle karşılaştırır; farklı hedef veya motor bulunursa paket kopyalanmadan durur. Intel paketlemesinde Rosetta altındaki GUI sürecinin zaman aşımına uğramasını önlemek için runtime doğrulaması `PlistBuddy` ve `lipo -verify_arch x86_64` ile statik sözleşmeyle yapılır; diğer hedeflerde yerel dinamik sorgu kullanılır. `release.json` meta veri yolu platform tanımındaki `metadataFile` üzerinden ortak yönetilir.
 
 | Hedef | Uygulama | Paket çıktısı | Dağıtım manifesti |
 | --- | --- | --- | --- |
