@@ -20,6 +20,7 @@ Secure çerezi doğrudan HTTPS veya proxy'nin ilk `X-Forwarded-Proto` değeri `h
 
 ## Güvenceler
 
+- Girişte kullanıcı adının çevresindeki boşluklar temizlenir; `@` varsa ilk `@` öncesi kullanıcı adı olarak kullanılır. Örneğin `mert.ercan@trt.net.tr`, PDKS'ye `mert.ercan` olarak gönderilir. Dönüşüm ek kullanıcı işlemi gerektirmez; boş kalan kullanıcı adı reddedilir. 200 karakter sınırı girilen özgün değere uygulanır; parola değiştirilmez. Bu dönüşümün sahibi [oturum yöneticisinin](../../src/server/session-manager.js) `connect` işlemidir.
 - Her oturum ayrı profil, Pofi hesap anahtarı (`self.pofiKey`), `PdksClient` ve CookieJar kullanır; her doğrulanmış kullanıcıya ayrı oturum açılır. Yalnız güncel çerez adı okunur ve temizlenir. Pofi anahtarı olmayan eski veya bozuk oturum yeniden girişle yeni anahtar alır.
 - Parolanın kullanım alanı giriş isteğiyle sınırlıdır. İstek kimlik alanları ve form şifresi işlem sonunda temizlenir. Kullanıcı adı tekrar deneme için yalnız açık formda kalabilir. Bu temizlik uygulamadaki referansları bırakır; belleğin fiziksel yönetimi JavaScript çalışma zamanına aittir.
 - TTL erişimde ve kaynak işi tamamlandığında yeniden denetlenir. Çıkış devam eden kaynak işini iptal eder; iptal edilmiş oturum durumu geciken yanıtlara ve dosya okumalarına karşı korunur.

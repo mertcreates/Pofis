@@ -293,9 +293,12 @@ export function createSessionManager({
   }
 
   async function connect(body) {
+    let username = typeof body.username === "string"
+      ? body.username.split("@", 1)[0].trim()
+      : "";
     if (
       typeof body.username !== "string" ||
-      !body.username.trim() ||
+      !username ||
       body.username.length > SESSION_POLICY.maxUsernameLength ||
       typeof body.password !== "string" ||
       !body.password ||
@@ -307,7 +310,6 @@ export function createSessionManager({
         400,
       );
     const client = createClient();
-    let username = body.username.trim();
     let password = body.password;
     delete body.username;
     delete body.password;

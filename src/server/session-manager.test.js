@@ -121,6 +121,29 @@ test("diskten geri yükler, parolayı saklamaz ve çıkış yalnız ilgili dosya
   }
 });
 
+test("e-posta ile giriş kullanıcı adıyla aynı PDKS kimliğini kullanır", async () => {
+  const manager = createSessionManager({ createClient: clientFactory(Date.now) });
+  for (const username of [
+    "mert.ercan",
+    "mert.ercan@trt.net.tr",
+    "  mert.ercan@trt.net.tr  ",
+    "  mert.ercan  ",
+    "mert.ercan@example.com",
+  ]) {
+    const id = await manager.connect({ username, password: "fixture-password" });
+    try {
+      const { client } = await manager.requireSession(request(id));
+      expect(client.self.name).toBe("mert.ercan");
+      expect(client.self.pofiKey).toBe("mert.ercan");
+      expect(await client.jar.getCookieString("https://pdks.trt.net.tr")).toBe(
+        "identity=mert.ercan",
+      );
+    } finally {
+      await manager.disconnect(request(id));
+    }
+  }
+});
+
 test("hatalı parola ve geçersiz alanlar oturum oluşturmaz", async () => {
   const records = [];
   const manager = createSessionManager({
@@ -134,9 +157,11 @@ test("hatalı parola ve geçersiz alanlar oturum oluşturmaz", async () => {
   await expect(
     manager.connect({ username: "alice", password: "bad" }),
   ).rejects.toMatchObject({ code: "AUTH_FAILED" });
-  await expect(
-    manager.connect({ username: "", password: "fixture-password" }),
-  ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+  for (const username of ["", "   ", "@trt.net.tr", "  @trt.net.tr", `a@${"b".repeat(199)}`]) {
+    await expect(
+      manager.connect({ username, password: "fixture-password" }),
+    ).rejects.toMatchObject({ code: "INVALID_INPUT" });
+  }
   expect(records).toHaveLength(0);
 });
 

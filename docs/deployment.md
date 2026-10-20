@@ -53,6 +53,8 @@ Yerel Docker denemesi HTTP kullanır. Kurum dağıtımında pod 3000 portuyla Se
 
 ## Dağıtım kabulü
 
+Giriş kabulünde `mert.ercan` ve `mert.ercan@trt.net.tr` biçimlerinin aynı kullanıcı adıyla kaynak girişine ulaştığını doğrulayın; dönüşüm web ve masaüstünün ortak [oturum yöneticisinde](../src/server/session-manager.js) yapılır.
+
 - İmajı kurum ortamında derleyip `TZ`, dinleme adresi ve kalıcı dizinin yazılabildiğini kontrol edin.
 - Dış HTTPS adresinden giriş, rapor, yenileme ve çıkışı; Secure/HttpOnly/SameSite çerezini doğrulayın.
 - İki ayrı tarayıcı/hesapla kimlik ve rapor ayrımını, pod yeniden başlatmasında oturum devamlılığını kontrol edin.

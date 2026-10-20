@@ -14,6 +14,8 @@ Tek uygulama süreci, süreç belleğinde oturumlar ve yerel JSON dosyaları kul
 
 ## Oturum yaşam döngüsü
 
+Girişte e-posta biçiminde yazılan değerde ilk `@` öncesindeki bölüm kullanıcı adı olarak kullanılır. Oturum yöneticisi bu değeri PDKS adaptörüne iletir; hesap anahtarı da aynı kullanıcı adıyla üretilir. Boşluk ve uzunluk sınırları [oturum politikasında](../rules/session-policy.md) tanımlıdır.
+
 Bellekteki yönetici `pofis.session-manager:account-key-v1` anahtarıyla tutulur. Bu anahtar geliştirme sunucusundaki yönetici ve giriş istemcisi fabrikasını hesap anahtarı sözleşmesine göre oluşturur. API, anahtarsız oturumda `SESSION_EXPIRED` / 401 ile yeniden giriş ister.
 
 1. Girişte ayrı istemci oluşturulur; parola yalnız kaynak girişinde kullanılır. Oturum yöneticisi yeni oturumu kaydeder, mevcut oturumu kapatır ve ardından tarayıcıya yeni token verilir. Yeni kimlik doğrulama veya ilk kayıt başarısızsa mevcut oturum korunur. Eski oturumun diskten silinmesi başarısızsa yeni oturum da iptal edilip dosyası silinmeye çalışılır; istek başarısız döner.
