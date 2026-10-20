@@ -1,4 +1,5 @@
 const { test, expect } = require("bun:test");
+const { existsSync } = require("node:fs");
 const { mkdtemp, readFile, rm } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
 const { join, basename } = require("node:path");
@@ -35,7 +36,11 @@ test("gerçek CI build'i platformun erken kontrollerinden sonra Next derlemesine
       if (basename(args[0]) === "build.cjs") throw stop;
     },
   })).rejects.toBe(stop);
-  const expected = [["run", "desktop:install"]];
+  const intelBinary = join(__dirname, "../../node_modules/electron/dist/Electron.app/Contents/MacOS/Electron");
+  const expected = [];
+  if (intel && existsSync(intelBinary)) expected.push([intelBinary, "-verify_arch", "x86_64"]);
+  expected.push(["run", "desktop:install"]);
+  if (intel) expected.push([intelBinary, "-verify_arch", "x86_64"]);
   if (!intel) expected.push(["test", "./electron", "./scripts/electron"],
     [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]);
   expected.push([join(__dirname, "build.cjs")]);

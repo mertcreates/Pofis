@@ -6,9 +6,9 @@ async function build() {
   const root = resolve(__dirname, "../..");
   // Next can retain files from a previous standalone build.
   await rm(join(root, ".next", "standalone"), { recursive: true, force: true });
-  const bunExecutable = process.env.NATIVE_BUN_PATH || process.execPath;
   await new Promise((resolve, reject) => {
-    const child = spawn(bunExecutable, ["--bun", join(root, "node_modules", "next", "dist", "bin", "next"), "build"], {
+    // SWC and sharp must use the same architecture as the installed dependencies.
+    const child = spawn(process.execPath, ["--bun", join(root, "node_modules", "next", "dist", "bin", "next"), "build"], {
       cwd: root, stdio: "inherit", env: { ...process.env, POFIS_STANDALONE: "1" },
     });
     child.once("error", reject);

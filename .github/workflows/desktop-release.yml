@@ -134,7 +134,6 @@ jobs:
           if ! /usr/bin/arch -x86_64 /usr/bin/true; then
             /usr/sbin/softwareupdate --install-rosetta --agree-to-license
           fi
-          echo "NATIVE_BUN_PATH=$(which bun)" >> "$GITHUB_ENV"
           echo 'RELEASE_TARGET=darwin-x64' >> "$GITHUB_ENV"
           echo 'npm_config_arch=x64' >> "$GITHUB_ENV"
           echo 'npm_config_platform=darwin' >> "$GITHUB_ENV"

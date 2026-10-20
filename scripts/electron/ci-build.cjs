@@ -1,4 +1,5 @@
 const { execFile } = require("node:child_process");
+const { existsSync } = require("node:fs");
 const { promisify } = require("node:util");
 const { readFile, readdir, appendFile, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
@@ -56,8 +57,10 @@ async function preflight(target, acceptance, execute = run, summary = process.en
   const electronDist = join(root, "node_modules", "electron", "dist");
   if (target.id === "darwin-x64") {
     const binary = join(electronDist, target.electronExecutable);
-    const isX64 = await execute("/usr/bin/lipo", [binary, "-verify_arch", "x86_64"]).then(() => true, () => false);
-    if (!isX64) await rm(electronDist, { recursive: true, force: true });
+    if (existsSync(binary)) {
+      const isX64 = await execute("/usr/bin/lipo", [binary, "-verify_arch", "x86_64"]).then(() => true, () => false);
+      if (!isX64) await rm(electronDist, { recursive: true, force: true });
+    }
   }
   const env = {
     ...process.env,
