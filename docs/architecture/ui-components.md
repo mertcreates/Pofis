@@ -17,6 +17,7 @@ Demo ve canlı ekran aynı bileşenleri kullanır. Görsel kararlar [DESIGN](../
 | Pofi paneli | [PofiPanel](../../src/components/dashboard/pofi-panel.tsx): durum görseli, başlık, mesaj ve odayı açma |
 | Pofi odası | [Oda](../../src/components/pofi/room.js), [not defteri](../../src/components/pofi/notebook.js), [bağlantı](../../src/components/pofi-room-content.tsx): albüm, kart, notlar ve sürprizler |
 | Pofi çağırma ve ikonlar | [PofiCall](../../src/components/pofi-call.js), [Icon](../../src/components/ui-icon.js): klavye çağrısı ve ortak ikonlar |
+| Yemek menüsü | [MealMenuModal](../../src/components/meals/menu-modal.tsx), [tarih seçici](../../src/components/meals/date-picker.tsx): oturumlu ana ekrandan açılan menü ve Pofi notu; veri ve kategori sahipleri [menü sözleşmesinde](../rules/meal-menu.md) |
 | Mesai planı | [PlanEditor](../../src/components/plan-editor.tsx): varsayılan/özel hafta kontrolleri ve kayıt; hesaplar [plan sözleşmesinden](../rules/work-plan.md) gelir |
 | Dialog ve tooltip | [Modal](../../src/components/modal.js), [Tooltip](../../src/components/tooltip.tsx): odak, kapatma ve konumlandırma |
 | Giriş | [Connection](../../src/components/connection.tsx): PDKS giriş formu ve oturum eylemleri |

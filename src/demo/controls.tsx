@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { ui } from "@/lib/ui-text.js";
 
@@ -20,17 +22,19 @@ export function DemoControls({ view, onViewChange, onReset, children }: {
 }) {
   const text = ui.demo.controls;
   return (
-    <section className="demo-controls" aria-label={text.label}>
-      <div className="demo-controls-heading">
-        <nav className="demo-view-switch" aria-label={text.viewsLabel}>
-          {(["attendance", "errors", "notices"] as const).map(value => (
-            <button key={value} type="button" aria-pressed={view === value}
-              onClick={() => onViewChange(value)}>{text.views[value]}</button>
-          ))}
-        </nav>
-        <button className="demo-reset" type="button" onClick={onReset}>{text.reset}</button>
-      </div>
-      <div className="demo-controls-body">{children}</div>
-    </section>
+      <section className="demo-controls" aria-label={text.label}>
+        <div className="demo-controls-heading">
+          <div className="demo-controls-start">
+            <div className="demo-view-switch" role="group" aria-label={text.viewsLabel}>
+              {(["attendance", "errors", "notices"] as const).map(value => (
+                <button key={value} type="button" aria-pressed={view === value}
+                  onClick={() => onViewChange(value)}>{text.views[value]}</button>
+              ))}
+            </div>
+          </div>
+          <button className="demo-reset" type="button" onClick={onReset}>{text.reset}</button>
+        </div>
+        <div className="demo-controls-body">{children}</div>
+      </section>
   );
 }

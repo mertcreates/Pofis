@@ -7,7 +7,7 @@ import { ui } from "@/lib/ui-text.js";
 /**
  * @param {{
  *   title: string,
- *   description?: string,
+ *   description?: import('react').ReactNode,
  *   className?: string,
  *   initialFocus?: 'close' | 'title',
  *   onClose: () => void,
@@ -38,6 +38,7 @@ export default function Modal({
   const [dragOffset, setDragOffset] = useState(0);
   const titleId = useId();
   const descriptionId = useId();
+  const hasPlainDescription = typeof description === "string" || typeof description === "number";
 
   useEffect(() => {
     const dialog = dialogRef.current;
@@ -81,7 +82,7 @@ export default function Modal({
           : undefined
       }
       aria-labelledby={titleId}
-      aria-describedby={description ? descriptionId : undefined}
+      aria-describedby={description && hasPlainDescription ? descriptionId : undefined}
       onKeyDown={(event) => {
         if (event.key !== "Tab") return;
         const controls = [
@@ -178,7 +179,9 @@ export default function Modal({
               title
             )}
           </h2>
-          {description && <p id={descriptionId}>{description}</p>}
+          {description && (hasPlainDescription
+            ? <p id={descriptionId}>{description}</p>
+            : <div className="app-modal-description">{description}</div>)}
         </div>
         <button
           ref={closeRef}

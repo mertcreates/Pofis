@@ -35,6 +35,7 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 - PDKS girişi profil sayfasıyla doğrulanır; kişisel menü bağlantısı bulunmayan yönetici hesapları da kişisel turnike raporunu kullanır. Pofi notları [hesap anahtarıyla](docs/pofi-notes.md#hesap-anahtarı) seçilir.
 - PDKS girişi sunucuda işlenir. Parola yalnız girişte kullanılır; kaynak çerezleri her oturuma özel tutulur. Oturum politikası ve kaynak önbelleği [kural haritasından](docs/rules/README.md) yönetilir.
 - [Mesaim demosu](docs/demo.md) aynı görünüm ve hesap sahiplerini kullanır; yakalanmış veriyi gün/hafta seçimi ve sanal ek süreyle sunar.
+- Oturum açmış kullanıcı [Yemek menüsü](docs/rules/meal-menu.md) üzerinden İstanbul menüsünü geçmiş bir ay ve gelecek 15 gün aralığında görüntüleyebilir. Pofi seçilen menüye kısa bir not ekler.
 - Pofi durumları, albüm, notlar ve sürprizler ortak ekranlarda sunulur. [Durum seçimi](docs/rules/pofi.md), [sürprizler](docs/rules/pofi-surprises.md) ve [not içeriği](docs/pofi-notes.md) kendi sahiplerinde yönetilir.
 
 ## Brand Commitments

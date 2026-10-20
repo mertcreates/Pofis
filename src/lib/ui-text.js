@@ -8,6 +8,15 @@ export const product = {
 };
 
 export const ui = {
+  meals: {
+    nav: "Yemek menüsü",
+    title: "Yemek menüsü",
+    loading: "Yemek menüsü yükleniyor…",
+    empty: "Seçilen gün için menü bulunamadı.",
+    unavailable: "Yemek menüsü alınamadı. Yeniden dene.",
+    invalidDate: "Geçerli bir menü günü seç.",
+    retry: "Yeniden dene",
+  },
   demo: {
     controls: {
       label: "Demo kontrolleri",

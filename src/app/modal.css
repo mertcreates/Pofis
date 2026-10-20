@@ -62,6 +62,7 @@
   letter-spacing: -.025em;
 }
 .app-modal-header-copy { flex: 1; min-width: 0; }
+.app-modal-description { margin: 7px 0 0; color: var(--secondary); font-size: .875rem; }
 .app-modal-title-trigger {
   padding: 0;
   border: 0;

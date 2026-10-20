@@ -126,8 +126,7 @@
   accent-color: var(--accent);
 }
 .demo-extra-time input:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 .demo-extra-time input:disabled {
   cursor: not-allowed;

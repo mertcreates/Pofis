@@ -11,6 +11,8 @@ export default function AppHeader({
   onDisconnect,
   appearance,
   settingsOpen = false,
+  mealsOpen = false,
+  showMeals = false,
   onSection,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -87,6 +89,15 @@ export default function AppHeader({
                   <Icon name="layout" />
                   {ui.overview}
                 </button>
+                {showMeals && <button
+                  type="button"
+                  aria-haspopup="dialog"
+                  aria-expanded={mealsOpen}
+                  onClick={() => selectSection("meals")}
+                >
+                  <Icon name="utensils" />
+                  {ui.meals.nav}
+                </button>}
               </nav>
             )}
             {onSection && (

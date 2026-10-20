@@ -134,7 +134,7 @@
 .report-accordion-day > summary { display: flex; align-items: center; gap: 16px; padding: 16px var(--panel-padding); min-height: 44px; list-style: none; cursor: pointer; color: var(--ink); }
 .report-accordion-day > summary::-webkit-details-marker { display: none; }
 .report-accordion-day > summary:focus { color: var(--ink); text-decoration: none; }
-.report-accordion-day > summary:focus-visible { outline: 2px solid var(--accent-text); outline-offset: -2px; }
+.report-accordion-day > summary:focus-visible { box-shadow: inset 0 0 0 2px var(--accent-text); }
 .report-accordion-day > summary:hover, .report-accordion-day[open] > summary { background: var(--surface-subtle); }
 .report-accordion-heading { flex: 1; min-width: 0; }
 .report-accordion-date { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; font-size: 13px; font-weight: 600; }
@@ -556,8 +556,7 @@ body {
   flex-shrink: 0;
 }
 .theme-switch:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 .theme-switch-labeled {
   width: 100%;

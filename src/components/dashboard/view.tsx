@@ -17,6 +17,7 @@ import PofiCall from "../pofi-call.js";
 import { ui } from "@/lib/ui-text.js";
 import { PlanEditor } from "../plan-editor";
 import { PofiRoom } from "../pofi-room-content";
+import { MealMenuModal } from "../meals/menu-modal";
 
 type Source =
   | { kind: "pdks"; state: ReturnType<typeof usePdks> }
@@ -43,7 +44,7 @@ export function DashboardView({
   children?: ReactNode;
 }) {
   const appearance = useAppearance();
-  const [dialog, setDialog] = useState<"plan" | "room" | null>(
+  const [dialog, setDialog] = useState<"plan" | "room" | "meals" | null>(
     null,
   );
   const today = dateKey(now);
@@ -99,7 +100,13 @@ export function DashboardView({
         busy={busy}
         appearance={appearance}
         settingsOpen={dialog === "plan"}
+        mealsOpen={dialog === "meals"}
+        showMeals={data.kind === "pdks"}
         onSection={(section: string) => {
+          if (section === "meals") {
+            setDialog("meals");
+            return;
+          }
           selectWeek(currentWeek);
           if (section === "settings") setDialog("plan");
         }}
@@ -197,6 +204,9 @@ export function DashboardView({
             notes={source?.pofiNotes}
             onClose={() => setDialog(null)}
           />
+        )}
+        {connected && dialog === "meals" && (
+          <MealMenuModal today={today} onClose={() => setDialog(null)} />
         )}
       </AppShell>
       <PofiCall />

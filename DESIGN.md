@@ -116,7 +116,7 @@ Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedi
 
 ## Odak, modal ve tooltip
 
-Metin seçimi normal bağlantılar, açıklamalar, girdiler ve teknik ayrıntılarda açıktır; buton ve `.button-link` üzerinde kapalıdır. Klavye odağı ton, alt çizgi ve 2px iç kenarla gösterilir; odak göstergesi kontrolün içinde kalır. Rapor akordeonunda metin rengi ve alt çizgi değişmez, iç kenar tüm satırı çevreler. Odak halkası klavye etkileşiminde görünür.
+Metin seçimi normal bağlantılar, açıklamalar, girdiler ve teknik ayrıntılarda açıktır; buton ve `.button-link` üzerinde kapalıdır. Klavye odağı her zaman görünür kalır. Tarayıcının mavi veya dışarı taşan CSS `outline` çizgisi proje genelinde anti-pattern'dir; odak Pofis tokenlarıyla iç kenar (`box-shadow: inset`), kenarlık, yüzey değişimi veya alt çizgiyle gösterilir. Alternatif bir gösterge olmadan odak stili kaldırılmaz. Rapor akordeonunda metin rengi ve alt çizgi değişmez, iç kenar tüm satırı çevreler.
 
 Ortak [Modal](src/components/modal.js) native dialog kullanır: Escape, kapatma düğmesi, açan kontrole odak dönüşü ve içeride kaydırma. Varsayılan başlangıç odağı kapatma düğmesinde, plan modalında başlıktadır. Mobil tutamak aşağı sürükleyerek kapatır.
 

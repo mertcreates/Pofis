@@ -10,7 +10,9 @@ import { InlineNotice } from "../inline-notice";
  *   busy?: boolean,
  *   onDisconnect?: () => void,
  *   settingsOpen?: boolean,
- *   onSection?: (section: 'overview' | 'settings') => void,
+ *   mealsOpen?: boolean,
+ *   showMeals?: boolean,
+ *   onSection?: (section: 'overview' | 'settings' | 'meals') => void,
  * }} props
  */
 export default function AppShell({
@@ -20,6 +22,8 @@ export default function AppShell({
   busy = false,
   onDisconnect,
   settingsOpen = false,
+  mealsOpen = false,
+  showMeals = false,
   onSection,
 }) {
   return (
@@ -34,6 +38,8 @@ export default function AppShell({
         busy={busy}
         onDisconnect={onDisconnect}
         settingsOpen={settingsOpen}
+        mealsOpen={mealsOpen}
+        showMeals={showMeals}
         onSection={onSection}
       />
       <div className="app-content">
