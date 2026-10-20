@@ -156,15 +156,22 @@ async function run() {
   const close = async () => {
     const owned = `try { $_.Path -like ${quote(install + "\\versions\\*")} } catch { $false }`;
     // Health can become ready before Electron creates the window.
-    await until(async () => (await ps(`@(Get-Process | Where-Object { ${owned} } | Where-Object { $_.MainWindowHandle -ne 0 }).Count`).done).output.trim() !== "0");
-    const result = await ps(`Get-Process | Where-Object { ${owned} } | Where-Object { $_.MainWindowHandle -ne 0 } | ForEach-Object { $null = $_.CloseMainWindow() }`).done;
+    const result = await ps(`$deadline=[DateTime]::UtcNow.AddSeconds(20);
+      do {
+        $windows=@(Get-Process | Where-Object { ${owned} } | Where-Object { $_.MainWindowHandle -ne 0 });
+        if ($windows.Count) { break }
+        Start-Sleep -Milliseconds 100
+      } while ([DateTime]::UtcNow -lt $deadline);
+      if (-not $windows.Count) { throw 'Kapatılacak Pofis penceresi bulunamadı.' }
+      $windows | ForEach-Object { $null = $_.CloseMainWindow() };
+      $deadline=[DateTime]::UtcNow.AddSeconds(20);
+      do {
+        if (@(Get-Process | Where-Object { ${owned} }).Count -eq 0) { return }
+        Start-Sleep -Milliseconds 100
+      } while ([DateTime]::UtcNow -lt $deadline);
+      throw 'Pofis süreçleri kapanmadı.'`).done;
     assert.equal(result.code, 0, result.output);
-    await until(async () => !(await healthy()));
-    await until(async () => {
-      const result = await ps(`@(Get-Process | Where-Object { ${owned} }).Count`).done;
-      assert.equal(result.code, 0, result.output);
-      return result.output.trim() === "0";
-    });
+    assert.equal(await healthy(), false);
   };
   const expectInstall = async (success, bootstrap = false, consent = false) => {
     const result = await installer(bootstrap, consent).done;
@@ -246,13 +253,9 @@ async function run() {
         await evaluate(`localStorage.setItem('pofis:theme:v1','dark'); localStorage.setItem('pofis:work-plans:v1',${JSON.stringify(plan)}); true`);
         await mkdir(join(profile, "sessions"), { recursive: true });
         await writeFile(join(profile, "sessions/preservation-fixture.txt"), "fixture-session-preserved");
-        await evaluate("window.close(); true").catch(() => {});
-        cdp.close(); cdp = null;
-        await until(async () => !(await healthy()));
         active = previousManifest ? candidate
           : JSON.parse((await readFile(join(directory, `${updatedVersion}.json`), "utf8")).replace(/^\uFEFF/, ""));
         // Non-interactive execution must refuse to close the running release without consent.
-        await shortcutOpen();
         const blocked = await expectInstall(false);
         assert.match(blocked.output, /Pofis açık/);
         assert.equal((await state()).version, first.version);
@@ -260,6 +263,7 @@ async function run() {
         passed("açık uygulamada güncelleme mevcut sürümü bozmuyor");
         // Supply only the answer; exercise real window closure, server shutdown and relaunch.
         await expectInstall(true, false, true);
+        cdp.close(); cdp = null;
         assert.equal((await state()).version, updatedVersion);
         assert.notEqual((await state()).directory, initial.directory);
         assert.deepEqual(await readdir(join(install, 'versions')), [(await state()).directory]);
@@ -311,20 +315,15 @@ async function run() {
       await close();
     }
     if (group === "update") return;
-    if (group === "recovery") {
-      const waitIndex = process.argv.indexOf("--wait-for-update");
-      assert.ok(waitIndex !== -1, "Onarım kabulü güncelleme zincirinin bitişini bekler.");
-      const signal = process.argv[waitIndex + 1];
-      await until(async () => Bun.file(signal).exists(), 300000);
-    }
-    const occupied = Bun.serve({ hostname: "127.0.0.1", port: 3210, fetch: () => new Response("another app") });
+    // Grouped acceptance shares the parent's outside app on 3210; profiles use their own origins.
+    const occupied = group ? null : Bun.serve({ hostname: "127.0.0.1", port: 3210, fetch: () => new Response("another app") });
     try {
       await expectInstall(true);
       assert.equal(await (await fetch(ORIGIN)).text(), "another app");
       await expectInstall(true);
       await close();
       assert.equal(await (await fetch(ORIGIN)).text(), "another app");
-    } finally { occupied.stop(true); }
+    } finally { occupied?.stop(true); }
     passed("3210 başka uygulamadayken kurulum/açılış ve ikinci açılış başarılı; diğer süreç korunuyor");
     delayManifest = true;
     const previousRequests = manifestRequests;
@@ -369,24 +368,18 @@ async function run() {
 async function runAll() {
   const { run: execute } = require("./ci-build.cjs");
   const args = process.argv.slice(2);
-  const checks = join(root, "dist/electron/checks");
-  await mkdir(checks, { recursive: true });
-  const coordination = await mkdtemp(join(checks, "acceptance-"));
-  const signal = join(coordination, "update-finished");
   let occupied;
   try {
-    // Concurrent profiles use ephemeral ports; the fixed-port lifecycle runs after the update chain exits.
-    occupied = Bun.serve({ hostname: "127.0.0.1", port: 3210, fetch: () => new Response("acceptance port guard") });
+    occupied = Bun.serve({ hostname: "127.0.0.1", port: 3210, fetch: () => new Response("another app") });
     const results = await Promise.allSettled([
-      execute(process.execPath, [__filename, ...args, "--group", "update"])
-        .finally(async () => { occupied.stop(true); await writeFile(signal, "done"); }),
-      execute(process.execPath, [__filename, ...args, "--group", "recovery", "--wait-for-update", signal]),
+      execute(process.execPath, [__filename, ...args, "--group", "update"]),
+      execute(process.execPath, [__filename, ...args, "--group", "recovery"]),
     ]);
+    assert.equal(await (await fetch(ORIGIN)).text(), "another app");
     const failures = results.filter(result => result.status === "rejected").map(result => result.reason);
     if (failures.length) throw new AggregateError(failures, "Windows güncelleme ve onarım kabulünü kontrol et.");
   } finally {
     occupied?.stop(true);
-    await rm(coordination, { recursive: true, force: true });
   }
 }
 

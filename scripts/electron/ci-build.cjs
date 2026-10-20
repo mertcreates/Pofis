@@ -72,7 +72,7 @@ async function preflight(target, acceptance, execute = run, summary = process.en
   await timed("Electron kurulumu", () => execute(process.execPath, ["run", "desktop:install"], root, env), summary);
   if (target.id === "darwin-x64") {
     const binary = join(electronDist, target.electronExecutable);
-    await execute("/usr/bin/lipo", [binary, "-verify_arch", "x86_64"]);
+    await timed("Intel Electron mimarisi", () => execute("/usr/bin/lipo", [binary, "-verify_arch", "x86_64"]), summary);
   }
   if (acceptance) {
     await timed("Masaüstü birim testleri", () => execute(process.execPath, ["test", "./electron", "./scripts/electron"]), summary);
@@ -82,21 +82,22 @@ async function preflight(target, acceptance, execute = run, summary = process.en
 
 async function build(version, siteDirectory, { execute = run, summary = process.env.GITHUB_STEP_SUMMARY, distribution = true } = {}) {
   await checkVersion(version);
-  const target = platformTarget();
+  const target = platformTarget(process.platform,
+    process.platform === "darwin" && process.env.RELEASE_TARGET === "darwin-x64" && process.env.INTEL_BUN_PATH ? "x64" : process.arch);
   if (process.env.RELEASE_TARGET && process.env.RELEASE_TARGET !== target.id) {
     throw new Error("Derleme ortamının mimarisi seçilen yayın hedefiyle eşleşmiyor.");
   }
   if (!siteDirectory) throw new Error("CI kurulum testi için tanıtım sitesinin klasörü gerekli.");
   // Intel CI deliberately keeps static package checks only; all other targets retain full acceptance.
   const acceptance = target.id !== "darwin-x64";
-  // Compilation keeps x64 Bun/SWC; filesystem work can use the runner's native Bun.
-  const packagingBun = target.id === "darwin-x64" && process.env.HOST_BUN_PATH || process.execPath;
+  // Only the Intel compiler needs Rosetta; orchestration and system tools use native Bun.
+  const compilerBun = target.id === "darwin-x64" && process.env.INTEL_BUN_PATH || process.execPath;
   const stage = (label, task) => timed(label, task, summary);
   if (summary) await appendFile(summary,
     `\n## ${target.id} aşama süreleri\n\n| Aşama | Sonuç | Saniye |\n| --- | --- | --- |\n`);
   await preflight(target, acceptance, execute, summary);
-  await stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")]));
-  await stage("Electron paketleme ve imza", () => execute(packagingBun, [join(__dirname, "package.cjs"), target.arch]));
+  await stage("Next standalone derlemesi", () => execute(compilerBun, [join(__dirname, "build.cjs")]));
+  await stage("Electron paketleme ve imza", () => execute(process.execPath, [join(__dirname, "package.cjs"), target.arch]));
   const packages = join(root, "dist", target.outputDirectory);
   const names = (await readdir(packages)).filter(name => name.startsWith(`Pofis-${target.id}-`));
   if (names.length !== 1) throw new Error("CI temiz çalışma alanında tam bir yeni paket üretmeli.");
@@ -105,8 +106,8 @@ async function build(version, siteDirectory, { execute = run, summary = process.
   const checks = await Promise.allSettled([
     acceptance
       ? stage("Paket açılış ve süreç kabulü", () => execute(process.execPath, ["run", "test:desktop:smoke", directory]))
-      : stage("Intel statik paket kontrolü", () => execute(packagingBun, [join(__dirname, "macos-static-check.cjs"), directory])),
-    stage("Dağıtım ZIP ve manifest", () => execute(packagingBun, [join(__dirname, "release.cjs"), "-PackageDirectory", directory, "-Arch", target.arch])),
+      : stage("Intel statik paket kontrolü", () => execute(process.execPath, [join(__dirname, "macos-static-check.cjs"), directory])),
+    stage("Dağıtım ZIP ve manifest", () => execute(process.execPath, [join(__dirname, "release.cjs"), "-PackageDirectory", directory, "-Arch", target.arch])),
   ]);
   const failures = checks.filter(result => result.status === "rejected").map(result => result.reason);
   if (failures.length) throw new AggregateError(failures, failures.map(error => error.message).join("\n"));

@@ -121,7 +121,7 @@ test("macOS Intel hazırlığını paketlemeyle örtüştürür; hazırlık hata
   expect(settled).toBe(false);
   finishNative();
   await expect(pending).rejects.toThrow("Intel hazırlığı başarısız");
-  expect(calls.some(call => call.command === "intel-bun")).toBe(false);
+  expect(calls.some(call => call.args.at(-1) === "build")).toBe(false);
 });
 
 test("macOS kurtarılan hedefin kabulünü veya üretimini tekrarlamaz", async () => {
@@ -143,12 +143,16 @@ test("Intel derlemesi ARM paketini bekler; paket veya Intel hatası yayın önce
     const intelStarted = new Promise(done => { startedIntel = done; });
     let settled = false;
     const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", intelBun: "intel-bun", summary: null,
-      execute: async (command, args) => {
+      execute: async (command, args, _cwd, env) => {
         const step = command === "/bin/bash" ? "prepare" : args.at(-1);
         calls.push(step);
         if (step === "package") return packageGate;
         if (step === "accept") return new Promise(done => { finishAccept = done; });
-        if (step === "build") { startedIntel(); throw failure; }
+        if (step === "build") {
+          expect(command).toBe(process.execPath);
+          expect(env.INTEL_BUN_PATH).toBe("intel-bun");
+          startedIntel(); throw failure;
+        }
       },
     }).finally(() => { settled = true; });
     expect(calls).toEqual(["package", "prepare"]);
@@ -167,7 +171,7 @@ test("Intel derlemesi ARM paketini bekler; paket veya Intel hatası yayın önce
   }
 });
 
-test("Intel derlemesi kendi Bun'ını, paketleme araçları native Bun ve açık x64 hedefini kullanır", async () => {
+test("Intel derlemesi x64 Bun'ını, koordinasyon ve paket araçları native Bun'ı kullanır", async () => {
   const directory = await realpath(await mkdtemp(join(tmpdir(), "pofis-intel-ci-")));
   try {
     for (const path of ["scripts/electron", "electron", "dist/macos/Pofis-darwin-x64-fixture"]) {
@@ -175,25 +179,29 @@ test("Intel derlemesi kendi Bun'ını, paketleme araçları native Bun ve açık
     }
     await copyFile(join(__dirname, "ci-build.cjs"), join(directory, "scripts/electron/ci-build.cjs"));
     await writeFile(join(directory, "package.json"), JSON.stringify({ version }));
-    await writeFile(join(directory, "electron/platform.cjs"), `module.exports.platformTarget = () => ({
+    await writeFile(join(directory, "electron/platform.cjs"), `module.exports.platformTarget = (platform, arch) => {
+      if (platform !== 'darwin' || arch !== 'x64') throw Error('Intel target was not selected from native ARM host');
+      return {
       id: 'darwin-x64', platform: 'darwin', arch: 'x64', outputDirectory: 'macos', releaseDirectory: 'macos/x64',
       electronExecutable: 'Electron.app/Contents/MacOS/Electron'
-    });`);
+    }; };`);
     await writeFile(join(directory, "scripts/electron/prepare-site.cjs"), "module.exports.prepareSite = async () => {};");
     await promisify(execFile)(process.execPath, ["-e", `
+      Object.defineProperty(process, 'platform', { value: 'darwin' });
+      Object.defineProperty(process, 'arch', { value: 'arm64' });
       const { build } = require('./scripts/electron/ci-build.cjs');
       const calls = [];
       await build(${JSON.stringify(version)}, 'site', { summary: null,
         execute: async (command, args) => { calls.push({ command, args }); }
       });
       await Bun.write('calls.json', JSON.stringify(calls));
-    `], { cwd: directory, env: { ...process.env, RELEASE_TARGET: "darwin-x64", HOST_BUN_PATH: "native-bun" }, windowsHide: true });
+    `], { cwd: directory, env: { ...process.env, RELEASE_TARGET: "darwin-x64", INTEL_BUN_PATH: "intel-bun" }, windowsHide: true });
     const calls = JSON.parse(await readFile(join(directory, "calls.json"), "utf8"));
     const scriptCall = name => calls.find(call => basename(call.args[0]) === name);
-    expect(scriptCall("build.cjs").command).toBe(process.execPath);
-    expect(scriptCall("package.cjs")).toEqual({ command: "native-bun", args: [join(directory, "scripts/electron/package.cjs"), "x64"] });
-    expect(scriptCall("macos-static-check.cjs").command).toBe("native-bun");
-    expect(scriptCall("release.cjs").command).toBe("native-bun");
+    expect(scriptCall("build.cjs").command).toBe("intel-bun");
+    expect(scriptCall("package.cjs")).toEqual({ command: process.execPath, args: [join(directory, "scripts/electron/package.cjs"), "x64"] });
+    expect(scriptCall("macos-static-check.cjs").command).toBe(process.execPath);
+    expect(scriptCall("release.cjs").command).toBe(process.execPath);
     expect(scriptCall("release.cjs").args.slice(-2)).toEqual(["-Arch", "x64"]);
     expect(calls.some(call => call.args.some(arg => /clipboard|distribution|test:desktop:smoke/.test(arg)))).toBe(false);
   } finally { await rm(directory, { recursive: true, force: true }); }

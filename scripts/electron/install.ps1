@@ -96,12 +96,25 @@ function Expand-VerifiedArchive([string]$Archive, [string]$Directory) {
     $zip = [IO.Compression.ZipFile]::OpenRead($Archive)
     $prefix = [IO.Path]::GetFullPath($Directory).TrimEnd('\') + '\'
     try {
+        $files = [Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
         foreach ($entry in $zip.Entries) {
             if ($entry.FullName.Contains(':') -or (($entry.ExternalAttributes -shr 16) -band 0xF000) -eq 0xA000) {
                 throw 'Pakette desteklenmeyen dosya yolu var.'
             }
             $target = [IO.Path]::GetFullPath([IO.Path]::Combine($Directory, $entry.FullName))
             if (-not $target.StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) { throw 'Paket kurulum dizininin dışına yazmaya çalışıyor.' }
+            if ($entry.Name -and -not $files.Add($target)) { throw 'Pakette aynı dosya yolu birden fazla kez bulunuyor.' }
+            if ($entry.Name -and [IO.File]::Exists(('\\?\' + $target))) { throw 'Paket açılacak dizinde aynı dosya bulunuyor.' }
+        }
+        # Validate the whole archive before handing it to Windows' native extractor.
+        $tar = Join-Path $env:SystemRoot 'System32\tar.exe'
+        if ([IO.File]::Exists($tar)) {
+            & $tar -x -k -f $Archive -C $Directory
+            if ($LASTEXITCODE -ne 0) { throw 'Paket açılamadı. Kurulum komutunu yeniden çalıştırabilirsin.' }
+            return
+        }
+        foreach ($entry in $zip.Entries) {
+            $target = [IO.Path]::GetFullPath([IO.Path]::Combine($Directory, $entry.FullName))
             # Normalize and check containment before applying the Windows long-path prefix.
             $target = '\\?\' + $target
             if (-not $entry.Name) { [IO.Directory]::CreateDirectory($target) | Out-Null; continue }

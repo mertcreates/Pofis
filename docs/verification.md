@@ -58,6 +58,8 @@ Installer kapanış sözleşmesi `bun test ./scripts/electron/install-close.test
 
 [Masaüstü rehberi](desktop.md#tekrarlanabilir-kabul) ortak platform/süreç testlerini, Node/Bun bulunmayan PATH ile paket kabulünü ve gerçek PDKS elle kontrol zincirini yönetir. Windows ve macOS hedefinde `bun run test:desktop` ve paket hazırlandıktan sonra aynı `bun run test:desktop:smoke` çalıştırılır. Windows ZIP'i için ayrıca `bun run test:desktop:distribution` kurulum/güncelleme/temizlik ve veri koruma yollarını izole dizinlerde sınar. macOS sistem araçlarını, gerçek pencereyi, izinleri ve Gatekeeper davranışını hedef macOS cihazında kontrol edin. Gerçek PDKS kabulünde kurum hesabını ve ağını kullanın. Tamamlanan masaüstü kabullerinin güncel durumu [masaüstü rehberindedir](desktop.md).
 
+`bun test ./scripts/electron/install-archive.test.cjs`, Windows sistem aracı ve .NET arşiv açıcılarında dosya içeriğini, mevcut dosyanın korunmasını ve arşiv sınırlarını doğrular. Dizin dışına çıkan yollar, alternatif veri akışları, sembolik bağlantılar ve yinelenen dosyalar yazma başlamadan reddedilir. Gerçek ZIP'in uzun yolları ve uygulama açılışı tam dağıtım kabulünde sınanır.
+
 ## Sonuçların yönetimi
 
 Electron motoru değiştiğinde [motor geçişi kabulünü](desktop.md#motor-geçişi-kabulü) gerçek önceki/yeni paketlerle çalıştırın. Aynı paketin sürümünü değiştiren installer fixture'ları profilin farklı Chromium sürümleri arasında okunmasını kanıtlamaz. Ortak paket kabulü native sharp yüklemesini de sınar; pano kabulü yalnız izole CI/VM masaüstünde çalışır. Monterey için iki mimaride gerçek macOS 12 kabulü gerekir.

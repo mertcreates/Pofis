@@ -18,7 +18,7 @@ async function finishMacBuild({ version, siteDirectory, intelDirectory, intelBun
     const env = {
       ...process.env, RELEASE_VERSION: version, RELEASE_TARGET: "darwin-x64",
       SITE_DIRECTORY: `${siteDirectory}-intel`, GITHUB_STEP_SUMMARY: summary ? intelSummary : "",
-      HOST_BUN_PATH: process.execPath,
+      INTEL_BUN_PATH: intelBun,
       npm_config_arch: "x64", npm_config_platform: "darwin", npm_config_target_arch: "x64",
       ELECTRON_INSTALL_ARCH: "x64", ELECTRON_INSTALL_PLATFORM: "darwin",
     };
@@ -26,7 +26,7 @@ async function finishMacBuild({ version, siteDirectory, intelDirectory, intelBun
       [join(__dirname, "prepare-intel.sh"), intelBun], intelDirectory, env), summary ? intelSummary : null);
     // Prepare Intel while ARM64 packages; start its compiler alongside ARM64 installer acceptance.
     await nativePackage;
-    await execute(intelBun, [join(intelDirectory, "scripts/electron/ci-build.cjs"), "build"], intelDirectory, env);
+    await execute(process.execPath, [join(intelDirectory, "scripts/electron/ci-build.cjs"), "build"], intelDirectory, env);
   })());
   // Both chains finish before staging. A failure in either chain rejects the job.
   const results = await Promise.allSettled(tasks);
