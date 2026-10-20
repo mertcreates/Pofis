@@ -7,6 +7,7 @@ if (!process.argv.includes("--isolated-desktop")) {
 
 if (process.versions.electron) {
   const assert = require("node:assert/strict");
+  const { setTimeout: delay } = require("node:timers/promises");
   const { app, BrowserWindow, clipboard, session } = require("electron");
   const { installPermissions } = require("../../electron/permissions.cjs");
   const { ORIGIN } = require("../../electron/server.cjs");
@@ -32,7 +33,11 @@ if (process.versions.electron) {
       assert.equal(await write(), "NotAllowedError", "Eski politika hatayı yeniden üretmeli");
       installPermissions(isolated, () => window.webContents);
       assert.equal(await write(), "copied", "Pofis ana çerçevesi panoya yazabilmeli");
-      assert.equal(clipboard.readText(), "Pofis · teknik ayrıntı kabul testi");
+      // Chromium resolves writeText after sending CommitWrite IPC, before the native write is observed here.
+      const expectedText = "Pofis · teknik ayrıntı kabul testi";
+      const deadline = Date.now() + 5000;
+      while (clipboard.readText() !== expectedText && Date.now() < deadline) await delay(25);
+      assert.equal(clipboard.readText(), expectedText, "Renderer yazısı 5 saniyede sistem panosuna ulaşmalı");
       const read = await window.webContents.executeJavaScript(`(async () => {
         try { await navigator.clipboard.readText(); return "read"; }
         catch (error) { return error.name; }
