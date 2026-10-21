@@ -5,6 +5,7 @@ import { mealSamples } from "../lib/meals/history-sample";
 import { getMealPofiCommentary } from "../lib/meals/commentary";
 import { presentMeal } from "../lib/meals/presentation";
 import * as meals from "./meals";
+import { PdksError } from "./pdks.js";
 
 test("meal route uses session identity and returns only chosen text with the source menu", async () => {
   const symbol = Symbol.for("pofis.session-manager:account-key-v1");
@@ -18,6 +19,7 @@ test("meal route uses session identity and returns only chosen text with the sou
       return accountKey ? { client: { self: { pofiKey: accountKey } } } : null;
     },
     disconnect: async () => {},
+    assertActive: () => {},
   };
   const request = (key?: string, date = "2026-10-20") => new NextRequest(
     `http://localhost/api/meals?date=${date}&accountKey=untrusted`,
@@ -51,6 +53,40 @@ test("meal route uses session identity and returns only chosen text with the sou
 
     source.mockRejectedValueOnce(new meals.MealInputError("bad date"));
     expect((await GET(request("fixture-alice", "invalid"))).status).toBe(400);
+  } finally {
+    source.mockRestore();
+    globals[symbol] = previous;
+  }
+});
+
+test.each(["success", "failure"])("meal response rechecks a revoked session after source %s", async (outcome) => {
+  const symbol = Symbol.for("pofis.session-manager:account-key-v1");
+  const globals = globalThis as typeof globalThis & Record<symbol, unknown>;
+  const previous = globals[symbol];
+  const session = { client: { self: { pofiKey: "fixture-revoked" } } };
+  let active = true;
+  const started = Promise.withResolvers<void>();
+  const pending = Promise.withResolvers<Awaited<ReturnType<typeof meals.getMealForDate>>>();
+  const source = spyOn(meals, "getMealForDate").mockImplementation(() => {
+    started.resolve();
+    return pending.promise;
+  });
+  globals[symbol] = {
+    sessionFor: async () => session,
+    disconnect: async () => {},
+    assertActive: () => {
+      if (!active) throw new PdksError("Fixture session expired", "SESSION_EXPIRED", 401);
+    },
+  };
+  try {
+    const responsePromise = GET(new NextRequest("http://localhost/api/meals?date=2026-10-20"));
+    await started.promise;
+    active = false;
+    if (outcome === "success") pending.resolve(mealSamples.find((m) => m.date.startsWith("2026-10-20"))!);
+    else pending.reject(new meals.MealSourceError("Fixture source failure"));
+    const response = await responsePromise;
+    expect(response.status).toBe(401);
+    expect(await response.json()).toMatchObject({ error: "Fixture session expired", code: "SESSION_EXPIRED" });
   } finally {
     source.mockRestore();
     globals[symbol] = previous;

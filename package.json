@@ -17,7 +17,7 @@
     "desktop:package": "bun run desktop:prepare && bun scripts/electron/package.cjs",
     "desktop:release": "bun scripts/electron/release.cjs",
     "desktop:site": "bun scripts/electron/prepare-site.cjs",
-    "test:desktop": "bun test ./electron/server.test.cjs ./electron/startup.test.cjs ./electron/platform.test.cjs ./electron/updates.test.cjs ./electron/external-links.test.cjs ./electron/permissions.test.cjs",
+    "test:desktop": "bun test ./electron/server.test.cjs ./electron/startup.test.cjs ./electron/platform.test.cjs ./electron/updates.test.cjs ./electron/external-links.test.cjs ./electron/permissions.test.cjs ./electron/acceptance-network.test.cjs",
     "desktop:serve": "bun scripts/electron/serve-releases.cjs",
     "test:desktop:distribution": "bun scripts/electron/distribution-test.cjs",
     "test:desktop:smoke": "bun scripts/electron/smoke.cjs"

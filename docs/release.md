@@ -83,6 +83,8 @@ Build betiği aşamaları duvar saatiyle ölçer; alt süreç çıktıları loga
 
 ## Yayın sırası ve hata davranışı
 
+[20 Ekim 2026 ölçümü](https://github.com/mertcreates/Pofis/actions/runs/39448234242), `1bd3745` kaynak commit'inde yayın kapalıyken Windows ve iki mimarili macOS paket kabulünü tamamladı: macOS işi 84 s, Windows işi 139 s. macOS 90 s hedefi sağlandı; Windows 120 s hedefi açık. Sonraki ürün değişiklikleri yeni commit'in paket kabulüyle doğrulanır.
+
 [Yayın betiği](../scripts/electron/publish.cjs):
 
 1. Sürümü, public hedef depoyu, uygulamanın `master` dalını ve sürüm düşürülmediğini doğrular; draft release açar.

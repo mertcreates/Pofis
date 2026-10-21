@@ -51,6 +51,8 @@ Yerel oturum ölçümü için `bun scripts/benchmark-sessions.ts 100` çalışt�
 
 ## Masaüstü kabulü
 
+Genel paket/kurulum kabulleri `POFIS_TEST_BLOCK_ANALYTICS=1` ile çalışır. Electron ilk belge yüklenmeden Google etiket ve ölçüm trafiğini engeller; loopback uygulama erişimi sürer. `bun run test:desktop` içindeki gerçek Electron ağ testi bu ayrımı doğrular. GA4 alan ve hesap geçişi kabulü [ölçüm rehberindeki](analytics.md#doğrulama) ayrı betikle yapılır.
+
 `bun test` uygulamanın TypeScript testlerini keşfeder. `.cjs` masaüstü ve dağıtım betiği testleri için `bun test ./electron ./scripts/electron` çalıştırılır; release bu grubu `--parallel=2` ile iki ayrı worker'da çağırır. Tür kontrolü, uygulama testleri ve masaüstü grubu birlikte çalışır; tümü tamamlanıp başarılı olduğunda pano ve derlemeye geçilir. Windows kapanış kararları tek PowerShell sürecinde, her senaryoya yeni fonksiyon ve fixture kapsamı açılarak sınanır. Gerçek süreç kullanan fixture'lar kendi geçici dizinlerinde çalışır. Gerçek zorla kapatma testi ilk kapanış beklemesini taklit eder; iki onay, gerçek süreç sonlandırma, sonlanmayı bekleme ve dış süreci koruma kontrollerini uygular.
 
 `bun run test:desktop`, [sürüm denetimi testlerini](../electron/updates.test.cjs) de çalıştırır. Test manifestleriyle Windows/macOS hedef seçimi, sayısal sürüm karşılaştırması, bildirim seçimi, sabit kurulum komutu, kapanış sırasında sonucu bırakma ve gerçek 5 saniyelik zaman aşımı doğrulanır. Yerel Electron dialogunun ve panonun işletim sistemi davranışı, ayrıca canlı HTTPS manifestleri hedef cihazda kontrol edilir.

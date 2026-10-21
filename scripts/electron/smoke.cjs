@@ -33,6 +33,7 @@ async function run() {
   const executable = join(folder, sourceMode ? target.electronExecutable : target.executable);
   const appArgs = sourceMode ? [join(root, "electron")] : [];
   const env = { ...process.env, PATH: target.platform === "win32" ? join(process.env.SystemRoot, "System32") : "/usr/bin:/bin:/usr/sbin:/sbin" };
+  env.POFIS_TEST_BLOCK_ANALYTICS = "1";
   delete env.ELECTRON_RUN_AS_NODE;
   const fromIndex = process.argv.indexOf("--from");
   const previous = fromIndex === -1 ? null : resolve(process.argv[fromIndex + 1]);

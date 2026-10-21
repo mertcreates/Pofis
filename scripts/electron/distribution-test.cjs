@@ -14,6 +14,7 @@ if (process.platform !== "win32") {
 }
 const powershell = join(process.env.SystemRoot, "System32/WindowsPowerShell/v1.0/powershell.exe");
 const env = { ...process.env, PATH: join(process.env.SystemRoot, "System32") };
+env.POFIS_TEST_BLOCK_ANALYTICS = "1";
 env.PSModulePath = join(process.env.SystemRoot, "System32/WindowsPowerShell/v1.0/Modules");
 delete env.ELECTRON_RUN_AS_NODE;
 const quote = value => `'${String(value).replaceAll("'", "''")}'`;

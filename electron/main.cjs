@@ -6,6 +6,7 @@ const { platformTarget } = require("./platform.cjs");
 const { checkForUpdates } = require("./updates.cjs");
 const { createWindowOpenHandler } = require("./external-links.cjs");
 const { installPermissions } = require("./permissions.cjs");
+const { isolateAcceptanceAnalytics } = require("./acceptance-network.cjs");
 const target = platformTarget();
 
 app.setName("Pofis");
@@ -101,6 +102,7 @@ if (!app.requestSingleInstanceLock()) {
       ] },
     ]) : null);
     installPermissions(session.defaultSession, () => window?.webContents);
+    isolateAcceptanceAnalytics(session.defaultSession, process.env.POFIS_TEST_BLOCK_ANALYTICS === "1");
     session.defaultSession.on("will-download", (event) => event.preventDefault());
     server = createDesktopServer({
       root: app.isPackaged ? join(__dirname, "..", "server") : join(__dirname, "..", ".next", "standalone"),

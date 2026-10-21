@@ -41,6 +41,7 @@ async function run() {
   let zipRequests = 0, manifestRequests = 0, slow = false;
   const archives = new Map();
   const env = { ...process.env, PATH: "/usr/bin:/bin:/usr/sbin:/sbin" };
+  env.POFIS_TEST_BLOCK_ANALYTICS = "1";
   delete env.ELECTRON_RUN_AS_NODE;
   const install = (consent = false) => {
     // Only the terminal answer is stubbed for native CI. Quit and process checks remain real.
