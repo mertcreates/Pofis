@@ -227,6 +227,7 @@ export default function PofiRoom({ onClose, children }) {
               alt={`${product.mascotName}: ${copy.album[photo]}`}
             />
           )}
+          {copy.albumNotes[photo] && <figcaption>{copy.albumNotes[photo]}</figcaption>}
         </figure>
       )}
       {section === "notes" && children}

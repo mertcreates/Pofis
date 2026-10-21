@@ -15,6 +15,7 @@ export const POFI_ASSETS = Object.freeze({
   completed: "/pofi/states/completed.webp",
   overworked: "/pofi/states/overworked.webp",
   error: "/pofi/states/error.webp",
+  meal: "/pofi/pofi-meal.webp",
 });
 
 const pofiStates = Object.freeze(
