@@ -10,14 +10,14 @@ export default {
   },
   developments: {
     d1: "Defteri sağa aldım. Üstündeki kalem de onunla gitti.",
-    d2: "Kupayı kaldırınca altında eski bir not buldum.",
-    d3: "Orta kısımda küçük bir boşluk açıldı. Oraya bir şey koymadım.",
+    d2: "Kupanın altından eski bir not çıktı. Okuyup defterimin arasına koydum.",
+    d3: "Eşyaları kenara çekince ortada küçük bir boşluk açıldı. Oraya bir şey koymadım.",
     d4: "Bir köşeyi topladım. Öteki köşe hâlâ aynıydı.",
   },
   endings: {
     e1: "Kollarımı masaya koyup yeni hâline baktım.",
-    e2: "Masanın üstünde ince bir çizik gördüm. Elimle yokladım.",
-    e3: "Masanın kenarındaki tozu elimle sildim.",
-    e4: "Sandalyemi masaya biraz yaklaştırdım.",
+    e2: "Masaya biraz uzaktan baktım. Bu açıdan daha toplu görünüyordu.",
+    e3: "Masadaki eşyaların arasından bir ataş çıktı. Nereye koysam yine kaybolacak gibi duruyordu.",
+    e4: "İşe başlayınca kaleme bakmadan uzandım. Bu kez masaya bakmam gerekti.",
   },
 };

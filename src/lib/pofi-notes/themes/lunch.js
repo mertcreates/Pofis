@@ -5,19 +5,19 @@ export default {
   intros: {
     i1: "Öğle arasında yemeğimi alıp masaya oturdum.",
     i2: "Öğlen olunca tabağımı alıp bir masaya geçtim.",
-    i3: "Öğle yemeği için cam kenarındaki masaya oturdum.",
-    i4: "Yemekhanede sakin bir köşe bulup yerleştim.",
+    i3: "Tabağımla cam kenarındaki masaya oturdum.",
+    i4: "Yemekhanede sakin bir köşe bulup yemeğimle yerleştim.",
   },
   developments: {
     d1: "İlk lokmayı alırken \"Afiyet olsun,\" dediler. Ağzım doluydu, başımı salladım.",
     d2: "Masanın diğer ucunda biri tuzluğu arıyordu. Önüne uzattım.",
-    d3: "Bir lokma tabağın kenarına kaçmıştı. Çatalımla geri aldım.",
+    d3: "Çatalıma aldığım lokma tabağa geri düştü. Bu kez biraz daha dikkatli aldım.",
     d4: "Peçeteyi unuttuğumu fark edip bir tane aldım.",
   },
   endings: {
     e1: "Yemeğime kaldığım yerden devam ettim.",
-    e2: "Molam bitince sandalyeyi yerine çektim.",
+    e2: "Yemekten sonra sandalyeyi yerine çektim. Yan masadaki de aynı anda çekince ikimiz de dönüp baktık.",
     e3: "Son lokmayı acele etmeden yedim.",
-    e4: "Tabağımı götürürken masaya bir daha baktım.",
+    e4: "Yemeğim bitince tabağımla kalktım. Masadakilere afiyet olsun deyip ayrıldım.",
   },
 };

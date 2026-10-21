@@ -4,7 +4,7 @@ export const sceneScenarios = [
   {
     id: "napkin", kind: "scene", when: "menu",
     variants: [
-      "Peçeteyi katladım. Bir tane de karşıya koydum.",
+      "Peçeteyi açarken iki tane olduğunu fark ettim. Birini karşıya bıraktım.",
       "Peçeteyi üçgen yaptım. Tabağın yanına küçük bir çadır kuruldu.",
       "Peçeteyi küçük bir kare yaptım. Köşesi yine açılınca kaşığı üstüne koydum.",
     ],
@@ -21,15 +21,15 @@ export const sceneScenarios = [
     id: "cutlery", kind: "scene", when: "menu",
     variants: [
       "Kaşığın içine bakınca yüzüm ters göründü. Kaşığı çevirdim, bu kez burnum büyüdü.",
-      "Kaşığı düzelttim, çatal biraz eğri kaldı. Onu da düzelttim.",
-      "Çatalı peçetenin üstüne koydum. Kaymasın diye peçeteyi de biraz açtım.",
+      "Kaşıkla çatalı yan yana düzelttim. Tepsiyi kaldırınca ikisi de eski yerine kaydı.",
+      "Çatalın bir ucu peçetenin dışına taşıyordu. Peçeteyi açınca çataldan çok ona yer gerekti.",
     ],
   },
   {
     id: "make-room", kind: "scene", when: "menu",
     variants: [
       "Masadaki notları topladım. Tabağın yeri ortaya çıktı.",
-      "Defterimi kapatıp tabağa yer açtım. Kaldığım sayfaya kalemimi koydum, yemekten sonra oradan açacağım.",
+      "Kaldığım sayfaya kalemimi koyup defteri kapattım. Tabağımı boşalan yere yerleştirdim.",
       "Masamdaki bitkinin yaprağı tabağın üstüne gelmiş. Saksıyı biraz yana çektim, yaprağa da yer kaldı.",
     ],
   },
@@ -44,8 +44,8 @@ export const sceneScenarios = [
   {
     id: "menu-paper", kind: "scene", when: "source",
     variants: [
-      "Menüye bakarken parmağımı satırın yanında tuttum. Sonuna kadar birlikte indik.",
-      "Yemeklerin adını not ettim. Arkadaşım gözlüğünü arayınca daha büyük harflerle yeniden yazıp ona uzattım.",
+      "Menüyü parmağımla takip ederek okudum. Arkadaşım bir satırı gösterince onun kaldığı yerden devam etmişim.",
+      "Arkadaşım gözlüğünü ararken menüyü sesli okudum. Gözlüğünü bulunca da dinlemeye devam etti.",
       "Menüyü katlayınca son satır içeride kaldı. Açık dursun diye kenarına bardağımı koydum.",
     ],
   },
@@ -68,8 +68,8 @@ export const sceneScenarios = [
   {
     id: "single-main", kind: "scene", when: "single-main",
     variants: [
-      "Ana yemeği not ettim. Kalan boşluğa küçük bir tabak çizdim.",
-      "Ana yemeği söyleyip menüyü arkadaşıma uzattım. O da okuyunca kâğıdı katlayıp cebime koydum.",
+      "Ana yemeği okuyup menüyü bıraktım. Arkadaşım adını sorunca tam söyleyebilmek için geri aldım.",
+      "Ana yemeği okuyup menüyü arkadaşıma uzattım. O da arkasına uzatınca kâğıt masayı dolaştı.",
       "Ana yemek aklımda. Patilerimi yıkamaya giderken adını içimden tekrarladım.",
     ],
   },
@@ -78,7 +78,7 @@ export const sceneScenarios = [
     variants: [
       "Ana yemeği seçmeden yanına alacağımı seçmişim. Tabağın ortasını şimdilik boş bıraktım.",
       "Yanında ne olduğunu önce okudum. Arkadaşım ana yemeği sorunca menünün başına birlikte döndük.",
-      "Yanına gelecek yemeği not ettim. Ana yemek için kâğıtta biraz boşluk bıraktım.",
+      "İki ayrı ana yemek seçtik, yanlarına aynı yemek geldi. Arkadaşımın tabağı bir yanıyla benimkine benziyordu.",
     ],
   },
   {

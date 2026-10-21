@@ -15,9 +15,9 @@ export default {
     d4: "Kapıdaki oda numarasına baktım. Takvimdekiyle aynı değildi.",
   },
   endings: {
-    e1: "Yanlış odada olduğumu anlayınca sessizce çıktım.",
+    e1: "Sessizce çıktım. Koridorda benim toplantımdan birini görünce peşine takıldım.",
     e2: "Doğru odaya gidince kapıdaki numarayı iki kez okudum.",
     e3: "Çıkarken \"Kolay gelsin\" dedim. Karşılık verdiler.",
-    e4: "Kapıyı arkamdan kapattım. Bu kez takvime baktım.",
+    e4: "Koridora çıkıp takvimdeki oda numarasını aklımda tekrarladım. Doğru kapıya kadar unutmadım.",
   },
 };

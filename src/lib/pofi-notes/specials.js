@@ -39,8 +39,8 @@ export const POFI_SPECIAL_NOTES = {
       ],
       "v3": [
         "Bugün 29 Şubat.",
-        "Takvimde bir gün daha buldum.",
-        "Silmedim."
+        "Defterime alışkanlıkla 1 Mart yazmışım.",
+        "Silip düzelttim. Bir gün erken davranmışım."
       ],
       "v4": [
         "Şubat bitmek için biraz daha bekliyormuş.",
@@ -60,7 +60,7 @@ export const POFI_SPECIAL_NOTES = {
       "v2": [
         "Sabah masamda kâğıttan bir gemi vardı.",
         "Bir süre nereye gideceğini düşündüm.",
-        "Şimdilik burada durdu."
+        "Şimdilik masamda kalmasına karar verdim."
       ],
       "v3": [
         "Küçük bir kâğıt gemi gördüm.",
@@ -69,8 +69,8 @@ export const POFI_SPECIAL_NOTES = {
       ],
       "v4": [
         "Defterimi açınca arasından küçük bir gemi düştü.",
-        "Yerde biraz bekledi.",
-        "Onu masama aldım."
+        "Eğilip aldım, burnu biraz ezilmişti.",
+        "Düzeltip masaya koydum."
       ]
     }
   },
@@ -80,7 +80,7 @@ export const POFI_SPECIAL_NOTES = {
       "v1": [
         "Masamdaki kâğıt gemiyi pencereye yaklaştırdım.",
         "Gölgesi biraz büyüdü.",
-        "Gölgesinin yanına kalemimi koydum."
+        "Gölgesi kalemliğe kadar uzandı. Kalemliği biraz yana çektim."
       ],
       "v2": [
         "Kâğıt gemi bugün masanın öbür ucundaydı.",
@@ -89,8 +89,8 @@ export const POFI_SPECIAL_NOTES = {
       ],
       "v3": [
         "Küçük geminin burnu kıvrılmış.",
-        "Düzeltmeye çalıştım.",
-        "Böyle de durabiliyordu."
+        "Düzelttim ama bırakınca yine kıvrıldı.",
+        "Masaya koydum. Böyle de durabiliyordu."
       ],
       "v4": [
         "Kâğıt gemiyi bir süre izledim.",
@@ -120,7 +120,7 @@ export const POFI_SPECIAL_NOTES = {
       "v4": [
         "Küçük kâğıt gemiyi başka bir yere koydum.",
         "Orada daha az rüzgâr var.",
-        "Artık eski yerini de yeni yerini de biliyorum."
+        "Bu kez kâğıtlarım uçuşurken gemi yerinde kaldı."
       ]
     }
   },

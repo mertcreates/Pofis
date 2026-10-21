@@ -2,16 +2,16 @@
   {
     "key": "fixture-a",
     "count": 794,
-    "sha256": "dd7353595a92db26d8c0ed6a59261cbf18499ab0d86b0291a01a6b919ad6699d"
+    "sha256": "62b023a1c5e75a075422e46a146620fb10b21f4ef70ae8db1d69bc77b09bc002"
   },
   {
     "key": "fixture-b",
     "count": 794,
-    "sha256": "7e12ddc87d7954f61f29b93462344a47878d8dfcba8a297ed89c63cb1a30aefa"
+    "sha256": "54acfcb518da8f4bcdaf3a6d32b22c7bf95abae1bf5b3f256e4f571d5166c216"
   },
   {
     "key": "Türkçe-anahtar",
     "count": 794,
-    "sha256": "5f86d658c00198ff0377176bf639a754ca273017d0cb2ce874a5d8a466807bef"
+    "sha256": "84e27e284e8766e99d838c663be010c07ac2e8585358a224cc56fbb00b2e5d60"
   }
 ]

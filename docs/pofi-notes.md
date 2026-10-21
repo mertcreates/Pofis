@@ -45,7 +45,7 @@ Güncel tema ve özel not metinleri [içerik fixture'ındaki](../src/lib/pofi-no
 2. Temayı `themes/index.js` listesine bir kez ekleyin. Katalog ve seçim motoru yeni kombinasyonları tek havuza dahil eder.
 3. Yeni parçayı ilgili gruba ekleyin; her grupta en az bir dolu metin olmalıdır.
 4. Kimlikler küçük harfle başlamalı; küçük harf, rakam ve tire içerebilir. Normal not kimliği `coffee:i1:d1:e1`, özel not kimliği `special:little-star:v1` biçimindedir.
-5. Metni [ton rehberine](brand/pofi-tone-guide.md) göre inceleyin, doğrulayın ve temsilî tarih/kişi anahtarıyla önizleyin.
+5. Metni [ton rehberindeki birleşim kontrolüne](brand/pofi-tone-guide.md#birleşmiş-notu-okuma) göre inceleyin. Her giriş–gelişme ve gelişme–kapanış eşleşmesinde nesne, zaman ve eylem sürekliliğini kontrol edin; birleşmiş notu baştan sona okuyun. Ardından doğrulayın ve temsilî tarih/kişi anahtarıyla önizleyin.
 
 Özel not eklerken metni `specials.js` içine, `MM-DD → note` eşleştirmesini `special-days.ts` içine ekleyin. `sharedVariant` varsa herkes o varyantı görür; yoksa kişi anahtarıyla seçim yapılır.
 

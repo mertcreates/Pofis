@@ -182,6 +182,20 @@ Her giriş, gelişme ve kapanış birleşimi anlam, nesne ve olay sürekliliği 
 
 **Kombinasyon sayısından önce hikâyenin doğallığı gelir.**
 
+### Birleşmiş notu okuma
+
+Metni girişten kapanışa tek bir an olarak oku. Nesnenin nerede olduğunu, Pofi'nin ne yaptığını ve son cümlenin hangi ayrıntıya karşılık verdiğini izle.
+
+- Her gelişmenin bıraktığı durum, her kapanışın başlangıcına uygun olsun. “Yine”, “bu kez”, “geri” gibi sözcükler önceki parçada gerçekten yaşanan bir olaya dayansın.
+- Bir nesneyle yapılan hareketi gözde canlandır: defteri kapatmadan önce kalemi arasına koy; ödünç kalem geri verildiyse sonraki hareketin hangi kalemle yapıldığını açık tut.
+- Kapanış sahnedeki ayrıntıyı sürdürsün. Bir eşyanın yerini değiştirmek veya işe dönmek, anlatılan olayla ilişkisi olduğunda yeterlidir.
+- Cümle uzunluğunu anlatırken verilecek doğal duraklara göre seç. Her hareketi ayrı kısa cümleye bölmek yerine birbiriyle ilişkili hareketleri birlikte anlat.
+- Küçük bir gözlem veya sıradan bir sonuç da notu tamamlayabilir. Mizah kullanıldığında Pofi'nin tepkisi sahneden anlaşılır olsun; sonuna açıklayıcı bir espri eklemek gerekmez.
+
+Örneğin kraker paketini açan, krakeri ikiye bölerken kırıntı döken Pofi, sonraki krakeri paketin üstünde yiyebilir. Kapanış önceki olaya cevap verir. Aynı kapanış, kırıntıların döküldüğü diğer gelişmelerle de birlikte okunur.
+
+Yemek yorumları bütün metin olarak değerlendirilir. Aynı senaryonun varyantları farklı küçük anlar taşısın. Havuz boyunca not alma, çizim yapma, kaşık hazırlama ve arkadaşına menüyü gösterme gibi hareketlerin sıklığını da kontrol et. Menüdeki ad ve rol koşulları, metinde adı geçen yemekleri desteklesin; Pofi'nin kurgusal sofra anını kaynağın bildirmediği tat, porsiyon veya içerik bilgisine dönüştürme.
+
 ## 8. Gizli oda ve easter egg dili
 
 Pofis'in küçük sürprizleri, kullanıcının zaten orada duran küçük bir ayrıntıyı keşfetmesi gibi hissettirmelidir.

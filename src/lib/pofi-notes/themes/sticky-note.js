@@ -17,7 +17,7 @@ export default {
   endings: {
     e1: "Sonra işime döndüm. Not gözümün önündeydi.",
     e2: "Bir süre sonra gözüm yine nota takıldı.",
-    e3: "Notun altına küçük bir çizgi çektim.",
+    e3: "Biraz geriden okuyayım dedim. Kendi yazıma bakmak için yine yaklaşmam gerekti.",
     e4: "İşi bitirince kaldırırım diye düşündüm. Şimdilik orada kaldı.",
   },
 };

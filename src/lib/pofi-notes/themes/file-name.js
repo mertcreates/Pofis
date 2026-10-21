@@ -15,9 +15,9 @@ export default {
     d4: "Dosyanın içeriğini düşündüm. Adına iki kelime yazdım.",
   },
   endings: {
-    e1: "Sonunda adını yazıp dosyayı kaydettim.",
+    e1: "Kaydettim. Dosyaya isim bulmak, son cümlesini yazmaktan uzun sürmüştü.",
     e2: "Adını koyunca dosya biraz daha tamamlanmış göründü.",
     e3: "Dosyayı kapatmadan önce adını bir kez daha okudum.",
-    e4: "Biraz sonra dosyayı yeniden açtım. Bulmam uzun sürmedi.",
+    e4: "Dosyayı kaydedip kapattım. Biraz sonra yeniden açmam gerekti; en azından adını biliyordum.",
   },
 };

@@ -4,9 +4,9 @@ export const dishScenarios = [
   {
     id: "lahmacun", kind: "dish", requires: [{ food: "lahmacun", role: "main" }],
     variants: [
-      "Lahmacunu görünce peçeteyi yanıma aldım. Açarken bir tane de arkadaşımın önüne bıraktım.",
+      "Lahmacun için peçete alırken arkadaşım da istedi. Bir tane de onun önüne bıraktım.",
       "Lahmacun yazan satırda durdum. Menüyü arkadaşıma uzatırken parmağım hâlâ oradaydı.",
-      "Lahmacunu okuyunca ellerimi yıkamaya gittim. Dönüşte menüye bir daha baktım.",
+      "Lahmacun varmış deyip ellerimi yıkamaya kalktım. Yanımdaki de benimle kalktı.",
     ],
   },
   {
@@ -20,7 +20,7 @@ export const dishScenarios = [
   {
     id: "pide", kind: "dish", requires: [{ food: "pide", role: "main" }],
     variants: [
-      "Pideyi görünce çatalı bıraktım. Nasıl geleceğini görmeden karar vermişim.",
+      "Pideyi elimle mi yesem diye düşündüm. Gelince bakarım deyip çatalı şimdilik bıraktım.",
       "Pide diye not almıştım. Yanımdaki hangisi diye sorunca menüyü yeniden açtım.",
       "Menüde pide varmış. Ellerimi yıkayıp geliyorum.",
     ],
@@ -49,14 +49,14 @@ export const dishScenarios = [
   {
     id: "kofte", kind: "dish", requires: [{ food: "kofte", role: "main" }],
     variants: [
-      "Köfteyi görünce çatalı hazırladım. Henüz masaya oturmamışım.",
-      "Köfte diye not aldım. Yanımdaki hangisi diye sorunca adını fazla kısalttığımı fark ettim.",
+      "Menüde köfte var dedim. Arkadaşım hangisi diye sorunca atladığım sözcükleri de okudum.",
+      "Köfteyi seçtim, arkadaşım da aynısını istedi. Sıramız gelince ikimiz birden söyledik.",
     ],
   },
   {
     id: "beans", kind: "dish", requires: [{ food: "beans" }],
     variants: [
-      "Kuru fasulyeyi görünce tabağı önüme çektim. Daha menüyü okuyordum aslında.",
+      "Kuru fasulye varmış diye arkama döndüm. Arkadaşım da aynı şeyi söylemek için bana dönmüş.",
       "Kuru fasulye diyecektim. Karnım benden önce ses çıkardı.",
       "Kuru fasulyeye çatal mı, kaşık mı alsam diye düşündüm. İkisini de aldım, masada karar veririm.",
     ],
@@ -72,21 +72,21 @@ export const dishScenarios = [
     id: "chickpeas", kind: "dish", requires: [{ food: "chickpeas" }],
     variants: [
       "Nohudu görünce kaşığı da aldım. Yuvarlak şeyler bazen çataldan kaçıyor.",
-      "Nohut yazan yere bir yuvarlak çizdim. Yuvarlanmasın diye altına da çizgi çektim.",
+      "Nohudun bitkisine baktım. Küçük bir kabuğun içinden çıkıyormuş, ben hep tabaktaki hâlini biliyordum.",
     ],
   },
   {
     id: "barbunya", kind: "dish", requires: [{ food: "barbunya" }],
     variants: [
       "Barbunya yazdığım kâğıdı arkadaşım alışveriş listesi sandı. Kalemini çıkarınca menüyü gösterdim.",
-      "Barbunya diye mırıldanmışım. Yanımdaki ne dediğimi sorunca bir de onun duyacağı kadar söyledim.",
+      "Barbunyanın bitkisini merak edip resmine baktım. Tanelerini tanıdım, yapraklarını ilk kez görüyordum.",
     ],
   },
   {
     id: "peas", kind: "dish", requires: [{ food: "peas", role: "vegetarian" }],
     variants: [
       "Bezelyeyi görünce kaşığı düşündüm. Tek tek peşinden gitmek zor olabilir.",
-      "Bezelye yazan yere küçük bir nokta koydum. Bezelye kadar oldu.",
+      "Tabağın kenarında bir bezelye kalmıştı. Tabağı bırakacakken onu fark edip geri oturdum.",
     ],
   },
   {
@@ -99,30 +99,30 @@ export const dishScenarios = [
   {
     id: "spinach", kind: "dish", requires: [{ food: "spinach", role: "vegetarian" }],
     variants: [
-      "Ispanağın yanına bir yaprak çizdim. Arkadaşım çınar yaprağına benzetti, adını da yazdım.",
-      "Ispanağı seçince arkadaşım nasıl yaptığını anlattı. Kâğıdın arkasına tarifini yazdım.",
+      "Arkadaşım ıspanağı yıkamanın uzun sürdüğünü anlattı. Ben yalnız pişmesini beklemek gerekir sanıyordum.",
+      "Ispanağı seçince arkadaşım evde nasıl yaptığını anlattı. Tarif bitince ikimiz de acıkmıştık.",
     ],
   },
   {
     id: "rice", kind: "dish", requires: [{ food: "rice", role: "accompaniment" }],
     variants: [
       "Pirinç pilavını görünce tabağın bir kenarını boş bıraktım.",
-      "Pilavı not ederken birkaç nokta koydum. Çizmesi yazmasından kolay geldi.",
+      "Pilavdan bir kaşık aldım, birkaç tane tabakta kaldı. Kaşığı bırakmadan onları da topladım.",
     ],
   },
   {
     id: "almond-rice", kind: "dish", requires: [{ food: "almondRice", role: "accompaniment" }],
     variants: [
       "Pilavı okudum, geçiyordum. Bademli kısmını fark edince geri döndüm.",
-      "Bademli pirinç pilavını görünce bademleri nasıl eklediklerini sordum. Anlatılırken elimle ben de karıştırır gibi yaptım.",
-      "Bademli pilavın yanına bir badem çizdim. Pilavı çizmeye kâğıtta yer kalmadı.",
+      "Bademli pilavın tarifini sordum. Bademleri ne zaman ekleyeceğimi unutmayayım diye o kısmı iki kez dinledim.",
+      "Pilavdan aldığım kaşığın üstünde bir badem duruyordu. Düşürmeden ağzıma götürdüm.",
     ],
   },
   {
     id: "bulgur", kind: "dish", requires: [{ food: "bulgur", role: "accompaniment" }],
     variants: [
       "Bulgur pilavını görünce kaşığı yanıma aldım. Masada aramayayım.",
-      "Bulgur pilavını kendim de yapabilir miyim diye sordum. Birlikte yapalım deyince defterimi kapattım.",
+      "Bulgur pilavının tarifini yazmak için defterimi açtım. Arkadaşım birlikte yaparız deyince kapattım.",
     ],
   },
   {
@@ -143,8 +143,8 @@ export const dishScenarios = [
   {
     id: "ic-pilav", kind: "dish", requires: [{ food: "icPilav", role: "accompaniment" }],
     variants: [
-      "İç pilavın içindekileri sordum. Anlatan kişi sayarken ben de patimle saydım.",
-      "Menüde iç pilav varmış. Küçük notuma pilav diye yazdım, sonra başına iç ekledim.",
+      "İç pilavın içindekileri sordum. Sandığımdan uzun sürdü, kaşığı bırakıp dinledim.",
+      "İç pilavın adını merak ettim. Arkadaşım anlatırken yemeğin adından başlayıp dolmalara geldik.",
     ],
   },
   {
@@ -180,14 +180,14 @@ export const dishScenarios = [
   {
     id: "mercimek-soup", kind: "dish", requires: [{ food: "mercimekSoup", role: "soup" }],
     variants: [
-      "Mercimek çorbasını alırken peçete de uzattılar. Ellerim doluydu, peçeteyi personel kartımın arkasına sıkıştırdım.",
+      "Mercimek çorbasını alırken peçete de uzattılar. Ellerim doluydu, arkadaşım alıp tepsime koydu.",
       "Menüyü mercimek çorbasından okumaya başladım. Yemeğe de oradan başlayacağım.",
     ],
   },
   {
     id: "tomato-soup", kind: "dish", requires: [{ food: "tomatoSoup", role: "soup" }],
     variants: [
-      "Domates çorbasını okurken küçük bir domates çizdim. Sapı biraz büyük oldu.",
+      "Domates çorbasını taşırken kâsenin kenarına bir damla bulaştı. Peçeteyle silip temiz tarafından tuttum.",
       "Domates çorbası için kaşığı aldım. Arkadaşım boş kâseleri dizerken ben de peçeteleri dağıttım.",
     ],
   },
@@ -215,7 +215,7 @@ export const dishScenarios = [
   {
     id: "chicken-soup", kind: "dish", requires: [{ food: "chickenSoup", role: "soup" }],
     variants: [
-      "Tavuklu çorba için kâseyi çektim. Personel kartım içine sarkınca ipini kısalttım.",
+      "Tavuklu çorbaya eğilince personel kartım da kâseye yaklaştı. Kartı yana alıp yeniden eğildim.",
       "Tavuklu çorbayı alırken arkadaşım masada yer ayırdı. Kâsemi koyup ona da bir sandalye çektim.",
     ],
   },
@@ -223,7 +223,7 @@ export const dishScenarios = [
     id: "sehriye-soup", kind: "dish", requires: [{ food: "sehriyeSoup", role: "soup" }],
     variants: [
       "Şehriye çorbası varmış. Kaşığı kâsenin yanına bıraktım.",
-      "Şehriye çorbasını okuyunca küçük küçük çizgiler çizdim. Notum biraz çorbaya benzedi.",
+      "Şehriye çorbasından bir kaşık aldım. Kaşıktaki tek şehriyeye bakarken çorbayı içmeyi unuttum.",
     ],
   },
   {
@@ -238,7 +238,7 @@ export const dishScenarios = [
     variants: [
       "Meyvenin hangisi olduğunu sordum. Yanımdaki de bilmiyormuş, birlikte bakmaya gittik.",
       "Meyvenin adını yazmamışlar. Ben de notuma küçük bir soru işareti koydum.",
-      "Meyveyi merak ettim. Elma çizmeye başladım, henüz belli olmadığını hatırladım.",
+      "Arkadaşım meyve için elma olabilir dedi. Aklımda elma kalmış, kesin değil deyince yeniden merak ettim.",
     ],
   },
   {
@@ -251,7 +251,7 @@ export const dishScenarios = [
   {
     id: "ice-cream", kind: "dish", requires: [{ food: "iceCream", role: "dessert" }],
     variants: [
-      "Dondurmayı görünce küçük kaşığı ayırdım. Masada en öne onu koymuşum.",
+      "Menüde dondurma olduğunu söyleyince arkadaşım gülümsedi. Ben de o satıra bakıyordum.",
       "Dondurma yazan satırı arkadaşıma gösterdim. O da bana elindeki küçük kaşığı gösterdi.",
       "Dondurma için külah çiziyordum. Arkadaşım kâsede de gelebilir deyince yanına bir kâse ekledim.",
     ],
@@ -287,9 +287,9 @@ export const dishScenarios = [
   {
     id: "sekerpare", kind: "dish", requires: [{ food: "sekerpare", role: "dessert" }],
     variants: [
-      "Şekerpareyi arkadaşıma da okudum. Ben adını bitirmeden o küçük tabağını uzattı.",
+      "Şekerpareyi alıp masaya dönerken arkadaşım tatlıyı sordu. Tabağı gösterince o da kalktı.",
       "Menüyü kapatacaktım, şekerpareyi fark ettim. Son kısmı da okudum.",
-      "Şekerpareyi küçük notuma yazdım. Kâğıdın en altına geldi, menüdeki gibi.",
+      "Şekerpare diye sesli okudum. Yan masadan biri nerede diye sorunca menüyü ona çevirdim.",
     ],
   },
   {
@@ -324,14 +324,14 @@ export const dishScenarios = [
     id: "saute", kind: "dish", requires: [{ food: "saute", role: "main" }],
     variants: [
       "Et yemeği için tabağı aldım. Yanımdaki de uzanınca ona da bir tabak verdim.",
-      "Et yemeğinin nasıl yapıldığını dinledim. Tarifin sonunu yazınca kâğıdı ikiye katlayıp cebime koydum.",
+      "Et yemeğinin tarifini sordum. Arkadaşım göz kararı deyince tencereye ne kadar yakından baktığını merak ettim.",
     ],
   },
   {
     id: "roast", kind: "dish", requires: [{ food: "roast", role: "main" }],
     variants: [
       "Rostoyu alıp masaya döndüm. Arkadaşım bardakları taşıyordu, önündeki sandalyeyi çektim.",
-      "Rostoyu not ettiğim kâğıdı katladım. Arkadaşım ne seçtiğimi sorunca kâğıdı açıp önüne koydum.",
+      "Rostoyu seçip masaya geçtim. Arkadaşım ne aldığımı sorunca tabağı ona doğru çevirdim.",
     ],
   },
   {
@@ -352,7 +352,7 @@ export const dishScenarios = [
     id: "nuar", kind: "dish", requires: [{ food: "nuar", role: "main" }],
     variants: [
       "Dana nuarın adını yavaşça okudum. Masada sorarken doğru söyleyeyim.",
-      "Dana nuarı nasıl yaptıklarını sordum. Kâğıdı çıkarıp anlatılanları yazmaya başladım.",
+      "Dana nuarın tarifine baktım. İlk kez okuduğum bir kelime daha çıktı, onu da aradım.",
     ],
   },
   {
@@ -360,7 +360,7 @@ export const dishScenarios = [
     variants: [
       "Hünkâr beğendinin adını görünce masada biraz dik oturdum.",
       "Hünkâr beğendinin adını nereden aldığını sordum. Anlatan kişi bitirince menüdeki adına bir daha baktım.",
-      "Arkadaşım hünkâr beğendi yazdığım notun yanına bir taç çizdi. Kâğıdı masamda dik dursun diye kalemliğe dayadım.",
+      "Hünkâr beğendi dedim, arkadaşım afiyet olsun dedi. Daha menüyü okuyordum ama teşekkür ettim.",
     ],
   },
   {

@@ -16,7 +16,7 @@ export default {
   },
   endings: {
     e1: "Toplantı bitince defterimi kapattım.",
-    e2: "Defterimde bir sonraki toplantıya da yer kaldı.",
+    e2: "Toplantı bitince kendi kalemimi defterin arasında bıraktım. Bir dahakine birlikte gelecekler.",
     e3: "Odadan çıkarken defterimi kolumun altına aldım.",
     e4: "Çıkmadan önce sayfaya bir kez daha baktım.",
   },

@@ -16,8 +16,8 @@ export default {
   },
   endings: {
     e1: "Notumu yazınca kalemi geri verdim.",
-    e2: "Kalem güzel yazıyordu. Söyledim.",
+    e2: "Notumu yazdım. Kalemin güzel yazdığını söyleyince nereden aldığını da anlattı.",
     e3: "Bir satır yazıp teşekkür ettim.",
-    e4: "Geri vermeyi unutmamak için kalemi masamın önüne koydum.",
+    e4: "Notumu yazıp kalemi geri uzattım. Arkadaşım eliyle benim kulağımın arkasını gösterdi; kendi kalemim oradaymış.",
   },
 };

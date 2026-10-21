@@ -1,69 +1,69 @@
 {
   "sourceZipSha256": "555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca",
-  "contentRevision": "2026-10-18-national-special-days-reviewed",
+  "contentRevision": "2026-10-21-tone-continuity-reviewed",
   "themes": {
     "coffee": {
-      "sha256": "541ee34bb3ed8de528dabad17376e607d755bf59f594a4399cdc4dec9e42c410",
+      "sha256": "f3a05c804a72fe13a1d5b251812536d7467dff9781c4e81d82f0dfa3000d637c",
       "fragments": 12
     },
     "meeting": {
-      "sha256": "77fafd54f9b250becb117b4d910a4324176157f367c2b8ee6496414f645c573c",
+      "sha256": "cc7f188997c76b7b36e28c3b0f027fda00d478042a397c068049f009856825a3",
       "fragments": 12
     },
     "elevator": {
-      "sha256": "fa912d3d04050c139bd21b180a18931399634e8a232afa55d8662218c92f2454",
+      "sha256": "bbda4c941e7e74d5a0373b45484c730534dc5527c4926738675febe59c827c3d",
       "fragments": 12
     },
     "small-help": {
-      "sha256": "5b4801493b5a1ed2a0316ef72d2f6310fb3949aaa175856f10c0d47b7482a684",
+      "sha256": "76cdd9b9e47144877862f9f7edee3898e9567747bdc8b730d78ceb5a14cdcab9",
       "fragments": 12
     },
     "todo-list": {
-      "sha256": "15d554f383877fda168a413314e23a4057a0f34e5d8d6d498ba57fede57d692f",
+      "sha256": "0a19592741dc6204bbc61ec66539d3f027aa0ed4c48a46018f6d2d06433eb90e",
       "fragments": 12
     },
     "file-name": {
-      "sha256": "095bc3b7c7066a0477ee159ff9357f94bb4da71e039ad9ad2dcaed2b1a71c756",
+      "sha256": "ea1fa899d89c3075f5b488893a370976052d3caf662139bccc45be20b0ed2646",
       "fragments": 12
     },
     "computer": {
-      "sha256": "d9f2527c1ea44e8e708b01de5da824eb996af4d3cdc9e5bd85f5cfc418af35f4",
+      "sha256": "27a248857908ee78d603d96de7f6827385514b5ad267df0f39e2694f734b8104",
       "fragments": 12
     },
     "window-visitor": {
-      "sha256": "64ce8c3061b48edbbf5a9af6350236e5f97ef55f04e67a58e4003704a455d740",
+      "sha256": "fd0c281876ef32ed7aa6c86294fb48d1c75d747d4a9a588d97f939f09bd8fc6b",
       "fragments": 12
     },
     "sticky-note": {
-      "sha256": "3029a629a824438ef339cb2d71228b5b1d39be2f843da09c51c33c62bf6e64d9",
+      "sha256": "a3eeba18a68b17d4b369cae8c62869e8e39004e160fc1eb056159a8e9b403ffa",
       "fragments": 12
     },
     "desk-neighbor": {
-      "sha256": "694e650dd4ee5987531115bf16c4655f36f73c7fc1176bf91a49f926421811d9",
+      "sha256": "d4878f0bd6b2c35a637ebfed48d3e0b30c4b63a95691a9b2013a4b9a44ad1369",
       "fragments": 12
     },
     "snacks": {
-      "sha256": "eb28851a40c7732aa0dc409b2fcf5aeb7bed014330b55621e4a223e9def7415a",
+      "sha256": "7053a4cce6b0777791bc4344dfdd0b073d1281c07e99d56a9f49d6cf72c393dd",
       "fragments": 12
     },
     "small-mistake": {
-      "sha256": "0c1542f5fbadfdfd8f70636ebf002591aa26622b53585e3aaa943d06e22ec547",
+      "sha256": "9253792cf35dfb8af30da57905ca72e465d1dd87d38321c88a5dd7b0a3fae6d7",
       "fragments": 12
     },
     "cardboard-box": {
-      "sha256": "eeade5ec6744d4d5fda020db9ab8370b3629e4cd7d53cb0835b33a909ae86874",
+      "sha256": "707a650a84e0fad6da8fbc6babe807f9316da535292e5208a55ea95818e4b28b",
       "fragments": 12
     },
     "chair": {
-      "sha256": "a31e1da04c451835080a66f0f41dbefdaf078ac6a04abb1ceb0dfd0ae207b4dc",
+      "sha256": "3faac6c015b6b9959e982b1a06c5643a77966358f27dbb8548e28963ed2962e5",
       "fragments": 12
     },
     "desk": {
-      "sha256": "91eb30a0968594986bfbc258e4f5eeecf388e2a89bfebbc9ac205cbd413d368a",
+      "sha256": "0092cf985d96604a9b61f5271e867c310308f5034f5f9f92baab9c0ba594e2fe",
       "fragments": 12
     },
     "lunch": {
-      "sha256": "0653216b170c439fc19575e2823f8523151da75f97d6e965430c60f0db3bcec2",
+      "sha256": "9261e6095fe3c411f2adc670cefd2f39df44e3908faea507b459644b26f5ed5e",
       "fragments": 12
     }
   },
@@ -74,22 +74,22 @@
       "paragraphs": 12
     },
     "leap-day": {
-      "sha256": "86ffb65f2d0dfeb556a328fc29e0db604bdd891b595973000b3d80d788634792",
+      "sha256": "2fc29f925113faa465ccb7d90ce2a0f2ac5fe39c258528fe4408cdb1c1c1bce2",
       "variants": 4,
       "paragraphs": 12
     },
     "paper-boat-arrives": {
-      "sha256": "69eb8fb5ecb9c120ba6b2ec1a8224ec163d8363a5ead950e3c4725dcf10ac261",
+      "sha256": "f0f340d0e944710e282602dffe79cd692d83d5c0665be2f897086f6f9b7631f8",
       "variants": 4,
       "paragraphs": 12
     },
     "paper-boat-moves": {
-      "sha256": "875740c5d44732f9a4718d94ec367214017f567cd0428c648fa5ec30d2da605c",
+      "sha256": "66579ca0e4fbc09c53aabc6dccb3a8d63572b200e4f562060dad52dd6087c79f",
       "variants": 4,
       "paragraphs": 12
     },
     "paper-boat-returns": {
-      "sha256": "de68d395e755a81dcc69904e0ba18aaf967b96065e1a01f9c5e0351aef395ade",
+      "sha256": "d46e8d8f29e3818e96d085d64e186576225d9f963e1e33056f60336bc407fe6e",
       "variants": 4,
       "paragraphs": 12
     },

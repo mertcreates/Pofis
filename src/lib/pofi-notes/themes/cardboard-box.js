@@ -17,7 +17,7 @@ export default {
   endings: {
     e1: "Bir süre orada oturdum. Rahattı.",
     e2: "Bir arkadaşım ne yaptığımı sordu. \"Oturuyorum,\" dedim.",
-    e3: "Biraz sonra kutudan çıktım. Olduğu yerde bıraktım.",
+    e3: "Birisi kutuyu kaldıracakmış. İçinde olduğumu görünce sonra gelirim dedi.",
     e4: "Kutunun kenarına çenemi dayadım.",
   },
 };

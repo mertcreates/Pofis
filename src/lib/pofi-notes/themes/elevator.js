@@ -16,8 +16,8 @@ export default {
   },
   endings: {
     e1: "Katıma gelince indim.",
-    e2: "Ben çıkarken koridordan biri geldi. Kapıyı onun için tuttum.",
-    e3: "Kapı arkamdan kapandı. Ben yürümeye başladım.",
-    e4: "Koridora çıkınca nereye gideceğimi biliyordum.",
+    e2: "Katıma gelince kapı açıldı. Dışarıdakiyle aynı anda yol verdik, bir an öyle kaldık.",
+    e3: "Katıma gelince indim. Arkamdan gelen kapı sesine bir kez daha döndüm.",
+    e4: "Katıma geldiğimizi fark edince kapıya yöneldim. Az daha bir kat fazla gidecektim.",
   },
 };

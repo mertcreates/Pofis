@@ -12,12 +12,12 @@ export default {
     d1: "Bir maddeyi bitirdim. Yanına işaret koydum.",
     d2: "Listeye bir madde daha ekledim. En alta sığdı.",
     d3: "İki maddenin yerini değiştirdim. Sırası daha iyi oldu.",
-    d4: "Bir maddenin yanına soru işareti koydum. Sonra ne olduğunu hatırladım.",
+    d4: "Bir maddeyi fazla kısa yazmışım. Ne demek istediğimi hatırlayınca yanına iki kelime ekledim.",
   },
   endings: {
-    e1: "Kâğıdı masamda bıraktım. Görebileceğim bir yerdeydi.",
+    e1: "Listeye baktım. Yazım aşağıya doğru büyümüş, son iş en önemliymiş gibi duruyordu.",
     e2: "Kâğıdı klavyenin yanına çektim.",
     e3: "Kalemi yerine koydum. Bugün yine lazım olacaktı.",
-    e4: "Kâğıdı katlamadım. Daha ihtiyacım vardı.",
+    e4: "Kâğıdı katlayıp cebime koydum. İlk yapacağım işe bakmak için hemen geri çıkardım.",
   },
 };

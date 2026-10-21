@@ -12,12 +12,12 @@ export default {
     d1: "Ekrandaki yazıyı biraz büyüttüm. Bir satır aşağıya taşındı.",
     d2: "Bir kelimede aynı harfi iki kez yazmışım. Fazlasını sildim.",
     d3: "Bir kısayolla sayfanın en altına indim. Fareye uzanmam gerekmedi.",
-    d4: "Bir satırı kopyalayıp altına yapıştırdım.",
+    d4: "Bir satırı kopyalayacaktım, iki kez yapıştırmışım. Fazlasını sildim.",
   },
   endings: {
     e1: "Bir kez daha okuyup kaldığım yerden devam ettim.",
     e2: "Ekrana yaklaşmışım. Sandalyemi biraz geri çektim.",
-    e3: "Son satıra bir kelime daha ekledim.",
+    e3: "Biraz geriye yaslanıp yazıya baktım. Bu uzaklıktan da okunuyordu.",
     e4: "İşimi bitirince pencereyi kapattım.",
   },
 };
