@@ -52,7 +52,6 @@ export function PlanEditor({
   const reopenMinutes = defaultPlan[selectedDay] || DEFAULT_WORK_PLAN[selectedDay];
   const plannedTotal = scope === "week" ? targetSeconds : weeklyTarget(activePlan);
   const total = plannedTotal;
-  const projectedDifference = resolved.projectedWeeklySeconds - total;
   const defaultTotal = scope === "week" ? referenceWeekTarget(defaultPlan, leaveDays) : weeklyTarget(defaultPlan);
   const different = scope === "week" && plannedTotal !== defaultTotal;
   const needsCompletion = scope === "week" && (different || resolved.projectedWeeklySeconds !== defaultTotal);
@@ -105,12 +104,7 @@ export function PlanEditor({
         <div className="work-plan-heading">
           <h3>{ui.workingDays}</h3>
           <span className={different ? "work-plan-total is-different" : "work-plan-total"} aria-live="polite">
-            {different && <s aria-label={`${copy.defaultLabel} ${durationText(defaultTotal, false)}`}>{durationText(defaultTotal, false)}</s>}
             <span><span className="work-plan-total-label">{copy.total}</span> {durationText(total, false)}</span>
-            {scope === "week" && projectedDifference !== 0 &&
-              <span className="work-plan-total-label work-plan-projected-difference" title={copy.projectedDifference(durationText(Math.abs(projectedDifference)), projectedDifference > 0)}>
-                {copy.projectedDifference(durationText(Math.abs(projectedDifference), false), projectedDifference > 0)}
-              </span>}
           </span>
         </div>
         <div className="work-plan-days" role="group" aria-label={copy.chooseDay}>
