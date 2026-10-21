@@ -34,7 +34,7 @@ test.each([
   [[], "empty", null],
   [[passage("08:00:00", "in")], "open", null],
   [[passage("12:00:00", "out")], "uncertain", null],
-  [[passage("07:00:00", "out"), passage("08:00:00", "in")], "uncertain", null],
+  [[passage("07:00:00", "out"), passage("08:00:00", "in")], "open", null],
   [[passage("25:00:00", "in"), passage("12:00:00", "out")], "uncertain", null],
 ] as const)(
   "boş/açık/eşleşmeyen hareketler kayıtlı sıfır süre uydurmaz: %s",

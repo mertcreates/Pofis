@@ -14,7 +14,7 @@ Raporun zorunlu `passages` listesi günlere ayrılır. Her günün en erken giri
 
 `summarize`, aralıktaki günlük saatleri ve kayıtlı süreleri döndürür. `partial`, aralığın başında veya sonunda eksik takvim haftası bulunduğunu belirtir; boş aralıkta `false` olur. Plan sahibi bu bilgiyi devir ve çıkış hedefi için kullanır. Günlük kayıt durumu [kayıt durumu sahibinde](record-status.md), görünen haftalık toplam [haftalık toplam sahibinde](week.md) hesaplanır.
 
-08:00 giriş / 12:00 çıkış / 13:00 giriş / 16:00 çıkış → 8 saat kayıtlı süre. Ara çıkış aralıkları kayıtlı süreye dahildir. Yalnız giriş varsa gün açıktır; yalnız çıkış veya ilk girişten önce kalan son çıkış belirsizdir. Hareket olmayan günün süresi bilinmez. Toplam bugüne kadar olan günleri kapsar.
+08:00 giriş / 12:00 çıkış / 13:00 giriş / 16:00 çıkış → 8 saat kayıtlı süre. Ara çıkış aralıkları kayıtlı süreye dahildir. Yalnız giriş varsa veya en geç çıkış ilk girişten önceyse günlük özet açıktır ve kayıtlı süre bilinmez. Yalnız çıkış belirsizdir. Hareket olmayan günün süresi bilinmez. Toplam bugüne kadar olan günleri kapsar.
 
 [Rapor sahibi](../../src/domain/report.ts), günlük kayıtlı süreleri ve [kayıt durumlarını](record-status.md) plan sahibine birlikte aktarır. [Plan sözleşmesi](work-plan.md#süreler-ve-tamamlanan-günler), geçmişte tamamlanmış günleri devir hesabına alır. Bugünün kayıtlı süresi ve canlı ek tahmini mesai gösterimine katılır. Gün geçmiş tarihe geçtiğinde tutarlı kayıtlı süresi devir girdisi olur.
 

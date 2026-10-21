@@ -70,6 +70,36 @@ test("son giriş tekrarında canlı süre ilk girişten akar; tekrar uyarısı h
   ]);
 });
 
+test("girişten önceki eşleşmeyen çıkış son açık girişin canlı hesabını bozmaz", () => {
+  const report = fixture(today, [["12:00:00", "out"], ["13:00:00", "in"]]);
+  const day = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4];
+  expect(day.recordIssues).toEqual([{ kind: "unmatched-exit", time: "12:00:00" }]);
+  expect(day.state).toBe("ongoing");
+  expect(day.recordedSeconds).toBeNull();
+  expect(day.liveSeconds).toBe(7200);
+  expect(day.source.total).toBe(7200);
+  expect(day.source.pofi.state).not.toBe("error");
+  expect(summarizeWeek([day], today).incomplete).toBe(false);
+  const stale = presentReport(report, DEFAULT_WORK_PLAN, now, true).days[4];
+  expect(stale.state).toBe("open");
+  expect(stale.liveSeconds).toBeNull();
+  const past = presentReport(fixture("2026-10-15", [["12:00:00", "out"], ["13:00:00", "in"]]),
+    DEFAULT_WORK_PLAN, now, false).days[3];
+  expect(past.state).toBe("uncertain");
+  expect(past.recordedSeconds).toBeNull();
+  expect(summarizeWeek([past], today).incomplete).toBe(true);
+});
+
+test("önceki eşleşmeyen çıkış canlı süreyi ve haftalık bütünlüğü ayrı değerlendirmez", () => {
+  const report = fixture(today, [["07:00:00", "out"], ...closed, ["13:00:00", "in"]]);
+  const day = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4];
+  expect(day.state).toBe("ongoing");
+  expect(day.recordIssues).toEqual([{ kind: "unmatched-exit", time: "07:00:00" }]);
+  expect(day.recordedSeconds).toBe(14400);
+  expect(day.liveSeconds).toBe(25200);
+  expect(summarizeWeek([day], today).incomplete).toBe(false);
+});
+
 test("geçmiş girişsiz çıkış günü kilitler, bilinmeyen süre devirde sıfır sayılmaz", () => {
   const report = fixture("2026-10-15", [["12:00:00", "out"]]);
   const day = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[3];

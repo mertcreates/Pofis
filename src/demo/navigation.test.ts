@@ -155,7 +155,7 @@ test("demo extra time simulates an open entry and keeps the captured report unch
   expect(report).toEqual(original);
 });
 
-test("demo extra time is available for repeated entries and unavailable for empty or uncertain days", () => {
+test("demo extra time follows the last reliable entry; unreadable records still block it", () => {
   const { now, reports } = demoData();
   const capturedDay = previewDemoDay(reports[3], "2026-10-16", now);
   expect(capturedDay.maxExtraMinutes).toBe(0);
@@ -167,12 +167,22 @@ test("demo extra time is available for repeated entries and unavailable for empt
   expect(live.state).toBe("ongoing");
   expect(live.liveSeconds).toBe(34258);
 
-  const uncertainReport = { ...reports[2], passages: [
+  const warningReport = { ...reports[2], passages: [
     ...reports[2].passages,
     { date: "2026-10-07", time: "05:00:00", direction: "out" as const },
   ] };
-  expect(previewDemoDay(uncertainReport, "2026-10-07", now).maxExtraMinutes).toBe(0);
-  expect(() => previewDemoDay(uncertainReport, "2026-10-07", now, 15)).toThrow();
+  const warningPreview = previewDemoDay(warningReport, "2026-10-07", now, 15);
+  expect(warningPreview.maxExtraMinutes).toBeGreaterThan(0);
+  const warningLive = presentReport(warningPreview.report, DEFAULT_WORK_PLAN, warningPreview.now, false).days[2];
+  expect(warningLive.state).toBe("ongoing");
+  expect(warningLive.liveSeconds).not.toBeNull();
+
+  const invalidReport = { ...reports[2], passages: [
+    ...reports[2].passages,
+    { date: "2026-10-07", time: "25:00:00", direction: "in" as const },
+  ] };
+  expect(previewDemoDay(invalidReport, "2026-10-07", now).maxExtraMinutes).toBe(0);
+  expect(() => previewDemoDay(invalidReport, "2026-10-07", now, 15)).toThrow();
 });
 
 test.each([

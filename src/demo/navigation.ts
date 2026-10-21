@@ -75,7 +75,7 @@ export function previewDemoDay(
     : passages;
   const dayState = passageDay(simulatedPassages, date, date);
 
-  if (dayState.uncertain || dayState.openEntry === null) {
+  if (!dayState.hasReliableOpenEntry) {
     validateExtraMinutes(extraMinutes, 0);
     return {
       report: preview,

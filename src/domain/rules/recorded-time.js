@@ -33,10 +33,11 @@ export function summaryRecord(row) {
     return { record: "empty", seconds: null };
   if (
     start === null ||
-    (row.lastExit && end === null) ||
-    (end !== null && end < start)
+    (row.lastExit && end === null)
   )
     return { record: "uncertain", seconds: null };
+  if (end !== null && end < start)
+    return { record: "open", seconds: null };
   if (end === null) return { record: "open", seconds: null };
   return { record: "recorded", seconds: end - start };
 }
