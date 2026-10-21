@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { renderToStaticMarkup } from "react-dom/server";
 import { load } from "cheerio";
 import { PlanEditor } from "./plan-editor";
-import { DEFAULT_WORK_PLAN, type PlanDay, type WorkPlan } from "@/domain/rules/work-plan";
+import { DEFAULT_WORK_PLAN, readDayPlan, type PlanDay, type WorkPlan } from "@/domain/rules/work-plan";
 
 function render(completedHours: number[], today = "2026-10-15", targetSeconds = 144000, plan: WorkPlan = DEFAULT_WORK_PLAN) {
   const days: PlanDay[] = Array.from({ length: 7 }, (_, day) => ({
@@ -52,4 +52,22 @@ test("bütün günler kilitliyken fazla süre kalır; Tamamla kapasite açıklam
   const $ = render([9,8,8,8,8], "2026-10-17");
   expect($(".work-plan-complete").is(":disabled")).toBe(true);
   expect($(".work-plan-capacity").text()).toContain("mevcut açık günlerle ulaşılamıyor");
+});
+
+test("geçmiş girişsiz çıkış planlayıcıda süre belirsiz olarak kilitlenir", () => {
+  const days: PlanDay[] = Array.from({ length: 7 }, (_, day) => ({
+    date: `2026-10-${12 + day}`,
+    state: day === 3 ? "uncertain" : "awaiting-entry",
+    recordedSeconds: null,
+    records: day === 3 ? [{ direction: "exit" }] : [],
+  }));
+  const $ = load(renderToStaticMarkup(<PlanEditor plan={readDayPlan([0, 0, 0, 480, 0, 0, 0])!} defaultPlan={DEFAULT_WORK_PLAN}
+    days={days} special={false} ready week="2026-10-12" today="2026-10-16" error=""
+    onSave={() => true} onSaveDefault={() => true} onReset={() => true} onClose={() => {}} />));
+  const thursday = $(".work-plan-day").eq(3);
+  expect(thursday.attr("data-locked")).toBe("true");
+  expect(thursday.text()).toContain("Süre belirsiz");
+  expect(thursday.attr("aria-label")).toContain("değiştirilemez");
+  expect($(".work-plan-recorded-time").text()).toContain("Süre belirsiz");
+  expect($(".work-plan-editable").length).toBe(0);
 });

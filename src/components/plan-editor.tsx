@@ -44,7 +44,7 @@ export function PlanEditor({
   const resolved = resolveWeekPlan(weekDays, plan, today, weekDays.length !== 7, targetSeconds, zeroOpenDays);
   const preservedSurplus = !WORK_PLAN_POLICY.autoReduceSurplus && resolved.unallocatedSeconds < 0;
   const activePlan = scope === "default" ? defaultPlan : plan;
-  const locked = scope === "week" && resolved.completed[selectedDay] !== null;
+  const locked = scope === "week" && resolved.locked[selectedDay];
   const selectedSeconds = scope === "week" ? resolved.displaySeconds[selectedDay] : activePlan[selectedDay] * 60;
   const value = selectedSeconds / 60;
   const closed = scope === "week" ? !resolved.workingDays[selectedDay] : activePlan[selectedDay] === 0;
@@ -61,9 +61,9 @@ export function PlanEditor({
   const canApplyToOtherDays = activePlan.some((minutes, day) => day !== selectedDay &&
     (scope === "week" ? resolved.eligible[day] : minutes > 0) &&
     (scope === "week" ? resolved.displaySeconds[day] / 60 : minutes) !== value);
-  const resetTotal = referenceWeekTarget(defaultPlan, leaveDays.filter(day => resolved.completed[day] !== null));
-  const canReset = targetSeconds !== resetTotal || leaveDays.some(day => resolved.completed[day] === null) || plan.some((minutes, day) =>
-    resolved.completed[day] === null && (minutes !== defaultPlan[day] || zeroOpenDays.includes(day)));
+  const resetTotal = referenceWeekTarget(defaultPlan, leaveDays.filter(day => resolved.locked[day]));
+  const canReset = targetSeconds !== resetTotal || leaveDays.some(day => !resolved.locked[day]) || plan.some((minutes, day) =>
+    !resolved.locked[day] && (minutes !== defaultPlan[day] || zeroOpenDays.includes(day)));
   const weekTitle = `${week === weekStart(today) ? ui.currentWeek : copy.selectedWeek} · ${weekLabel(week, true, today)}`;
 
   function saveManual(updates: readonly { day: number; minutes: number }[]) {
@@ -110,6 +110,7 @@ export function PlanEditor({
         <div className="work-plan-days" role="group" aria-label={copy.chooseDay}>
           {activePlan.slice(0, WORKING_DAY_COUNT).map((minutes, day) => {
             const recorded = scope === "week" ? resolved.completed[day] : null;
+            const dayLocked = scope === "week" && resolved.locked[day];
             const leave = scope === "week" && leaveDays.includes(day);
             const open = scope === "week" ? resolved.workingDays[day] : minutes > 0;
             const carried = scope === "week" && resolved.displaySeconds[day] !== minutes * 60;
@@ -117,12 +118,12 @@ export function PlanEditor({
             const displayed = scope === "week" ? hours(displayedSeconds / 60) : planHours(minutes);
             return (
             <button key={day} type="button" className="work-plan-day"
-              data-open={open || recorded !== null} data-locked={recorded !== null} aria-pressed={selectedDay === day}
-              aria-label={`${ui.weekdays[day].long}, ${recorded !== null || open ? durationText(displayedSeconds) : (leave ? copy.onLeave : copy.closed).toLocaleLowerCase("tr-TR")}${recorded !== null ? `, ${copy.locked}` : ""}`}
+              data-open={open || dayLocked} data-locked={dayLocked} aria-pressed={selectedDay === day}
+              aria-label={`${ui.weekdays[day].long}, ${dayLocked && recorded === null ? copy.unknownDuration : recorded !== null || open ? durationText(displayedSeconds) : (leave ? copy.onLeave : copy.closed).toLocaleLowerCase("tr-TR")}${dayLocked ? `, ${copy.locked}` : ""}`}
               onClick={() => setSelectedDay(day)}>
               <span className="work-plan-day-label"><strong>{ui.weekdays[day].short}</strong>
-                {recorded !== null && <LockKeyhole size={10} aria-hidden="true" />}</span>
-              <span className="work-plan-day-time" title={durationText(displayedSeconds)}>{recorded !== null || open
+                {dayLocked && <LockKeyhole size={10} aria-hidden="true" />}</span>
+              <span className="work-plan-day-time" title={dayLocked && recorded === null ? copy.unknownDuration : durationText(displayedSeconds)}>{dayLocked && recorded === null ? copy.unknownDuration : recorded !== null || open
                 ? displayed.split(/ (?=\d)/).map((part, index) => (
                   <Fragment key={index}>{index > 0 && " "}<span className="work-plan-duration-part">{part}</span></Fragment>
                 ))
@@ -139,10 +140,10 @@ export function PlanEditor({
                   {selectedDifferent && <> · {copy.defaultLabel} {hours(defaultPlan[selectedDay])}</>}
                 </span>
               </div>
-              <span className="work-plan-recorded-time" title={durationText(selectedSeconds)} aria-label={`${copy.locked}, ${durationText(selectedSeconds)}`}>
+              <span className="work-plan-recorded-time" title={resolved.completed[selectedDay] === null ? copy.unknownDuration : durationText(selectedSeconds)} aria-label={`${copy.locked}, ${resolved.completed[selectedDay] === null ? copy.unknownDuration : durationText(selectedSeconds)}`}>
                 <LockKeyhole size={13} aria-hidden="true" />
                 <span className="work-plan-recorded-label">{copy.recordedLabel}</span>
-                {hours(selectedSeconds / 60)}
+                {resolved.completed[selectedDay] === null ? copy.unknownDuration : hours(selectedSeconds / 60)}
               </span>
             </div>
           </div>

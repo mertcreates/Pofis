@@ -311,12 +311,12 @@ test("Cuma kapalıysa hedef 32 saat, dengeleme Perşembe; sonraki kayıtlar Per�
   expect(result.displaySeconds).toEqual([30600, 29700, 28800, 26100, 0, 0, 0]);
 });
 
-test.each(["missing", "uncertain"] as const)("geçmiş %s gün sıfır farkla atlanır; bilinen süre borç veya fazla sayılmaz", state => {
+test.each(["missing", "uncertain"] as const)("geçmiş %s gün bilinen süre sınırına göre hesaplanır", state => {
   const source = days([8.5, 0, 8, 8, null, null, null]);
   source[1].state = state;
   source[1].recordedSeconds = state === "missing" ? null : 7200;
   const result = resolveWeekPlan(source, DEFAULT_WORK_PLAN, "2026-10-16");
-  expect(result.exitGoal).toBe(27000);
+  expect(result.exitGoal).toBe(state === "missing" ? 27000 : 48600);
   expect(result.blocked).toBe(true);
 });
 
@@ -450,14 +450,14 @@ test("kilitli kayıtlar saniyeleriyle görünür, fark özgün plandan gelir ve 
   expect(edited.displaySeconds[4]).toBe(27883);
 });
 
-test("bugünkü çıkış, belirsiz ve gelecek kayıtlar kilitlenmez; sıfır kayıt kilitlenir", () => {
+test("bugünkü çıkış ve gelecek kayıtlar kilitlenmez; geçmiş belirsiz süre ve sıfır kayıt kilitlenir", () => {
   const source = days([0, 9, 9, 9, 9, 9, null]);
   source[1].state = "uncertain";
   source[2].state = "open";
   source[4].state = "outside";
   source.push({ date: "2026-10-09", state: "recorded", recordedSeconds: 32400 });
   expect(completedDaySeconds(source, "2026-10-12", "2026-10-16"))
-    .toEqual([0, null, null, 32400, null, null, null]);
+    .toEqual([0, 32400, null, 32400, null, null, null]);
 });
 
 test("toplu kaydet, tamamla ve sıfırla tamamlanan günleri hedef veya kayıt deposuna dönüştürmez", () => {

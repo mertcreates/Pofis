@@ -303,6 +303,7 @@ export const ui = {
     customWeek: "Özel hafta planı",
     chooseDay: "Düzenlenecek gün",
     locked: "Kayıtlı süre, değiştirilemez",
+    unknownDuration: "Süre belirsiz",
     selectedDayDuration: "Seçili günün süresi",
     duration: "çalışma süresi",
     defaultLabel: "Varsayılan:",

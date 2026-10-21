@@ -1,6 +1,7 @@
 import { expect, test } from "bun:test";
 import { presentReport, type Report } from "../report";
-import { DEFAULT_WORK_PLAN, type WorkPlan } from "./work-plan";
+import { DEFAULT_WORK_PLAN, completedDaySeconds, planProtectionMarkers, resolveWeekPlan,
+  editRequiredMinutes, changeDefaultPlan, emptyWorkPlans, resolveStoredPlan, type WorkPlan } from "./work-plan";
 import { summarizeWeek } from "./week";
 import type { DayState } from "./record-status";
 import { passageDay } from "./passages.js";
@@ -31,6 +32,36 @@ test("bugünkü açık giriş ve tutarlı geçmiş çift sorun üretmez", () => 
   expect(day.state).toBe("recorded");
   expect(day.recordIssues).toEqual([]);
   expect(day.recordedSeconds).toBe(14400);
+});
+
+test("geçmiş ara turnike hatasında ilk giriş ve son çıkış planı kilitler ve devre katılır", () => {
+  const report = fixture("2026-10-15", [
+    ["08:00:00", "in"], ["09:00:00", "in"], ["12:00:00", "out"], ["13:00:00", "out"],
+  ]);
+  const day = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[3];
+  expect(day.state).toBe("uncertain");
+  expect(day.recordedSeconds).toBe(5 * 3600);
+  const resolved = resolveWeekPlan([day], DEFAULT_WORK_PLAN, today, true);
+  expect(resolved.locked[3]).toBe(true);
+  expect(resolved.completed[3]).toBe(5 * 3600);
+  expect(planProtectionMarkers([day], report.from, today)[3]).toBe(5 * 3600);
+  expect(() => editRequiredMinutes(DEFAULT_WORK_PLAN, resolved, [{ day: 3, minutes: 420 }])).toThrow("Tamamlanan gün değiştirilemez");
+});
+
+test("geçmiş girişsiz çıkış günü kilitler, bilinmeyen süre devirde sıfır sayılmaz", () => {
+  const report = fixture("2026-10-15", [["12:00:00", "out"]]);
+  const day = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[3];
+  const resolved = resolveWeekPlan([day], DEFAULT_WORK_PLAN, today, true);
+  expect(day.state).toBe("uncertain");
+  expect(day.recordedSeconds).toBeNull();
+  expect(resolved.locked[3]).toBe(true);
+  expect(resolved.completed[3]).toBeNull();
+  expect(planProtectionMarkers([day], report.from, today)[3]).toBe(0);
+  expect(completedDaySeconds([day], report.from, today)[3]).toBeNull();
+  expect(() => editRequiredMinutes(DEFAULT_WORK_PLAN, resolved, [{ day: 3, minutes: 420 }])).toThrow("Tamamlanan gün değiştirilemez");
+  const changed = changeDefaultPlan(emptyWorkPlans(), [540, 540, 540, 540, 540, 0, 0], report.from,
+    planProtectionMarkers([day], report.from, today));
+  expect(resolveStoredPlan(changed, report.from)[3]).toBe(480);
 });
 
 test("okunamayan saat ve yön kayıt sorunu üretir", () => {
@@ -302,7 +333,7 @@ test("belirsiz geçmiş kayıt tablo, haftalık bütünlük ve çıkış hedefin
   expect(view.days[3].recordedSeconds).toBe(14400);
   expect(view.days[3].source.pofi.state).toBe("error");
   expect(view.blocked).toBe(true);
-  expect(view.days[4].source.exitGoalSeconds).toBe(28800);
+  expect(view.days[4].source.exitGoalSeconds).toBe(43200);
   expect(summarizeWeek(view.days, today).incomplete).toBe(true);
   expect(summarizeWeek(view.days, today).recordedSeconds).toBe(129600);
 });

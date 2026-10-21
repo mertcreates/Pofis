@@ -11,7 +11,7 @@
 | Planı doğrulama, haftayı ve hedefini okuma | `readDayPlan`, `readWeekPlan`, `resolveStoredPlan`, `resolveStoredTarget` |
 | İzin günlerini doğrulama/okuma ve izin sonrası referans hedef | `readLeaveDays`, `resolveLeaveDays`, `referenceWeekTarget` |
 | Hafta/şablon kaydetme ve sıfırlama | `changeWeekPlan`, `changeDefaultPlan` |
-| Tamamlanan ve dağıtıma uygun günleri belirleme | `completedDaySeconds`, `planAdjustmentDays` |
+| Kayıtlı süreyi, kilitli ve dağıtıma uygun günleri belirleme | `completedDaySeconds`, `lockedDays`, `planProtectionMarkers`, `planAdjustmentDays` |
 | Günün açık durumunu ve sıfır süreli açık günleri okuma | `isOpenPlanDay`, `resolveZeroOpenDays` |
 | Devir, gereken süreler ve haftalık toplam | `resolveWeekPlan` |
 | Gereken süreyi elle düzenleme | `editRequiredMinutes` |
@@ -64,9 +64,9 @@ Yeniden yükleme aynı miras davranışını sürdürür. Kalan günlerin kapasi
 | İzin sonrası referans hedef | Varsayılan şablon toplamı − izinli günlerin güncel şablondaki süreleri |
 | Beklenen toplam | Tamamlanan günlerin gerçekleşen süreleri + kalan günlerin gereken süreleri |
 
-Tamamlanan gün, aynı haftada bugünden önceki bir tarihe ait, durumu `recorded` ve kayıtlı süresi tanımlı gündür. Tutarlı sıfır süreli kayıt da bu kapsamdadır. Bugünün süreleri [canlı tahmin sözleşmesiyle](duration.md), kayıt bütünlüğü [kayıt durumu sözleşmesiyle](record-status.md) değerlendirilir.
+Geçmiş günde turnike hareketi varsa gün plan düzenlemesine kilitlenir. İlk giriş ve son çıkıştan kayıtlı süre hesaplanabiliyorsa, ara geçişler belirsiz olsa da bu süre gerçekleşen olarak devir, beklenen toplam ve şablon hesabına katılır. Sıfır süreli kayıt da bu kapsamdadır. Yalnız çıkış veya yalnız giriş gibi süre hesaplanamayan kayıtta gün kilitlenir; gerçekleşen süre bilinmez ve devir farkı üretilmez. Kayıt sorunu raporda ayrıca gösterilir. Bugünün süreleri [canlı tahmin sözleşmesiyle](duration.md), kayıt bütünlüğü [kayıt durumu sözleşmesiyle](record-status.md) değerlendirilir.
 
-Tamamlanan günün gerçekleşeni kilitli gösterilir. Elle/toplu düzenleme, sıfırlama ve şablon değişikliği bu günün kayıtlı planını korur. Devir farkı **gerçekleşen − o günün kayıtlı planı** üzerinden hesaplanır. Örneğin 6 saat planlanan günde 6 saat gerçekleşmesi sıfır fark üretir. Gerçekleşen süre kaynak hassasiyetiyle kullanılır; 16 saat sınırı düzenlenebilir gereken süreye uygulanır.
+Kilitli günün hesaplanabilen gerçekleşeni gösterilir; süre hesaplanamıyorsa “Süre belirsiz” gösterilir. Elle/toplu düzenleme, sıfırlama ve şablon değişikliği bu günün kayıtlı planını korur. Devir farkı **gerçekleşen − o günün kayıtlı planı** üzerinden hesaplanır. Örneğin 6 saat planlanan günde 6 saat gerçekleşmesi sıfır fark üretir. Gerçekleşen süre kaynak hassasiyetiyle kullanılır; 16 saat sınırı düzenlenebilir gereken süreye uygulanır.
 
 ## Otomatik devir
 
@@ -151,7 +151,7 @@ Otomatik devir, mevcut haftalık hedefe göre kendiliğinden hesaplanır. Tamaml
 
 Modalda tamamlanan gün gerçekleşeni, izinli gün “İzinli”, diğer açık hafta günleri gereken süreyi gösterir. Varsayılan sekmesi şablonu düzenler. Üstteki değer “Haftalık plan” olarak gösterilir. Planın izin sonrası referans hedefe farkı alt eylem alanında “40 sa hedefine kalan: 1 sa” gibi gösterilir. Güncel ayarda negatif bakiye ve izin sonrası referansla aynı haftalık hedef, “Beklenen toplam, haftalık hedefin … üzerinde. Kalan günlerin planı korunuyor.” bilgilendirmesini üretir. Haftalık hedef bu referanstan farklıysa üstteki fazla süre bildirimi gizlenir; alt bölümdeki hedef farkı ve Tamamla eylemi güncel hesapla çalışır. Otomatik azaltma açıkken dağıtılamayan fazla veya her iki ayarda dağıtılamayan eksik süre kapasite uyarısıyla gösterilir. Hafta sonu PDKS kayıtları gerçekleşen/beklenen toplama katılır; plan değerleri sıfır kalır.
 
-Geçmiş kayıtsız veya belirsiz günün gerçekleşeni devir toplamına katılmaz; o günün plan süresi beklenen toplamda kalır. Bugünün kayıtları gün içinde açık/kapalı giriş durumuyla gösterilir; günlük fark ertesi gün kayıt tamamlandığında devre girer. Rapor haftanın yalnız bir bölümünü kapsıyorsa otomatik devir uygulanmaz ve hedef çıkış üretilmez. Bu durumların kayıt etiketleri [kayıt durumu sözleşmesindedir](record-status.md).
+Geçmiş kayıtsız veya süresi hesaplanamayan günün gerçekleşeni devir toplamına katılmaz; o günün plan süresi beklenen toplamda kalır. Ara geçişi belirsiz olsa da ilk giriş ve son çıkışı bulunan geçmiş günün süresi devir hesabına katılır. Bugünün kayıtları gün içinde açık/kapalı giriş durumuyla gösterilir; günlük fark ertesi gün kayıt tamamlandığında devre girer. Rapor haftanın yalnız bir bölümünü kapsıyorsa otomatik devir uygulanmaz ve hedef çıkış üretilmez. Bu durumların kayıt etiketleri [kayıt durumu sözleşmesindedir](record-status.md).
 
 Hesaplar saniye hassasiyetini korur. Görünür süreler saat/dakika, erişilebilir etiketler ve tam süre başlıkları saniye hassasiyetindedir. Etiketler, kontrol durumları ve yerleşim [DESIGN](../../DESIGN.md) sahibindedir.
 

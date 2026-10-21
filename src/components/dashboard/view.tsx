@@ -4,7 +4,7 @@ import type { usePdks } from "@/data/use-pdks";
 import type { useWorkPlans } from "@/data/use-work-plans";
 import { prepareReport, type Report } from "@/domain/report";
 import { dateKey, weekStart } from "@/domain/rules/calendar";
-import { completedDaySeconds } from "@/domain/rules/work-plan";
+import { planProtectionMarkers } from "@/domain/rules/work-plan";
 import { Connection } from "../connection";
 import AppShell from "../shell/app-shell.js";
 import LoadingState from "../loading-state.js";
@@ -192,9 +192,9 @@ export function DashboardView({
             special={workPlans.special}
             ready={workPlans.ready && source?.from === week}
             error={workPlans.error}
-            onSave={(plan, targetSeconds, leaveDays) => workPlans.save(plan, completedDaySeconds(days, week, today), targetSeconds, leaveDays)}
-            onSaveDefault={plan => workPlans.saveDefault(plan, completedDaySeconds(days, week, today))}
-            onReset={() => workPlans.reset(completedDaySeconds(days, week, today))}
+            onSave={(plan, targetSeconds, leaveDays) => workPlans.save(plan, planProtectionMarkers(days, week, today), targetSeconds, leaveDays)}
+            onSaveDefault={plan => workPlans.saveDefault(plan, planProtectionMarkers(days, week, today))}
+            onReset={() => workPlans.reset(planProtectionMarkers(days, week, today))}
             onClose={() => setDialog(null)}
           />
         )}

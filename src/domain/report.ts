@@ -40,7 +40,7 @@ export function prepareReport(
     return { row, passage, statusInput, state };
   });
   const { targets, blocked, exitGoal } = resolveWeekPlan(
-    sourceDays.map(({ row, state }) => ({ date: row.date, state, recordedSeconds: row.duration })),
+    sourceDays.map(({ row, state, passage }) => ({ date: row.date, state, recordedSeconds: row.duration, records: passage.events })),
     plan,
     today,
     summary.partial,
