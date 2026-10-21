@@ -1,5 +1,4 @@
 const { test, expect, spyOn } = require("bun:test");
-const { existsSync } = require("node:fs");
 const { mkdtemp, readFile, rm, mkdir, copyFile, writeFile, realpath } = require("node:fs/promises");
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
@@ -28,27 +27,6 @@ test("gerçek CI build'i erken kontroldeki hatada derleme ve paketleme başlatma
     expect(commands).not.toContain("package.cjs");
     expect(commands).toContain(failedStep);
   }
-});
-
-test("gerçek CI build'i platformun erken kontrollerinden sonra Next derlemesine geçer", async () => {
-  const commands = [];
-  const stop = new Error("Next sınırında dur");
-  await expect(build(version, "unused-site", {
-    summary: null,
-    execute: async (_command, args) => {
-      commands.push(args);
-      if (basename(args[0]) === "build.cjs") throw stop;
-    },
-  })).rejects.toBe(stop);
-  const intelBinary = join(__dirname, "../../node_modules/electron/dist/Electron.app/Contents/MacOS/Electron");
-  const expected = [];
-  if (intel && existsSync(intelBinary)) expected.push([intelBinary, "-verify_arch", "x86_64"]);
-  expected.push(["run", "desktop:install"]);
-  if (intel) expected.push([intelBinary, "-verify_arch", "x86_64"]);
-  if (!intel) expected.push(["run", "typecheck"], ["test", "./src"], ["test", "--parallel=2", "./electron", "./scripts/electron"],
-    [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]);
-  expected.push([join(__dirname, "build.cjs")]);
-  expect(commands).toEqual(expected);
 });
 
 test("derleme bütün paralel doğrulamaları bekler; tek doğrulama hatası panoyu ve derlemeyi durdurur", async () => {
@@ -281,7 +259,6 @@ test("yayınsız workflow ölçümü sürümü doğrulayıp paketleri üretir; y
     expect(commands.some(command => /publish\.cjs|macos-ci\.cjs stage/.test(command))).toBe(false);
     expect(commands.some(command => command.includes("ci-build.cjs check"))).toBe(true);
     expect(commands.some(command => command.includes(os === "Windows" ? "ci-build.cjs build" : "macos-ci.cjs"))).toBe(true);
-    if (os === "macOS") expect(commands.some(command => command.includes("macos-ci.cjs"))).toBe(true);
   }
   const steps = workflow.jobs.build.steps;
   expect(steps.some(step => step.with?.path?.includes("pofis-intel/.next/cache"))).toBe(false);

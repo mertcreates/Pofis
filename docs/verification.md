@@ -4,6 +4,8 @@ Kontrolü değişen davranışa göre seçin. Beklenen sonucu ürün sözleşmes
 
 ## Yerel kontroller
 
+Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta yalnız elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama) bulunur; bu akış tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
+
 ```powershell
 bun test
 bun run typecheck
@@ -26,6 +28,8 @@ bun run build
 Kapsam yüzdesini testlerin yüklediği modüllerle birlikte değerlendirin. Taşıma ve reducer testleri kendi modüllerinin davranışını doğrular. `usePdks` içindeki React effect ve istek sahipliği için bekleyen çıkış, hafta değişimi ve geciken rapor yanıtı zincirini tarayıcıda doğrulayın.
 
 UI bileşenlerinin DOM, metin, yerleşim ve sunum yardımcılarını demo üzerinden elle kontrol edin. Otomatik testler mesai hesabı, takvim sınırları, veri doğrulama, oturum izolasyonu ve diğer davranış sözleşmelerine odaklanır. Beklenen test sonuçlarını ilgili davranış sözleşmesindeki somut senaryolardan çıkarın.
+
+Her test somut bir hata veya davranış farkını yakalamalıdır. Testin kendi örnek listesini denetleyen kontrolleri ve aynı senaryoyu tekrar eden beklentileri ayıklayın. İçerik düzenlemelerinde metni ve önizlemeyi inceleyin; Pofi notlarının otomatik testlerinde seçim, tarih, tekrar ve özel gün sözleşmelerini doğrulayın.
 
 ## Plan doğrulaması
 

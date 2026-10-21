@@ -33,6 +33,4 @@ test("narrow viewports clamp the calendar size and keep all edges visible", () =
   );
 
   expect(position).toEqual({ top: 140, left: 4, maxHeight: 108 });
-  expect(position.left + 312).toBeLessThanOrEqual(320);
-  expect(position.top + position.maxHeight).toBeLessThanOrEqual(248);
 });

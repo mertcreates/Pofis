@@ -37,7 +37,7 @@ Katalog giriş × gelişme × kapanış kombinasyonlarından havuz sırasını b
 
 İçerik eklemek ya da düzenlemek mevcut tek havuzu günceller ve geçmiş tarihler dahil her tarihteki seçimi etkileyebilir. Özel tarihler yalnız `special-days.ts` içinde tanımlanır; varyantlar `specials.js` kataloğundan alınır. 8 Aralık `little-star:v1` herkes için ortaktır.
 
-Güncel tema ve özel not metinleri [içerik fixture'ındaki](../src/lib/pofi-notes/fixtures/current-content.json) hash'lerle izlenir; başlangıç kaynağının ZIP hash'i ayrıca korunur. Ton düzenlemelerinde yalnız incelenen metinlerin hash'lerini ve etkilenen seçim referanslarını güncelleyin. Tema sırası ve havuz sırası seçim sonucunu etkiler; bunları değiştirirken [önizleme](#yerel-komutlar) ile sonuçları inceleyin.
+Tema ve metin değişikliklerini Git diff'i ve [önizleme](#yerel-komutlar) üzerinden inceleyin. Tema sırası ve havuz sırası seçim sonucunu etkiler; bunları değiştirirken temsilî tarih ve kişi anahtarlarıyla sonuçları kontrol edin. [Davranış testleri](../src/lib/pofi-notes/notebook.test.ts) deterministik seçim, haftalık tekrar, boş havuz ve özel gün sözleşmelerini doğrular. Başlangıç kaynağının ZIP hash'i [varlık rehberinde](brand/assets.md) korunur.
 
 ## Tema veya metin eklemek
 

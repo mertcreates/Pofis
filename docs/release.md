@@ -49,7 +49,7 @@ Bu adımlar canlı hosting ve paket yayını sonrasında uygulanır. Yerel hazı
 
 1. `package.json` sürümünü yeni `x.y.z` değerine getir; değişiklikleri inceleyip `master` dalına gönder.
 2. GitHub → Actions → **Pofis sürümünü yayımla** → Run workflow; `master` dalını seç. Sürüm, çalıştırılan commit'in `package.json` dosyasından otomatik alınır ve tüm platformlara aktarılır.
-3. Akışın tamamlanmasını bekle. Push/PR kontrolleri ayrı [CI akışında](../.github/workflows/ci.yml) çalışır; push otomatik release başlatmaz.
+3. Akışın tür kontrolü, testler ve platform paket kabullerini tamamlamasını bekle. Actions yalnız elle başlatılan bu sürüm akışını çalıştırır. Günlük geliştirme kontrollerini [yerelde](verification.md#yerel-kontroller) çalıştır.
 
 Paket üretimini ve kabul sürelerini ölçmek için **Paketler doğrulandıktan sonra sürümü yayımla** seçimini kapat. Bu çalıştırma sürüm taslağı/kurtarma/aktarım ve site yayını adımlarını atlayıp üç paketi yeniden üretir. Süreler Actions adımlarında ve özetinde görünür; normal yayında seçim açıktır.
 

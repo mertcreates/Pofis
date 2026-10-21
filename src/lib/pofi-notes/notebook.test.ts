@@ -1,24 +1,8 @@
 import { expect, test } from "bun:test";
-import { createHash } from "node:crypto";
 import { createNoteCatalogue } from "./catalogue";
 import { createPofiNotebook } from "./notebook";
 import { pofiNotebook } from "./index";
-import { POFI_NOTE_THEMES } from "./themes/index.js";
-import { POFI_SPECIAL_NOTES } from "./specials.js";
-import contentFixture from "./fixtures/current-content.json";
-import selectionFixture from "./fixtures/selections.json";
-import type { NoteTheme, DatedNote } from "./types";
-
-function canonical(value: unknown): string {
-  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
-  if (value && typeof value === "object")
-    return `{${Object.entries(value)
-      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
-      .map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`)
-      .join(",")}}`;
-  return JSON.stringify(value);
-}
-const sha = (value: string) => createHash("sha256").update(value).digest("hex");
+import type { NoteTheme } from "./types";
 
 test("8 Aralık hafta içi ve hafta sonunda herkese korunan Küçük yıldız v1 notunu verir", () => {
   for (const date of ["2026-12-08", "2029-12-08"])
@@ -35,52 +19,6 @@ test("8 Aralık hafta içi ve hafta sonunda herkese korunan Küçük yıldız v1
           ],
         });
 });
-
-test("güncel tema ve özel not metinleri içerik referansıyla eşleşir", () => {
-  expect(POFI_NOTE_THEMES.map((theme) => theme.id).sort()).toEqual(Object.keys(contentFixture.themes).sort());
-  for (const [id, reference] of Object.entries(contentFixture.themes as Record<string, { sha256: string }>)) {
-    const theme = POFI_NOTE_THEMES.find((theme) => theme.id === id);
-    expect(theme).toBeDefined();
-    expect(sha(canonical(theme))).toBe(reference.sha256);
-  }
-  for (const [id, reference] of Object.entries(contentFixture.specials)) {
-    const special = POFI_SPECIAL_NOTES[id as keyof typeof POFI_SPECIAL_NOTES];
-    expect(special).toBeDefined();
-    expect(
-      sha(
-        canonical({
-          ...special,
-          variants: Object.fromEntries(
-            ["v1", "v2", "v3", "v4"].map((key) => [
-              key,
-              special.variants[key as keyof typeof special.variants],
-            ]),
-          ),
-        }),
-      ),
-    ).toBe(reference.sha256);
-  }
-});
-
-test.each(selectionFixture)(
-  "tek havuz günlük seçimleri 2026–2028 boyunca tutarlı: $key",
-  ({ key, count, sha256 }) => {
-    const notes: DatedNote[] = [];
-    for (
-      let at = Date.UTC(2026, 0, 1);
-      at < Date.UTC(2029, 0, 1);
-      at += 86400000
-    ) {
-      const date = new Date(at).toISOString().slice(0, 10);
-      const note = pofiNotebook
-        .notesForWeek(date, key)
-        .find((note) => note.date === date);
-      if (note) notes.push(note);
-    }
-    expect(notes.length).toBe(count);
-    expect(sha(JSON.stringify(notes))).toBe(sha256);
-  },
-);
 
 const theme = (id = "cloud"): NoteTheme => ({
   id,
