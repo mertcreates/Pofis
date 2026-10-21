@@ -72,6 +72,10 @@ Plan düzenleyicisinde ayrıntıları ve süre kontrolleri gösterilen gün.
 Mesai kaydından bağımsız, belirli bir tarih ve kişi anahtarı için seçilen günlük metni.
 _Kapsam_: Pofi'nin günlük metni
 
+**Yemek yorumu**:
+Seçilen menüdeki yemek ve rol koşullarına uyan bütün metinler arasından hesap anahtarı ve tarih için seçilen kısa Pofi metni.
+_Kapsam_: Yemek menüsünün altındaki Pofi notu
+
 **Not teması**:
 Giriş, gelişme ve kapanış metin parçalarını bir araya getiren içerik ailesi.
 _Kapsam_: Notun konusu ve anlatı parçaları

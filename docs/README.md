@@ -16,6 +16,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Demo verisi, saat ve gezinme | [Mesaim demosu](demo.md) |
 | GA4 akışı ve kullanım ölçümünün veri sınırları | [Kullanım ölçümü](analytics.md) |
 | Pofi içeriği ve tek havuz seçimi | [Pofi notları](pofi-notes.md) |
+| Yemek kaynağı, menü ayrıştırma ve Pofi yemek yorumları | [Yemek menüsü](rules/meal-menu.md) |
 | Pofi dili ve görselleri | [Ton rehberi](brand/pofi-tone-guide.md), [görsel kaynaklar](brand/assets.md) |
 | Arayüz bileşenleri ve sorumlulukları | [Arayüz sahipleri](architecture/ui-components.md) |
 | Bekleyen geliştirme ve kabul işleri | [Görev listesi](../tasks/todo.md) |

@@ -30,7 +30,12 @@ export type MealPresentation = {
 };
 
 function displayItem(name: string) {
-  return name.trim().replace(/ZYT\.\s*/giu, "Zeytinyağlı ");
+  return name.normalize("NFC").trim().replace(/ZYT\.\s*/giu, "Zeytinyağlı ")
+    .replace(/\p{L}+/gu, (word, offset, source) => {
+      // Keep source abbreviations such as K.Lahana and Şhr.Pirinç intact.
+      if (source[offset + word.length] === ".") return word;
+      return word[0].toLocaleUpperCase("tr-TR") + word.slice(1).toLocaleLowerCase("tr-TR");
+    });
 }
 
 function parseMenuItems(name: string): string[] | null {
@@ -83,7 +88,7 @@ export function presentMeal(menu: MealMenu): MealPresentation {
 
   return {
     kind: "structured",
-    mains,
+    mains: mains.map(displayItem),
     mainCalorie: main.calorie,
     vegetarian,
     sharedCalorie,

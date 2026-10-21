@@ -1,0 +1,2422 @@
+{
+  "source": "history.json",
+  "from": "2026-04-20",
+  "to": "2026-10-20",
+  "menuDays": 184,
+  "menuRecords": 186,
+  "multipleMenuDates": [
+    "2026-05-26",
+    "2026-09-04"
+  ],
+  "counting": "Bir öğe aynı tarihin bütün menü kayıtlarında toplam bir kez sayılır. Sayı, öğenin bulunduğu farklı gün sayısıdır.",
+  "normalization": "Boşluk ve Türkçe büyük/küçük harf farkları birleştirilir; VJT./SEÇ. işaretleri ayrılır; ZYT. açılır. Diğer kısaltma, eğik çizgi ve yazım farkları korunur. Meyve/İçecek gibi genel kaynak adları da sayılır.",
+  "distinctItems": 343,
+  "items": [
+    {
+      "name": "İçecek",
+      "count": 184,
+      "sourceNames": [
+        "İçecek"
+      ]
+    },
+    {
+      "name": "Limon",
+      "count": 178,
+      "sourceNames": [
+        "Limon"
+      ]
+    },
+    {
+      "name": "Göbek",
+      "count": 132,
+      "sourceNames": [
+        "Göbek"
+      ]
+    },
+    {
+      "name": "Meyve",
+      "count": 95,
+      "sourceNames": [
+        "Meyve"
+      ]
+    },
+    {
+      "name": "K.Lahana Salata",
+      "count": 80,
+      "sourceNames": [
+        "K.lahana Salata",
+        "K.Lahana Salata"
+      ]
+    },
+    {
+      "name": "Havuç Salata",
+      "count": 68,
+      "sourceNames": [
+        "Havuç Salata"
+      ]
+    },
+    {
+      "name": "Pirinç Pilavı",
+      "count": 48,
+      "sourceNames": [
+        "Pirinç Pilavı"
+      ]
+    },
+    {
+      "name": "Lahmacun",
+      "count": 44,
+      "sourceNames": [
+        "Lahmacun"
+      ]
+    },
+    {
+      "name": "Mercimek Çorba",
+      "count": 31,
+      "sourceNames": [
+        "Mercimek Çorba"
+      ]
+    },
+    {
+      "name": "Domates Çorba",
+      "count": 30,
+      "sourceNames": [
+        "Domates Çorba"
+      ]
+    },
+    {
+      "name": "Yoğurt",
+      "count": 30,
+      "sourceNames": [
+        "Yoğurt"
+      ]
+    },
+    {
+      "name": "Cacık",
+      "count": 28,
+      "sourceNames": [
+        "Cacık"
+      ]
+    },
+    {
+      "name": "Bulgur Pilavı",
+      "count": 27,
+      "sourceNames": [
+        "Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Tarhana Çorba",
+      "count": 26,
+      "sourceNames": [
+        "Tarhana Çorba"
+      ]
+    },
+    {
+      "name": "Bafra Pidesi",
+      "count": 22,
+      "sourceNames": [
+        "Bafra Pidesi"
+      ]
+    },
+    {
+      "name": "Haydari",
+      "count": 21,
+      "sourceNames": [
+        "Haydari"
+      ]
+    },
+    {
+      "name": "Makarna",
+      "count": 20,
+      "sourceNames": [
+        "Makarna"
+      ]
+    },
+    {
+      "name": "Kısır",
+      "count": 19,
+      "sourceNames": [
+        "Kısır"
+      ]
+    },
+    {
+      "name": "Göbek Salata",
+      "count": 18,
+      "sourceNames": [
+        "Göbek Salata"
+      ]
+    },
+    {
+      "name": "Dondurma",
+      "count": 16,
+      "sourceNames": [
+        "Dondurma"
+      ]
+    },
+    {
+      "name": "Etli Ekmek",
+      "count": 15,
+      "sourceNames": [
+        "Etli Ekmek"
+      ]
+    },
+    {
+      "name": "Ezogelin Çorba",
+      "count": 14,
+      "sourceNames": [
+        "Ezogelin Çorba"
+      ]
+    },
+    {
+      "name": "Kaşık Salata",
+      "count": 14,
+      "sourceNames": [
+        "Kaşık Salata"
+      ]
+    },
+    {
+      "name": "Barbunya",
+      "count": 13,
+      "sourceNames": [
+        "Barbunya"
+      ]
+    },
+    {
+      "name": "Ezme",
+      "count": 13,
+      "sourceNames": [
+        "Ezme"
+      ]
+    },
+    {
+      "name": "Havuç Tarator",
+      "count": 13,
+      "sourceNames": [
+        "Havuç Tarator"
+      ]
+    },
+    {
+      "name": "Yayla Çorba",
+      "count": 13,
+      "sourceNames": [
+        "Yayla Çorba"
+      ]
+    },
+    {
+      "name": "Karışık Turşu",
+      "count": 12,
+      "sourceNames": [
+        "Karışık Turşu"
+      ]
+    },
+    {
+      "name": "Taze Fasulye",
+      "count": 12,
+      "sourceNames": [
+        "Taze Fasulye"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Brokoli",
+      "count": 12,
+      "sourceNames": [
+        "Zyt.Brokoli",
+        "ZYT.Brokoli"
+      ]
+    },
+    {
+      "name": "Bademli Pirinç Pilavı",
+      "count": 11,
+      "sourceNames": [
+        "Bademli Pirinç Pilavı"
+      ]
+    },
+    {
+      "name": "Kuşbaşılı Pide",
+      "count": 11,
+      "sourceNames": [
+        "Kuşbaşılı Pide"
+      ]
+    },
+    {
+      "name": "Türlü",
+      "count": 11,
+      "sourceNames": [
+        "Türlü"
+      ]
+    },
+    {
+      "name": "Bezelye",
+      "count": 10,
+      "sourceNames": [
+        "Bezelye"
+      ]
+    },
+    {
+      "name": "Çoban Salata",
+      "count": 10,
+      "sourceNames": [
+        "Çoban Salata"
+      ]
+    },
+    {
+      "name": "İç Pilav",
+      "count": 10,
+      "sourceNames": [
+        "İç Pilav"
+      ]
+    },
+    {
+      "name": "İmam Bayıldı",
+      "count": 10,
+      "sourceNames": [
+        "İmam Bayıldı"
+      ]
+    },
+    {
+      "name": "Mısır Salata",
+      "count": 10,
+      "sourceNames": [
+        "Mısır Salata"
+      ]
+    },
+    {
+      "name": "Sebze Çorba",
+      "count": 10,
+      "sourceNames": [
+        "Sebze çorba",
+        "Sebze Çorba"
+      ]
+    },
+    {
+      "name": "Soğuk Çorba",
+      "count": 10,
+      "sourceNames": [
+        "Soğuk Çorba"
+      ]
+    },
+    {
+      "name": "Şehriye Çorba",
+      "count": 10,
+      "sourceNames": [
+        "Şehriye Çorba"
+      ]
+    },
+    {
+      "name": "Biber Borani",
+      "count": 9,
+      "sourceNames": [
+        "Biber Borani"
+      ]
+    },
+    {
+      "name": "Yeşil Mercimek",
+      "count": 9,
+      "sourceNames": [
+        "Yeşil Mercimek"
+      ]
+    },
+    {
+      "name": "Acısız Ezme",
+      "count": 8,
+      "sourceNames": [
+        "Acısız Ezme"
+      ]
+    },
+    {
+      "name": "Etli Kuru Fasulye",
+      "count": 8,
+      "sourceNames": [
+        "Etli Kuru Fasulye"
+      ]
+    },
+    {
+      "name": "Etli Nohut",
+      "count": 8,
+      "sourceNames": [
+        "Etli Nohut"
+      ]
+    },
+    {
+      "name": "Kabak Tarator",
+      "count": 8,
+      "sourceNames": [
+        "Kabak Tarator"
+      ]
+    },
+    {
+      "name": "Mercimek Köfte",
+      "count": 8,
+      "sourceNames": [
+        "Mercimek Köfte"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Brüksel Lahana",
+      "count": 8,
+      "sourceNames": [
+        "ZYT.Brüksel Lahana"
+      ]
+    },
+    {
+      "name": "Düğün Çorba",
+      "count": 7,
+      "sourceNames": [
+        "Düğün Çorba"
+      ]
+    },
+    {
+      "name": "Havuç",
+      "count": 7,
+      "sourceNames": [
+        "Havuç"
+      ]
+    },
+    {
+      "name": "Kuzu Tandır",
+      "count": 7,
+      "sourceNames": [
+        "Kuzu Tandır"
+      ]
+    },
+    {
+      "name": "Patates Bulancar",
+      "count": 7,
+      "sourceNames": [
+        "Patates Bulancar"
+      ]
+    },
+    {
+      "name": "Şekerpare",
+      "count": 7,
+      "sourceNames": [
+        "Şekerpare"
+      ]
+    },
+    {
+      "name": "Tavuk Izgara",
+      "count": 7,
+      "sourceNames": [
+        "Tavuk Izgara"
+      ]
+    },
+    {
+      "name": "Amerikan Salata",
+      "count": 6,
+      "sourceNames": [
+        "Amerikan Salata"
+      ]
+    },
+    {
+      "name": "Babaganuş",
+      "count": 6,
+      "sourceNames": [
+        "Babaganuş"
+      ]
+    },
+    {
+      "name": "Çiğ Köfte",
+      "count": 6,
+      "sourceNames": [
+        "Çiğ Köfte"
+      ]
+    },
+    {
+      "name": "Et Sote",
+      "count": 6,
+      "sourceNames": [
+        "Et Sote"
+      ]
+    },
+    {
+      "name": "Kıymalı Pide",
+      "count": 6,
+      "sourceNames": [
+        "Kıymalı Pide"
+      ]
+    },
+    {
+      "name": "Lotuslu Magnolya",
+      "count": 6,
+      "sourceNames": [
+        "Lotuslu Magnolya"
+      ]
+    },
+    {
+      "name": "Mantı",
+      "count": 6,
+      "sourceNames": [
+        "Mantı"
+      ]
+    },
+    {
+      "name": "Pembe Sultan",
+      "count": 6,
+      "sourceNames": [
+        "Pembe Sultan"
+      ]
+    },
+    {
+      "name": "Peynir Tatlısı",
+      "count": 6,
+      "sourceNames": [
+        "Peynir Tatlısı"
+      ]
+    },
+    {
+      "name": "Piyaz",
+      "count": 6,
+      "sourceNames": [
+        "Piyaz"
+      ]
+    },
+    {
+      "name": "Şhr. Pirinç Pilavı",
+      "count": 6,
+      "sourceNames": [
+        "Şhr. Pirinç Pilavı"
+      ]
+    },
+    {
+      "name": "Tavuk Suyu Çorba",
+      "count": 6,
+      "sourceNames": [
+        "Tavuk Suyu Çorba"
+      ]
+    },
+    {
+      "name": "Turşu",
+      "count": 6,
+      "sourceNames": [
+        "Turşu"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Enginar",
+      "count": 6,
+      "sourceNames": [
+        "Zeytinyağlı Enginar",
+        "ZYT.Enginar"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Kereviz",
+      "count": 6,
+      "sourceNames": [
+        "Zeytinyağlı Kereviz",
+        "ZYT.Kereviz"
+      ]
+    },
+    {
+      "name": "Domates/Salatalık Söğüş",
+      "count": 5,
+      "sourceNames": [
+        "Domates/Salatalık Söğüş"
+      ]
+    },
+    {
+      "name": "Enginar",
+      "count": 5,
+      "sourceNames": [
+        "Enginar"
+      ]
+    },
+    {
+      "name": "Et Kavurma",
+      "count": 5,
+      "sourceNames": [
+        "Et Kavurma"
+      ]
+    },
+    {
+      "name": "Fırın Sütlaç",
+      "count": 5,
+      "sourceNames": [
+        "Fırın Sütlaç"
+      ]
+    },
+    {
+      "name": "Gavurdağ",
+      "count": 5,
+      "sourceNames": [
+        "Gavurdağ"
+      ]
+    },
+    {
+      "name": "Ispanak Borani",
+      "count": 5,
+      "sourceNames": [
+        "Ispanak Borani"
+      ]
+    },
+    {
+      "name": "Izgara Köfte",
+      "count": 5,
+      "sourceNames": [
+        "Izgara Köfte"
+      ]
+    },
+    {
+      "name": "K.Lahana",
+      "count": 5,
+      "sourceNames": [
+        "K.Lahana"
+      ]
+    },
+    {
+      "name": "Karışık Izgara",
+      "count": 5,
+      "sourceNames": [
+        "Karışık Izgara"
+      ]
+    },
+    {
+      "name": "Karışık Kızartma",
+      "count": 5,
+      "sourceNames": [
+        "Karışık Kızartma"
+      ]
+    },
+    {
+      "name": "Karnabahar",
+      "count": 5,
+      "sourceNames": [
+        "Karnabahar"
+      ]
+    },
+    {
+      "name": "Kemalpaşa",
+      "count": 5,
+      "sourceNames": [
+        "Kemalpaşa"
+      ]
+    },
+    {
+      "name": "Mısırlı Pirinç Pilavı",
+      "count": 5,
+      "sourceNames": [
+        "Mısırlı Pirinç Pilavı"
+      ]
+    },
+    {
+      "name": "Mitite Köfte",
+      "count": 5,
+      "sourceNames": [
+        "Mitite Köfte"
+      ]
+    },
+    {
+      "name": "Patlıcan Musakka",
+      "count": 5,
+      "sourceNames": [
+        "Patlıcan Musakka"
+      ]
+    },
+    {
+      "name": "Roka Salata",
+      "count": 5,
+      "sourceNames": [
+        "Roka Salata"
+      ]
+    },
+    {
+      "name": "Sütlü Nuriye",
+      "count": 5,
+      "sourceNames": [
+        "Sütlü Nuriye"
+      ]
+    },
+    {
+      "name": "Şhr.Pirinç Pilavı",
+      "count": 5,
+      "sourceNames": [
+        "Şhr.Pirinç Pilavı"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Kırmızı Lahana",
+      "count": 5,
+      "sourceNames": [
+        "Yoğurtlu Kırmızı Lahana"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Karnabahar",
+      "count": 5,
+      "sourceNames": [
+        "ZYT.Karnabahar"
+      ]
+    },
+    {
+      "name": "Adana Böreği",
+      "count": 4,
+      "sourceNames": [
+        "Adana Böreği"
+      ]
+    },
+    {
+      "name": "Arnavut Çiğeri",
+      "count": 4,
+      "sourceNames": [
+        "Arnavut Çiğeri"
+      ]
+    },
+    {
+      "name": "Çeşmingar Çorba",
+      "count": 4,
+      "sourceNames": [
+        "Çeşmingar Çorba"
+      ]
+    },
+    {
+      "name": "Dana Nuar",
+      "count": 4,
+      "sourceNames": [
+        "Dana Nuar"
+      ]
+    },
+    {
+      "name": "Et Tantuni",
+      "count": 4,
+      "sourceNames": [
+        "Et Tantuni"
+      ]
+    },
+    {
+      "name": "Gavurdağ Salata",
+      "count": 4,
+      "sourceNames": [
+        "Gavurdağ Salata"
+      ]
+    },
+    {
+      "name": "Göbek/Roka",
+      "count": 4,
+      "sourceNames": [
+        "Göbek/Roka"
+      ]
+    },
+    {
+      "name": "Hasanpaşa Köfte",
+      "count": 4,
+      "sourceNames": [
+        "Hasanpaşa Köfte"
+      ]
+    },
+    {
+      "name": "Hünkar Beğendi",
+      "count": 4,
+      "sourceNames": [
+        "Hünkar Beğendi"
+      ]
+    },
+    {
+      "name": "Ispanak",
+      "count": 4,
+      "sourceNames": [
+        "Ispanak"
+      ]
+    },
+    {
+      "name": "Karışık Yeşillik",
+      "count": 4,
+      "sourceNames": [
+        "Karışık Yeşillik"
+      ]
+    },
+    {
+      "name": "Kazandibi",
+      "count": 4,
+      "sourceNames": [
+        "Kazandibi"
+      ]
+    },
+    {
+      "name": "Mücver",
+      "count": 4,
+      "sourceNames": [
+        "Mücver"
+      ]
+    },
+    {
+      "name": "Profiterol",
+      "count": 4,
+      "sourceNames": [
+        "Profiterol"
+      ]
+    },
+    {
+      "name": "Roka",
+      "count": 4,
+      "sourceNames": [
+        "Roka"
+      ]
+    },
+    {
+      "name": "Soslu Makarna",
+      "count": 4,
+      "sourceNames": [
+        "Soslu Makarna"
+      ]
+    },
+    {
+      "name": "Şakşuka",
+      "count": 4,
+      "sourceNames": [
+        "Şakşuka"
+      ]
+    },
+    {
+      "name": "Şehriyeli Pirinç Pilavı",
+      "count": 4,
+      "sourceNames": [
+        "Şehriyeli Pirinç Pilavı"
+      ]
+    },
+    {
+      "name": "Tavuk Baget",
+      "count": 4,
+      "sourceNames": [
+        "Tavuk Baget"
+      ]
+    },
+    {
+      "name": "Tavuk Tantuni",
+      "count": 4,
+      "sourceNames": [
+        "Tavuk Tantuni"
+      ]
+    },
+    {
+      "name": "Tel Şehriye Çorba",
+      "count": 4,
+      "sourceNames": [
+        "Tel Şehriye Çorba"
+      ]
+    },
+    {
+      "name": "Zeytin Salata",
+      "count": 4,
+      "sourceNames": [
+        "Zeytin Salata"
+      ]
+    },
+    {
+      "name": "Babagannuş",
+      "count": 3,
+      "sourceNames": [
+        "Babagannuş"
+      ]
+    },
+    {
+      "name": "Beşamelli Ispanak",
+      "count": 3,
+      "sourceNames": [
+        "Beşamelli Ispanak"
+      ]
+    },
+    {
+      "name": "Bostana",
+      "count": 3,
+      "sourceNames": [
+        "Bostana"
+      ]
+    },
+    {
+      "name": "Çoban Kavurma",
+      "count": 3,
+      "sourceNames": [
+        "Çoban Kavurma"
+      ]
+    },
+    {
+      "name": "Et Döner",
+      "count": 3,
+      "sourceNames": [
+        "Et Döner"
+      ]
+    },
+    {
+      "name": "Fellah Köfte",
+      "count": 3,
+      "sourceNames": [
+        "Fellah Köfte"
+      ]
+    },
+    {
+      "name": "Fırın Makarna",
+      "count": 3,
+      "sourceNames": [
+        "Fırın Makarna"
+      ]
+    },
+    {
+      "name": "Fırında Tavuk But",
+      "count": 3,
+      "sourceNames": [
+        "Fırında Tavuk But"
+      ]
+    },
+    {
+      "name": "İzmir Köfte",
+      "count": 3,
+      "sourceNames": [
+        "İzmir Köfte"
+      ]
+    },
+    {
+      "name": "Kadayıflı Muhallebi",
+      "count": 3,
+      "sourceNames": [
+        "Kadayıflı Muhallebi"
+      ]
+    },
+    {
+      "name": "Karamelli Triliçe",
+      "count": 3,
+      "sourceNames": [
+        "Karamelli Triliçe"
+      ]
+    },
+    {
+      "name": "Kaşık",
+      "count": 3,
+      "sourceNames": [
+        "Kaşık"
+      ]
+    },
+    {
+      "name": "Kuru Fasulye",
+      "count": 3,
+      "sourceNames": [
+        "Kuru Fasulye"
+      ]
+    },
+    {
+      "name": "Mısır Çorba",
+      "count": 3,
+      "sourceNames": [
+        "Mısır Çorba"
+      ]
+    },
+    {
+      "name": "Misket Köfte",
+      "count": 3,
+      "sourceNames": [
+        "Misket Köfte"
+      ]
+    },
+    {
+      "name": "Nohut",
+      "count": 3,
+      "sourceNames": [
+        "Nohut"
+      ]
+    },
+    {
+      "name": "Oreolu Magnolya",
+      "count": 3,
+      "sourceNames": [
+        "Oreolu Magnolya"
+      ]
+    },
+    {
+      "name": "Patates Yemeği",
+      "count": 3,
+      "sourceNames": [
+        "Patates Yemeği"
+      ]
+    },
+    {
+      "name": "Sucuklu Kaşarlı Pide",
+      "count": 3,
+      "sourceNames": [
+        "Sucuklu Kaşarlı Pide"
+      ]
+    },
+    {
+      "name": "Şehriye Salata",
+      "count": 3,
+      "sourceNames": [
+        "Şehriye Salata"
+      ]
+    },
+    {
+      "name": "Şhr.Bulgur Pilavı",
+      "count": 3,
+      "sourceNames": [
+        "Şhr.Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Tas Kebabı",
+      "count": 3,
+      "sourceNames": [
+        "Tas Kebabı"
+      ]
+    },
+    {
+      "name": "Tavuk Çökertme",
+      "count": 3,
+      "sourceNames": [
+        "Tavuk Çökertme"
+      ]
+    },
+    {
+      "name": "Tavuk Şiş",
+      "count": 3,
+      "sourceNames": [
+        "Tavuk Şiş"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Dövme Çorba",
+      "count": 3,
+      "sourceNames": [
+        "Yoğurtlu Dövme Çorba"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Kabak Kızartma",
+      "count": 3,
+      "sourceNames": [
+        "Yoğurtlu Kabak Kızartma"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Portakallı Kereviz",
+      "count": 3,
+      "sourceNames": [
+        "ZYT.Portakallı Kereviz"
+      ]
+    },
+    {
+      "name": "Acılı Ezme",
+      "count": 2,
+      "sourceNames": [
+        "Acılı Ezme"
+      ]
+    },
+    {
+      "name": "Aşure",
+      "count": 2,
+      "sourceNames": [
+        "Aşure"
+      ]
+    },
+    {
+      "name": "Beğendili Et",
+      "count": 2,
+      "sourceNames": [
+        "Beğendili Et"
+      ]
+    },
+    {
+      "name": "Beğendili Tavuk Sote",
+      "count": 2,
+      "sourceNames": [
+        "Beğendili Tavuk Sote"
+      ]
+    },
+    {
+      "name": "Biber Dolması",
+      "count": 2,
+      "sourceNames": [
+        "Biber Dolması"
+      ]
+    },
+    {
+      "name": "Brüksel Lahana",
+      "count": 2,
+      "sourceNames": [
+        "Brüksel Lahana"
+      ]
+    },
+    {
+      "name": "Çoban",
+      "count": 2,
+      "sourceNames": [
+        "Çoban"
+      ]
+    },
+    {
+      "name": "Çökertme Kebabı",
+      "count": 2,
+      "sourceNames": [
+        "Çökertme Kebabı"
+      ]
+    },
+    {
+      "name": "Ekşili Köfte",
+      "count": 2,
+      "sourceNames": [
+        "Ekşili Köfte"
+      ]
+    },
+    {
+      "name": "Fırında Baget",
+      "count": 2,
+      "sourceNames": [
+        "Fırında Baget"
+      ]
+    },
+    {
+      "name": "Fırında But",
+      "count": 2,
+      "sourceNames": [
+        "Fırında But"
+      ]
+    },
+    {
+      "name": "Fırında Köfte Patates",
+      "count": 2,
+      "sourceNames": [
+        "Fırında Köfte Patates"
+      ]
+    },
+    {
+      "name": "Fırında Tavuk",
+      "count": 2,
+      "sourceNames": [
+        "Fırında Tavuk"
+      ]
+    },
+    {
+      "name": "Fırında Tavuk Pirzola",
+      "count": 2,
+      "sourceNames": [
+        "Fırında Tavuk Pirzola"
+      ]
+    },
+    {
+      "name": "Ispanak Yemeği",
+      "count": 2,
+      "sourceNames": [
+        "Ispanak Yemeği"
+      ]
+    },
+    {
+      "name": "Ispanaklı Pide",
+      "count": 2,
+      "sourceNames": [
+        "Ispanaklı Pide"
+      ]
+    },
+    {
+      "name": "İçli Köfte",
+      "count": 2,
+      "sourceNames": [
+        "İçli Köfte"
+      ]
+    },
+    {
+      "name": "Kabak",
+      "count": 2,
+      "sourceNames": [
+        "Kabak"
+      ]
+    },
+    {
+      "name": "Kabak Yemeği",
+      "count": 2,
+      "sourceNames": [
+        "Kabak Yemeği"
+      ]
+    },
+    {
+      "name": "Kadınbudu Köfte",
+      "count": 2,
+      "sourceNames": [
+        "Kadınbudu Köfte"
+      ]
+    },
+    {
+      "name": "Kağıt Kebabı",
+      "count": 2,
+      "sourceNames": [
+        "Kağıt Kebabı"
+      ]
+    },
+    {
+      "name": "Karnıyarık",
+      "count": 2,
+      "sourceNames": [
+        "Karnıyarık"
+      ]
+    },
+    {
+      "name": "Kaşarlı Sucuklu Pide",
+      "count": 2,
+      "sourceNames": [
+        "Kaşarlı Sucuklu Pide"
+      ]
+    },
+    {
+      "name": "Köz Domates Çorba",
+      "count": 2,
+      "sourceNames": [
+        "Köz Domates Çorba"
+      ]
+    },
+    {
+      "name": "Köz Patlıcan Salata",
+      "count": 2,
+      "sourceNames": [
+        "Köz Patlıcan Salata"
+      ]
+    },
+    {
+      "name": "Kuşbaşılı Kşr.Pide",
+      "count": 2,
+      "sourceNames": [
+        "Kuşbaşılı Kşr.Pide"
+      ]
+    },
+    {
+      "name": "Kuşbaşılı Kşrl. Pide",
+      "count": 2,
+      "sourceNames": [
+        "Kuşbaşılı Kşrl. Pide"
+      ]
+    },
+    {
+      "name": "Mevsim Türlü",
+      "count": 2,
+      "sourceNames": [
+        "Mevsim Türlü"
+      ]
+    },
+    {
+      "name": "Mozaik Pasta",
+      "count": 2,
+      "sourceNames": [
+        "Mozaik Pasta"
+      ]
+    },
+    {
+      "name": "Nohutlu Ispanak",
+      "count": 2,
+      "sourceNames": [
+        "Nohutlu Ispanak"
+      ]
+    },
+    {
+      "name": "Orman Kebabı",
+      "count": 2,
+      "sourceNames": [
+        "Orman Kebabı"
+      ]
+    },
+    {
+      "name": "Pesto Soslu Makarna",
+      "count": 2,
+      "sourceNames": [
+        "Pesto Soslu Makarna"
+      ]
+    },
+    {
+      "name": "Ptlcn.Bulgur Pilavı",
+      "count": 2,
+      "sourceNames": [
+        "Ptlcn.Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Sbz. Bulgur Pilavı",
+      "count": 2,
+      "sourceNames": [
+        "Sbz. Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Soslu Patlıcan",
+      "count": 2,
+      "sourceNames": [
+        "Soslu Patlıcan"
+      ]
+    },
+    {
+      "name": "Sucuklu Kşr. Pide",
+      "count": 2,
+      "sourceNames": [
+        "Sucuklu Kşr. Pide"
+      ]
+    },
+    {
+      "name": "Sultan Kebabı",
+      "count": 2,
+      "sourceNames": [
+        "Sultan Kebabı"
+      ]
+    },
+    {
+      "name": "Supangle",
+      "count": 2,
+      "sourceNames": [
+        "Supangle"
+      ]
+    },
+    {
+      "name": "Şehriye Pilavı",
+      "count": 2,
+      "sourceNames": [
+        "Şehriye Pilavı"
+      ]
+    },
+    {
+      "name": "Şehriyeli Tavuk Suyu",
+      "count": 2,
+      "sourceNames": [
+        "Şehriyeli Tavuk Suyu"
+      ]
+    },
+    {
+      "name": "Şhrl. Pirinç Pilavı",
+      "count": 2,
+      "sourceNames": [
+        "Şhrl. Pirinç Pilavı"
+      ]
+    },
+    {
+      "name": "Tavuk Fajita",
+      "count": 2,
+      "sourceNames": [
+        "Tavuk Fajita"
+      ]
+    },
+    {
+      "name": "Tavuk Kavurma",
+      "count": 2,
+      "sourceNames": [
+        "Tavuk Kavurma"
+      ]
+    },
+    {
+      "name": "Tavuk Pirzola",
+      "count": 2,
+      "sourceNames": [
+        "Tavuk Pirzola"
+      ]
+    },
+    {
+      "name": "Tiramisu",
+      "count": 2,
+      "sourceNames": [
+        "Tiramisu"
+      ]
+    },
+    {
+      "name": "Triliçe",
+      "count": 2,
+      "sourceNames": [
+        "Triliçe"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Kereviz",
+      "count": 2,
+      "sourceNames": [
+        "Yoğurtlu Kereviz"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Semizotu",
+      "count": 2,
+      "sourceNames": [
+        "Yoğurtlu Semizotu"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Barbunya",
+      "count": 2,
+      "sourceNames": [
+        "ZYT.Barbunya"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Biber Dolma",
+      "count": 2,
+      "sourceNames": [
+        "ZYT.Biber Dolma"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Yaprak Sarma",
+      "count": 2,
+      "sourceNames": [
+        "ZYT.Yaprak Sarma"
+      ]
+    },
+    {
+      "name": "Arpa Şehriye Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Arpa Şehriye Pilavı"
+      ]
+    },
+    {
+      "name": "Arpa Şehriye Salata",
+      "count": 1,
+      "sourceNames": [
+        "Arpa Şehriye Salata"
+      ]
+    },
+    {
+      "name": "Ayran Aşı Çorbası",
+      "count": 1,
+      "sourceNames": [
+        "Ayran Aşı Çorbası"
+      ]
+    },
+    {
+      "name": "Ayranaşı Çorba",
+      "count": 1,
+      "sourceNames": [
+        "Ayranaşı Çorba"
+      ]
+    },
+    {
+      "name": "Bademli Keşkül",
+      "count": 1,
+      "sourceNames": [
+        "Bademli Keşkül"
+      ]
+    },
+    {
+      "name": "Barbunya Pilaki",
+      "count": 1,
+      "sourceNames": [
+        "Barbunya Pilaki"
+      ]
+    },
+    {
+      "name": "Beğendili Tavuk",
+      "count": 1,
+      "sourceNames": [
+        "Beğendili Tavuk"
+      ]
+    },
+    {
+      "name": "Beğendili Tavuk Julyen",
+      "count": 1,
+      "sourceNames": [
+        "Beğendili Tavuk Julyen"
+      ]
+    },
+    {
+      "name": "Biber Baroni",
+      "count": 1,
+      "sourceNames": [
+        "Biber Baroni"
+      ]
+    },
+    {
+      "name": "Biber Boranı",
+      "count": 1,
+      "sourceNames": [
+        "Biber Boranı"
+      ]
+    },
+    {
+      "name": "Biber Dolma",
+      "count": 1,
+      "sourceNames": [
+        "Biber Dolma"
+      ]
+    },
+    {
+      "name": "Biber Turşusu",
+      "count": 1,
+      "sourceNames": [
+        "Biber Turşusu"
+      ]
+    },
+    {
+      "name": "Cevizli Havuç Tarator",
+      "count": 1,
+      "sourceNames": [
+        "Cevizli Havuç Tarator"
+      ]
+    },
+    {
+      "name": "Coban Kavurma",
+      "count": 1,
+      "sourceNames": [
+        "Coban Kavurma"
+      ]
+    },
+    {
+      "name": "Coban Salata",
+      "count": 1,
+      "sourceNames": [
+        "Coban Salata"
+      ]
+    },
+    {
+      "name": "Coleslaw",
+      "count": 1,
+      "sourceNames": [
+        "Coleslaw"
+      ]
+    },
+    {
+      "name": "Çikolata Soslu Muhallebi",
+      "count": 1,
+      "sourceNames": [
+        "Çikolata Soslu Muhallebi"
+      ]
+    },
+    {
+      "name": "Çilekli Magnolya",
+      "count": 1,
+      "sourceNames": [
+        "Çilekli Magnolya"
+      ]
+    },
+    {
+      "name": "Dana Rosto",
+      "count": 1,
+      "sourceNames": [
+        "Dana Rosto"
+      ]
+    },
+    {
+      "name": "Domates Salatalık Söğüş",
+      "count": 1,
+      "sourceNames": [
+        "Domates Salatalık Söğüş"
+      ]
+    },
+    {
+      "name": "Et Tantuni - Lavaş",
+      "count": 1,
+      "sourceNames": [
+        "Et Tantuni - Lavaş"
+      ]
+    },
+    {
+      "name": "Etli Biber Dolma",
+      "count": 1,
+      "sourceNames": [
+        "Etli Biber Dolma"
+      ]
+    },
+    {
+      "name": "Etli Sultan Kebabı",
+      "count": 1,
+      "sourceNames": [
+        "Etli Sultan Kebabı"
+      ]
+    },
+    {
+      "name": "Fırın Baget",
+      "count": 1,
+      "sourceNames": [
+        "Fırın Baget"
+      ]
+    },
+    {
+      "name": "Fırın Köfte",
+      "count": 1,
+      "sourceNames": [
+        "Fırın Köfte"
+      ]
+    },
+    {
+      "name": "Fırın Köfte-Püre",
+      "count": 1,
+      "sourceNames": [
+        "Fırın Köfte-Püre"
+      ]
+    },
+    {
+      "name": "Fırında Tavuk Baget",
+      "count": 1,
+      "sourceNames": [
+        "Fırında Tavuk Baget"
+      ]
+    },
+    {
+      "name": "Fırında Tavuk Izgara",
+      "count": 1,
+      "sourceNames": [
+        "Fırında Tavuk Izgara"
+      ]
+    },
+    {
+      "name": "Frıın Makarna",
+      "count": 1,
+      "sourceNames": [
+        "Frıın Makarna"
+      ]
+    },
+    {
+      "name": "Gavurdağı Salata",
+      "count": 1,
+      "sourceNames": [
+        "Gavurdağı Salata"
+      ]
+    },
+    {
+      "name": "Göbek/Havuç Salata",
+      "count": 1,
+      "sourceNames": [
+        "Göbek/Havuç Salata"
+      ]
+    },
+    {
+      "name": "Göbek/Roka Salata",
+      "count": 1,
+      "sourceNames": [
+        "Göbek/Roka Salata"
+      ]
+    },
+    {
+      "name": "Hacuç Salata",
+      "count": 1,
+      "sourceNames": [
+        "Hacuç Salata"
+      ]
+    },
+    {
+      "name": "Hav.Şehriye Tavuk Suyu",
+      "count": 1,
+      "sourceNames": [
+        "Hav.Şehriye Tavuk Suyu"
+      ]
+    },
+    {
+      "name": "Helva",
+      "count": 1,
+      "sourceNames": [
+        "Helva"
+      ]
+    },
+    {
+      "name": "Izgara Kanat",
+      "count": 1,
+      "sourceNames": [
+        "Izgara Kanat"
+      ]
+    },
+    {
+      "name": "İrmik Helva",
+      "count": 1,
+      "sourceNames": [
+        "İrmik Helva"
+      ]
+    },
+    {
+      "name": "İrmik Helvası",
+      "count": 1,
+      "sourceNames": [
+        "İrmik Helvası"
+      ]
+    },
+    {
+      "name": "İslim Köfte",
+      "count": 1,
+      "sourceNames": [
+        "İslim Köfte"
+      ]
+    },
+    {
+      "name": "K.Lahana Salata Limon",
+      "count": 1,
+      "sourceNames": [
+        "K.Lahana Salata Limon"
+      ]
+    },
+    {
+      "name": "Kabak Mücver",
+      "count": 1,
+      "sourceNames": [
+        "Kabak Mücver"
+      ]
+    },
+    {
+      "name": "KabakTarator",
+      "count": 1,
+      "sourceNames": [
+        "KabakTarator"
+      ]
+    },
+    {
+      "name": "Karamelli Traliçe",
+      "count": 1,
+      "sourceNames": [
+        "Karamelli Traliçe"
+      ]
+    },
+    {
+      "name": "Karışık Kuru Dolma",
+      "count": 1,
+      "sourceNames": [
+        "Karışık Kuru Dolma"
+      ]
+    },
+    {
+      "name": "Karnıbahar",
+      "count": 1,
+      "sourceNames": [
+        "Karnıbahar"
+      ]
+    },
+    {
+      "name": "Kaşık Salat",
+      "count": 1,
+      "sourceNames": [
+        "Kaşık Salat"
+      ]
+    },
+    {
+      "name": "Kereviz Tarator",
+      "count": 1,
+      "sourceNames": [
+        "Kereviz Tarator"
+      ]
+    },
+    {
+      "name": "Keşkül",
+      "count": 1,
+      "sourceNames": [
+        "Keşkül"
+      ]
+    },
+    {
+      "name": "Kırmızı Lahana Salata",
+      "count": 1,
+      "sourceNames": [
+        "Kırmızı Lahana Salata"
+      ]
+    },
+    {
+      "name": "Kıyamlı Pide",
+      "count": 1,
+      "sourceNames": [
+        "Kıyamlı Pide"
+      ]
+    },
+    {
+      "name": "Kıymalı Biber Dolma",
+      "count": 1,
+      "sourceNames": [
+        "Kıymalı Biber Dolma"
+      ]
+    },
+    {
+      "name": "Kıymalı Biber Dolması",
+      "count": 1,
+      "sourceNames": [
+        "Kıymalı Biber Dolması"
+      ]
+    },
+    {
+      "name": "Köfte Izgara",
+      "count": 1,
+      "sourceNames": [
+        "Köfte Izgara"
+      ]
+    },
+    {
+      "name": "Köz Biberli Yğrt. Patates Salatası",
+      "count": 1,
+      "sourceNames": [
+        "Köz Biberli Yğrt. Patates Salatası"
+      ]
+    },
+    {
+      "name": "Kremalı Sebze Çorba",
+      "count": 1,
+      "sourceNames": [
+        "Kremalı Sebze Çorba"
+      ]
+    },
+    {
+      "name": "Kremalı Tavuk Suyu Çorba",
+      "count": 1,
+      "sourceNames": [
+        "Kremalı Tavuk Suyu Çorba"
+      ]
+    },
+    {
+      "name": "Kuru Cacık",
+      "count": 1,
+      "sourceNames": [
+        "Kuru Cacık"
+      ]
+    },
+    {
+      "name": "Kuskus Makarna",
+      "count": 1,
+      "sourceNames": [
+        "Kuskus Makarna"
+      ]
+    },
+    {
+      "name": "Kuş Üzümlü Pirinç Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Kuş Üzümlü Pirinç Pilavı"
+      ]
+    },
+    {
+      "name": "Kuş.Kşr.Pide",
+      "count": 1,
+      "sourceNames": [
+        "Kuş.Kşr.Pide"
+      ]
+    },
+    {
+      "name": "Kuşbaşı Kaş.Pide",
+      "count": 1,
+      "sourceNames": [
+        "Kuşbaşı Kaş.Pide"
+      ]
+    },
+    {
+      "name": "Kuşbaşılı Sbz.Pide",
+      "count": 1,
+      "sourceNames": [
+        "Kuşbaşılı Sbz.Pide"
+      ]
+    },
+    {
+      "name": "Kuzu Sote",
+      "count": 1,
+      "sourceNames": [
+        "Kuzu Sote"
+      ]
+    },
+    {
+      "name": "Limıon",
+      "count": 1,
+      "sourceNames": [
+        "Limıon"
+      ]
+    },
+    {
+      "name": "Mantar Çorba",
+      "count": 1,
+      "sourceNames": [
+        "Mantar Çorba"
+      ]
+    },
+    {
+      "name": "Mantar Kavurma",
+      "count": 1,
+      "sourceNames": [
+        "Mantar Kavurma"
+      ]
+    },
+    {
+      "name": "Mantar Soslu Makarna",
+      "count": 1,
+      "sourceNames": [
+        "Mantar Soslu Makarna"
+      ]
+    },
+    {
+      "name": "Mousse Tatlısı",
+      "count": 1,
+      "sourceNames": [
+        "Mousse Tatlısı"
+      ]
+    },
+    {
+      "name": "Muhallebi",
+      "count": 1,
+      "sourceNames": [
+        "Muhallebi"
+      ]
+    },
+    {
+      "name": "Muhallebili Kemalpaşa",
+      "count": 1,
+      "sourceNames": [
+        "Muhallebili Kemalpaşa"
+      ]
+    },
+    {
+      "name": "Nohutlu Semizotu",
+      "count": 1,
+      "sourceNames": [
+        "Nohutlu Semizotu"
+      ]
+    },
+    {
+      "name": "Pastırmalı Kuru Fasulye",
+      "count": 1,
+      "sourceNames": [
+        "Pastırmalı Kuru Fasulye"
+      ]
+    },
+    {
+      "name": "Patates Musakka",
+      "count": 1,
+      "sourceNames": [
+        "Patates Musakka"
+      ]
+    },
+    {
+      "name": "Patates Oturtma",
+      "count": 1,
+      "sourceNames": [
+        "Patates Oturtma"
+      ]
+    },
+    {
+      "name": "Patates Salata",
+      "count": 1,
+      "sourceNames": [
+        "Patates Salata"
+      ]
+    },
+    {
+      "name": "Patates Salatası",
+      "count": 1,
+      "sourceNames": [
+        "Patates Salatası"
+      ]
+    },
+    {
+      "name": "Patlıcanlı Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Patlıcanlı Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Peynirli Makarna",
+      "count": 1,
+      "sourceNames": [
+        "Peynirli Makarna"
+      ]
+    },
+    {
+      "name": "Peynirli Su Böreği",
+      "count": 1,
+      "sourceNames": [
+        "Peynirli Su Böreği"
+      ]
+    },
+    {
+      "name": "Pideli Köfte",
+      "count": 1,
+      "sourceNames": [
+        "Pideli Köfte"
+      ]
+    },
+    {
+      "name": "Piliç Topkapı",
+      "count": 1,
+      "sourceNames": [
+        "Piliç Topkapı"
+      ]
+    },
+    {
+      "name": "Pst.Kuru Fasulye",
+      "count": 1,
+      "sourceNames": [
+        "Pst.Kuru Fasulye"
+      ]
+    },
+    {
+      "name": "Ptl. Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Ptl. Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Ptlcn. Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Ptlcn. Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Püre Yatağında Dilimli Köfte",
+      "count": 1,
+      "sourceNames": [
+        "Püre Yatağında Dilimli Köfte"
+      ]
+    },
+    {
+      "name": "Püreli Dana Rosto",
+      "count": 1,
+      "sourceNames": [
+        "Püreli Dana Rosto"
+      ]
+    },
+    {
+      "name": "Püreli Sıkma Köfte",
+      "count": 1,
+      "sourceNames": [
+        "Püreli Sıkma Köfte"
+      ]
+    },
+    {
+      "name": "Roka/Göbek",
+      "count": 1,
+      "sourceNames": [
+        "Roka/Göbek"
+      ]
+    },
+    {
+      "name": "Saç Tava",
+      "count": 1,
+      "sourceNames": [
+        "Saç Tava"
+      ]
+    },
+    {
+      "name": "Salatalık Turşu",
+      "count": 1,
+      "sourceNames": [
+        "Salatalık Turşu"
+      ]
+    },
+    {
+      "name": "Salatalık Turşusu",
+      "count": 1,
+      "sourceNames": [
+        "Salatalık Turşusu"
+      ]
+    },
+    {
+      "name": "Salçalı Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Salçalı Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Salçalı Makarna",
+      "count": 1,
+      "sourceNames": [
+        "Salçalı Makarna"
+      ]
+    },
+    {
+      "name": "Sbz.Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Sbz.Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Sbzl. Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Sbzl. Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Sebze Fırın",
+      "count": 1,
+      "sourceNames": [
+        "Sebze Fırın"
+      ]
+    },
+    {
+      "name": "Sebze Ratatuy",
+      "count": 1,
+      "sourceNames": [
+        "Sebze Ratatuy"
+      ]
+    },
+    {
+      "name": "Sebzeli Bulgur Pilav",
+      "count": 1,
+      "sourceNames": [
+        "Sebzeli Bulgur Pilav"
+      ]
+    },
+    {
+      "name": "Sebzeli Kebap",
+      "count": 1,
+      "sourceNames": [
+        "Sebzeli Kebap"
+      ]
+    },
+    {
+      "name": "Sebzeli Misket Köfte",
+      "count": 1,
+      "sourceNames": [
+        "Sebzeli Misket Köfte"
+      ]
+    },
+    {
+      "name": "Semizotu Salatası",
+      "count": 1,
+      "sourceNames": [
+        "Semizotu Salatası"
+      ]
+    },
+    {
+      "name": "Shr.Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Shr.Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Söğüş",
+      "count": 1,
+      "sourceNames": [
+        "Söğüş"
+      ]
+    },
+    {
+      "name": "Spagetti",
+      "count": 1,
+      "sourceNames": [
+        "Spagetti"
+      ]
+    },
+    {
+      "name": "Su Böreği",
+      "count": 1,
+      "sourceNames": [
+        "Su Böreği"
+      ]
+    },
+    {
+      "name": "Sucuklu Kşr.Pide",
+      "count": 1,
+      "sourceNames": [
+        "Sucuklu Kşr.Pide"
+      ]
+    },
+    {
+      "name": "Sucuklu Kşrl. Pide",
+      "count": 1,
+      "sourceNames": [
+        "Sucuklu Kşrl. Pide"
+      ]
+    },
+    {
+      "name": "Sucuklu Kşrl.Pide",
+      "count": 1,
+      "sourceNames": [
+        "Sucuklu Kşrl.Pide"
+      ]
+    },
+    {
+      "name": "Sütlaç",
+      "count": 1,
+      "sourceNames": [
+        "Sütlaç"
+      ]
+    },
+    {
+      "name": "Süzme Mercimek Çorba",
+      "count": 1,
+      "sourceNames": [
+        "Süzme Mercimek Çorba"
+      ]
+    },
+    {
+      "name": "Şehiye Çorba",
+      "count": 1,
+      "sourceNames": [
+        "Şehiye Çorba"
+      ]
+    },
+    {
+      "name": "Şehriyeli Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Şehriyeli Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Şehzade Kebabı",
+      "count": 1,
+      "sourceNames": [
+        "Şehzade Kebabı"
+      ]
+    },
+    {
+      "name": "Şhr. Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Şhr. Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Şhrl. Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Şhrl. Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Şhry. Pirinç Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Şhry. Pirinç Pilavı"
+      ]
+    },
+    {
+      "name": "Şhry.Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Şhry.Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Şhry.Pirinç Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Şhry.Pirinç Pilavı"
+      ]
+    },
+    {
+      "name": "Tatlı",
+      "count": 1,
+      "sourceNames": [
+        "Tatlı"
+      ]
+    },
+    {
+      "name": "Tavuk Döner",
+      "count": 1,
+      "sourceNames": [
+        "Tavuk Döner"
+      ]
+    },
+    {
+      "name": "Tavuk Haşlama",
+      "count": 1,
+      "sourceNames": [
+        "Tavuk Haşlama"
+      ]
+    },
+    {
+      "name": "Tavuk Kanat",
+      "count": 1,
+      "sourceNames": [
+        "Tavuk Kanat"
+      ]
+    },
+    {
+      "name": "Tavuk Sote",
+      "count": 1,
+      "sourceNames": [
+        "Tavuk Sote"
+      ]
+    },
+    {
+      "name": "Tavuklu Şehriye Çorba",
+      "count": 1,
+      "sourceNames": [
+        "Tavuklu Şehriye Çorba"
+      ]
+    },
+    {
+      "name": "Tel Şhr.Bulgur Pilavı",
+      "count": 1,
+      "sourceNames": [
+        "Tel Şhr.Bulgur Pilavı"
+      ]
+    },
+    {
+      "name": "Tirit",
+      "count": 1,
+      "sourceNames": [
+        "Tirit"
+      ]
+    },
+    {
+      "name": "Yaprak Sarma",
+      "count": 1,
+      "sourceNames": [
+        "Yaprak Sarma"
+      ]
+    },
+    {
+      "name": "Ygrt.Kabak Kızartma",
+      "count": 1,
+      "sourceNames": [
+        "Ygrt.Kabak Kızartma"
+      ]
+    },
+    {
+      "name": "Yğrt.Kabak Kızartma",
+      "count": 1,
+      "sourceNames": [
+        "Yğrt.Kabak Kızartma"
+      ]
+    },
+    {
+      "name": "Yğrt.Kırmızı Lahana",
+      "count": 1,
+      "sourceNames": [
+        "Yğrt.Kırmızı Lahana"
+      ]
+    },
+    {
+      "name": "Yğrt.Köz Biber",
+      "count": 1,
+      "sourceNames": [
+        "Yğrt.Köz Biber"
+      ]
+    },
+    {
+      "name": "Yğrt.Semizotu",
+      "count": 1,
+      "sourceNames": [
+        "Yğrt.Semizotu"
+      ]
+    },
+    {
+      "name": "Yogurtlu Lahana",
+      "count": 1,
+      "sourceNames": [
+        "Yogurtlu Lahana"
+      ]
+    },
+    {
+      "name": "Yoğ. Kereviz",
+      "count": 1,
+      "sourceNames": [
+        "Yoğ. Kereviz"
+      ]
+    },
+    {
+      "name": "Yoğrtlu Kırmızı Lahana",
+      "count": 1,
+      "sourceNames": [
+        "Yoğrtlu Kırmızı Lahana"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Ispanak Borani",
+      "count": 1,
+      "sourceNames": [
+        "Yoğurtlu Ispanak Borani"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Köz Biber",
+      "count": 1,
+      "sourceNames": [
+        "Yoğurtlu Köz Biber"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Köz Patlıcan",
+      "count": 1,
+      "sourceNames": [
+        "Yoğurtlu Köz Patlıcan"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Mantı",
+      "count": 1,
+      "sourceNames": [
+        "Yoğurtlu Mantı"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Patlıcan",
+      "count": 1,
+      "sourceNames": [
+        "Yoğurtlu Patlıcan"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Patlıcan Salata",
+      "count": 1,
+      "sourceNames": [
+        "Yoğurtlu Patlıcan Salata"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Patlıcanlı Salata",
+      "count": 1,
+      "sourceNames": [
+        "Yoğurtlu Patlıcanlı Salata"
+      ]
+    },
+    {
+      "name": "Yoğurtlu Patlican",
+      "count": 1,
+      "sourceNames": [
+        "Yoğurtlu Patlican"
+      ]
+    },
+    {
+      "name": "Yoğurtu Kabak Kızartma",
+      "count": 1,
+      "sourceNames": [
+        "Yoğurtu Kabak Kızartma"
+      ]
+    },
+    {
+      "name": "Zeytin Yağlı Yaprak Sarma",
+      "count": 1,
+      "sourceNames": [
+        "Zeytin Yağlı Yaprak Sarma"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Börülce",
+      "count": 1,
+      "sourceNames": [
+        "ZYT.Börülce"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Brüksel",
+      "count": 1,
+      "sourceNames": [
+        "Zyt.Brüksel"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Ispanak",
+      "count": 1,
+      "sourceNames": [
+        "ZYT.Ispanak"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Kabak",
+      "count": 1,
+      "sourceNames": [
+        "Zyt.Kabak"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Nohutlu Kabak",
+      "count": 1,
+      "sourceNames": [
+        "ZYT.Nohutlu Kabak"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Pırasa",
+      "count": 1,
+      "sourceNames": [
+        "ZYT.Pırasa"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Sarma",
+      "count": 1,
+      "sourceNames": [
+        "Zeytinyağlı Sarma"
+      ]
+    },
+    {
+      "name": "Zeytinyağlı Taze Fasulye",
+      "count": 1,
+      "sourceNames": [
+        "ZYT.Taze Fasulye"
+      ]
+    }
+  ]
+}

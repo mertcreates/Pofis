@@ -4,6 +4,8 @@
 
 Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kısa notlardır. İçerik kataloğu, tek not havuzu, seçim motoru ve ekran kendi sahiplerinde kalır. Not seçimi kişi anahtarı, hafta ve tarihe dayanır.
 
+Menü altındaki [yemek yorumları](rules/meal-menu.md#pofi-yemek-yorumları), aynı hesap anahtarı ve seçilen günle kendi bütün metin havuzundan seçilir. Yemek koşulları ve içerik sahipleri menü sözleşmesinde yönetilir.
+
 ## Tek sahipler
 
 | Sorumluluk | Dosya |

@@ -27,9 +27,22 @@ export function readMealMenu(value: unknown, requestedDate: string): MealMenu | 
   return { date: menu.date, city: menu.city, dishes };
 }
 
-export function readMealApiResponse(value: unknown, requestedDate: string): MealMenu | null {
+export interface MealMenuResponse {
+  menu: MealMenu | null;
+  commentary: string | null;
+}
+
+export function readMealApiResponse(value: unknown, requestedDate: string): MealMenuResponse {
   if (!value || typeof value !== "object" || Array.isArray(value) || !("menu" in value)) {
     throw new MealResponseError("Invalid meal API response");
   }
-  return readMealMenu(value.menu, requestedDate);
+  const menu = readMealMenu(value.menu, requestedDate);
+  const commentary = "commentary" in value ? value.commentary : undefined;
+  if (commentary !== null && (typeof commentary !== "string" || !commentary.trim() || commentary.length > 160)) {
+    throw new MealResponseError("Invalid meal commentary");
+  }
+  if ((!menu || menu.dishes.length === 0) && commentary !== null) {
+    throw new MealResponseError("Meal commentary without a menu");
+  }
+  return { menu, commentary };
 }

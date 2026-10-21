@@ -1,0 +1,319 @@
+import type { MealScenario } from "./types";
+
+export const pairScenarios = [
+  {
+    id: "beans-fresh-beans", kind: "pair",
+    requires: [{ food: "beans" }, { food: "freshBeans" }],
+    variants: [
+      "Fasulyenin kurusu da var, tazesi de. Bugün birlikte gelmişler.",
+      "Fasulye var dedim, arkadaşım hangisi diye sordu. Menüyü ona uzattım, ikisi de burada.",
+      "Menüde iki kez fasulye gördüm. İkinci bakışta birinin taze olduğunu fark ettim.",
+    ],
+  },
+  {
+    id: "bafra-adana", kind: "pair",
+    requires: [{ food: "bafra", role: "main" }, { food: "adanaBorek", role: "accompaniment" }],
+    variants: [
+      "Bafra pidesiyle Adana böreğini aynı menüde buldum. Masadan kalkmadan iki yere uğradım.",
+      "Bafra'yla Adana'yı haritada buldum. Menüde birbirlerine daha yakın duruyorlar.",
+      "Ben Bafra pidesini gösterdim, arkadaşım Adana böreğini. Menüyü ikimizin de göreceği yere koyduk.",
+    ],
+  },
+  {
+    id: "beans-rice", kind: "pair",
+    requires: [{ food: "beans" }, { food: "rice", role: "accompaniment" }],
+    variants: [
+      "Fasulyeyi okuyunca pilavı sordum. Arkadaşım alt satırı gösterdi, ben daha oraya gelmemiştim.",
+      "Pilavı okudum, fasulyeye geri döndüm. İkisini aynı tabakta düşündüm.",
+      "Fasulye ve pilav menüde ayrı satırlarda. Tabağımda komşu olacaklar.",
+    ],
+  },
+  {
+    id: "beans-pickles", kind: "pair",
+    requires: [{ food: "beans" }, { food: "pickles", role: "extras" }],
+    variants: [
+      "Fasulyeyi görünce gözüm turşuyu aradı. Alt taraftaymış.",
+      "Fasulyenin yanına turşu da alacağım dedim. Arkadaşım başını salladı, aynı şeyi düşünmüşüz.",
+      "Fasulyenin yanına turşu aldım. Yanımdaki de isteyince kâseyi ona biraz daha yaklaştırdım.",
+    ],
+  },
+  {
+    id: "beans-cacik", kind: "pair",
+    requires: [{ food: "beans" }, { food: "cacik", role: "extras" }],
+    variants: [
+      "Fasulye ve cacık diye sesli okudum. Yanımdaki de menüye uzanınca biraz ona döndüm.",
+      "Fasulyenin yanına cacık da alacağım. Tabağı biraz yana çektim, kâseye yer kalsın.",
+      "Fasulyenin yanına cacık yazdım. Arkadaşım kendisi için de aynısını yazmamı istedi.",
+    ],
+  },
+  {
+    id: "chickpeas-rice", kind: "pair",
+    requires: [{ food: "chickpeas" }, { food: "rice", role: "accompaniment" }],
+    variants: [
+      "Nohutla pilav için tabağın iki yanını ayırdım. Ortada buluşabilirler.",
+      "Nohudu okurken pilav da gözüme ilişti. İkisine birlikte yer açtım.",
+      "Nohutla pilavı yan yana çizdim. Bir nohut pilavın tarafında kalmış, öyle bıraktım.",
+    ],
+  },
+  {
+    id: "chickpeas-cacik", kind: "pair",
+    requires: [{ food: "chickpeas" }, { food: "cacik", role: "extras" }],
+    variants: [
+      "Nohutla cacığı ayrı ayrı not ettim. Arkadaşım ikisinin arasına bir artı koydu, öyle bıraktım.",
+      "Nohudu görünce tabağı hazırladım. Cacığı görünce bir kâse daha ekledim.",
+    ],
+  },
+  {
+    id: "lahmacun-lemon", kind: "pair",
+    requires: [{ food: "lahmacun", role: "main" }, { food: "lemon" }],
+    variants: [
+      "Lahmacunu gördüm, limonu aradım. O da buradaymış.",
+      "Lahmacunla limon menünün ayrı yerlerinde. Ben onları yan yana düşündüm.",
+      "Lahmacunun yanına limon da alacağım. Daha tabağım yok, limonu düşünüyorum.",
+    ],
+  },
+  {
+    id: "lahmacun-mercimek", kind: "pair",
+    requires: [{ food: "lahmacun", role: "main" }, { food: "mercimekSoup", role: "soup" }],
+    variants: [
+      "Mercimek çorbasıyla lahmacunu arkadaşıma okudum. Lahmacun deyince o da yanıma oturdu.",
+      "Mercimek çorbasıyla başlayacağım. Lahmacunu da aklımda tuttum.",
+      "Önce lahmacunu okudum, sonra mercimek çorbasını. Sofrada sırayı ters çevireceğim.",
+    ],
+  },
+  {
+    id: "courgette-twice", kind: "pair",
+    requires: [{ food: "courgette", role: "vegetarian" }, { food: "courgetteFry", role: "extras" }],
+    variants: [
+      "Kabağı ana yemeklerde gördüm, yoğurtlusunu da aşağıda buldum. İki ayrı yere uğramış.",
+      "Kabak dedim, hangisi diye sordular. Menüde iki ayrı yerde görünce parmağımla seçtiğimi gösterdim.",
+      "Ana yemeklerde kabak, aşağıda yoğurtlu kabak var. İkisini de okuyunca kabak sözcüğü kulağıma tuhaf gelmeye başladı.",
+    ],
+  },
+  {
+    id: "lahmacun-haydari", kind: "pair",
+    requires: [{ food: "lahmacun", role: "main" }, { food: "haydari", role: "extras" }],
+    variants: [
+      "Lahmacunun yanına haydariyi de aldım. Küçük tabağı nereye koysam diye bakarken arkadaşım bana yer açtı.",
+      "Lahmacunu seçmiştim, haydariyi de ekledim. Arkadaşım bitti mi diye sorunca menünün altına bir daha baktım.",
+    ],
+  },
+  {
+    id: "lahmacun-ezme", kind: "pair",
+    requires: [{ food: "lahmacun", role: "main" }, { food: "ezme", role: "extras" }],
+    variants: [
+      "Lahmacunun yanına ne alırım diye bakıyordum. Ezmeyi görünce aramayı bıraktım.",
+      "Ezme aşağıda, lahmacun yukarıdaymış. Ben onları tabağın aynı tarafına aldım.",
+      "Lahmacunla ezmeyi birlikte okuyunca arkadaşım da menüye eğildi. İkimiz de görebilelim diye biraz yana kaydım.",
+    ],
+  },
+  {
+    id: "lahmacun-ice-cream", kind: "pair",
+    requires: [{ food: "lahmacun", role: "main" }, { food: "iceCream", role: "dessert" }],
+    variants: [
+      "Lahmacunla dondurmayı aynı menüde gördüm. İkincisi için küçük kaşığı ayırdım.",
+      "Lahmacunu söylerken dondurmayı da sordum. Tatlıya daha var dediler, ben şimdiden merak etmiştim.",
+      "Bir gözüm lahmacunda, diğeri dondurmada kaldı. Neyse ki aynı anda gelmeleri gerekmiyor.",
+    ],
+  },
+  {
+    id: "lahmacun-sekerpare", kind: "pair",
+    requires: [{ food: "lahmacun", role: "main" }, { food: "sekerpare", role: "dessert" }],
+    variants: [
+      "Lahmacunu sesli okudum, şekerpareyi içimden. Arkadaşım tatlıda ne var diye sorunca onu da söyledim.",
+      "Şekerpareyi görünce lahmacuna geri döndüm. İkisini seçtiğimi söylerken menünün iki ucunu gösterdim.",
+      "Lahmacunla şekerpareyi aklımda sıraya koydum. Şekerpareyi düşünmeye biraz erken başladım.",
+    ],
+  },
+  {
+    id: "lahmacun-imam-bayildi", kind: "pair",
+    requires: [{ food: "lahmacun", role: "main" }, { food: "imamBayildi", role: "vegetarian" }],
+    variants: [
+      "Lahmacun yazan yerde karar vermiştim. İmam bayıldıyı da görünce menüyü elimde biraz daha tuttum.",
+      "İmam bayıldı mı, lahmacun mu diye düşünürken arkamda biri bekliyormuş. Kenara çekilip ona yol verdim.",
+      "Lahmacunla imam bayıldı arasında kaldım. Arkadaşıma sordum, o da bana sordu.",
+    ],
+  },
+  {
+    id: "bafra-tomato", kind: "pair",
+    requires: [{ food: "bafra", role: "main" }, { food: "tomatoSoup", role: "soup" }],
+    variants: [
+      "Bafra pidesini düşünerek oturdum. Domates çorbası gelince pideyi biraz sonraya bıraktım.",
+      "Bafra pidesi aklımdaydı. Domates çorbası için önce kâseyi aldım.",
+      "Domates çorbasından Bafra pidesine kadar okudum. Karnım ses çıkarınca menüyü bırakıp kalktım.",
+    ],
+  },
+  {
+    id: "bafra-cacik", kind: "pair",
+    requires: [{ food: "bafra", role: "main" }, { food: "cacik", role: "extras" }],
+    variants: [
+      "Bafra pidesiyle cacık var dedim. Arkadaşım pideyi sorunca menüyü ona çevirdim.",
+      "Bafra pidesinin yanına cacık da alacaktım. Kâseye yer açarken peçetem masadan düştü, önce onu aldım.",
+      "Cacığa yer açarken Bafra pidesini de düşündüm. Tabağı biraz yana çektim.",
+    ],
+  },
+  {
+    id: "bafra-kisir", kind: "pair",
+    requires: [{ food: "bafra", role: "main" }, { food: "kisir", role: "extras" }],
+    variants: [
+      "Bafra pidesini seçtim, kısırı da yanıma aldım. Arkadaşım ne seçtiğimi sorunca tabağı biraz ona çevirdim.",
+      "Kısırı görünce Bafra pidesinin yanındaki yeri boş bıraktım.",
+    ],
+  },
+  {
+    id: "corn-twice", kind: "pair",
+    requires: [{ food: "cornRice", role: "accompaniment" }, { food: "cornSalad", role: "extras" }],
+    variants: [
+      "Mısır hem pilavda hem salatada. Küçük taneler menüye dağılmış.",
+      "Mısır pilavda da var, salatada da. İkisinin arasındaki satırlarda da aradım.",
+      "Pilavdaki mısırı fark etmiştim. Salatada da karşıma çıkınca gülümsedim.",
+    ],
+  },
+  {
+    id: "tandir-ic-pilav", kind: "pair",
+    requires: [{ food: "tandir", role: "main" }, { food: "icPilav", role: "accompaniment" }],
+    variants: [
+      "Kuzu tandırla iç pilavı yan yana düşündüm. Tabağı henüz almadan yerleri belli oldu.",
+      "Kuzu tandırın nasıl yapıldığını sordum. İç pilavı da anlatmaya başlayınca defterimde yeni bir sayfa açtım.",
+    ],
+  },
+  {
+    id: "nuar-ic-pilav", kind: "pair",
+    requires: [{ food: "nuar", role: "main" }, { food: "icPilav", role: "accompaniment" }],
+    variants: [
+      "Nuarın adını yavaşça okudum. İç pilava gelince dilim hızlandı.",
+      "İç pilavı tanıdım, dana nuarı merak ettim. Arkadaşıma sorunca o da menüye yakından baktı.",
+    ],
+  },
+  {
+    id: "bulgur-yogurt", kind: "pair",
+    requires: [{ food: "bulgur", role: "accompaniment" }, { food: "yogurt", role: "extras" }],
+    variants: [
+      "Bulgur pilavının yanına yoğurdu da koyacağım. Kaşığı ikisinin arasına bıraktım.",
+      "Bulgur pilavıyla yoğurdu yan yana koydum. Arkadaşım yoğurdu ortaya çekince tabağımı ben de biraz yaklaştırdım.",
+      "Yoğurdu bulgur pilavının üstüne mi koysam diye düşündüm. Şimdilik yan yana duruyorlar.",
+    ],
+  },
+  {
+    id: "pasta-yogurt", kind: "pair",
+    requires: [{ food: "pasta", role: "accompaniment" }, { food: "yogurt", role: "extras" }],
+    variants: [
+      "Makarna da var, yoğurt da. Çatalı elime alınca ikisini bir arada düşündüm.",
+      "Yoğurdu makarnaya eklerken arkadaşım da istedi. Kâseyi aramıza koydum.",
+      "Yoğurdu makarnanın üstüne mi, yanına mı koysam diye düşündüm. Henüz ikisini de almamıştım.",
+    ],
+  },
+  {
+    id: "kisir-cacik", kind: "pair",
+    requires: [{ food: "kisir", role: "extras" }, { food: "cacik", role: "extras" }],
+    variants: [
+      "Kısırla cacık aynı bölümdeymiş. O satırda beklediğimden uzun kaldım.",
+      "Diğer seçeneklere bakayım dedim. Kısırla cacığı görünce küçük tabağı da aldım.",
+    ],
+  },
+  {
+    id: "cacik-pickles", kind: "pair",
+    requires: [{ food: "cacik", role: "extras" }, { food: "pickles", role: "extras" }],
+    variants: [
+      "Cacıkla turşu yan yana yazılmış. Ben masada ikisine ayrı yer açtım.",
+      "Cacığı seçtim, turşuyu arkadaşım istedi. Ortaya koyunca ikimizin de eli yetişti.",
+      "Cacığı not etmiştim. Turşuyu da görünce kâğıdı cebimden geri çıkardım.",
+    ],
+  },
+  {
+    id: "tomato-haydari", kind: "pair",
+    requires: [{ food: "tomatoSoup", role: "soup" }, { food: "haydari", role: "extras" }],
+    variants: [
+      "Domates çorbasını başa koydum, haydariyi yan tarafa. Tepsinin küçük bir haritasını yaptım.",
+      "Haydariyi görünce küçük bir tabak aldım. Domates çorbası için olan kâse zaten hazırdı.",
+      "Domates çorbasını içtim, haydariyi de yanıma çektim. Arkadaşım kâsesini götürürken benimkini de aldı.",
+    ],
+  },
+  {
+    id: "tomato-magnolia", kind: "pair",
+    requires: [{ food: "tomatoSoup", role: "soup" }, { food: "magnolia", role: "dessert" }],
+    variants: [
+      "Domates çorbasını seçip menüyü bırakacaktım. Magnolyayı görünce küçük kaşığı da yanıma aldım.",
+      "Ben domates çorbasını okuyordum, arkadaşım magnolyaya gelmiş. Aynı menüye baktığımızı kontrol ettim.",
+      "Domates çorbasından magnolyaya kadar okudum. Şimdi aynı yolu sofrada izleyeceğim.",
+    ],
+  },
+  {
+    id: "mercimek-kasik-salad", kind: "pair",
+    requires: [{ food: "mercimekSoup", role: "soup" }, { food: "kasikSalad", role: "extras" }],
+    variants: [
+      "Mercimek çorbası için kaşığı aldım. Sonra menüde kaşık salatasını gördüm.",
+      "Kaşık salatasını merak edip nasıl doğrandığını sordum. Mercimek çorbasını içerken anlatılanları dinledim.",
+      "Kaşık salatasının adını okurken elimdeki kaşığa baktım. Onu mercimek çorbası için almıştım.",
+    ],
+  },
+  {
+    id: "fresh-beans-yayla", kind: "pair",
+    requires: [{ food: "freshBeans", role: "vegetarian" }, { food: "yayla", role: "soup" }],
+    variants: [
+      "Taze fasulyeyi seçince yayla çorbasını da ekledim. Yanımdaki de aynısını isteyince kâseleri birlikte taşıdık.",
+      "Taze fasulyeye karar verdim. Yayla çorbasını da görünce çatalı bırakıp önce kaşığı aldım.",
+    ],
+  },
+  {
+    id: "barbunya-almond-rice", kind: "pair",
+    requires: [{ food: "barbunya", role: "vegetarian" }, { food: "almondRice", role: "accompaniment" }],
+    variants: [
+      "Barbunyanın yanında pilav var sandım. Bademli kısmını ikinci okuyuşta fark ettim.",
+      "Barbunyanın yanına bademli pilav koydum. Bir badem barbunyaya geçmiş, kaşıkla pilava geri götürdüm.",
+    ],
+  },
+  {
+    id: "artichoke-cacik", kind: "pair",
+    requires: [{ food: "artichoke", role: "extras" }, { food: "cacik", role: "extras" }],
+    variants: [
+      "Cacığı okuyup geçiyordum, enginarı da gördüm. O satıra geri döndüm.",
+      "Enginarı ben seçtim, cacığı arkadaşım aldı. Masaya oturunca ikisini de ortaya çektik.",
+    ],
+  },
+  {
+    id: "carrot-twice", kind: "pair",
+    requires: [{ food: "carrotTarator", role: "extras" }, { food: "carrotSalad", role: "salad" }],
+    variants: [
+      "Havucu salatada gördüm, taratorda da buldum. Menünün iki yerinde karşılaştık.",
+      "Havuç hem salatada hem taratorda. Adını bir kez söyleyip menüde iki ayrı yeri gösterdim.",
+      "Havuç salatasını not ettim, taratoru da yanına yazdım. Turuncu kalemi elimden bırakmadım.",
+    ],
+  },
+  {
+    id: "tomato-twice", kind: "pair",
+    requires: [{ food: "tomatoSoup", role: "soup" }, { food: "tomatoSogus", role: "salad" }],
+    variants: [
+      "Domates çorbada da var, söğüşte de. İkincisinde yanına salatalık almış.",
+      "Domatesi çorbada da, söğüşte de buldum. Arkadaşım hangisini dediğimi sorunca ikisini de gösterdim.",
+      "Domates çorbasını okurken bir domates çizdim. Söğüşü de görünce yanına salatalık ekledim.",
+    ],
+  },
+  {
+    id: "vermicelli-twice", kind: "pair",
+    requires: [{ food: "sehriyeSoup", role: "soup" }, { food: "vermicelliRice", role: "accompaniment" }],
+    variants: [
+      "Şehriye çorbada da var, pilavda da. Kaşığı nereye götürsem karşılaşacağız.",
+      "Şehriye çorbasını okuyup pilava geçtim. Yine şehriye yazınca doğru satırda mıyım diye bir daha baktım.",
+      "Şehriyeyi çorbada bulmuştum. Pilava da uğramış, onu sonradan fark ettim.",
+    ],
+  },
+  {
+    id: "tarhana-pasta", kind: "pair",
+    requires: [{ food: "tarhana", role: "soup" }, { food: "pasta", role: "accompaniment" }],
+    variants: [
+      "Tarhanayla makarna var. Kaşıkla çatalı yan yana koydum, sırayla kullanacağım.",
+      "Tarhanayla başlayacağım dedim, arkadaşım makarnayı sordu. Menüyü ortaya koyup kaldığımız yerden okuduk.",
+      "Arkadaşım tarhana için kaşık, makarna için çatal uzattı. Elimdeki menüyü ona verip ikisini de aldım.",
+    ],
+  },
+  {
+    id: "cabbages", kind: "pair",
+    requires: [{ food: "brussels", role: "extras" }, { food: "redCabbage" }],
+    variants: [
+      "Brüksel lahanasıyla kırmızı lahana aynı menüde. Soyadları aynı diye yan yana yazdım.",
+      "Bir lahanayı not ettim, öbürünü de gördüm. Bu kez başlarına adlarını ekledim.",
+      "Kırmızı lahanayı tanıyordum, Brüksel lahanasını sordum. Arkadaşım eliyle küçük bir yuvarlak yapınca ben de denedim.",
+    ],
+  },
+] as const satisfies readonly MealScenario[];

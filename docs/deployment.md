@@ -32,6 +32,8 @@ TLS ingress üzerinde sonlanabilir; pod HTTP dinler. Secure çerezi doğrudan HT
 
 Kişisel API yanıtlarında `Cache-Control: no-store` vardır; ingress/CDN bu yanıtları ortak önbelleğe almamalıdır. 20 saniyelik rapor önbelleği sunucudaki ilgili oturuma aittir. Aynı tarih aralığındaki eşzamanlı raporlar birleşir; farklı kullanıcılar bağımsız çalışır. Kaynak [sözleşmesi](rules/source-policy.md).
 
+`/api/meals` de kişisel Pofi metni içerdiği için HTTP yanıtı ortak önbelleğe alınmaz. Bir saatlik ortak yemek önbelleği yalnız kaynak menüsünü tutar; yorum oturumdaki mevcut hesap anahtarıyla seçilir. İçerik uygulamayla birlikte paketlenir. [Yemek sözleşmesi](rules/meal-menu.md#pofi-yemek-yorumları).
+
 Haftalık mesai raporu kişisel turnike listesinin bütün sayfalarını toplar. Sayfa boyutunu kaynak belirler; adaptör kaynağın sayfalama bilgisini izler. Giriş/profil, turnike sorgusu ve sayfa callback'leri kurum ağı üzerinden erişilebilir olmalıdır.
 
 Kaynak erişim kabulünde bağlantı/DNS hatası (`CONNECTION_FAILED`) ile PDKS HTTP hata yanıtını (`SOURCE_ERROR`) ayrı doğrulayın. `ENOTFOUND` DNS çözümlemesinin başarısız olduğunu belirtir; tek başına VPN durumunu belirlemez. Kaynağın `403/429/5xx` hata sayfası oturumu düşürmemelidir. [Hata sözleşmesi](pdks-errors.md).

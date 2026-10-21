@@ -34,7 +34,7 @@ Pofis, Windows ve macOS üzerinde aktif kullanımdadır. Electron kabuğu aynı 
 
 Paketli uygulama açılışta [yeni sürümü denetler](docs/desktop.md#açılışta-sürüm-denetimi) ve güncelleme varsa kurulum komutunu kopyalama seçeneği sunar.
 
-Giriş, profil sayfasıyla doğrulanır. Kişisel turnike raporu doğrudan açılır. Pofi notları için kullanıcı adına bağlı sunucu anahtarı kullanılır. [Hesap anahtarı ve geçiş etkisi](docs/pofi-notes.md#hesap-anahtarı).
+Giriş, profil sayfasıyla doğrulanır. Kişisel turnike raporu doğrudan açılır. Pofi notları ve [yemek yorumları](docs/rules/meal-menu.md#pofi-yemek-yorumları) için kullanıcı adına bağlı sunucu anahtarı kullanılır. [Hesap anahtarı ve geçiş etkisi](docs/pofi-notes.md#hesap-anahtarı).
 
 ## Belgeler
 

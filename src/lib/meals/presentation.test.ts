@@ -8,6 +8,25 @@ function sample(date: string) {
   return menu;
 }
 
+test("structured meal names normalize Turkish casing without changing abbreviations or source records", () => {
+  const menu = structuredClone(sample("2026-10-20"));
+  menu.dishes[0].name = "köZ BİBER ÇORBA";
+  menu.dishes[1].name = "Hasanpaş kÖFTE (SEÇ.) SUCUKLU PİDE";
+  menu.dishes[2].name = "VJT.ıSPANAK - Şhr.PİRİNÇ PİLAVI";
+  menu.dishes[4].name = "CACIK - ZYT.ENGİNAR";
+  menu.dishes[5].name = "GÖBEK - K.LAHANA SALATA - LİMON";
+  const before = structuredClone(menu);
+  const meal = presentMeal(menu);
+  if (meal.kind !== "structured") throw new Error("Expected structured menu");
+  expect(meal.mains).toEqual(["Hasanpaş Köfte", "Sucuklu Pide"]);
+  expect(meal.vegetarian?.name).toBe("Ispanak");
+  expect(meal.sides.find((side) => side.kind === "soup")?.name).toBe("Köz Biber Çorba");
+  expect(meal.sides.find((side) => side.kind === "accompaniment")?.name).toBe("Şhr.Pirinç Pilavı");
+  expect(meal.sides.find((side) => side.kind === "extras")?.items).toEqual(["Cacık", "Zeytinyağlı Enginar"]);
+  expect(meal.sides.find((side) => side.kind === "salad")?.items).toEqual(["Göbek", "K.Lahana Salata", "Limon"]);
+  expect(menu).toEqual(before);
+});
+
 const expected = [
   ["2026-10-20", "Patlıcan Musakka", "Lahmacun", "Kuru Fasulye", "Pirinç Pilavı"],
   ["2026-10-19", "Tirit", "Bafra Pidesi", "Bezelye", "Bulgur Pilavı"],

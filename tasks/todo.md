@@ -32,6 +32,8 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 
 ## Arayüz kabulü
 
+- [ ] Kullanıcı, [yemek menüsünü](../docs/rules/meal-menu.md) masaüstü/mobilde kontrol etsin: menüyü aç → gün değiştir → yeniden aç; günle doğru notun birlikte görünmesini, yüklemede skeleton ve korunmuş modal yüksekliğini, kapatma butonunu ve 1–2 cümlelik banner'ın taşmamasını doğrulasın. Kısa menü, boş gün ve hata durumlarını da incelesin. Otomatik API/seçim/yükseklik testleri mevcut; tarayıcı kabulü kullanıcının isteğiyle kendisinde.
+
 - [ ] Mesai planında izinli, şablondan kapalı, sıfır süreli açık ve kilitli günleri; kart/stepper süre eşitliğini ve dar ekran yerleşimini görsel olarak doğrula. Planın davranış testleri mevcut; görsel kontrol kullanıcıda.
 - [ ] 404 sahnesini, tema depolama bildirimini ve eksik notta defter gezinmesini masaüstü/mobil tarayıcıda doğrula. Normal tema havuzu boşken nötr mesajı, önceki/sonraki gün gezinmesini ve özel gün notunu da kontrol et; yerel tarayıcı bağlantısı zaman aşımına uğradığı için bu kabul bekliyor.
 

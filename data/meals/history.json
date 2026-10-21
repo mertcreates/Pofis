@@ -1,0 +1,5582 @@
+[
+  {
+    "date": "2026-04-20T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Et Döner (SEÇ.) Lahmacun",
+        "calorie": 530
+      },
+      {
+        "name": "VJT.Bezelye - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Sütlü Nuriye - İçecek",
+        "calorie": 360
+      },
+      {
+        "name": "Ezme - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-21T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Düğün Çorba",
+        "calorie": 220
+      },
+      {
+        "name": "Tavuk Baget (SEÇ.) Bafra Pidesi",
+        "calorie": 360
+      },
+      {
+        "name": "VJT.Barbunya - Şehriye Pilavı",
+        "calorie": 220
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kısır - Biber Borani",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-22T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Arnavut Çiğeri (SEÇ.) Etli Ekmek",
+        "calorie": 400
+      },
+      {
+        "name": "VJT.Türlü - Ptl. Bulgur Pilavı",
+        "calorie": 220
+      },
+      {
+        "name": "Şekerpare - İçecek",
+        "calorie": 320
+      },
+      {
+        "name": "Piyaz - Mantı",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-23T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Pst.Kuru Fasulye",
+        "calorie": 379
+      },
+      {
+        "name": "VJT.Taze Fasulye - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Cacık - Karışık Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-24T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "İslim Köfte (SEÇ.) Lahmacun",
+        "calorie": 309
+      },
+      {
+        "name": "VJT.Nohut - Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Oreolu Magnolya - İçecek",
+        "calorie": 440
+      },
+      {
+        "name": "Amerikan Salata - ZYT.Brüksel Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-25T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Püreli Dana Rosto",
+        "calorie": 340
+      },
+      {
+        "name": "Peynirli Makarna",
+        "calorie": 200
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kısır - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-26T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Sebze Çorba",
+        "calorie": 100
+      },
+      {
+        "name": "Tavuk Çökertme",
+        "calorie": 335
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Helva - İçecek",
+        "calorie": 350
+      },
+      {
+        "name": "ZYT.Karnabahar - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-27T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Düğün Çorba",
+        "calorie": 220
+      },
+      {
+        "name": "Çoban Kavurma (SEÇ.) Lahmacun",
+        "calorie": 450
+      },
+      {
+        "name": "VJT.Türlü - Şhr.Bulgur Pilavı",
+        "calorie": 220
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Ezme - Patates Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-28T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Pirzola (SEÇ.) Bafra Pidesi",
+        "calorie": 350
+      },
+      {
+        "name": "VJT.Barbunya - Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Profiterol - İçecek",
+        "calorie": 250
+      },
+      {
+        "name": "Havuç Tarator - ZYT.Portakallı Kereviz",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-29T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Sebze Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Kuzu Tandır (SEÇ.) Etli Ekmek",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Bezelye - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Mercimek Köfte - Biber Borani",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-04-30T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tavuk Suyu Çorba",
+        "calorie": 170
+      },
+      {
+        "name": "İzmir Köfte (SEÇ.) Kuşbaşı Kaş.Pide",
+        "calorie": 400
+      },
+      {
+        "name": "VJT.Taze Fasulye - Makarna",
+        "calorie": 200
+      },
+      {
+        "name": "Fırın Sütlaç - İçecek",
+        "calorie": 286
+      },
+      {
+        "name": "Kuskus Makarna - ZYT.Brokoli",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-01T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Orman Kebabı",
+        "calorie": 400
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Pembe Sultan - Çoban Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-02T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Mitite Köfte",
+        "calorie": 340
+      },
+      {
+        "name": "Soslu Makarna",
+        "calorie": 200
+      },
+      {
+        "name": "Kemalpaşa - İçecek",
+        "calorie": 168
+      },
+      {
+        "name": "Çoban Salata - Mısır Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-03T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriye Çorba",
+        "calorie": 181
+      },
+      {
+        "name": "Mitite Köfte",
+        "calorie": 420
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 220
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Haydari - Kaşık Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-04T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Karışık Izgara (SEÇ.) Lahmacun",
+        "calorie": 520
+      },
+      {
+        "name": "VJT.Barbunya - Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Sütlü Nuriye - İçecek",
+        "calorie": 360
+      },
+      {
+        "name": "Ezme - ZYT.Brokoli",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-05T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Kıymalı Biber Dolması (SEÇ.) Bafra Pidesi",
+        "calorie": 270
+      },
+      {
+        "name": "VJT.Patates Bulancar - Adana Böreği",
+        "calorie": 450
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kısır - Zyt.Brüksel",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata  - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-06T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Misket Köfte (SEÇ.) Etli Ekmek",
+        "calorie": 390
+      },
+      {
+        "name": "VJT.Türlü - Fırın Makarna",
+        "calorie": 382
+      },
+      {
+        "name": "Karamelli Triliçe - İçecek",
+        "calorie": 340
+      },
+      {
+        "name": "Yoğurtlu Kereviz - Babaganuş",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-07T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tavuk Suyu Çorba",
+        "calorie": 170
+      },
+      {
+        "name": "Etli Kuru Fasulye (SEÇ.) Kuşbaşılı Pide",
+        "calorie": 379
+      },
+      {
+        "name": "VJT.Kabak Yemeği - Şhr. Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yoğurt - Karışık Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-08T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tel Şehriye Çorba",
+        "calorie": 140
+      },
+      {
+        "name": "Kağıt Kebabı (SEÇ.) Lahmacun",
+        "calorie": 430
+      },
+      {
+        "name": "VJT.Taze Fasulye - Bulgur Pilavı",
+        "calorie": 220
+      },
+      {
+        "name": "Oreolu Magnolya - İçecek",
+        "calorie": 450
+      },
+      {
+        "name": "Havuç Tarator - ZYT.Enginar",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-09T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Tavuk Sote",
+        "calorie": 300
+      },
+      {
+        "name": "Makarna",
+        "calorie": 200
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yoğurt - Gavurdağ Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-10T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Et Kavurma",
+        "calorie": 420
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 220
+      },
+      {
+        "name": "Bademli Keşkül - İçecek",
+        "calorie": 250
+      },
+      {
+        "name": "Ezme - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-11T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Arnavut Çiğeri (SEÇ.) Lahmacun",
+        "calorie": 400
+      },
+      {
+        "name": "VJT.Bezelye - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Piyaz - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-12T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Beğendili Tavuk Sote (SEÇ.) Kıyamlı Pide",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Barbunya - Makarna",
+        "calorie": 200
+      },
+      {
+        "name": "Kadayıflı Muhallebi - İçecek",
+        "calorie": 380
+      },
+      {
+        "name": "Ispanak Borani - Enginar",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-13T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Kuzu Tandır (SEÇ.) Lahmacun",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Türlü - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yoğurtlu Patlıcanlı Salata - Ezme",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata  - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-14T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Düğün Çorba",
+        "calorie": 220
+      },
+      {
+        "name": "Etli Nohut (SEÇ.) Kuşbaşılı Pide",
+        "calorie": 200
+      },
+      {
+        "name": "VJT.İmam Bayıldı - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 440
+      },
+      {
+        "name": "Cacık - Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-15T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tel Şehriye Çorba",
+        "calorie": 140
+      },
+      {
+        "name": "Tavuk Döner (SEÇ.) Lahmacun",
+        "calorie": 309
+      },
+      {
+        "name": "VJT.Yeşil Mercimek - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Havuç Tarator - İçli Köfte",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Roka Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-16T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Çökertme",
+        "calorie": 250
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kaşık Salata - Babaganuş",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-17T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tel Şehriye Çorba",
+        "calorie": 140
+      },
+      {
+        "name": "Tavuk Fajita",
+        "calorie": 350
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 220
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yoğurt - Zyt.Brokoli",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata  - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-18T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Et Döner (SEÇ.) Lahmacun",
+        "calorie": 530
+      },
+      {
+        "name": "VJT.Nohutlu Ispanak - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Tiramisu - İçecek",
+        "calorie": 350
+      },
+      {
+        "name": "Mantı - Köz Patlıcan Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-19T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Tavuk Haşlama",
+        "calorie": 220
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yoğurtlu Kabak Kızartma - Mısır Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-20T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Sebze Çorba",
+        "calorie": 100
+      },
+      {
+        "name": "Etli Kuru Fasulye (SEÇ.) Bafra Pidesi",
+        "calorie": 379
+      },
+      {
+        "name": "VJT.Karışık Kızartma - Şhr. Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Fırın Sütlaç - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Cacık - Karışık Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-21T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Ekşili Köfte (SEÇ.) Kuşbaşılı Pide",
+        "calorie": 330
+      },
+      {
+        "name": "VJT.Bezelye - Makarna",
+        "calorie": 200
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yoğurtlu Kırmızı Lahana - Kaşık Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-22T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Tantuni (SEÇ.) Lahmacun",
+        "calorie": 380
+      },
+      {
+        "name": "VJT.Barbunya - Pirinç Pilavı",
+        "calorie": 220
+      },
+      {
+        "name": "Şekerpare - İçecek",
+        "calorie": 350
+      },
+      {
+        "name": "Biber Borani - Kısır",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-23T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Arnavut Çiğeri",
+        "calorie": 270
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 200
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yoğurt - Zeytin Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-24T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriye Çorba",
+        "calorie": 100
+      },
+      {
+        "name": "Tavuk Izgara",
+        "calorie": 260
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "İrmik Helva - İçecek",
+        "calorie": 259
+      },
+      {
+        "name": "Çoban Salata - Havuç Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-25T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Sebze Çorba",
+        "calorie": 100
+      },
+      {
+        "name": "Et Kavurma",
+        "calorie": 420
+      },
+      {
+        "name": "Patlıcanlı Bulgur Pilavı",
+        "calorie": 220
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Amerikan Salata -  ZYT.Brüksel Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-26T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Çökertme",
+        "calorie": 500
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Mozaik Pasta - Limon",
+        "calorie": 250
+      },
+      {
+        "name": "Ispanak Borani - ZYT.Pırasa",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-26T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Çökertme",
+        "calorie": 250
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Keşkül - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Ispanak Borani - ZYT.Kereviz",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-27T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Mitite Köfte",
+        "calorie": 350
+      },
+      {
+        "name": "Makarna",
+        "calorie": 220
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yoğurtlu Patlıcan Salata - Mercimek Köfte",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-28T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Et Sote",
+        "calorie": 380
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Kemalpaşa - İçecek",
+        "calorie": 250
+      },
+      {
+        "name": "Yoğurt - Çoban Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-29T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tavuk Suyu Çorba",
+        "calorie": 170
+      },
+      {
+        "name": "Fırında Tavuk",
+        "calorie": 250
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 220
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Pembe Sultan - ZYT.Brokoli",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-30T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Hasanpaşa Köfte",
+        "calorie": 300
+      },
+      {
+        "name": "Şehriye Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "İrmik Helvası - İçecek",
+        "calorie": 250
+      },
+      {
+        "name": "Kısır - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-05-31T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Kuzu Tandır",
+        "calorie": 250
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kaşık Salata - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-01T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yoğurtlu Dövme Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Izgara Köfte (SEÇ) Kuşbaşılı Pide",
+        "calorie": 550
+      },
+      {
+        "name": "VJT.Zyt.Kabak - Şehriyeli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Lotuslu Magnolya - İçecek",
+        "calorie": 420
+      },
+      {
+        "name": "Piyaz - Yoğurtlu Kabak Kızartma",
+        "calorie": null
+      },
+      {
+        "name": "Karışık Yeşillik - Ezme - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-02T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Sebze Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Etli Nohut (SEÇ.) Lahmacun",
+        "calorie": 285
+      },
+      {
+        "name": "VJT.Beşamelli Ispanak - Şhr. Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Karışık Turşu - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "ZYT.Taze Fasulye - Göbek/Roka - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-03T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Saç Tava (SEÇ.) Bafra Pidesi",
+        "calorie": 550
+      },
+      {
+        "name": "VJT.Taze Fasulye - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Sütlaç - İçecek",
+        "calorie": 400
+      },
+      {
+        "name": "ZYT.Enginar - Mantı",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-04T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Fırında Tavuk But (SEÇ.) Lahmacun",
+        "calorie": 400
+      },
+      {
+        "name": "VJT.Barbunya - Sbz. Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Brokoli - Yoğ. Kereviz",
+        "calorie": null
+      },
+      {
+        "name": "Çoban Salata - Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-05T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Karnıyarık (SEÇ.) Etli Ekmek",
+        "calorie": 220
+      },
+      {
+        "name": "VJT.Yeşil Mercimek - Pirinç Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Triliçe - İçecek",
+        "calorie": 301
+      },
+      {
+        "name": "Semizotu Salatası - Havuç Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-06T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Fırında Baget",
+        "calorie": 280
+      },
+      {
+        "name": "Mantar Soslu Makarna",
+        "calorie": 131
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Zeytin Salata - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-07T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tel Şehriye Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Et Tantuni",
+        "calorie": 630
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Kemalpaşa - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Kaşık Salata - Kabak Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-08T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Kuzu Tandır (SEÇ.) Kıymalı Pide",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Karışık Kızartma - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Ezme - Yoğurtlu Kırmızı Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Zyt.Brokoli - Karışık Yeşillik - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-09T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Düğün Çorba",
+        "calorie": 220
+      },
+      {
+        "name": "Karışık Kuru Dolma (SEÇ.) Lahmacun",
+        "calorie": 262
+      },
+      {
+        "name": "VJT.Patates Bulancar - Peynirli Su Böreği",
+        "calorie": 330
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 380
+      },
+      {
+        "name": "Kısır - Amerikan Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-10T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Tavuk Izgara (SEÇ.) Bafra Pidesi",
+        "calorie": 273
+      },
+      {
+        "name": "VJT.Barbunya - Şhr.Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Mercimek Köfte - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Gavurdağ Salata - Karışık Yeşillik - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-11T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Soğuk Çorba",
+        "calorie": 218
+      },
+      {
+        "name": "Hasanpaşa Köfte (SEÇ.) Kuşbaşılı Pide",
+        "calorie": 325
+      },
+      {
+        "name": "VJT.İmam Bayıldı - Pesto Soslu Makarna",
+        "calorie": 131
+      },
+      {
+        "name": "Sütlü Nuriye - İçecek",
+        "calorie": 240
+      },
+      {
+        "name": "ZYT.Portakallı Kereviz - Kabak Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek/Roka - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-12T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Köfte",
+        "calorie": 70
+      },
+      {
+        "name": "Beğendili Tavuk Julyen (SEÇ.) Lahmacun",
+        "calorie": 397
+      },
+      {
+        "name": "VJT.Kuru Fasulye - Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Brokoli - Yğrt.Köz Biber",
+        "calorie": null
+      },
+      {
+        "name": "Çoban Salata - Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-13T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Misket Köfte",
+        "calorie": 400
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Muhallebi - İçecek",
+        "calorie": 280
+      },
+      {
+        "name": "Mısır Salata - Havuç Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-14T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Pirzola",
+        "calorie": 330
+      },
+      {
+        "name": "Şehriyeli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kaşık Salata - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-15T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Kremalı Sebze Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Et Kavurma (SEÇ.) Lahmacun",
+        "calorie": 345
+      },
+      {
+        "name": "VJT.Patates Bulancar - Şhr.Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Şekerpare - İçecek",
+        "calorie": 450
+      },
+      {
+        "name": "Yoğrtlu Kırmızı Lahana - İçli Köfte",
+        "calorie": null
+      },
+      {
+        "name": "Kaşık Salat - Göbek/Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-16T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Etli Kuru Fasulye (SEÇ.) Bafra Pidesi",
+        "calorie": 293
+      },
+      {
+        "name": "VJT.Türlü - Şhr. Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Karışık Turşu - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Babagannuş - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-17T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Süzme Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Şiş (SEÇ.) Kuşbaşılı Pide",
+        "calorie": 280
+      },
+      {
+        "name": "VJT.Karnabahar - Pirinç Pilavı",
+        "calorie": 250
+      },
+      {
+        "name": "Kazandibi - İçecek",
+        "calorie": 320
+      },
+      {
+        "name": "Mısır Salata - Cevizli Havuç Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-18T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Hav.Şehriye Tavuk Suyu",
+        "calorie": 170
+      },
+      {
+        "name": "Et Tantuni - Lavaş (SEÇ.) Etli Ekmek",
+        "calorie": 630
+      },
+      {
+        "name": "VJT.Mücver - Sbz. Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Börülce - Ezme",
+        "calorie": null
+      },
+      {
+        "name": "Yoğurt - Göbek/Roka - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-19T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Karışık Izgara (SEÇ.) Lahmacun",
+        "calorie": 650
+      },
+      {
+        "name": "VJT.Beşamelli Ispanak - Frıın Makarna",
+        "calorie": 350
+      },
+      {
+        "name": "Karamelli Triliçe - İçecek",
+        "calorie": 301
+      },
+      {
+        "name": "ZYT.Barbunya - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-20T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Sebze Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Coban Kavurma",
+        "calorie": 350
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Kereviz - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-21T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Tavuk Kavurma",
+        "calorie": 475
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Peynir Tatlısı - İçecek",
+        "calorie": 380
+      },
+      {
+        "name": "ZYT.Brüksel Lahana - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-22T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Hasanpaşa Köfte (SEÇ.) Kuşbaşılı Pide",
+        "calorie": 550
+      },
+      {
+        "name": "VJT.Türlü-  Sbz.Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Piyaz - Ispanak Borani",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-23T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Düğün Çorba",
+        "calorie": 220
+      },
+      {
+        "name": "Fırında Tavuk Pirzola (SEÇ.) Lahmacun",
+        "calorie": 330
+      },
+      {
+        "name": "VJT.Barbunya - Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 207
+      },
+      {
+        "name": "Mercimek Köfte - Pembe Sultan",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Gavurdağı Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-24T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriyeli Tavuk Suyu",
+        "calorie": 170
+      },
+      {
+        "name": "Etli Nohut (SEÇ.) Bafra Pidesi",
+        "calorie": 285
+      },
+      {
+        "name": "VJT.Karışık Kızartma - Şhr. Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Karışık Turşu - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "ZYT.Karnabahar - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-25T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Kağıt Kebabı (SEÇ.) Kıymalı Pide",
+        "calorie": 475
+      },
+      {
+        "name": "VJT.Fellah Köfte - Shr.Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Aşure - İçecek",
+        "calorie": 240
+      },
+      {
+        "name": "Nohutlu Semizotu - Coban Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek Salata - Yoğurt - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-26T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Izgara Kanat (SEÇ.) Lahmacun",
+        "calorie": 450
+      },
+      {
+        "name": "VJT.İmam Bayıldı - Mısırlı Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Biber Dolması - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-27T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Fırında Köfte Patates",
+        "calorie": 325
+      },
+      {
+        "name": "Arpa Şehriye Pilavı",
+        "calorie": 131
+      },
+      {
+        "name": "Peynir Tatlısı - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Piyaz - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-28T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Soğuk Çorba",
+        "calorie": 218
+      },
+      {
+        "name": "Et Sote",
+        "calorie": 345
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Mısır Salata - Pembe Sultan",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-29T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Dana Nuar (SEÇ.) Lahmacun",
+        "calorie": 520
+      },
+      {
+        "name": "VJT.Bezelye - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 207
+      },
+      {
+        "name": "ZYT.Portakallı Kereviz - Limon",
+        "calorie": null
+      },
+      {
+        "name": "Ygrt.Kabak Kızartma - Göbek - K.Lahana",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-06-30T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Sultan Kebabı (SEÇ.) Kuşbaşılı Pide",
+        "calorie": 600
+      },
+      {
+        "name": "VJT.Türlü - Tel Şhr.Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": null
+      },
+      {
+        "name": "Çiğ Köfte - Ezme - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Göbek/Roka Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-01T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Karnıyarık (SEÇ.) Kuşbaşılı Kşr.Pide",
+        "calorie": 220
+      },
+      {
+        "name": "VJT.Nohut - Şehriyeli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Çilekli Magnolya - İçecek",
+        "calorie": 420
+      },
+      {
+        "name": "Kabak Tarator - ZYT.Brüksel Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-02T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yoğurtlu Dövme Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Fırında But (SEÇ.) Lahmacun",
+        "calorie": 280
+      },
+      {
+        "name": "VJT.Taze Fasulye - Soslu Makarna",
+        "calorie": 131
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Çoban Salata - Amerikan Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek/Roka - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-03T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Pastırmalı Kuru Fasulye (SEÇ.) Bafra Pidesi",
+        "calorie": 293
+      },
+      {
+        "name": "VJT.Patates Yemeği - Şhr.Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Sütlü Nuriye - İçecek",
+        "calorie": 400
+      },
+      {
+        "name": "Babaganuş - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-04T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Et Sote",
+        "calorie": 345
+      },
+      {
+        "name": "Şehriyeli Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Pembe Sultan - Mısır Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-05T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Kanat",
+        "calorie": 430
+      },
+      {
+        "name": "Makarna",
+        "calorie": 121
+      },
+      {
+        "name": "Supangle - İçecek",
+        "calorie": 250
+      },
+      {
+        "name": "Yoğurt - Babaganuş",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-06T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Soğuk Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Et Döner (SEÇ.) Lahmacun",
+        "calorie": 530
+      },
+      {
+        "name": "VJT.Patates Oturtma - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Acılı Ezme - Kabak Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-07T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Şiş (SEÇ.) Kuşbaşılı Sbz.Pide",
+        "calorie": 280
+      },
+      {
+        "name": "VJT.Barbunya - Ptlcn. Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Aşure - İçecek",
+        "calorie": 240
+      },
+      {
+        "name": "Kereviz Tarator - Kaşık Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-08T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Düğün Çorba",
+        "calorie": 220
+      },
+      {
+        "name": "Etli Nohut (SEÇ.) Bafra Pidesi",
+        "calorie": 285
+      },
+      {
+        "name": "VJT.Kabak - Şhr.Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Haydari - Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-09T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Izgara Köfte (SEÇ.) Ispanaklı Pide",
+        "calorie": 550
+      },
+      {
+        "name": "VJT.Şakşuka - Fırın Makarna",
+        "calorie": 350
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 207
+      },
+      {
+        "name": "Piyaz - ZYT.Enginar",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-10T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Tantuni (SEÇ.) Etli Ekmek",
+        "calorie": 630
+      },
+      {
+        "name": "VJT.Yeşil Mercimek - Ptlcn.Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Çoban Salata - ZYT.Brokoli",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-11T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Sebze Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Misket Köfte",
+        "calorie": 280
+      },
+      {
+        "name": "Makarna",
+        "calorie": 359
+      },
+      {
+        "name": "Kemalpaşa - İçecek",
+        "calorie": 230
+      },
+      {
+        "name": "KabakTarator - Köz Patlıcan Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-12T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 120
+      },
+      {
+        "name": "Fırın Baget",
+        "calorie": 340
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 131
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Haydari - Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-13T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Tavuk Izgara (SEÇ.) Lahmacun",
+        "calorie": 273
+      },
+      {
+        "name": "VJT.Taze Fasulye - Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Şekerpare - İçecek",
+        "calorie": 450
+      },
+      {
+        "name": "Bostana - Yoğurtlu Semizotu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-14T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yoğurtlu Dövme Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Izgara Köfte (SEÇ.) Sucuklu Kşr. Pide",
+        "calorie": 650
+      },
+      {
+        "name": "VJT.İmam Bayıldı - Pesto Soslu Makarna",
+        "calorie": 131
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Brüksel Lahana - Yoğurtlu Kırmızı Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Roka Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-15T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriye Çorba",
+        "calorie": 170
+      },
+      {
+        "name": "Et Sote",
+        "calorie": 345
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 207
+      },
+      {
+        "name": "Domates Salatalık Söğüş - Biber Borani",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-16T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Fırında Tavuk But (SEÇ.) Etli Ekmek",
+        "calorie": 400
+      },
+      {
+        "name": "VJT.Karnabahar - Şhrl. Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Kereviz - Yoğurtlu Ispanak Borani",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-17T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Et Kavurma (SEÇ.) Bafra Pidesi",
+        "calorie": 345
+      },
+      {
+        "name": "VJT.Mücver - Şhrl. Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Fırın Sütlaç - İçecek",
+        "calorie": 240
+      },
+      {
+        "name": "ZYT.Barbunya - Mantı",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-18T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Beğendili Et",
+        "calorie": 450
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Şakşuka - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-19T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Fırın Köfte",
+        "calorie": 280
+      },
+      {
+        "name": "Sebzeli Bulgur Pilav",
+        "calorie": 149
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 207
+      },
+      {
+        "name": "Ezme - Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-20T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriye Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Kuzu Tandır (SEÇ.) Lahmacun",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Türlü - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Enginar - Havuç Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-21T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Kıymalı Biber Dolma (SEÇ.) Kuşbaşılı Pide",
+        "calorie": 262
+      },
+      {
+        "name": "VJT.Patates Bulancar - Adana Böreği",
+        "calorie": 330
+      },
+      {
+        "name": "Kazandibi - İçecek",
+        "calorie": 320
+      },
+      {
+        "name": "Kısır - ZYT.Nohutlu Kabak",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-22T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Etli Nohut (SEÇ.) Bafra Pidesi",
+        "calorie": 285
+      },
+      {
+        "name": "VJT.Beşamelli Ispanak - Şhrl. Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kaşık Salata - Cacık - Yaprak Sarma",
+        "calorie": null
+      },
+      {
+        "name": "Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-23T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Karışık Izgara (SEÇ.) Lahmacun",
+        "calorie": 650
+      },
+      {
+        "name": "VJT.Yeşil Mercimek - Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 207
+      },
+      {
+        "name": "ZYT.Brüksel Lahana - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-24T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Soğuk Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Patlıcan Musakka (SEÇ.) Etli Ekmek",
+        "calorie": 320
+      },
+      {
+        "name": "VJT.Fellah Köfte - Pirinç Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yoğurt - ZYT.Ispanak",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-25T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriye Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Et Sote",
+        "calorie": 320
+      },
+      {
+        "name": "Mısırlı Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Peynir Tatlısı - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Biber Baroni - Mısır Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-26T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Kavurma",
+        "calorie": 340
+      },
+      {
+        "name": "Makarna",
+        "calorie": 131
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Zeytin Salata - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-27T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Dana Nuar",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Barbunya - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Karamelli Traliçe - İçecek",
+        "calorie": 301
+      },
+      {
+        "name": "Yğrt.Kırmızı Lahana - ZYT.Brokoli",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-28T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Sultan Kebabı",
+        "calorie": 650
+      },
+      {
+        "name": "VJT.Mücver - Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Mantı - Şakşuka",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-29T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriyeli Tavuk Suyu",
+        "calorie": 170
+      },
+      {
+        "name": "Etli Kuru Fasulye",
+        "calorie": 293
+      },
+      {
+        "name": "VJT.Patlıcan Musakka - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 207
+      },
+      {
+        "name": "Kaşık Salata - Cacık - K.Lahana  Salata",
+        "calorie": null
+      },
+      {
+        "name": "Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-30T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Soğuk Çorba",
+        "calorie": 218
+      },
+      {
+        "name": "Et Tantuni",
+        "calorie": 630
+      },
+      {
+        "name": "VJT.Karnabahar - Salçalı Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Babagannuş - Biber Borani",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-07-31T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Hasanpaşa Köfte",
+        "calorie": 370
+      },
+      {
+        "name": "VJT.İmam Bayıldı - Fırın Makarna",
+        "calorie": 350
+      },
+      {
+        "name": "Lotuslu Magnolya - İçecek",
+        "calorie": 420
+      },
+      {
+        "name": "Acısız Ezme - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Bostana - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-01T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriye Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Fırında Tavuk",
+        "calorie": 280
+      },
+      {
+        "name": "Şehriyeli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kısır - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-02T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Sebzeli Misket Köfte",
+        "calorie": 250
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Acısız Ezme - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "K.Lahana - Roka Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-03T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "İzmir Köfte (SEÇ.) Sucuklu Kşr. Pide",
+        "calorie": 550
+      },
+      {
+        "name": "VJT.Taze Fasulye - Soslu Makarna",
+        "calorie": 131
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yğrt.Semizotu - Barbunya Pilaki",
+        "calorie": null
+      },
+      {
+        "name": "Havuç - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-04T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Fırında Tavuk But (SEÇ.) Lahmacun",
+        "calorie": 400
+      },
+      {
+        "name": "VJT.Türlü - Şhr. Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Oreolu Magnolya - İçecek",
+        "calorie": 420
+      },
+      {
+        "name": "Havuç Tarator - Çiğ Köfte - Limon",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Domates/Salatalık Söğüş",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-05T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Beğendili Et (SEÇ.) Kıymalı Pide",
+        "calorie": 397
+      },
+      {
+        "name": "VJT.Ispanak Yemeği - Şhr. Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Köz Biberli Yğrt. Patates Salatası - ZYT.Yaprak Sarma",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-06T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Soğuk Çorba",
+        "calorie": 218
+      },
+      {
+        "name": "Biber Dolması (SEÇ.) Bafra Pidesi",
+        "calorie": 280
+      },
+      {
+        "name": "VJT.Bezelye - Su Böreği",
+        "calorie": 330
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 320
+      },
+      {
+        "name": "Yoğurt - Kısır",
+        "calorie": null
+      },
+      {
+        "name": "Gavurdağ - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-07T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Çeşmingar Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Çökertme Kebabı (SEÇ.) Lahmacun",
+        "calorie": 330
+      },
+      {
+        "name": "VJT. Nohut - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Haydari - Acısız Ezme",
+        "calorie": null
+      },
+      {
+        "name": "Havuç - Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-08T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Izgara",
+        "calorie": 274
+      },
+      {
+        "name": "Mısırlı Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 207
+      },
+      {
+        "name": "Zeytin Yağlı Yaprak Sarma - Yoğurt - Limon",
+        "calorie": null
+      },
+      {
+        "name": "Domates/Salatalık Söğüş - Havuç Salata",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-09T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Çeşmingar Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Hünkar Beğendi",
+        "calorie": 520
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Şehriye Salata - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Çoban - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-10T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ayran Aşı Çorbası",
+        "calorie": 218
+      },
+      {
+        "name": "Dana Nuar (SEÇ.) Bafra Pidesi",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Karışık Kızartma - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 202
+      },
+      {
+        "name": "Enginar - Yoğurtlu Mantı",
+        "calorie": null
+      },
+      {
+        "name": "Kaşık - Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-11T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Köz Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Etli Nohut (SEÇ.) Lahmacun",
+        "calorie": 285
+      },
+      {
+        "name": "VJT.Kabak Mücver - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Cacık - Karışık Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Bostana - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-12T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Fırın Köfte-Püre (SEÇ.) Sucuklu Kşrl. Pide",
+        "calorie": 480
+      },
+      {
+        "name": "VJT.İmam Bayıldı - Makarna",
+        "calorie": 131
+      },
+      {
+        "name": "Fırın Sütlaç - İçecek",
+        "calorie": 240
+      },
+      {
+        "name": "Yoğurtlu Semizotu -Göbek - Limon",
+        "calorie": null
+      },
+      {
+        "name": "Domates/Salatalık Söğüş - K.Lahana Salata",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-13T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Tavuk Izgara (SEÇ.) Etli Ekmek",
+        "calorie": 273
+      },
+      {
+        "name": "VJT.Nohutlu Ispanak - Pirinç Pilavı",
+        "calorie": 350
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Haydari - Şakşuka",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-14T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Çoban Kavurma (SEÇ.) Lahmacun",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Taze Fasulye - Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 380
+      },
+      {
+        "name": "Yoğurt - ZYT.Biber Dolma",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Kırmızı Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-15T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Beğendili Tavuk Sote",
+        "calorie": 470
+      },
+      {
+        "name": "Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Ispanak Borani - Gavurdağ Salata",
+        "calorie": null
+      },
+      {
+        "name": "Roka - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-16T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mısır Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Mitite Köfte",
+        "calorie": 350
+      },
+      {
+        "name": "Makarna",
+        "calorie": 131
+      },
+      {
+        "name": "Çikolata Soslu Muhallebi - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Havuç Tarator - Kaşık Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-17T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Kuzu Tandır (SEÇ.) Lahmacun",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Mevsim Türlü - Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Acısız Ezme - Kabak Tarator - Limon",
+        "calorie": null
+      },
+      {
+        "name": "Göbek Salata - K.Lahana - Havuç Salata",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-18T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Patlıcan Musakka (SEÇ.) Ispanaklı Pide",
+        "calorie": 350
+      },
+      {
+        "name": "VJT.Barbunya - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 202
+      },
+      {
+        "name": "Kaşık Salata - Brüksel Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-19T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 170
+      },
+      {
+        "name": "Tavuk Tantuni (SEÇ.) Bafra Pidesi",
+        "calorie": 450
+      },
+      {
+        "name": "VJT.Karnabahar - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Havuç Tarator - Babagannuş",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-20T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Kremalı Tavuk Suyu Çorba",
+        "calorie": 90
+      },
+      {
+        "name": "Pideli Köfte (SEÇ.) Sucuklu Kaşarlı Pide",
+        "calorie": 380
+      },
+      {
+        "name": "VJT.Bezelye - Makarna",
+        "calorie": 121
+      },
+      {
+        "name": "Lotuslu Magnolya - İçecek",
+        "calorie": 420
+      },
+      {
+        "name": "Kısır - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Havuç - Çoban Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-21T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Soğuk Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Tas Kebabı (SEÇ.) Lahmacun",
+        "calorie": 550
+      },
+      {
+        "name": "VJT.Kabak Yemeği - Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Haydari - Enginar",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-22T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriye Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Püre Yatağında Dilimli Köfte",
+        "calorie": 320
+      },
+      {
+        "name": "Makarna",
+        "calorie": 149
+      },
+      {
+        "name": "Muhallebili Kemalpaşa - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Cacık - Turşu - Limon",
+        "calorie": null
+      },
+      {
+        "name": "Göbek Salata - Domates/Salatalık Söğüş",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-23T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Fırında Tavuk Pirzola",
+        "calorie": 300
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Karnabahar - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Gavurdağ - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-24T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Karışık Izgara (SEÇ.) Lahmacun",
+        "calorie": 650
+      },
+      {
+        "name": "VJT.İmam Bayıldı - Mısırlı Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 202
+      },
+      {
+        "name": "Çiğ Köfte - Acısız Ezme",
+        "calorie": null
+      },
+      {
+        "name": "Göbek Salata - Limon - Yoğurt",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-25T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriye Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Etli Kuru Fasulye (SEÇ.) Bafra Pidesi",
+        "calorie": 293
+      },
+      {
+        "name": "VJT.Karışık Kızartma - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Cacık - Karışık Turşu - Gavurdağ Salata",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-26T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Soğuk Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Hünkar Beğendi (SEÇ.) Etli Ekmek",
+        "calorie": 390
+      },
+      {
+        "name": "VJT.Patates Bulancar - Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Triliçe - İçecek",
+        "calorie": 301
+      },
+      {
+        "name": "ZYT.Kereviz - Biber Borani - Limon",
+        "calorie": null
+      },
+      {
+        "name": "Domates/Salatalık Söğüş - Havuç Salata",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-27T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Tavuk Baget (SEÇ.) Lahmacun",
+        "calorie": 273
+      },
+      {
+        "name": "VJT.Yeşil Mercimek - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Amerikan Salata - Kısır",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-28T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Kadınbudu Köfte (SEÇ.) Kuş.Kşr.Pide",
+        "calorie": 470
+      },
+      {
+        "name": "VJT.Taze Fasulye - Salçalı Makarna",
+        "calorie": 121
+      },
+      {
+        "name": "Profiterol - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "ZYT.Brokoli - Kabak Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek Salata - Söğüş - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-29T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Sebzeli Kebap",
+        "calorie": 370
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Arpa Şehriye Salata - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-30T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Izgara Köfte",
+        "calorie": 550
+      },
+      {
+        "name": "Makarna",
+        "calorie": 121
+      },
+      {
+        "name": "Profiterol - İçecek",
+        "calorie": 350
+      },
+      {
+        "name": "K.Lahana Salata - Kısır",
+        "calorie": null
+      },
+      {
+        "name": "Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-08-31T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Et Tantuni (SEÇ.) Lahmacun",
+        "calorie": 630
+      },
+      {
+        "name": "VJT.Bezelye - Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Biber Dolma - Acısız Ezme",
+        "calorie": null
+      },
+      {
+        "name": "Gavurdağ - Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-01T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Fırında But (SEÇ) Lahmacun",
+        "calorie": 400
+      },
+      {
+        "name": "VJT.İmam Bayıldı - Şhr.Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Lotuslu Magnolya - İçecek",
+        "calorie": 420
+      },
+      {
+        "name": "ZYT.Brüksel Lahana - Yoğurtlu Kereviz",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-02T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Köfte Izgara (SEÇ.) Sucuklu Kaşarlı Pide",
+        "calorie": 550
+      },
+      {
+        "name": "VJT.Taze Fasulye - Bulgur Pilavı",
+        "calorie": 131
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Ezme - Yogurtlu Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-03T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tavuklu Şehriye Çorba",
+        "calorie": 170
+      },
+      {
+        "name": "Etli Kuru Fasulye (SEÇ.) Lahmacun",
+        "calorie": 293
+      },
+      {
+        "name": "VJT.Mücver - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Kadayıflı Muhallebi - İçecek",
+        "calorie": 380
+      },
+      {
+        "name": "Cacık - Karışık Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Roka/Göbek - Hacuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-04T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Dana Nuar (SEÇ.) Etli Ekmek",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Ispanak Yemeği - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Enginar - Biber Borani",
+        "calorie": null
+      },
+      {
+        "name": "Gavurdağ - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-04T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Soğuk Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Dana Nuar (SEÇ.) Etli Ekmek",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Ispanak - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Biber Boranı - ZYT.Enginar",
+        "calorie": null
+      },
+      {
+        "name": "Gavurdağ - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-05T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Beğendili Tavuk",
+        "calorie": 397
+      },
+      {
+        "name": "Şhr.Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Peynir Tatlısı - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Mısır Salata - Pembe Sultan",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-06T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tas Kebabı",
+        "calorie": 450
+      },
+      {
+        "name": "Mısırlı Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Ezme - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.lahana Salata - Limıon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-07T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Çeşmingar Çorba",
+        "calorie": 100
+      },
+      {
+        "name": "Etli Biber Dolma (SEÇ.) Lahmacun",
+        "calorie": 262
+      },
+      {
+        "name": "VJT.Patates Bulancar - Adana Böreği",
+        "calorie": 350
+      },
+      {
+        "name": "Profiterol - İçecek",
+        "calorie": 280
+      },
+      {
+        "name": "Kısır - Yoğurtlu Patlıcan",
+        "calorie": null
+      },
+      {
+        "name": "Havuç - Karışık Yeşillik - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-08T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehiye Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Tavuk Tantuni (SEÇ.) Etli Ekmek",
+        "calorie": 530
+      },
+      {
+        "name": "VJT.Yeşil Mercimek - Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Brüksel Lahana - Yoğurtlu Kırmızı Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Kaşık - Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-09T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Arnavut Çiğeri (SEÇ.) Sucuklu Kaşarlı Pide",
+        "calorie": 375
+      },
+      {
+        "name": "VJT.Karnabahar - Ptlcn.Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Karamelli Triliçe - İçecek",
+        "calorie": 301
+      },
+      {
+        "name": "Zeytinyağlı Kereviz - Kabak Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-10T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Püreli Sıkma Köfte (SEÇ.) Kuşbaşılı Pide",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Türlü - Makarna",
+        "calorie": 170
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Çiğ Köfte - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-11T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ayranaşı Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Etli Nohut (SEÇ.) Lahmacun",
+        "calorie": 285
+      },
+      {
+        "name": "VJT.Fellah Köfte - Şhry. Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Şekerpare - İçecek",
+        "calorie": 450
+      },
+      {
+        "name": "Çoban Salata - Karışık Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Yoğurt - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-12T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Fırında Tavuk Baget",
+        "calorie": 280
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Zeytin Salata - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-13T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriye Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Çoban Kavurma",
+        "calorie": 475
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Şekerpare - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Karnabahar - Yoğurtlu Patlican",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-14T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Kuzu Tandır (SEÇ.) Sucuklu Kşrl.Pide",
+        "calorie": 500
+      },
+      {
+        "name": "VJT.Taze Fasulye - İç Pilav",
+        "calorie": 359
+      },
+      {
+        "name": "Lotuslu Magnolya - İçecek",
+        "calorie": 420
+      },
+      {
+        "name": "Acılı Ezme - Biber Borani",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-15T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Tavuk Izgara (SEÇ.) Lahmacun",
+        "calorie": 450
+      },
+      {
+        "name": "VJT.Patates Yemeği - Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Babaganuş - Kaşık Salata",
+        "calorie": null
+      },
+      {
+        "name": "K.Lahana Salata - Yoğurt - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-16T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Kadınbudu Köfte (SEÇ.) Kuşbaşılı Kşrl. Pide",
+        "calorie": 400
+      },
+      {
+        "name": "VJT.Yeşil Mercimek - Makarna",
+        "calorie": 131
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 122
+      },
+      {
+        "name": "Zeytinyağlı Sarma - Yoğurtu Kabak Kızartma",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-17T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Et Tantuni (SEÇ.) Bafra Pidesi",
+        "calorie": 630
+      },
+      {
+        "name": "VJT.Bezelye - Kuş Üzümlü Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Zeytinyağlı Enginar - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Gavurdağ - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-18T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Soğuk Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Patlıcan Musakka (SEÇ.) Kıymalı Pide",
+        "calorie": 220
+      },
+      {
+        "name": "VJT.Barbunya - Şhr.Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Supangle - İçecek",
+        "calorie": 250
+      },
+      {
+        "name": "Kısır - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Kaşık - Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-19T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Orman Kebabı",
+        "calorie": 350
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 250
+      },
+      {
+        "name": "Turşu - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-20T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Mitite Köfte",
+        "calorie": 445
+      },
+      {
+        "name": "Makarna",
+        "calorie": 121
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Kereviz - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-21T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Sebze Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Et Kavurma (SEÇ.) Kuşbaşılı Kşrl. Pide",
+        "calorie": 345
+      },
+      {
+        "name": "VJT.Türlü - Bademli Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Kazandibi - İçecek",
+        "calorie": 320
+      },
+      {
+        "name": "Mercimek Köfte - Ispanak Borani",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-22T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Fırında Baget (SEÇ.) Lahmacun",
+        "calorie": 280
+      },
+      {
+        "name": "VJT.İmam Bayıldı - Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Patates Salatası  - Yoğurtlu Köz Biber",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-23T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Köz Domates Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Çökertme Kebabı (SEÇ.) Kıymalı Pide",
+        "calorie": 380
+      },
+      {
+        "name": "VJT.Ispanak - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Dondurma - İçecek",
+        "calorie": 212
+      },
+      {
+        "name": "Çiğ Köfte - Biber Turşusu - Yğrt.Kabak Kızartma",
+        "calorie": null
+      },
+      {
+        "name": "Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-24T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tavuk Suyu Çorba",
+        "calorie": 170
+      },
+      {
+        "name": "Etli Kuru Fasulye (SEÇ.) Bafra Pidesi",
+        "calorie": 293
+      },
+      {
+        "name": "VJT.Kabak - Şhry.Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kaşık Salata - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-25T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Karışık Izgara (SEÇ.) Etli Ekmek",
+        "calorie": 550
+      },
+      {
+        "name": "VJT.Karnıbahar - Sbzl. Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Fırın Sütlaç - İçecek",
+        "calorie": 320
+      },
+      {
+        "name": "Ezme - Mantı - K.Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-26T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mısır Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Fajita",
+        "calorie": 340
+      },
+      {
+        "name": "Makarna",
+        "calorie": 121
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kısır - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-27T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Sebze Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Fırında Köfte Patates",
+        "calorie": 325
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Peynir Tatlısı - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Şehriye Salata - Havuç Tarator",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-28T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 90
+      },
+      {
+        "name": "Hünkar Beğendi (SEÇ.) Lahmacun",
+        "calorie": 350
+      },
+      {
+        "name": "VJT.Kuru Fasulye - Şhry.Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kaşık Salata- Yoğurtlu Kabak Kızartma",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-29T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tavuk Şiş (SEÇ.) Bafra Pidesi",
+        "calorie": 280
+      },
+      {
+        "name": "VJT.Ispanak - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Sütlü Nuriye - İçecek",
+        "calorie": 400
+      },
+      {
+        "name": "Mercimek Köfte - Yoğurtlu Kırmızı Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Roka Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-09-30T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Etli Sultan Kebabı (SEÇ.) Sucuklu Kşr.Pide",
+        "calorie": 350
+      },
+      {
+        "name": "VJT.Taze Fasulye - Soslu Makarna",
+        "calorie": 131
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "ZYT.Brokoli - Yoğurtlu Köz Patlıcan",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-01T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tavuk Suyu Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "Etli Nohut (SEÇ.) Etli Ekmek",
+        "calorie": 285
+      },
+      {
+        "name": "VJT.Mevsim Türlü - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Şekerpare - İçecek",
+        "calorie": 450
+      },
+      {
+        "name": "Karışık Turşu - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Çoban - Göbek Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-02T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 170
+      },
+      {
+        "name": "Patates Musakka (SEÇ.) Kuşbaşılı Kşr.Pide",
+        "calorie": 280
+      },
+      {
+        "name": "VJT.Yeşil Mercimek - Bulgur Pilavı",
+        "calorie": 131
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Amerikan Salata - ZYT.Brüksel Lahana",
+        "calorie": null
+      },
+      {
+        "name": "Havuç - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-03T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Fırında Tavuk Izgara",
+        "calorie": 350
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Kemalpaşa - İçecek",
+        "calorie": 400
+      },
+      {
+        "name": "Biber Borani - Salatalık Turşusu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-04T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mısır Çorba",
+        "calorie": 90
+      },
+      {
+        "name": "Et Sote",
+        "calorie": 400
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kısır - Cacık",
+        "calorie": null
+      },
+      {
+        "name": "Roka - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-05T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Kuzu Sote (SEÇ.) Kaşarlı Sucuklu Pide",
+        "calorie": 450
+      },
+      {
+        "name": "VJT.Barbunya - Bulgur Pilavı",
+        "calorie": 121
+      },
+      {
+        "name": "Lotuslu Magnolya - İçecek",
+        "calorie": 420
+      },
+      {
+        "name": "Şehriye Salata - Babaganuş",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-06T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Tavuk Baget (SEÇ.) Bafra Pidesi",
+        "calorie": 400
+      },
+      {
+        "name": "VJT.Sebze Ratatuy - Spagetti",
+        "calorie": 131
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kuru Cacık - Kısır",
+        "calorie": null
+      },
+      {
+        "name": "Roka - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-07T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 121
+      },
+      {
+        "name": "İzmir Köfte (SEÇ.) Lahmacun",
+        "calorie": 380
+      },
+      {
+        "name": "VJT.İmam Bayıldı - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Mousse Tatlısı - İçecek",
+        "calorie": 350
+      },
+      {
+        "name": "Acısız Ezme - Göbek Salata",
+        "calorie": null
+      },
+      {
+        "name": "Mercimek Köfte - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-08T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Şehriye Çorba",
+        "calorie": 90
+      },
+      {
+        "name": "Biber Dolma (SEÇ.) Kuşbaşılı Pide",
+        "calorie": 262
+      },
+      {
+        "name": "VJT.Patates Bulancar - Adana Böreği",
+        "calorie": 450
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Yoğurt - Kısır",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-09T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Çeşmingar Çorba",
+        "calorie": 100
+      },
+      {
+        "name": "Tas Kebabı (SEÇ.) Lahmacun",
+        "calorie": 350
+      },
+      {
+        "name": "VJT.Ispanak - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Kazandibi - İçecek",
+        "calorie": 320
+      },
+      {
+        "name": "Haydari - ZYT.Karnabahar",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - İçecek",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-10T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 75
+      },
+      {
+        "name": "Tavuk Izgara",
+        "calorie": 360
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 121
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Havuç Tarator - Mısır Salata",
+        "calorie": null
+      },
+      {
+        "name": "Roka - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-11T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Yayla Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Dana Rosto",
+        "calorie": 160
+      },
+      {
+        "name": "Makarna",
+        "calorie": 121
+      },
+      {
+        "name": "Mozaik Pasta - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Salatalık Turşu - Yoğurt",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-12T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Hünkar Beğendi (SEÇ.) Etli Ekmek",
+        "calorie": 400
+      },
+      {
+        "name": "VJT. Patates Yemeği - Bulgur Pilavı",
+        "calorie": 121
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Acısız Ezme - Haydari",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-13T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mantar Çorba",
+        "calorie": 125
+      },
+      {
+        "name": "Etli Kuru Fasulye (SEÇ.) Bafra Pidesi",
+        "calorie": 293
+      },
+      {
+        "name": "VJT.Soslu Patlıcan - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Kadayıflı Muhallebi - İçecek",
+        "calorie": 400
+      },
+      {
+        "name": "Havuç Tarator - Çiğ Köfte",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-14T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tarhana Çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Ekşili Köfte (SEÇ.) Kaşarlı Sucuklu Pide",
+        "calorie": 230
+      },
+      {
+        "name": "VJT.Yeşil Mercimek - Makarna",
+        "calorie": 250
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Kabak Tarator - ZYT.Brokoli",
+        "calorie": null
+      },
+      {
+        "name": "Havuç - Roka Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-15T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Düğün Çorba",
+        "calorie": 120
+      },
+      {
+        "name": "Piliç Topkapı (SEÇ.) Lahmacun",
+        "calorie": 330
+      },
+      {
+        "name": "VJT.Mantar Kavurma - Makarna",
+        "calorie": 132
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Cacık - Karışık Turşu",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-16T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Domates Çorba",
+        "calorie": 95
+      },
+      {
+        "name": "Şehzade Kebabı (SEÇ.) Kıymalı Pide",
+        "calorie": 450
+      },
+      {
+        "name": "VJT.Sebze Fırın - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Tatlı - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Coleslaw - Enginar",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-17T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Sebze çorba",
+        "calorie": 150
+      },
+      {
+        "name": "Izgara Köfte",
+        "calorie": 270
+      },
+      {
+        "name": "Bulgur Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 300
+      },
+      {
+        "name": "Yoğurt - Kısır",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-18T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Mercimek Çorba",
+        "calorie": 100
+      },
+      {
+        "name": "Tavuk Baget",
+        "calorie": 400
+      },
+      {
+        "name": "Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Peynir Tatlısı - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Cacık - Soslu Patlıcan",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-19T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Ezogelin Çorba",
+        "calorie": 70
+      },
+      {
+        "name": "Tirit (SEÇ.) Bafra Pidesi",
+        "calorie": 450
+      },
+      {
+        "name": "VJT.Bezelye - Bulgur Pilavı",
+        "calorie": 149
+      },
+      {
+        "name": "Tiramisu - İçecek",
+        "calorie": 400
+      },
+      {
+        "name": "ZYT.Yaprak Sarma - Mısır Salata",
+        "calorie": null
+      },
+      {
+        "name": "Havuç - K.Lahana Salata - Limon",
+        "calorie": null
+      }
+    ]
+  },
+  {
+    "date": "2026-10-20T00:00:00",
+    "city": "ISTANBUL",
+    "dishes": [
+      {
+        "name": "Tavuk Suyu Çorba",
+        "calorie": 120
+      },
+      {
+        "name": "Patlıcan Musakka (SEÇ.) Lahmacun",
+        "calorie": 350
+      },
+      {
+        "name": "VJT.Kuru Fasulye - Pirinç Pilavı",
+        "calorie": 359
+      },
+      {
+        "name": "Meyve - İçecek",
+        "calorie": 90
+      },
+      {
+        "name": "Cacık - ZYT.Enginar",
+        "calorie": null
+      },
+      {
+        "name": "Göbek - Havuç Salata - Limon",
+        "calorie": null
+      }
+    ]
+  }
+]

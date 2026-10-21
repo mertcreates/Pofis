@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import Modal from "@/components/modal.js";
 import { useMealMenu } from "@/data/use-meal-menu";
 import { getMealDateRange } from "@/lib/meals/dates";
-import { getMealPofiCommentary } from "@/lib/meals/commentary";
 import { presentMeal, type MealSide } from "@/lib/meals/presentation";
 import { ui } from "@/lib/ui-text.js";
 import { MealDatePicker } from "./date-picker";
+import { preserveMealHeight } from "./menu-height";
+import { MealMenuSkeleton } from "./menu-skeleton";
 import "./menu.css";
 
 function hasSingleDishName(name: string) {
@@ -33,8 +34,15 @@ export function MealMenuModal({ today, onClose }: { today: string; onClose: () =
   const { minDate, maxDate } = getMealDateRange(today);
   const [selectedDate, setSelectedDate] = useState(today);
   const { state, retry } = useMealMenu(selectedDate);
+  const viewportRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (viewportRef.current && contentRef.current) {
+      return preserveMealHeight(viewportRef.current, contentRef.current);
+    }
+  }, []);
   const meal = state.kind === "loaded" && state.menu ? presentMeal(state.menu) : null;
-  const pofiCommentary = meal ? getMealPofiCommentary(meal) : null;
+  const pofiCommentary = state.kind === "loaded" ? state.commentary : null;
   const soup = meal?.kind === "structured" ? meal.sides.find((side) => side.kind === "soup") : undefined;
   const accompaniment = meal?.kind === "structured" ? meal.sides.find((side) => side.kind === "accompaniment") : undefined;
   const finishKinds = ["extras", "salad", "dessert"] as const;
@@ -45,11 +53,12 @@ export function MealMenuModal({ today, onClose }: { today: string; onClose: () =
     <Modal title={ui.meals.title} description={
       <MealDatePicker value={selectedDate} today={today} minDate={minDate} maxDate={maxDate} onChange={setSelectedDate} />
     } className="meal-menu-modal" initialFocus="title" onClose={onClose}>
-      <div className="meal-menu-content">
-        <div className="meal-layout">
+      <p className="visually-hidden" role="status">{state.kind === "loading" ? ui.meals.loading : ""}</p>
+      <div ref={viewportRef} className="meal-menu-content" aria-busy={state.kind === "loading"}>
+        <div ref={contentRef} className="meal-layout">
           <div className="meal-menu-column">
             {state.kind === "loading" ? (
-              <p className="meal-empty" role="status">{ui.meals.loading}</p>
+              <MealMenuSkeleton />
             ) : state.kind === "error" ? (
               <div className="meal-request-error" role="alert">
                 <p>{ui.meals.unavailable}</p>

@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api-client.js";
-import { readMealApiResponse } from "@/lib/meals/response";
-import type { MealMenu } from "@/lib/meals/presentation";
+import { readMealApiResponse, type MealMenuResponse } from "@/lib/meals/response";
 
 type MealMenuState =
   | { date: string; kind: "loading" }
-  | { date: string; kind: "loaded"; menu: MealMenu | null }
+  | ({ date: string; kind: "loaded" } & MealMenuResponse)
   | { date: string; kind: "error" };
 
 export function useMealMenu(date: string) {
@@ -20,7 +19,7 @@ export function useMealMenu(date: string) {
     void api(`/api/meals?${new URLSearchParams({ date })}`, { signal: controller.signal })
       .then((result) => {
         if (!controller.signal.aborted) {
-          setState({ date, kind: "loaded", menu: readMealApiResponse(result, date) });
+          setState({ date, kind: "loaded", ...readMealApiResponse(result, date) });
         }
       })
       .catch(() => {
