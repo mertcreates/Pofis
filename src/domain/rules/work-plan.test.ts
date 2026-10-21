@@ -1,11 +1,16 @@
 import { expect, test } from "bun:test";
 import {
-  DEFAULT_WORK_PLAN, readDayPlan, resolveWeekPlan, weeklyTarget, completeWeekPlan, resolveStoredTarget,
+  DEFAULT_WORK_PLAN, readDayPlan, resolveWeekPlan as resolvePlan, weeklyTarget, completeWeekPlan, resolveStoredTarget,
   emptyWorkPlans, changeDefaultPlan, changeWeekPlan, resolveStoredPlan, setDayMinutes,
   completedDaySeconds, planAdjustmentDays, editRequiredMinutes,
 } from "./work-plan";
 import type { DayState } from "./record-status";
 import type { WorkPlan } from "./work-plan";
+
+// Geri dönüş sözleşmesi: mevcut dağıtım senaryoları azaltma açıkken doğrulanır.
+function resolveWeekPlan(...args: Parameters<typeof resolvePlan>) {
+  return resolvePlan(args[0], args[1], args[2], args[3], args[4], args[5], true);
+}
 
 test("Sıfırla 9×5 şablonunun 45 saatini esas alır; kilitli eski planlar ve gerçekleşenler korunur", () => {
   const week = "2026-10-12";

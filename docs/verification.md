@@ -34,6 +34,7 @@ Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut se
 | Otomatik test | Kapsam |
 | --- | --- |
 | [Plan](../src/domain/rules/work-plan.test.ts) | Sayısal devir, şablon mirası, özel hedef, kilitler, tamamlama ve sınırlar |
+| [Fazla süre politikası](../src/domain/rules/work-plan-surplus.test.ts) | Güncel ayarda fazla süreyi ayrı tutma, eksik süre dağıtımı, izin, elle düzenleme ve Tamamla; önceki dağıtım testleri azaltma açıkken dönüş sözleşmesini doğrular |
 | [İzin ve kapasite](../src/domain/rules/work-plan-leave.test.ts) | Şablon karşılığını düşme, açma/sıfırlama ve kapasite sınırında otomatik dağıtım |
 | [Sıfır süreli açık gün](../src/domain/rules/work-plan-open-days.test.ts) | Kaydetme → yeniden yükleme → sonraki gün yeni kayıt → yeniden dengeleme; izin, şablon ve sıfırlama |
 | [Depolama](../src/data/work-plans.test.ts) | Doğrulama, kalıcılık, yazı hatası ve canlı/demo ayrımı |

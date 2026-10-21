@@ -30,7 +30,7 @@ test("kaydedilmiş sıfır açık Cuma borcu ve hedef çıkışı rapora/Pofi'ye
   expect(closed.days[4].source.exitGoalSeconds).toBeNull();
 });
 
-test("Cuma izni 32 saat hedefini ve Perşembe 5:20 çıkış hesabını rapora taşır", () => {
+test("Cuma izni 32 saat hedefini korur; fazla süre Perşembenin 8 saatini azaltmaz", () => {
   const report = fixture();
   report.passages = ["17:00:00", "17:00:00", "16:40:00"].flatMap((time, index) => [
     { date: `2026-10-${12 + index}`, time: "08:00:00", direction: "in" as const },
@@ -39,9 +39,9 @@ test("Cuma izni 32 saat hedefini ve Perşembe 5:20 çıkış hesabını rapora t
   report.passages.push({ date: "2026-10-15", time: "08:00:00", direction: "in" });
   const plans = changeWeekPlan(emptyWorkPlans(), report.from, [480,480,480,480,0,0,0], [], 115200, [4]);
   const result = presentReport(report, resolveStoredPlan(plans, report.from), Date.parse("2026-10-15T10:00:00+03:00"), false, resolveStoredTarget(plans, report.from));
-  expect(result.days[3].source.dailyGoalSeconds).toBe(19200);
+  expect(result.days[3].source.dailyGoalSeconds).toBe(28800);
   expect(result.days[3].firstEntry! + result.days[3].source.exitGoalSeconds! * 1000)
-    .toBe(Date.parse("2026-10-15T13:20:00+03:00"));
+    .toBe(Date.parse("2026-10-15T16:00:00+03:00"));
   expect(result.days[4].source.dailyGoalSeconds).toBe(0);
   expect(result.days[4].state).toBe("future");
   const friday = presentReport(report, resolveStoredPlan(plans, report.from), now, false, resolveStoredTarget(plans, report.from));
@@ -118,7 +118,7 @@ function fixture(): Report {
   };
 }
 test.each([
-  ["2026-10-12", "2026-10-18", 26100, 26100],
+  ["2026-10-12", "2026-10-18", 28800, 28800],
   ["2026-10-12", "2026-10-16", 28800, null],
   ["2026-10-13", "2026-10-18", 28800, null],
 ] as const)("rapor sınırları %s–%s devir ve çıkış hedefini belirler", (from, to, dailyGoal, exitGoal) => {
@@ -171,7 +171,7 @@ test("prepared reports refresh with plan, source, freshness and Istanbul date ch
   const changedPlan = readDayPlan([420, 420, 420, 420, 420, 0, 0])!;
   expect(
     prepareReport(report, changedPlan, "2026-10-16", false)(now).days[4].source.dailyGoalSeconds,
-  ).toBe(10800);
+  ).toBe(25200);
   const closed = {
     ...report,
     passages: [
@@ -227,13 +227,13 @@ test("son hareket çıkış olduğunda veya rapor eskidiğinde canlı tahmin dur
   expect(stale.liveSeconds).toBeNull();
   expect(stale.recordedSeconds).toBe(4 * 3600);
 });
-test("eksik seçili gün borç üretmez, son gün geçerli fazla/eksik süreyi devralır", () => {
+test("eksik seçili gün borç üretmez; fazla çalışma Cuma çıkışını erkene çekmez", () => {
   const report = fixture();
   report.passages[1].time = "17:00:00";
   expect(
     presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4].source!
       .exitGoalSeconds,
-  ).toBe(7 * 3600);
+  ).toBe(8 * 3600);
   report.passages = report.passages.filter(
     (event) => event.date !== "2026-10-12",
   );
@@ -311,24 +311,24 @@ test("notlar kişi bazında sabit, mevcut haftayla sınırlı, 8 Aralık ortak",
   expect(() => pofiNotesForWeek("2026-10-16", "")).toThrow();
 });
 
-test("45 dakika devirde günlük ve haftalık hedef aynı saniyede tamamlanır; hedef çıkış ve tablo ortak hedefi kullanır", () => {
+test("45 dakika fazla çalışma korunur; günlük hedef, hedef çıkış ve Pofi özgün planı kullanır", () => {
   const report = fixture();
   report.passages[1].time = "16:30:00";
   report.passages[3].time = "16:15:00";
   report.passages = report.passages.filter(event => event.date !== "2026-10-16");
   report.passages.push({ date: "2026-10-16", time: "08:00:00", direction: "in" });
-  const before = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T15:14:59+03:00"), false);
-  const at = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T15:15:00+03:00"), false);
-  expect(before.days[4].source.dailyGoalSeconds).toBe(26100);
-  expect(before.days[4].source.total).toBe(26099);
-  expect(summarizeWeek(before.days, "2026-10-16").totalSeconds).toBe(143999);
-  expect(at.days[4].source.total).toBe(26100);
-  expect(at.days[4].source.exitGoalSeconds).toBe(26100);
-  expect(at.days[4].source.dailyGoalSeconds).toBe(26100);
-  expect(summarizeWeek(at.days, "2026-10-16").totalSeconds).toBe(144000);
+  const before = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T15:59:59+03:00"), false);
+  const at = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-16T16:00:00+03:00"), false);
+  expect(before.days[4].source.dailyGoalSeconds).toBe(28800);
+  expect(before.days[4].source.total).toBe(28799);
+  expect(summarizeWeek(before.days, "2026-10-16").totalSeconds).toBe(146699);
+  expect(at.days[4].source.total).toBe(28800);
+  expect(at.days[4].source.exitGoalSeconds).toBe(28800);
+  expect(at.days[4].source.dailyGoalSeconds).toBe(28800);
+  expect(summarizeWeek(at.days, "2026-10-16").totalSeconds).toBe(146700);
   expect(at.days[4].source.pofi.percentage).toBe(100);
   expect(at.days[4].source.pofi.state).toBe("working");
-  expect(at.days.map(day => day.source.dailyGoalSeconds)).toEqual([28800, 28800, 28800, 28800, 26100, 0, 0]);
+  expect(at.days.map(day => day.source.dailyGoalSeconds)).toEqual([28800, 28800, 28800, 28800, 28800, 0, 0]);
   expect(DEFAULT_WORK_PLAN).toEqual([480, 480, 480, 480, 480, 0, 0]);
 });
 
@@ -344,18 +344,18 @@ test("tamamlanan gün özel hedefini korur; geçmiş raporda özgün plan kullan
   expect(historical.days[4].source.dailyGoalSeconds).toBe(27000);
 });
 
-test("devirle sıfırlanan hedef Pofi için tanımlı yüzde üretir; kayıt durumunu korur", () => {
+test("önceki günlerde hedef dolsa da Cuma 8 saat kalır; Pofi bugünkü planı izler", () => {
   const report = fixture();
   for (const index of [1, 3, 5, 7]) report.passages[index].time = "18:00:00";
   const live = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4];
-  expect(live.source.dailyGoalSeconds).toBe(0);
-  expect(live.source.exitGoalSeconds).toBe(0);
-  expect(live.source.pofi.percentage).toBe(100);
-  expect(live.source.pofi.state).toBe("working");
+  expect(live.source.dailyGoalSeconds).toBe(28800);
+  expect(live.source.exitGoalSeconds).toBe(28800);
+  expect(live.source.pofi.percentage).toBe(87);
+  expect(live.source.pofi.state).toBe("tired");
   report.passages.pop();
   const closed = presentReport(report, DEFAULT_WORK_PLAN, now, false).days[4];
-  expect(closed.source.pofi.percentage).toBe(100);
-  expect(closed.source.pofi.state).toBe("completed");
+  expect(closed.source.pofi.percentage).toBe(50);
+  expect(closed.source.pofi.state).toBe("break");
 });
 
 test("özel planın eksiği yalnız Cuma çıkışını uzatır; ara çıkış hedefi ötelemez", () => {

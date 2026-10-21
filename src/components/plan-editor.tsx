@@ -3,7 +3,7 @@ import { Fragment, useId, useState } from "react";
 import { LockKeyhole } from "lucide-react";
 import { ui } from "@/lib/ui-text.js";
 import {
-  completeWeekPlan, editRequiredMinutes, isOpenPlanDay, referenceWeekTarget, resolveWeekPlan, setDayMinutes, weeklyTarget, DEFAULT_WORK_PLAN, PLAN_LIMITS, WORKING_DAY_COUNT, type WorkPlan, type PlanDay,
+  completeWeekPlan, editRequiredMinutes, isOpenPlanDay, referenceWeekTarget, resolveWeekPlan, setDayMinutes, weeklyTarget, DEFAULT_WORK_PLAN, PLAN_LIMITS, WORK_PLAN_POLICY, WORKING_DAY_COUNT, type WorkPlan, type PlanDay,
 } from "@/domain/rules/work-plan";
 import { weekLabel, durationText } from "@/domain/time";
 import { weekday, weekStart } from "@/domain/rules/calendar";
@@ -42,6 +42,7 @@ export function PlanEditor({
   const id = useId();
   const weekDays = days.filter(day => weekStart(day.date) === week);
   const resolved = resolveWeekPlan(weekDays, plan, today, weekDays.length !== 7, targetSeconds, zeroOpenDays);
+  const preservedSurplus = !WORK_PLAN_POLICY.autoReduceSurplus && resolved.unallocatedSeconds < 0;
   const activePlan = scope === "default" ? defaultPlan : plan;
   const locked = scope === "week" && resolved.completed[selectedDay] !== null;
   const selectedSeconds = scope === "week" ? resolved.displaySeconds[selectedDay] : activePlan[selectedDay] * 60;
@@ -51,10 +52,12 @@ export function PlanEditor({
   const reopenMinutes = defaultPlan[selectedDay] || DEFAULT_WORK_PLAN[selectedDay];
   const plannedTotal = scope === "week" ? targetSeconds : weeklyTarget(activePlan);
   const total = plannedTotal;
+  const projectedDifference = resolved.projectedWeeklySeconds - total;
   const defaultTotal = scope === "week" ? referenceWeekTarget(defaultPlan, leaveDays) : weeklyTarget(defaultPlan);
   const different = scope === "week" && plannedTotal !== defaultTotal;
+  const needsCompletion = scope === "week" && (different || resolved.projectedWeeklySeconds !== defaultTotal);
   const selectedDifferent = scope === "week" && plan[selectedDay] !== defaultPlan[selectedDay];
-  const completedPlan = scope === "week" && different
+  const completedPlan = needsCompletion
     ? completeWeekPlan(plan, defaultPlan, resolved, selectedDay, leaveDays) : null;
   const canApplyToOtherDays = activePlan.some((minutes, day) => day !== selectedDay &&
     (scope === "week" ? resolved.eligible[day] : minutes > 0) &&
@@ -86,8 +89,9 @@ export function PlanEditor({
     <Modal title={ui.workPlan} className="work-plan-modal" initialFocus="title" onClose={onClose}>
       <div className="work-planner">
         {error && <InlineNotice tone="warning">{error}</InlineNotice>}
-        {scope === "week" && resolved.unallocatedSeconds !== 0 && <InlineNotice tone="warning">
-          {copy.unallocated(durationText(Math.abs(resolved.unallocatedSeconds)), resolved.unallocatedSeconds > 0)}
+        {scope === "week" && resolved.unallocatedSeconds !== 0 && (!preservedSurplus || !different) && <InlineNotice tone={preservedSurplus ? "info" : "warning"}>
+          {preservedSurplus ? copy.surplus(durationText(-resolved.unallocatedSeconds))
+            : copy.unallocated(durationText(Math.abs(resolved.unallocatedSeconds)), resolved.unallocatedSeconds > 0)}
         </InlineNotice>}
         <div className="work-plan-tabs" role="group" aria-label={copy.scope}>
           <button type="button" aria-pressed={scope === "default"} onClick={() => setScope("default")}>
@@ -103,9 +107,9 @@ export function PlanEditor({
           <span className={different ? "work-plan-total is-different" : "work-plan-total"} aria-live="polite">
             {different && <s aria-label={`${copy.defaultLabel} ${durationText(defaultTotal, false)}`}>{durationText(defaultTotal, false)}</s>}
             <span><span className="work-plan-total-label">{copy.total}</span> {durationText(total, false)}</span>
-            {scope === "week" && resolved.projectedWeeklySeconds !== total &&
-              <span className="work-plan-total-label" title={durationText(resolved.projectedWeeklySeconds)}>
-                {copy.expectedTotal} {durationText(resolved.projectedWeeklySeconds, false)}
+            {scope === "week" && projectedDifference !== 0 &&
+              <span className="work-plan-total-label work-plan-projected-difference" title={copy.projectedDifference(durationText(Math.abs(projectedDifference)), projectedDifference > 0)}>
+                {copy.projectedDifference(durationText(Math.abs(projectedDifference), false), projectedDifference > 0)}
               </span>}
           </span>
         </div>
@@ -177,20 +181,20 @@ export function PlanEditor({
           </div>
         </fieldset>
         )}
-        {scope === "week" && special && (different || canReset) && (
+        {scope === "week" && (needsCompletion || (special && canReset)) && (
           <div className="work-plan-actions">
             <span>{different
               ? copy.difference(durationText(defaultTotal, false), durationText(Math.abs(plannedTotal - defaultTotal), false), plannedTotal < defaultTotal)
-              : copy.customDistribution}</span>
+              : needsCompletion ? copy.balancePlan : copy.customDistribution}</span>
             <div>
-              {different && <button type="button" className="work-plan-complete" disabled={!ready || !completedPlan}
+              {needsCompletion && <button type="button" className="work-plan-complete" disabled={!ready || !completedPlan}
                 aria-describedby={!completedPlan ? `${id}-capacity` : undefined}
                 onClick={() => { if (completedPlan) onSave(completedPlan, defaultTotal, leaveDays); }}>{copy.complete((defaultTotal / 3600).toLocaleString("tr-TR"))}</button>}
               {canReset && <button type="button" className="work-plan-reset" disabled={!ready} onClick={onReset}>{copy.reset}</button>}
             </div>
           </div>
         )}
-        {scope === "week" && different && !completedPlan &&
+        {needsCompletion && !completedPlan &&
           <p id={`${id}-capacity`} className="work-plan-capacity">{copy.capacity}</p>}
       </div>
     </Modal>

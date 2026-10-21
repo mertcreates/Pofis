@@ -23,7 +23,7 @@ Varsayılan veya özel hafta planında belirlenen günlük çalışma süresi.
 Güncel gereken çalışma süresi; haftalık hedef ve tamamlanan günlerin kayıtlarıyla dengelenmiş günlük hedef.
 
 **Devir**:
-Tamamlanan günlerin gerçekleşen süreleri ile kayıtlı günlük planları arasındaki net farkın kalan uygun günlere aktarılması.
+Tamamlanan günlerin gerçekleşen süreleri ile kayıtlı günlük planları arasındaki net farkın plan politikasına göre değerlendirilmesi. Eksik süre kalan uygun günlere aktarılır; güncel politikada fazla süre ayrı gösterilir ve kalan günlük planlar korunur. Otomatik azaltma `WORK_PLAN_POLICY.autoReduceSurplus` ile açılabilir.
 
 **Haftalık hedef**:
 Hafta için belirlenen, izin karşılıkları düşülmüş toplam çalışma süresi.

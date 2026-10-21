@@ -14,6 +14,7 @@ export type WorkPlans = {
   weekZeroOpenDays?: Record<string, readonly number[]>;
 };
 export const PLAN_LIMITS = Object.freeze({ stepMinutes: 30, maxDailyMinutes: 960 });
+export const WORK_PLAN_POLICY = Object.freeze({ autoReduceSurplus: false });
 export const DEFAULT_WORK_PLAN: WorkPlan = Object.freeze([480, 480, 480, 480, 480, 0, 0]);
 const NO_PLAN_DAYS: readonly number[] = Object.freeze([]);
 
@@ -197,7 +198,7 @@ export function planAdjustmentDays(days: readonly PlanDay[], plan: WorkPlan, wee
     days.find(day => day.date === date)?.state !== "uncertain");
 }
 
-export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today: string, partial = false, targetSeconds = weeklyTarget(plan), zeroOpenDays: readonly number[] = []) {
+export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today: string, partial = false, targetSeconds = weeklyTarget(plan), zeroOpenDays: readonly number[] = [], autoReduceSurplus: boolean = WORK_PLAN_POLICY.autoReduceSurplus) {
   const week = weekStart(days[0]?.date ?? today);
   const completed = completedDaySeconds(days, week, today);
   const workingDays = plan.map((_, day) => isOpenPlanDay(plan, day, zeroOpenDays));
@@ -206,7 +207,7 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
   const required = plan.map(minutes => Math.round(minutes * 60));
   let unallocatedSeconds = completed.reduce<number>((sum, seconds, index) =>
     seconds === null ? sum : sum + Math.round(plan[index] * 60) - seconds, targetSeconds - weeklyTarget(plan));
-  if (!partial) {
+  if (!partial && (unallocatedSeconds > 0 || autoReduceSurplus)) {
     for (const index of [...openDays].reverse()) {
       const next = Math.max(0, Math.min(PLAN_LIMITS.maxDailyMinutes * 60, required[index] + unallocatedSeconds));
       unallocatedSeconds -= next - required[index];

@@ -64,6 +64,7 @@
 .work-plan-total {
   display: inline-flex;
   align-items: baseline;
+  justify-content: flex-end;
   flex-wrap: wrap;
   gap: 8px;
   margin-left: auto;
@@ -72,6 +73,7 @@
   color: var(--ink);
 }
 .work-plan-total-label { font-size: 12px; font-weight: 400; color: var(--secondary); }
+.work-plan-projected-difference { flex-basis: 100%; text-align: right; }
 .work-plan-total s { font-size: 12px; color: var(--muted); font-weight: 400; }
 .work-plan-days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .work-plan-day {

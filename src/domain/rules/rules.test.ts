@@ -130,9 +130,9 @@ test("seçili gün, eksik kayıt ve son çalışma günü aynı plan sahibinden 
   expect(view).toMatchObject({
     blocked: false,
   });
-  expect(view.days[4].source.exitGoalSeconds).toBe(25200);
-  expect(targetExitAt(at("08:00:00").getTime(), 25200)).toBe(
-    at("15:00:00").getTime(),
+  expect(view.days[4].source.exitGoalSeconds).toBe(28800);
+  expect(targetExitAt(at("08:00:00").getTime(), 28800)).toBe(
+    at("16:00:00").getTime(),
   );
   const missing = presentReport({ ...report, passages: passages as Report["passages"] }, plan, at("15:00:00").getTime(), false);
   expect(missing.blocked).toBe(true);

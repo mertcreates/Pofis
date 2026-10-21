@@ -1,10 +1,15 @@
 import { expect, test } from "bun:test";
 import {
   DEFAULT_WORK_PLAN, changeDefaultPlan, changeWeekPlan, completeWeekPlan, editRequiredMinutes,
-  emptyWorkPlans, readDayPlan, resolveStoredPlan, resolveStoredTarget, resolveWeekPlan, resolveLeaveDays,
+  emptyWorkPlans, readDayPlan, resolveStoredPlan, resolveStoredTarget, resolveWeekPlan as resolvePlan, resolveLeaveDays,
   type WorkPlans, type PlanDay,
 } from "./work-plan";
 import { readStoredPlans, serializePlans } from "@/lib/plan-storage.js";
+
+// Geri dönüş sözleşmesi: mevcut dağıtım senaryoları azaltma açıkken doğrulanır.
+function resolveWeekPlan(...args: Parameters<typeof resolvePlan>) {
+  return resolvePlan(args[0], args[1], args[2], args[3], args[4], args[5], true);
+}
 
 const week = "2026-10-12";
 function source(hours: readonly (number | null)[]): PlanDay[] {

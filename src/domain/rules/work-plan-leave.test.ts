@@ -2,9 +2,14 @@ import { expect, test } from "bun:test";
 import {
   DEFAULT_WORK_PLAN, changeDefaultPlan, changeWeekPlan, completeWeekPlan, completedDaySeconds,
   editRequiredMinutes, emptyWorkPlans, readDayPlan, readLeaveDays, referenceWeekTarget,
-  resolveLeaveDays, resolveStoredPlan, resolveStoredTarget, resolveWeekPlan, type WorkPlans,
+  resolveLeaveDays, resolveStoredPlan, resolveStoredTarget, resolveWeekPlan as resolvePlan, type WorkPlans,
 } from "./work-plan";
 import type { DayState } from "./record-status";
+
+// Geri dönüş sözleşmesi: mevcut dağıtım senaryoları azaltma açıkken doğrulanır.
+function resolveWeekPlan(...args: Parameters<typeof resolvePlan>) {
+  return resolvePlan(args[0], args[1], args[2], args[3], args[4], args[5], true);
+}
 
 const week = "2026-10-12";
 const today = "2026-10-15";

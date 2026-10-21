@@ -36,7 +36,7 @@
 | Haftalık planda izinli yapılan gün | O günün güncel şablon karşılığı düşülür | Süre almaz |
 | Açık gün, gereken süresi 0 | Hedef aynı kalır | Kayıt veya plan değiştiğinde yeniden süre alabilir |
 
-İlk iki durumda gün kapalıdır. Üçüncü durumda gereken süre sıfırdır ve gün açıktır. Örneğin 40 saat hedefli haftada Pzt–Per toplamı 40 saatse açık Cuma'nın gereken süresi 0 olur; kayıt toplamı 39 saate düzeltilirse Cuma'ya 1 saat düşer. Cuma'yı izinli yapmak ise 8 saatlik şablonda hedefi 32 saate indirir.
+İlk iki durumda gün kapalıdır. Üçüncü durumda gereken süre sıfırdır ve gün açıktır. Örneğin kullanıcı Tamamla ile Cuma'yı açık ve 0 saat kaydetmişse, Pzt–Per toplamı 40 saatten 39 saate düzeltildiğinde Cuma'ya 1 saat düşer. Güncel politikada Pzt–Per toplamının 40 saate ulaşması, planlanan 8 saatlik Cuma'yı korur; beklenen toplam 48 saat ve fazla süre 8 saattir. Cuma'yı izinli yapmak ise 8 saatlik şablonda hedefi 32 saate indirir.
 
 ### Varsayılan şablon değişikliği
 
@@ -78,15 +78,24 @@ bakiye = haftalık hedef − günlük plan toplamı
 gereken süreler başlangıçta günlük plan süreleridir
 ```
 
-Bakiye son uygun günden geriye doğru uygulanır. Her gereken süre 0–16 saat aralığında tutulur; o günün sınırı aşılırsa kalan bakiye önceki uygun güne aktarılır. `unallocatedSeconds`, dağıtım sonunda kalan bakiyedir: pozitif değer eksik, negatif değer fazla süreyi gösterir.
+Pozitif bakiye (eksik süre), son uygun günden geriye doğru uygulanır. Her gereken süre 0–16 saat aralığında tutulur; o günün sınırı aşılırsa kalan bakiye önceki uygun güne aktarılır. `unallocatedSeconds`, dağıtım sonunda kalan bakiyedir: pozitif değer eksik, negatif değer fazla süreyi gösterir.
+
+Fazla sürenin otomatik azaltılmasını aynı modüldeki `WORK_PLAN_POLICY.autoReduceSurplus` yönetir:
+
+| Ayar | Negatif bakiye (fazla süre) |
+| --- | --- |
+| `false` (güncel) | Kalan günlerin kayıtlı plan süreleri korunur; fazla süre negatif bakiyede ve modalın bilgilendirmesinde gösterilir |
+| `true` | Önceki davranış: fazla süre son uygun günden geriye doğru, günlük alt sınır 0 olacak şekilde düşülür |
+
+Önceki davranışı geri açmak için yalnız bu sabiti `true` yapın. Modal, rapor, günlük hedef, hedef çıkış ve Pofi ortak hesabı kullanır. Ayar uygulama politikasıdır; kullanıcı ayarı veya kalıcı plan alanı değildir. `resolveWeekPlan` son parametresiyle her iki davranış izole testlerde doğrulanır. Eksik süre dağıtımı iki ayarda da sürer. Kullanıcının elle azaltma ve Tamamla eylemleri kendi sözleşmeleriyle çalışır.
 
 Tam hafta hesabında `beklenen toplam + unallocatedSeconds = haftalık hedef` eşitliği korunur. Kalan uygun gün veya kapasite bulunmadığında fark bu bakiyede kalır.
 
 Aynı plan, kayıt, tarih ve haftalık hedef aynı sonucu üretir. Otomatik hesap güncel planı okuyarak sonuç döndürür; kalıcı kayıt kullanıcı düzenlemesinde yapılır. Dağıtım sırası her gün seçiminde aynı kurala göre belirlenir. Elle düzenleme sonrasında da kalan bakiye aynı sırayla uygulanır; kapasite sınırlarında elle düzenlenen günün gereken süresi yeniden değişebilir. İzinli günler dağıtıma katılmaz.
 
-Gereken sürenin otomatik olarak sıfıra inmesi günün açık durumunu korur. Elle düzenleme veya Tamamla sonucu kaydedilirken sıfır süreli açık gün işareti saklanır. Kayıtlar sonraki gün değiştiğinde bu gün yeniden borç alabilir. Örnek: Pzt–Çar toplam 32 sa, Per gereken 8 sa, Cum gereken 0 iken Per 7,5 saate ayarlanırsa hedef 39,5 sa olur. Per gerçekleşeni ertesi gün 7 sa olduğunda Cum gereken 30 dk olur.
+Tamamla veya önceki otomatik azaltma politikasıyla sıfıra inen gereken süre günün açık durumunu korur. Elle düzenleme veya Tamamla sonucu kaydedilirken sıfır süreli açık gün işareti saklanır. Kayıtlar sonraki gün değiştiğinde bu gün yeniden borç alabilir. Örnek: Pzt–Çar toplam 32 sa, Per gereken 8 sa, Cum gereken 0 olarak kayıtlıyken Per 7,5 saate ayarlanırsa hedef 39,5 sa olur. Per gerçekleşeni ertesi gün 7 sa olduğunda Cum gereken 30 dk olur.
 
-Örnek: Pzt 6 saat plan/5,5 saat kayıt, Sal 10 saat, Çar–Cum 8 saat → Sal 10 saat, Cum gereken 8,5 saat, haftalık hedef 40 saat. Pzt 6,5 saat çalışılsaydı Cum gereken 7,5 saat olurdu.
+Örnek: Pzt 6 saat plan/5,5 saat kayıt, Sal 10 saat, Çar–Cum 8 saat → Sal 10 saat, Cum gereken 8,5 saat, haftalık hedef 40 saat. Pzt 6,5 saat çalışılsaydı güncel ayarda Cum 8 saat kalır; beklenen toplam 40,5 saat ve fazla süre 30 dakika olur. `autoReduceSurplus: true` iken Cum gereken 7,5 saattir.
 
 ## Elle haftalık düzenleme ve sıfırlama
 
@@ -104,12 +113,12 @@ Haftalık düzenlemede günü kapatmak veya süresini elle sıfıra indirmek o g
 
 Sıfırla, tamamlanmamış günlerin izinlerini kaldırıp günleri şablona döndürür. Hedef güncel şablon toplamıdır; tamamlanmış izinli gün varsa onun şablon karşılığı düşülür. Tamamlanan günlerin izin işaretleri, kayıtlı planları ve gerçekleşen süreleri korunur. Otomatik devir yeniden hesaplanır; seçili gün sıfırlama sonucunu etkilemez. Aynı şablon ve kayıtlarla tekrar sıfırlama aynı sonucu verir.
 
-Örnek: Pzt–Çar 26 sa 40 dk kayıt, Per 8 sa, Cum planı 7,5 sa → Cum gereken 4 sa 50 dk, haftalık hedef 39 sa 30 dk. Bu başlangıçtan:
+Örnek: Pzt–Çar 26 sa 40 dk kayıt, Per 8 sa, Cum planı 7,5 sa → Cum gereken 7 sa 30 dk, haftalık hedef 39 sa 30 dk, beklenen toplam 42 sa 10 dk ve fazla süre 2 sa 40 dk. Bu başlangıçtan:
 
 | Kullanıcı eylemi | Sonuç |
 | --- | --- |
-| Cuma gereken süreyi 5 saate ayarlamak | Cum 5 sa, Per 8 sa, haftalık hedef 39 sa 40 dk |
-| Cuma’yı izinli yapmak | Cum 0, Per 4 sa 50 dk, haftalık hedef 31 sa 30 dk; şablondaki 8 saat düşülür |
+| Cuma gereken süreyi 5 saate ayarlamak | Cum 5 sa, Per 8 sa, haftalık hedef 37 sa; fazla süre 2 sa 40 dk olarak kalır |
+| Cuma’yı izinli yapmak | Cum 0, Per 8 sa, haftalık hedef 31 sa 30 dk; şablondaki 8 saat düşülür, fazla süre 3 sa 10 dk olur |
 
 Şablon 9 × 5 ve Pzt–Çar toplamı 26 sa 40 dk ise Cuma izni 9 saat düşürür: hedef 36 sa, Per gereken 9 sa 20 dk olur.
 
@@ -119,7 +128,7 @@ Kapasite örneği: hedef 40 sa, Pzt–Çar gerçekleşeni 6 sa, Per/Cum gereken 
 
 ## İzin sonrası referans hedefe tamamlama
 
-`completeWeekPlan`, beklenen toplamı izin sonrası referans hedefe getirir. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır. Kilitli, izinli, kapalı, geçmiş veya belirsiz günler uygunluk kuralıyla korunur.
+`completeWeekPlan`, beklenen toplamı izin sonrası referans hedefe getirir. Haftalık hedef veya beklenen toplam bu referanstan farklıysa modal Tamamla eylemini gösterir; standart 40 saatlik plandaki fazla süre de bu kapsamdadır. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır. Kilitli, izinli, kapalı, geçmiş veya belirsiz günler uygunluk kuralıyla korunur.
 
 | Yön | Dağıtım |
 | --- | --- |
@@ -140,7 +149,7 @@ Otomatik devir, mevcut haftalık hedefe göre kendiliğinden hesaplanır. Tamaml
 
 [report.ts](../../src/domain/report.ts), `resolveWeekPlan.targets` değerlerini günlük `dailyGoalSeconds` ve `exitGoalSeconds` alanlarına taşır. `workingDay` günlük açık durumunu taşır; kayıt durumu, grafik, tablo ve ilerleme bu alanı kullanır. Kayıtlı plan ve haftalık hedef [use-work-plans](../../src/data/use-work-plans.ts) sahibinden alınır; metrikler haftalık hedefi doğrudan kullanır. Dashboard, gün akışı, tablo ve Pofi aynı gereken süreyi kullanır. Hedef çıkış, ilk giriş + gereken süredir; bu çıkış hesabı için tam hafta raporu ve bugünün güvenilir kayıt durumu gerekir.
 
-Modalda tamamlanan gün gerçekleşeni, izinli gün “İzinli”, diğer açık hafta günleri gereken süreyi gösterir. Varsayılan sekmesi şablonu düzenler. Haftalık ana toplam hedeftir; beklenen toplam farklıysa ayrıca gösterilir. Hafta sonu PDKS kayıtları gerçekleşen/beklenen toplama katılır; plan değerleri sıfır kalır.
+Modalda tamamlanan gün gerçekleşeni, izinli gün “İzinli”, diğer açık hafta günleri gereken süreyi gösterir. Varsayılan sekmesi şablonu düzenler. Ana değer “Haftalık hedef” olarak gösterilir; beklenen toplam farklıysa ikinci satır “Plan gerçekleşirse: hedefin … üzerinde/altında” ile farkı gösterir. Güncel ayarda negatif bakiye ve izin sonrası referansla aynı haftalık hedef, “Beklenen toplam, haftalık hedefin … üzerinde. Kalan günlerin planı korunuyor.” bilgilendirmesini üretir. Haftalık hedef bu referanstan farklıysa üstteki fazla süre bildirimi gizlenir; beklenen toplam, alt bölümdeki hedef farkı ve Tamamla eylemi güncel hesapla çalışır. Otomatik azaltma açıkken dağıtılamayan fazla veya her iki ayarda dağıtılamayan eksik süre kapasite uyarısıyla gösterilir. Hafta sonu PDKS kayıtları gerçekleşen/beklenen toplama katılır; plan değerleri sıfır kalır.
 
 Geçmiş kayıtsız veya belirsiz günün gerçekleşeni devir toplamına katılmaz; o günün plan süresi beklenen toplamda kalır. Bugünün kayıtları gün içinde açık/kapalı giriş durumuyla gösterilir; günlük fark ertesi gün kayıt tamamlandığında devre girer. Rapor haftanın yalnız bir bölümünü kapsıyorsa otomatik devir uygulanmaz ve hedef çıkış üretilmez. Bu durumların kayıt etiketleri [kayıt durumu sözleşmesindedir](record-status.md).
 
