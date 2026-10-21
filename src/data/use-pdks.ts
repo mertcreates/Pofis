@@ -8,6 +8,8 @@ import { toRequestFailure, type PdksOperation } from "@/lib/pdks-failure";
 import { addDays } from "@/domain/rules/calendar";
 import { readReportResponse } from "./report-response";
 import { initialPdksState, pdksReducer } from "./pdks-state";
+import { setAnalyticsUserId } from "@/lib/analytics";
+import { readAnalyticsUserId } from "@/lib/analytics-identity";
 
 export function usePdks(week: string) {
   const [state, dispatch] = useReducer(pdksReducer, initialPdksState);
@@ -19,6 +21,7 @@ export function usePdks(week: string) {
   const fail = useCallback((error: unknown, operation: PdksOperation) => {
     const failure = toRequestFailure(error, operation);
     if (failure.kind === "session-expired") {
+      setAnalyticsUserId(null);
       requests.cancel();
       generation.current++;
     }
@@ -37,7 +40,9 @@ export function usePdks(week: string) {
     try {
       const result = await api("/api/session", { signal });
       if (signal?.aborted || id !== generation.current) return;
-      dispatch({ type: "session-checked", connected: readSessionResponse(result, "/api/session", "GET") });
+      const sessionConnected = readSessionResponse(result, "/api/session", "GET");
+      if (!sessionConnected) setAnalyticsUserId(null);
+      dispatch({ type: "session-checked", connected: sessionConnected });
     } catch (error) {
       if (!signal?.aborted && id === generation.current) fail(error, "session");
     }
@@ -50,6 +55,7 @@ export function usePdks(week: string) {
       controller.abort();
       requests.cancel();
       generation.current++;
+      setAnalyticsUserId(null);
     };
   }, [checkSession, requests]);
 
@@ -62,7 +68,9 @@ export function usePdks(week: string) {
         `/api/report?${new URLSearchParams({ person: "self", from: week, to: addDays(week, 6) })}`,
       );
       if (!result || id !== generation.current) return;
-      dispatch({ type: "report-loaded", report: readReportResponse(result, week, addDays(week, 6)) });
+      const nextReport = readReportResponse(result, week, addDays(week, 6));
+      setAnalyticsUserId(readAnalyticsUserId(result));
+      dispatch({ type: "report-loaded", report: nextReport });
     } catch (error) {
       if (id === generation.current) fail(error, "report");
     }
@@ -90,6 +98,7 @@ export function usePdks(week: string) {
       });
       if (id !== generation.current) return;
       readSessionResponse(result, "/api/session", "POST");
+      setAnalyticsUserId(null);
       dispatch({ type: "connected" });
     } catch (error) {
       if (id === generation.current) fail(error, "connect");
@@ -106,17 +115,24 @@ export function usePdks(week: string) {
     mutationInFlight.current = true;
     const id = ++generation.current;
     requests.cancel();
+    const previousUserId = readAnalyticsUserId(report);
+    setAnalyticsUserId(null);
     dispatch({ type: "started", operation: "disconnect" });
     try {
       const result = await api("/api/session", { method: "DELETE" });
       readSessionResponse(result, "/api/session", "DELETE");
       if (id === generation.current) dispatch({ type: "disconnected" });
     } catch (error) {
-      if (id === generation.current) fail(error, "disconnect");
+      if (id === generation.current) {
+        fail(error, "disconnect");
+        if (toRequestFailure(error, "disconnect").kind !== "session-expired") {
+          setAnalyticsUserId(previousUserId);
+        }
+      }
     } finally {
       mutationInFlight.current = false;
     }
-  }, [fail, requests]);
+  }, [fail, requests, report]);
 
   const retryFailure = useCallback(() => {
     if (!state.failure || state.failure.recovery !== "retry") return;

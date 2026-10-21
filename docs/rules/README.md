@@ -61,6 +61,7 @@ Oklar bir kuralın sonucunun nerede kullanıldığını gösterir. Rapor uyarlam
 | Pofi notları | [İçerik yönetim rehberi](../pofi-notes.md): katalog, tek havuz ve seçim motorunun sahipleri; [kaynak adaptörü](../../src/server/pdks.js) hesap anahtarını üretir; [sunucu](../../src/server/pofi-notes.js) not seçimine bağlar |
 | Plan kalıcılığı | [plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulama; [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamı; [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonra durum güncelleme |
 | Tema | [theme](../../src/lib/theme.js) tercih değerleri ve `pofis:theme:v1` depolama anahtarı; [use-appearance](../../src/data/use-appearance.ts) işletim sistemi ve depolama olayları |
+| Kullanım ölçümü | [analytics](../../src/lib/analytics.ts): sabit GA4 alanları ve başlangıç; [ölçüm sözleşmesi](../analytics.md) akış ayarlarını ve veri sınırlarını yönetir |
 | Metin ve marka | [ui-text](../../src/lib/ui-text.js), [ton rehberi](../brand/pofi-tone-guide.md) ve [görsel kaynaklar](../brand/assets.md) |
 | Kaynak tazeliği ve istek yaşamı | [use-pdks](../../src/data/use-pdks.ts): başarısız yenilemede eski rapor, geç kalan yanıtın ayrılması ve oturum bitişinde temizleme |
 | PDKS hata sözleşmesi | [pdks-failure](../../src/lib/pdks-failure.ts): ortak sınıflandırma ve toparlanma; [hata sözleşmesi](../pdks-errors.md) taşıma, durum ve sunum sahiplerini açıklar |

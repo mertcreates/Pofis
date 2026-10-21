@@ -28,6 +28,8 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 
 ## Capabilities and Constraints
 
+- Üretim web ve masaüstü sürümlerinde [GA4 kullanım ölçümü](docs/analytics.md) otomatik çalışır; sabit sayfa alanları ve paket sürümü gönderilir. Doğrulanmış kendi raporundan sonra Pofi anahtarından türetilen ayrı `user_id` hesabı oturumlar ve cihazlar arasında eşleştirir. Ad-soyad, PDKS giriş bilgileri ve mesai kayıtları olay alanlarına bağlanmaz.
+
 - Gerçekleşen mesainin kaynağı kişisel turnike hareketleridir. Seçilen haftanın bütün sayfaları alınır. Kullanıcı kişisel haftalık planında günleri izinli işaretleyebilir; izinler uygulamadaki kişisel plan hedefini günceller.
 - [Kayıtlı süre](docs/rules/recorded-time.md) ara molalar dahil ilk giriş–son çıkış aralığıdır. Güvenilir açık girişte [anlık tahmin](docs/rules/duration.md) üretilir. Eski raporda tahmin durur.
 - [Günlük kayıt durumu](docs/rules/record-status.md) kayıt bütünlüğünü hedef farkından ayrı değerlendirir. Eksik kayıt kendi kayıt durumu etiketiyle gösterilir; belirsizlik çıkış hedefini engelleyebilir.

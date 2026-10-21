@@ -12,6 +12,8 @@ Tek dağıtım kanalı ve mevcut üç manifest yolu kullanılır. Profil yolu, `
 
 ## Ortak platform sözleşmesi
 
+Üretim masaüstü arayüzü [GA4 kullanım ölçümünü](analytics.md) otomatik başlatır. Google etiketi hidrasyon sonrasında yüklenir; ağ erişimi engellendiğinde uygulama çalışmaya devam eder. Sabit rapor adresleri gerçek yerel origin'i değiştirmez.
+
 [Platform tanımı](../electron/platform.cjs) desteklenen işletim sistemi/mimariyi, executable adlarını, kaynak yollarını, çıktı dizinini ve `metadataFile` meta veri yolunu tek yerde belirler. Windows ve macOS ortak uygulama girişini ve iş mantığını kullanır. Her paket hedef işletim sisteminde hazırlanır. macOS'ta ARM64 Bun tek Next çıktısını iki hedefle paylaşır; Electron her hedefin kendi mimarisindedir. Hazırlama, Electron'un platform/mimarisini seçilen paket hedefiyle ve motor sürümünü kök bağımlılıktaki tam sürümle karşılaştırır; farklı hedef veya motor bulunursa paket kopyalanmadan durur. Intel runtime doğrulaması `PlistBuddy` ve `lipo -verify_arch x86_64` ile statik sözleşmeyle yapılır; diğer hedeflerde yerel dinamik sorgu kullanılır. `release.json` meta veri yolu platform tanımındaki `metadataFile` üzerinden ortak yönetilir.
 
 | Hedef | Uygulama | Paket çıktısı | Dağıtım manifesti |

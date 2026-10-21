@@ -33,6 +33,8 @@ Secure çerezi doğrudan HTTPS veya proxy'nin ilk `X-Forwarded-Proto` değeri `h
 
 ## Kullanan yerler
 
+Kendi raporuna eklenen analytics kimliği ve istemcide temizlenmesi [ölçüm sözleşmesinde](../analytics.md#hesap-kimliği) yönetilir. Oturum token'ı, TTL ve Pofi hesap anahtarının sahipliği korunur.
+
 - [session-manager.js](../../src/server/session-manager.js): giriş, geri yükleme, TTL ve iptal.
 - [session-storage.js](../../src/server/session-storage.js): dosya kalıcılığı.
 - [http.js](../../src/server/http.js): çerez ve giriş sınırları.

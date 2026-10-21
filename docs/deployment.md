@@ -12,6 +12,8 @@ Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Her kullanıc
 
 ## Çalışma zamanı ayarları
 
+Üretim arayüzünde [GA4 kullanım ölçümü](analytics.md) otomatik çalışır. Aktif kendi raporu, Pofi anahtarından türetilen ayrı hesap kimliğini de taşır; ek kalıcı depo veya ortam sırrı gerekmez. İstemcinin Google etiketine ve ölçüm uçlarına HTTPS erişimi gerekir; kurum ağında bu erişim kapalıysa uygulama çalışır, kullanım ölçümü ulaşmaz.
+
 | Ayar                  | Değer / görev                                                                                                                                                                |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `TZ`                  | `Europe/Istanbul`; Dockerfile içinde TZ ve tzdata kurulumu tanımlı                                                                                                           |

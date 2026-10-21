@@ -10,6 +10,7 @@ import "@/components/request-error.css";
 import "@/components/inline-notice.css";
 import { themeInitScript } from "@/lib/theme.js";
 import { ui } from "@/lib/ui-text.js";
+import { GoogleAnalytics } from "@/components/google-analytics";
 
 export const metadata: Metadata = {
   title: "Pofis · Mesaiye biraz Pofi.",
@@ -38,6 +39,7 @@ export default function RootLayout({
       </head>
       <body>
         {children}
+        {process.env.NODE_ENV === "production" && <GoogleAnalytics />}
         <Script id="quiet-nod">
           {
             `if (!window._q) { window._q = true; window.console?.['log'](${JSON.stringify(ui.consoleNote)}); }`

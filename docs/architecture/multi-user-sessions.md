@@ -29,6 +29,8 @@ Bozuk dosyada ilgili kullanıcı yeniden giriş yapar; diğer kullanıcıların 
 
 ## Kaynak istekleri
 
+Aktif oturumun kendi raporu, Pofi hesap anahtarından sunucuda türetilen `analyticsUserId` alanını da taşır. Pofi anahtarı sunucuda kalır; istemci bu ayrı kimliği GA4 hesabını eşleştirmek için kullanır. Kimlik ilk başarılı rapordan sonra etkinleşir; çıkış, hesap değişimi ve doğrulanmış oturum bitişinde temizlenir. Ayrıntılar [ölçüm sözleşmesindedir](../analytics.md#hesap-kimliği).
+
 Giriş, `PizzyMain.aspx` profilindeki kişi bilgisiyle doğrulanır. Mesai raporu seçili haftanın kişisel turnike hareketlerini alır, bütün sayfaları birleştirir ve API'de zorunlu `passages` olarak sunar. Günlük ilk giriş–son çıkış ve süreler [kayıtlı süre sahibinde](../rules/recorded-time.md), açık giriş güvenilirliği [geçiş sahibinde](../rules/passages.md) çözülür. Başarılı girişte üretilen `self.pofiKey`, Pofi notları için sunucu oturumunda korunur ve diskten aynı değerle yüklenir. Kalıcı hesap bilgisi `self.pofiKey` alanıyla sınırlıdır. Anahtarı olmayan oturumlar yeniden girişle hesap anahtarını alır. [Anahtar sözleşmesi](../pofi-notes.md#hesap-anahtarı).
 
 Farklı kullanıcıların istekleri ortak bir sıra beklemeden başlar. Aynı oturumdaki WebForms işlemleri kendi istemcisinde sıralanır; diğer oturumlar bağımsız çalışır. Her HTTP isteğinde 30 saniyelik zaman aşımı ve oturumun iptal sinyali uygulanır. Aynı oturum/aralıktaki başarılı rapor 20 saniye ilgili istemcinin belleğinde tutulur; önbellek her istemciye özeldir. Ayrıntılar [kaynak sözleşmesinde](../rules/source-policy.md).

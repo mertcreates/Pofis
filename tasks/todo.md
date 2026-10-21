@@ -20,6 +20,9 @@ Tamamlanan işleri listeden çıkarın. Davranış sözleşmeleri [kural haritas
 
 ## Kurum dağıtımı
 
+- [ ] GA4 `G-MV4MG71CDB` akışında Geliştirilmiş ölçümü kapat; Raporlama kimliğini User-ID içeren Gözlemlenen veya Harmanlanmış olarak ayarla ve `app_release` olay boyutunu tanımla. Yetkili yayın sonrasında Anlık rapor/Kullanıcı keşfinde web/masaüstü kimliklerini doğrula. [Ölçüm sözleşmesi](../docs/analytics.md). Yerel üretim/Electron kabulü ölçüm isteklerini iptal ederek alanları ve hesap geçişlerini denetler; canlı akışa test verisi göndermez.
+- [ ] Üretim öncesinde kullanıcıya sunulan veri bilgilendirmesine otomatik GA4 ölçümünü ve takma hesap kimliğini ekle; kapsamı [ölçüm sözleşmesiyle](../docs/analytics.md) eşleştir.
+
 - [ ] Docker imajını hedef ortamda derle ve çalıştır; TZ, dinleme adresi ve volume izinlerini kontrol et.
 - [ ] Dış HTTPS/ingress üzerinden giriş → rapor → yenileme → çıkış zincirini ve çerez niteliklerini doğrula.
 - [ ] Süreç/pod yeniden başlatmasında kalıcı oturumla devamı; disk hatalarının ve izinlerin işletim davranışını doğrula.

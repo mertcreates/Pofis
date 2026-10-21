@@ -9,6 +9,7 @@ import { PdksError } from "@/server/pdks.js";
 import { ui } from "@/lib/ui-text.js";
 import { dateKey } from "@/domain/rules/calendar";
 import { pofiNotesForWeek } from "@/server/pofi-notes.js";
+import { analyticsUserIdForAccount } from "@/server/analytics-identity";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -36,6 +37,7 @@ export async function GET(request) {
     assertSessionActive(session);
     return json({
       ...report,
+      analyticsUserId: analyticsUserIdForAccount(person.pofiKey),
       pofiNotes: pofiNotesForWeek(dateKey(Date.now()), person.pofiKey),
     });
   } catch (error) {

@@ -14,6 +14,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Ortak Windows/macOS Electron altyapısı, paketleme, kurulum ve kabul durumu | [Masaüstü](desktop.md) |
 | Üç platformlu GitHub Actions release, Cloudflare Workers ayarları ve HTTPS kabulü | [Sürüm yayını](release.md) |
 | Demo verisi, saat ve gezinme | [Mesaim demosu](demo.md) |
+| GA4 akışı ve kullanım ölçümünün veri sınırları | [Kullanım ölçümü](analytics.md) |
 | Pofi içeriği ve tek havuz seçimi | [Pofi notları](pofi-notes.md) |
 | Pofi dili ve görselleri | [Ton rehberi](brand/pofi-tone-guide.md), [görsel kaynaklar](brand/assets.md) |
 | Arayüz bileşenleri ve sorumlulukları | [Arayüz sahipleri](architecture/ui-components.md) |

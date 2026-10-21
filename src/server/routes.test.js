@@ -14,6 +14,7 @@ import {
 import { GET as report } from "../app/api/report/route.js";
 import { POST as heartbeat } from "../app/api/session/heartbeat/route.js";
 import { PdksClient, PdksError, PASSAGES_PATH } from "./pdks.js";
+import { analyticsUserIdForAccount } from "./analytics-identity";
 
 test("geliştirme yenilemesinde kalan eski yönetici raporda 500 yerine yeniden giriş ister", async () => {
   const key = Symbol.for("pofis.session-manager:account-key-v1");
@@ -69,7 +70,7 @@ test("menüsüz gerçek istemciyle giriş → rapor → Pofi notları diskten y�
   try {
     firstManager = createSessionManager({ storage, createClient });
     globalThis[key] = firstManager;
-    for (const username of ["manager-fixture", "employee-fixture"]) {
+    for (const username of ["manager-fixture", "employee-fixture", " manager-fixture@trt.net.tr "]) {
       const response = await connect(new NextRequest("http://localhost:3000/api/session", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password: "private-fixture-password" }),
@@ -80,6 +81,15 @@ test("menüsüz gerçek istemciyle giriş → rapor → Pofi notları diskten y�
     const first = await report(lookup(tokens[0]));
     expect(first.status).toBe(200);
     const body = await first.json();
+    expect(first.headers.get("Cache-Control")).toBe("no-store");
+    expect(body.analyticsUserId).toBe(analyticsUserIdForAccount(records.get(tokens[0]).self.pofiKey));
+    const secondAccount = await (await report(lookup(tokens[1]))).json();
+    expect(secondAccount.analyticsUserId).not.toBe(body.analyticsUserId);
+    const sameAccount = await (await report(lookup(tokens[2]))).json();
+    expect(tokens[2]).not.toBe(tokens[0]);
+    expect(sameAccount.analyticsUserId).toBe(body.analyticsUserId);
+    expect(sameAccount.pofiNotes).toEqual(body.pofiNotes);
+    expect(JSON.stringify(body)).not.toContain(records.get(tokens[0]).self.pofiKey);
     expect(body.person).toEqual({ id: "self", name: "Same Name", unit: "", title: "" });
     expect(body.pofiNotes.length).toBeGreaterThan(0);
     expect(records.get(tokens[0]).self.pofiKey).not.toBe(records.get(tokens[1]).self.pofiKey);
@@ -93,7 +103,9 @@ test("menüsüz gerçek istemciyle giriş → rapor → Pofi notları diskten y�
     globalThis[key] = restoredManager;
     const restored = await report(lookup(tokens[0]));
     expect(restored.status).toBe(200);
-    expect((await restored.json()).pofiNotes).toEqual(body.pofiNotes);
+    const restoredBody = await restored.json();
+    expect(restoredBody.pofiNotes).toEqual(body.pofiNotes);
+    expect(restoredBody.analyticsUserId).toBe(body.analyticsUserId);
     await disconnect(lookup(tokens[0]));
     expect((await report(lookup(tokens[0]))).status).toBe(401);
     expect((await report(lookup(tokens[1]))).status).toBe(200);
