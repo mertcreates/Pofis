@@ -13,7 +13,7 @@ import { ui } from "@/lib/ui-text.js";
 import { GoogleAnalytics } from "@/components/google-analytics";
 
 export const metadata: Metadata = {
-  title: "Pofis · Mesaiye biraz Pofi.",
+  title: "Pofis · Mesaiye biraz Pofi",
   description: "Mesai kayıtları ve çalışma süresi takibi.",
   icons: {
     icon: "/pofi/pofi-mark-256.png",
@@ -42,7 +42,7 @@ export default function RootLayout({
         {process.env.NODE_ENV === "production" && <GoogleAnalytics />}
         <Script id="quiet-nod">
           {
-            `if (!window._q) { window._q = true; window.console?.['log'](${JSON.stringify(ui.consoleNote)}); }`
+            "if (!window._q) { window._q = true; window.console?.['log']('Buraya kadar geldiysen,\\nsen de küçük detayları seviyorsun demektir.\\n\\nBen de.\\n\\nMesaiye biraz Pofi\\nmertercan.com'); }"
           }
         </Script>
       </body>

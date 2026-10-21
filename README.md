@@ -1,6 +1,6 @@
 # Pofis
 
-Mesaiye biraz Pofi.
+Mesaiye biraz Pofi
 
 Next.js + React + Bun ile kişisel PDKS mesai takibi. Her kullanıcı kendi hesabıyla çalışır; tek uygulama ve tek özellik kapsamı vardır.
 

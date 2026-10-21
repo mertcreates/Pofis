@@ -1,6 +1,6 @@
 ---
 name: Pofis
-description: Mesaiye biraz Pofi.
+description: Mesaiye biraz Pofi
 colors:
   primary: "#6554c0"
   primary-hover: "#5140ab"

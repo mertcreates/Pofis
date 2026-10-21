@@ -42,7 +42,7 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 
 ## Brand Commitments
 
-Pofis / Pofi / “Mesaiye biraz Pofi.” Marka moru `#8b7bff`, özgün karakter ve [ton rehberi](docs/brand/pofi-tone-guide.md) korunur. Ekran yerleşimi ve bileşen görünümleri [DESIGN.md](DESIGN.md) belgesini izler; [arayüz sahipleri](docs/architecture/ui-components.md) bileşenlerin sorumluluklarını gösterir.
+Pofis / Pofi / “Mesaiye biraz Pofi”. Marka moru `#8b7bff`, özgün karakter ve [ton rehberi](docs/brand/pofi-tone-guide.md) korunur. Ekran yerleşimi ve bileşen görünümleri [DESIGN.md](DESIGN.md) belgesini izler; [arayüz sahipleri](docs/architecture/ui-components.md) bileşenlerin sorumluluklarını gösterir.
 
 ## Evidence on Hand
 

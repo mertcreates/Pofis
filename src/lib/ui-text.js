@@ -2,7 +2,7 @@ export const product = {
   wordmark: "pofis",
   name: "Pofis",
   mascotName: "Pofi",
-  tagline: "Mesaiye biraz Pofi.",
+  tagline: "Mesaiye biraz Pofi",
   creditLabel: "mertcreates.",
   creditUrl: "https://mertcreates.com",
 };
@@ -85,7 +85,6 @@ export const ui = {
     switchToDark: "Koyu görünüme geç",
   },
   pofiCall: ["Beni mi çağırdın?", "Buradayım."],
-  consoleNote: "Buraya da küçük bir not bıraktım.\n\nMesaiye biraz Pofi.\nmertercan.com",
   pofiWrongDoor: "Ben de yanlış kapıyı açmışım.",
   about: {
     title: "Pofis hakkında",
@@ -164,7 +163,7 @@ export const ui = {
       ["Ad", "Pofi"],
       ["Görev", "Mesai arkadaşı"],
       ["Uzmanlık alanı", "Küçük şeyleri fark etmek"],
-      ["İmza", "Mesaiye biraz Pofi.", "signature"],
+      ["İmza", "Mesaiye biraz Pofi", "signature"],
     ],
     workIntro: "Kendi tuttuğum küçük kayıtlar.",
     work: [
@@ -200,7 +199,7 @@ export const ui = {
   targetDifference: "Hedef farkı",
   targetEqual: "Hedefle aynı",
   recordsForDate: (date) => `${date} kayıtları`,
-  settings: "Ayarlar",
+  settings: "Mesai planı",
   updatedAt: (time) => `Son güncelleme: ${time}`,
   mainMenu: "Ana menü",
   openMenu: "Menüyü aç",

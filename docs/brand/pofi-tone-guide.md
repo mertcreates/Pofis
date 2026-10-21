@@ -3,7 +3,7 @@
 ## 1. Ürün kimliği
 
 **Ürün:** Pofis  
-**Slogan:** "Mesaiye biraz Pofi."  
+**Slogan:** "Mesaiye biraz Pofi"\
 **Maskot:** Pofi
 
 Pofis, mesai saatlerini ve PDKS kayıtlarını takip etmek için geliştirilmiş, gayriresmî fakat özenli bir üründür.
@@ -287,6 +287,6 @@ Gerektiğinde metinleri kısalt. Mizahı doğal anlatımın içinde kur.
 
 Pofis'in sloganı:
 
-**"Mesaiye biraz Pofi."**
+**"Mesaiye biraz Pofi"**
 
 Bütün dil bu fikrin etrafında şekillenmelidir.
