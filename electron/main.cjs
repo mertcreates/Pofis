@@ -1,9 +1,10 @@
-const { app, BrowserWindow, clipboard, dialog, Menu, session, shell, utilityProcess } = require("electron");
+const { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, session, shell, utilityProcess } = require("electron");
 const { join } = require("node:path");
 const { createDesktopServer, ORIGIN } = require("./server.cjs");
 const { startupId, writeStartupResult } = require("./startup.cjs");
 const { platformTarget } = require("./platform.cjs");
 const { checkForUpdates } = require("./updates.cjs");
+const { installUpdateBridge } = require("./update-bridge.cjs");
 const { createWindowOpenHandler } = require("./external-links.cjs");
 const { installPermissions } = require("./permissions.cjs");
 const { isolateAcceptanceAnalytics } = require("./acceptance-network.cjs");
@@ -126,11 +127,14 @@ if (!app.requestSingleInstanceLock()) {
         redirect: "manual", credentials: "include", bypassCustomProtocolHandlers: true,
       });
     });
+    const publishUpdate = installUpdateBridge({ ipcMain, getWindow: () => window,
+      isPackaged: app.isPackaged, platform: target.platform, writeClipboard: text => clipboard.writeText(text) });
     window = new BrowserWindow({
       icon,
       title: "Pofis", width: 1280, height: 900, minWidth: 800, minHeight: 600,
       show: false, autoHideMenuBar: true,
-      webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true },
+      webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true,
+        ...(app.isPackaged ? { preload: join(__dirname, "preload.cjs") } : {}) },
     });
     window.webContents.setWindowOpenHandler(createWindowOpenHandler({
       openExternal: url => shell.openExternal(url),
@@ -158,9 +162,7 @@ if (!app.requestSingleInstanceLock()) {
         checkForUpdates({
           target, currentVersion: app.getVersion(),
           isActive: () => !quitting && !reportingFailure && !window.isDestroyed() && !window.webContents.isDestroyed(),
-          showMessageBox: options => dialog.showMessageBox(window, options),
-          writeClipboard: text => clipboard.writeText(text),
-        }).catch(() => {
+        }).then(publishUpdate).catch(() => {
           // Update failures are optional diagnostics and must never fail application startup.
           console.warn("Pofis güncelleme denetimi tamamlanamadı.");
         });

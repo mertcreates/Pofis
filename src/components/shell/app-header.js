@@ -14,6 +14,8 @@ export default function AppHeader({
   mealsOpen = false,
   showMeals = false,
   onSection,
+  updateAvailable = false,
+  onOpenUpdate,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuId = useId();
@@ -116,6 +118,14 @@ export default function AppHeader({
           </div>
         )}
         <div className="header-actions">
+          {connected && updateAvailable && <button type="button" className="text-button desktop-update-trigger"
+            aria-haspopup="dialog" onClick={() => {
+              if (menuOpen) menuButton.current?.focus({ preventScroll: true });
+              setMenuOpen(false);
+              onOpenUpdate();
+            }}>
+            <Icon name="refresh" />{ui.desktopUpdate.available}
+          </button>}
           <ThemeSwitch
             label={connected ? ui.theme.appearance : undefined}
             theme={appearance.theme}

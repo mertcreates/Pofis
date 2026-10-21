@@ -48,7 +48,7 @@ Masaüstü standalone derlemesinde `experimental.isrFlushToDisk: false` kullanı
 
 ## Pano izinleri
 
-[İzin işleyicisi](../electron/permissions.cjs), yalnız ana Pofis penceresinin `http://127.0.0.1:3210` adresindeki ana çerçevesine `clipboard-sanitized-write` izni verir. Böylece hata ekranındaki **Teknik ayrıntıları kopyala** işlemi tarayıcının pano API'siyle çalışır. Pano okuma, alt çerçeveler, diğer pencereler/adresler ve diğer izinler reddedilir. Hem izin kontrolü hem izin isteği aynı sınırı uygular; renderer'a Node.js veya yeni bir IPC arayüzü açılmaz.
+[İzin işleyicisi](../electron/permissions.cjs), yalnız ana Pofis penceresinin `http://127.0.0.1:3210` adresindeki ana çerçevesine `clipboard-sanitized-write` izni verir. Böylece hata ekranındaki **Teknik ayrıntıları kopyala** işlemi tarayıcının pano API'siyle çalışır. Pano okuma, alt çerçeveler, diğer pencereler/adresler ve diğer izinler reddedilir. Hem izin kontrolü hem izin isteği aynı sınırı uygular. Güncelleme komutu aşağıdaki sınırlı IPC köprüsünden kopyalanır; renderer'a Node.js erişimi verilmez.
 
 `bun run test:desktop` izin sınırlarını sınar. `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`, geçici profilde gerçek Electron ve örnek metinle eski ret politikasındaki hatayı, izinli yazmayı, güncelleme komutunun panoya kopyalanmasını ve pano okuma reddini kontrol eder. Sistem panosu profiller arasında ortaktır; bu komut panoyu temizler ve yalnız geçici CI/VM masaüstünde çalıştırılır. Ortak CI build'i Windows ve ARM64 hedeflerinde bu kontrolü paketlemeden önce çağırır; Intel CI statik paket kontrolleriyle sınırlıdır. Hedef pakette ayrıca hata ekranı → **Teknik ayrıntıları kopyala** → metin alanına yapıştır zincirini doğrulayın.
 
@@ -64,17 +64,21 @@ Alt bilgideki “mertcreates.” bağlantısı [Electron ana sürecinden](../ele
 
 Denetleyici platform tanımından `https://pofis.app/releases/windows/latest.json`, `…/macos/arm64/latest.json` veya `…/macos/x64/latest.json` adresini seçer. Ana sürecin Node `fetch` çağrısı önbelleksiz, kimlik bilgisi göndermeden, yönlendirmeyi reddederek ve 5 saniye zaman aşımıyla çalışır. Mevcut sürüm, kullanıcı kimliği veya PDKS bilgisi isteğe eklenmez.
 
-Manifestin şeması, hedefi, `x.y.z` sürümü, boyutu, SHA-256 biçimi ve beklenen public GitHub paket adresi doğrulanır. Sürüm bileşenleri sayısal karşılaştırılır. Yalnız daha yeni sürümde ana pencereye bağlı yerel bildirim gösterilir:
+Manifestin şeması, hedefi, `x.y.z` sürümü, boyutu, SHA-256 biçimi ve beklenen public GitHub paket adresi doğrulanır. Sürüm bileşenleri sayısal karşılaştırılır. Daha yeni sürümde giriş ekranında sürüm numarasının yanında, oturum açıkken menünün alt bölümünde **Yeni sürüm var** düğmesi görünür. Düğme ortak [güncelleme modalını](../src/components/shell/desktop-update.tsx) açar:
 
 - **Pofis'in yeni sürümü hazır** — kurulu ve yeni sürüm ile kurulum komutunu yeniden çalıştırma açıklaması.
-- **Kurulum komutunu kopyala** platformun sabit komutunu panoya yazar. Komut manifestten alınmaz; uygulama komutu çalıştırmaz.
-- **Daha sonra** varsayılan ve iptal seçeneğidir; mevcut pano içeriğini korur. Tercih mevcut açılış için geçerlidir; sonraki açılış yeniden denetler.
+- **Komutu kopyala** platformun sabit komutunu panoya yazar; başarıda **Kopyalandı** görünür. Sonuç, başlangıçtan beri DOM'da bulunan durum alanından ekran okuyucuya bildirilir. Modal Windows için PowerShell, macOS için Terminal yönlendirmesi sunar. Kopyalama başarısızsa görünen komut elle seçilebilir. Komut manifestten alınmaz; çalıştırmayı kullanıcı başlatır.
+- **Daha sonra**, Escape ve kapatma düğmesi modalı kapatır; güncelleme düğmesi erişilebilir kalır. Açılışta modal kendiliğinden açılmaz.
+
+[Preload](../electron/preload.cjs), yalnız sürüm bilgisini okuma, değişikliği dinleme ve sabit komutu kopyalama işlemlerini açar. [IPC sahibi](../electron/update-bridge.cjs), her istekte paketli uygulamayı, pencereyi, ana çerçeveyi ve uygulama origin'ini doğrular. Güncelleme bilgisi ana süreçte saklanır; sayfa yenilenince tekrar okunur. Web ve normal geliştirme açılışında köprü yüklenmez. `contextIsolation`, sandbox ve kapalı Node entegrasyonu korunur.
 
 Aynı veya eski sürüm bildirim açmaz. Ağ, HTTP, JSON veya doğrulama hatası açılışı durdurmaz; yalnız genel bir konsol uyarısı yazılır. Kurulum komutu çalıştırıldığında aşağıdaki onaylı kapanış ve kurulum akışı uygulanır. [Denetleyici testleri](../electron/updates.test.cjs) üç hedefi, sayısal karşılaştırmayı, iptali, kapanışı, geçersiz yanıtları ve zaman aşımını kapsar.
 
 ### Güncelleme bildirimini deneme
 
-`bun run desktop:update-demo`, [yerel demo başlatıcısıyla](../scripts/electron/update-demo.cjs) gerçek Electron bildirimini örnek `0.1.0 → 0.1.1` sürümleriyle açar. Electron runtime'ı kurulu olmalıdır; eksikse önce `bun run desktop:install` çalıştırılır. Demo, Electron bildirimini yerel örnek verilerle ayrı geçici profilde açar; pencere kapatılınca profil temizlenir. **Kurulum komutunu kopyala** gerçek platform komutunu panoya yazar; **Daha sonra** veya pencereyi kapatma panoyu değiştirmez. Komutu çalıştırmadan bir metin alanına yapıştırarak kontrol edebilirsin.
+`bun run desktop:update-demo`, [yerel demo başlatıcısıyla](../scripts/electron/update-demo.cjs) ortak uygulama arayüzünü gerçek Electron ve preload üzerinden örnek `0.1.0 → 0.1.1` sürümleriyle açar. Önce `bun run desktop:prepare` ile güncel standalone çıktısını hazırla. Demo ayrı geçici profil ve örnek manifest kullanır; ölçüm trafiğini engeller. Pencere kapatılınca profil temizlenir. **Komutu kopyala** gerçek platform komutunu panoya yazar. `--verify` seçeneği panoyu değiştirmeyen test yazıcısıyla düğme → modal → kopyalama → Daha sonra → odak dönüşü zincirini kontrol edip kapanır. Gerçek sistem panosu kabulü izole CI/VM masaüstündeki pano betiğinde sürer.
+
+Kabul betiği arayüz ve IPC sonuçlarını koşul gerçekleşene kadar bekler; her durum için 10 saniye, tüm Electron kabulü için 90 saniye sınırı vardır. Kopyalama hatası senaryosunda ana süreçte görünen **Test pano hatası** kaydı beklenen test girdisidir. `--capture` görsel çıktıları kabul zincirinin sonunda `work/update-preview/` altına alır; incelemeden sonra temizle.
 
 ## Yerel dağıtımı hazırlama
 

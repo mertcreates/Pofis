@@ -9,6 +9,8 @@ Bu liste yerelde çalışan kurum içi Pofis uygulamasının açık işlerini tu
 
 ## Gerçek cihaz ve PDKS kabulü
 
+- [ ] Yeni paketle Windows/macOS üzerinde **Yeni sürüm var → Komutu kopyala → terminalde çalıştır → onaylı kapanış → yeni sürüm** zincirini doğrula. Windows paket açılışı ve gerçek IPC okuması yerelde geçti; ortak modal örnek manifest ve test pano yazıcısıyla doğrulandı. Gerçek pano kabulü izole CI/VM betiğindedir; macOS cihaz ve canlı güncelleme kabulü bekler. [Güncelleme sözleşmesi](../docs/desktop.md#açılışta-sürüm-denetimi).
+
 - [ ] macOS 12 ARM64 ilk kurulum ve 43 → 43 güncellemesini; macOS 13+ ARM64 gerçek 44 → 43 profil/installer geçişini, imza, Gatekeeper ve uyku/uyanmayı doğrula. Intel gerçek cihaz kabulünü ayrı izle; Intel yayını statik kontrollerle ilerler. Windows gerçek motor geçişi tamamlandı; [motor geçişi kabulü](../docs/desktop.md#motor-geçişi-kabulü).
 - [ ] Geçerli gerçek PDKS oturumuyla güncelleme sonrası devamı ve mevcut TTL'yi kontrol et. Hedef pakette hata ekranı → teknik ayrıntıları kopyala → yapıştır zincirini doğrula; [masaüstü kabulü](../docs/desktop.md#tekrarlanabilir-kabul).
 - [ ] Menüde kişisel bağlantısı olmayan gerçek yönetici hesabıyla giriş → kişisel turnike raporu → Pofi notları → yeniden giriş zincirini doğrula. Kullanıcı adının harf/takma ad eşdeğerliğini kaynakla ayrıca kontrol et.

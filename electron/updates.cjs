@@ -7,7 +7,7 @@ function versionParts(version) {
   return parts;
 }
 
-async function checkForUpdates({ target, currentVersion, isActive, showMessageBox, writeClipboard,
+async function checkForUpdates({ target, currentVersion, isActive,
   fetchManifest = globalThis.fetch, timeoutMs = 5000 }) {
   if (!isActive()) return;
   const directory = target.releaseDirectory.replaceAll("\\", "/");
@@ -26,15 +26,7 @@ async function checkForUpdates({ target, currentVersion, isActive, showMessageBo
   }
   const difference = next.findIndex((part, index) => part !== current[index]);
   if (difference === -1 || next[difference] < current[difference] || !isActive()) return;
-  const { response: choice } = await showMessageBox({
-    type: "info", title: "Pofis", message: "Pofis'in yeni sürümü hazır",
-    detail: `Sende ${currentVersion} kurulu. ${manifest.version} sürümüne geçebilirsin.\n\nGüncellemek için kurulum komutunu yeniden çalıştırman yeterli.`,
-    buttons: ["Kurulum komutunu kopyala", "Daha sonra"], defaultId: 1, cancelId: 1, noLink: true,
-  });
-  if (choice === 0 && isActive()) {
-    writeClipboard(target.platform === "win32" ? "irm https://pofis.app/install.ps1 | iex"
-      : "curl -fsSL https://pofis.app/install.sh | bash");
-  }
+  return { currentVersion, version: manifest.version, platform: target.platform };
 }
 
 module.exports = { checkForUpdates };

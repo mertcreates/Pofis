@@ -6,6 +6,7 @@ Demo ve canlı ekran aynı bileşenleri kullanır. Görsel kararlar [DESIGN](../
 | --- | --- |
 | Uygulama çerçevesi | [AppShell](../../src/components/shell/app-shell.js), [başlık](../../src/components/shell/app-header.js), [alt bilgi](../../src/components/shell/app-footer.js): menü, ayarlar ve sürüm bilgisi |
 | Tema | [ThemeSwitch](../../src/components/shell/theme-switch.js), [useAppearance](../../src/data/use-appearance.ts): tercih ve işletim sistemi teması |
+| Masaüstü güncellemesi | [useDesktopUpdate / DesktopUpdateModal](../../src/components/shell/desktop-update.tsx): köprüden sürüm bilgisini alma, platform yönlendirmesi ve komut kopyalama; [masaüstü sözleşmesi](../desktop.md#açılışta-sürüm-denetimi) |
 | Mesaim | [DashboardView](../../src/components/dashboard/view.tsx), [başlık](../../src/components/dashboard/header.tsx): güncel/geçmiş hafta yerleşimi ve ortak ekran modeli |
 | Canlı saat | [ReportContent](../../src/components/dashboard/report-content.tsx): saniyelik izdüşüm; [Dashboard](../../src/components/dashboard.tsx): İstanbul gün değişimi |
 | Hafta seçimi | [WeekPicker](../../src/components/dashboard/week-picker.tsx), [takvim](../../src/components/dashboard/week-calendar.ts): aylık gezinme ve hafta seçimi |

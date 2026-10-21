@@ -8,6 +8,18 @@ export const product = {
 };
 
 export const ui = {
+  desktopUpdate: {
+    available: "Yeni sürüm var",
+    title: "Pofis’in yeni sürümü hazır",
+    versions: (current, next) => `Sende v${current} kurulu. v${next} sürümüne geçebilirsin.`,
+    instruction: (terminal) => `Güncellemek için komutu ${terminal} yapıştırıp çalıştır.`,
+    confirmation: "Pofis kapanmadan önce onayını ister. Planların ve tercihlerin korunur.",
+    copy: "Komutu kopyala",
+    copying: "Kopyalanıyor…",
+    copied: "Kopyalandı",
+    copyError: "Kopyalanamadı. Komutu seçip elle kopyalayabilirsin.",
+    later: "Daha sonra",
+  },
   meals: {
     nav: "Yemek menüsü",
     title: "Yemek menüsü",

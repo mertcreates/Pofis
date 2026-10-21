@@ -1,5 +1,5 @@
 const { test, expect } = require("bun:test");
-const { mkdtemp, mkdir, writeFile, rm } = require("node:fs/promises");
+const { mkdtemp, mkdir, writeFile, rm, unlink } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
 const { join } = require("node:path");
 const { checkIntelPackage } = require("./macos-static-check.cjs");
@@ -10,7 +10,8 @@ test("Intel statik kontrolü Electron/helper mimarisini ve imzayı denetler", as
   const resources = join(app, "Contents/Resources");
   const nativeFiles = ["Contents/MacOS/Pofis", "Contents/Frameworks/Helper.app/Contents/MacOS/Helper"];
   try {
-    for (const path of [...nativeFiles, "Contents/Resources/app/electron/main.cjs", "Contents/Resources/app/server/server.js"]) {
+    for (const path of [...nativeFiles, "Contents/Resources/app/electron/main.cjs", "Contents/Resources/app/electron/preload.cjs",
+      "Contents/Resources/app/electron/update-bridge.cjs", "Contents/Resources/app/server/server.js"]) {
       const file = join(app, path);
       await mkdir(join(file, ".."), { recursive: true });
       await writeFile(file, nativeFiles.includes(path) ? Buffer.from("cffaedfe00000000", "hex") : "fixture");
@@ -26,5 +27,12 @@ test("Intel statik kontrolü Electron/helper mimarisini ve imzayı denetler", as
     await expect(checkIntelPackage(directory, async (command) => { if (command.endsWith("/lipo")) throw wrongArchitecture; })).rejects.toBe(wrongArchitecture);
     const badSignature = new Error("bad signature");
     await expect(checkIntelPackage(directory, async (command) => { if (command.endsWith("/codesign")) throw badSignature; })).rejects.toBe(badSignature);
+    for (const name of ["preload.cjs", "update-bridge.cjs"]) {
+      const file = join(resources, "app/electron", name);
+      await unlink(file);
+      await expect(checkIntelPackage(directory, async () => { throw new Error("Eksik dosya önce reddedilmeli."); }))
+        .rejects.toMatchObject({ code: "ENOENT" });
+      await writeFile(file, "fixture");
+    }
   } finally { await rm(directory, { recursive: true, force: true }); }
 });

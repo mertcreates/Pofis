@@ -1,0 +1,36 @@
+.header-actions .desktop-update-trigger,
+.app-footer .desktop-update-trigger {
+  color: var(--accent);
+}
+.app-modal.desktop-update-modal {
+  max-width: 520px;
+}
+.desktop-update-command {
+  padding: 12px;
+  border-radius: var(--radius-control);
+  background: var(--surface-subtle);
+  overflow-wrap: anywhere;
+  user-select: text;
+  font-size: 14px;
+}
+.app-footer .desktop-update-trigger {
+  padding: 0 4px;
+  font-size: inherit;
+}
+.desktop-update-content {
+  display: grid;
+  gap: 16px;
+}
+.desktop-update-content p {
+  margin: 0;
+}
+.desktop-update-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.desktop-update-status {
+  color: var(--muted);
+  font-size: 14px;
+}

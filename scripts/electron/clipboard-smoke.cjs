@@ -8,10 +8,11 @@ if (!process.argv.includes("--isolated-desktop")) {
 if (process.versions.electron) {
   const assert = require("node:assert/strict");
   const { setTimeout: delay } = require("node:timers/promises");
-  const { app, BrowserWindow, clipboard, session } = require("electron");
+  const { app, BrowserWindow, clipboard, ipcMain, session } = require("electron");
   const { installPermissions } = require("../../electron/permissions.cjs");
   const { ORIGIN } = require("../../electron/server.cjs");
   const { checkForUpdates } = require("../../electron/updates.cjs");
+  const { installUpdateBridge } = require("../../electron/update-bridge.cjs");
   const { platformTarget } = require("../../electron/platform.cjs");
   app.setPath("userData", app.commandLine.getSwitchValue("user-data-dir"));
   app.whenReady().then(async () => {
@@ -23,7 +24,10 @@ if (process.versions.electron) {
       isolated.setPermissionCheckHandler(() => false);
       isolated.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
       window = new BrowserWindow({ show: false,
-        webPreferences: { session: isolated, nodeIntegration: false, contextIsolation: true, sandbox: true } });
+        webPreferences: { session: isolated, nodeIntegration: false, contextIsolation: true, sandbox: true,
+          preload: join(__dirname, "../../electron/preload.cjs") } });
+      const publishUpdate = installUpdateBridge({ ipcMain, getWindow: () => window, isPackaged: true,
+        platform: process.platform, writeClipboard: text => clipboard.writeText(text) });
       await window.loadURL(ORIGIN);
       window.webContents.focus();
       const write = () => window.webContents.executeJavaScript(`(async () => {
@@ -44,12 +48,12 @@ if (process.versions.electron) {
       })()`, true);
       assert.equal(read, "NotAllowedError", "Renderer pano okuyamamalı");
       const target = platformTarget();
-      await checkForUpdates({ target, currentVersion: "0.0.0", isActive: () => true,
-        showMessageBox: async () => ({ response: 0 }), writeClipboard: text => clipboard.writeText(text),
+      publishUpdate(await checkForUpdates({ target, currentVersion: "0.0.0", isActive: () => true,
         fetchManifest: async () => Response.json({ schemaVersion: 1, platform: target.platform, arch: target.arch,
           version: "0.0.1", size: 1, sha256: "a".repeat(64),
           url: `https://github.com/mertcreates/pofis-landing/releases/download/v0.0.1/Pofis-0.0.1-${target.id}.zip` }),
-      });
+      }));
+      await window.webContents.executeJavaScript("window.pofisUpdates.copyCommand()", true);
       assert.equal(clipboard.readText(), target.platform === "win32" ? "irm https://pofis.app/install.ps1 | iex"
         : "curl -fsSL https://pofis.app/install.sh | bash");
       console.log("PASS: renderer yazdı; pano okuma reddedildi; güncelleme komutu gerçek panoya kopyalandı.");

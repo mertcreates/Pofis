@@ -1,79 +1,43 @@
 const { test, expect } = require("bun:test");
 const { checkForUpdates } = require("./updates.cjs");
 const { platformTarget } = require("./platform.cjs");
-const { MAC_INSTALL_COMMAND } = require("../scripts/electron/install-command.cjs");
+const { installUpdateBridge } = require("./update-bridge.cjs");
+const { ORIGIN } = require("./server.cjs");
 
 function fixture(platform = "win32", arch = "x64", version = "0.1.1") {
   const target = platformTarget(platform, arch);
   const manifest = { schemaVersion: 1, platform, arch, version, size: 42, sha256: "a".repeat(64),
     url: `https://github.com/mertcreates/pofis-landing/releases/download/v${version}/Pofis-${version}-${target.id}.zip` };
-  const dialogs = [], copies = [], requests = [];
-  const options = {
-    target, currentVersion: "0.1.0", isActive: () => true,
-    fetchManifest: async (...request) => { requests.push(request); return Response.json(manifest); },
-    showMessageBox: async dialog => { dialogs.push(dialog); return { response: 0 }; },
-    writeClipboard: text => copies.push(text),
-  };
-  return { manifest, dialogs, copies, requests, options };
+  const requests = [];
+  const options = { target, currentVersion: "0.1.0", isActive: () => true,
+    fetchManifest: async (...request) => { requests.push(request); return Response.json(manifest); } };
+  return { manifest, requests, options };
 }
-
-test.each([
-  ["win32", "x64", "windows", "irm https://pofis.app/install.ps1 | iex"],
-  ["darwin", "arm64", "macos/arm64", MAC_INSTALL_COMMAND],
-  ["darwin", "x64", "macos/x64", MAC_INSTALL_COMMAND],
-])("%s/%s kendi manifestini denetler; yalnız sabit kurulum komutunu kopyalar", async (platform, arch, path, command) => {
-  const f = fixture(platform, arch);
-  await checkForUpdates(f.options);
-  expect(f.requests).toHaveLength(1);
-  expect(f.requests[0][0]).toBe(`https://pofis.app/releases/${path}/latest.json`);
-  expect(f.requests[0][1]).toMatchObject({ cache: "no-store", credentials: "omit", redirect: "error" });
-  expect(f.requests[0][1].signal).toBeInstanceOf(AbortSignal);
-  expect(f.dialogs).toHaveLength(1);
-  expect(f.dialogs[0]).toMatchObject({ defaultId: 1, cancelId: 1 });
-  expect(f.copies).toEqual([command]);
+test.each([["win32", "x64", "windows"], ["darwin", "arm64", "macos/arm64"], ["darwin", "x64", "macos/x64"]])(
+  "%s/%s kendi manifestini denetler", async (platform, arch, path) => {
+    const f = fixture(platform, arch);
+    expect(await checkForUpdates(f.options)).toEqual({ currentVersion: "0.1.0", version: "0.1.1", platform });
+    expect(f.requests[0][0]).toBe(`https://pofis.app/releases/${path}/latest.json`);
+    expect(f.requests[0][1]).toMatchObject({ cache: "no-store", credentials: "omit", redirect: "error" });
+    expect(f.requests[0][1].signal).toBeInstanceOf(AbortSignal);
+  });
+test.each(["0.1.0", "0.0.9", "0.0.99"])("aynı veya eski %s sürümü bildirilmez", async version => {
+  expect(await checkForUpdates(fixture("win32", "x64", version).options)).toBeUndefined();
 });
-
-test.each(["0.1.0", "0.0.9", "0.0.99"])("aynı veya eski %s sürümünde bildirim gösterilmez", async version => {
-  const f = fixture("win32", "x64", version);
-  await checkForUpdates(f.options);
-  expect(f.dialogs).toEqual([]);
-  expect(f.copies).toEqual([]);
-});
-
-test.each([
-  ["0.1.9", "0.1.10"], ["0.9.99", "0.10.0"], ["0.99.99", "1.0.0"],
-])("%s → %s sürümü sayısal karşılaştırılır", async (current, next) => {
-  const f = fixture("win32", "x64", next);
-  f.options.currentVersion = current;
-  await checkForUpdates(f.options);
-  expect(f.dialogs).toHaveLength(1);
-});
-
-test("daha sonra veya pencereyi kapatma yanıtı panoyu değiştirmez", async () => {
+test.each([["0.1.9", "0.1.10"], ["0.9.99", "0.10.0"], ["0.99.99", "1.0.0"]])(
+  "%s → %s sayısal karşılaştırılır", async (current, next) => {
+    const f = fixture("win32", "x64", next);
+    expect(await checkForUpdates({ ...f.options, currentVersion: current })).toMatchObject({ version: next });
+  });
+test("kapalı uygulamada istek yapılmaz; istek sırasında kapanırsa sonuç bırakılır", async () => {
   const f = fixture();
-  f.options.showMessageBox = async () => ({ response: 1 });
-  await checkForUpdates(f.options);
-  expect(f.copies).toEqual([]);
+  expect(await checkForUpdates({ ...f.options, isActive: () => false })).toBeUndefined();
+  expect(f.requests).toHaveLength(0);
+  let active = true;
+  expect(await checkForUpdates({ ...f.options, isActive: () => active,
+    fetchManifest: async () => { active = false; return Response.json(f.manifest); } })).toBeUndefined();
 });
-
-test("kapalı uygulamada istek yapılmaz; istek veya dialog sırasında kapanırsa işlem devam etmez", async () => {
-  const f = fixture();
-  let active = false;
-  f.options.isActive = () => active;
-  await checkForUpdates(f.options);
-  expect(f.requests).toEqual([]);
-  active = true;
-  f.options.fetchManifest = async () => { active = false; return Response.json(f.manifest); };
-  await checkForUpdates(f.options);
-  expect(f.dialogs).toEqual([]);
-  active = true;
-  f.options.fetchManifest = async () => Response.json(f.manifest);
-  f.options.showMessageBox = async () => { active = false; return { response: 0 }; };
-  await checkForUpdates(f.options);
-  expect(f.copies).toEqual([]);
-});
-
-test("bozuk veya hedefe uymayan manifestler bildirim ve pano işlemine ulaşmaz", async () => {
+test("bozuk veya hedefe uymayan manifestler reddedilir", async () => {
   const f = fixture();
   for (const invalid of [null, {}, { ...f.manifest, schemaVersion: 2 },
     { ...f.manifest, platform: "darwin" }, { ...f.manifest, arch: "arm64" },
@@ -82,26 +46,51 @@ test("bozuk veya hedefe uymayan manifestler bildirim ve pano işlemine ulaşmaz"
     { ...f.manifest, sha256: "bad" }, { ...f.manifest, url: "https://example.com/app.zip" }]) {
     await expect(checkForUpdates({ ...f.options, fetchManifest: async () => Response.json(invalid) })).rejects.toThrow();
   }
-  expect(f.dialogs).toEqual([]);
-  expect(f.copies).toEqual([]);
 });
-
-test("HTTP, JSON ve ağ hataları bildirim veya panoya ulaşmaz", async () => {
-  const f = fixture();
+test("HTTP, JSON ve ağ hataları reddedilir", async () => {
   for (const fetchManifest of [async () => new Response("missing", { status: 404 }),
     async () => new Response("not json"), async () => { throw new Error("offline"); }]) {
-    await expect(checkForUpdates({ ...f.options, fetchManifest })).rejects.toThrow();
+    await expect(checkForUpdates({ ...fixture().options, fetchManifest })).rejects.toThrow();
   }
-  expect(f.dialogs).toEqual([]);
+});
+test("yanıt vermeyen istek zaman aşımında iptal edilir", async () => {
+  await expect(checkForUpdates({ ...fixture().options, timeoutMs: 50,
+    fetchManifest: (_url, { signal }) => new Promise((_resolve, reject) => {
+      signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+    }) })).rejects.toThrow();
+}, 1000);
+
+function bridgeFixture(platform = "win32", isPackaged = true) {
+  const handlers = {}, copies = [], events = [];
+  const contents = { isDestroyed: () => false, mainFrame: { url: ORIGIN }, send: (...args) => events.push(args) };
+  const publish = installUpdateBridge({ ipcMain: { handle: (name, handler) => { handlers[name] = handler; } },
+    getWindow: () => ({ webContents: contents }), isPackaged, platform, writeClipboard: value => copies.push(value) });
+  return { handlers, copies, events, contents, event: { sender: contents, senderFrame: contents.mainFrame }, publish };
+}
+test.each([["win32", "irm https://pofis.app/install.ps1 | iex"],
+  ["darwin", "curl -fsSL https://pofis.app/install.sh | bash"]])(
+  "%s köprüsü bilgiyi saklar ve yalnız kullanıcı isteğinde sabit komutu kopyalar", (platform, command) => {
+    const f = bridgeFixture(platform);
+    expect(f.handlers["pofis:update:get"](f.event)).toBeNull();
+    expect(() => f.handlers["pofis:update:copy"](f.event)).toThrow();
+    f.publish({ version: "0.1.1", currentVersion: "0.1.0", platform, command: "untrusted" });
+    expect(f.copies).toEqual([]);
+    expect(f.events).toEqual([["pofis:update:available", { version: "0.1.1", currentVersion: "0.1.0", platform, command }]]);
+    expect(f.handlers["pofis:update:get"](f.event)).toEqual(f.events[0][1]);
+    f.handlers["pofis:update:copy"](f.event);
+    expect(f.copies).toEqual([command]);
+  });
+test("başka pencere, alt çerçeve, yabancı origin ve geliştirme IPC istekleri reddedilir", () => {
+  const f = bridgeFixture();
+  f.publish({ version: "0.1.1" });
+  for (const event of [{ ...f.event, sender: {} }, { ...f.event, senderFrame: { url: ORIGIN } }])
+    for (const handler of Object.values(f.handlers)) expect(() => handler(event)).toThrow();
+  f.contents.mainFrame.url = "https://example.com";
+  for (const handler of Object.values(f.handlers)) expect(() => handler(f.event)).toThrow();
+  f.contents.mainFrame.url = ORIGIN;
+  f.contents.isDestroyed = () => true;
+  for (const handler of Object.values(f.handlers)) expect(() => handler(f.event)).toThrow();
+  const dev = bridgeFixture("win32", false);
+  for (const handler of Object.values(dev.handlers)) expect(() => handler(dev.event)).toThrow();
   expect(f.copies).toEqual([]);
 });
-
-test("yanıt vermeyen istek zaman aşımında iptal edilir", async () => {
-  const f = fixture();
-  f.options.timeoutMs = 50;
-  f.options.fetchManifest = (_url, { signal }) => new Promise((_resolve, reject) => {
-    signal.addEventListener("abort", () => reject(signal.reason), { once: true });
-  });
-  await expect(checkForUpdates(f.options)).rejects.toThrow();
-  expect(f.dialogs).toEqual([]);
-}, 1000);

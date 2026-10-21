@@ -1,6 +1,8 @@
 import AppHeader from "./app-header.js";
 import AppFooter from "./app-footer.js";
 import { InlineNotice } from "../inline-notice";
+import { useState } from "react";
+import { DesktopUpdateModal, useDesktopUpdate } from "./desktop-update";
 
 /**
  * @param {{
@@ -26,6 +28,8 @@ export default function AppShell({
   showMeals = false,
   onSection,
 }) {
+  const update = useDesktopUpdate();
+  const [updateOpen, setUpdateOpen] = useState(false);
   return (
     <div
       className={["app-shell", !connected && "app-shell-public"]
@@ -41,14 +45,17 @@ export default function AppShell({
         mealsOpen={mealsOpen}
         showMeals={showMeals}
         onSection={onSection}
+        updateAvailable={!!update}
+        onOpenUpdate={() => setUpdateOpen(true)}
       />
       <div className="app-content">
         <main>
           {appearance.error && <InlineNotice tone="warning">{appearance.error}</InlineNotice>}
           {children}
         </main>
-        <AppFooter />
+        <AppFooter updateAvailable={!connected && !!update} onOpenUpdate={() => setUpdateOpen(true)} />
       </div>
+      {updateOpen && update && <DesktopUpdateModal update={update} onClose={() => setUpdateOpen(false)} />}
     </div>
   );
 }

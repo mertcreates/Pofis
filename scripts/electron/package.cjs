@@ -68,7 +68,7 @@ async function prepare(arch = process.arch) {
         "-Executable", join(output, target.executable), "-Icon", icons.windows], { windowsHide: true });
   }
   await mkdir(join(payload, "electron"), { recursive: true });
-  for (const file of ["main.cjs", "server.cjs", "server-entry.cjs", "startup.cjs", "platform.cjs", "updates.cjs", "external-links.cjs", "permissions.cjs", "acceptance-network.cjs"]) {
+  for (const file of ["main.cjs", "server.cjs", "server-entry.cjs", "startup.cjs", "platform.cjs", "updates.cjs", "update-bridge.cjs", "preload.cjs", "external-links.cjs", "permissions.cjs", "acceptance-network.cjs"]) {
     await copyFile(join(root, "electron", file), join(payload, "electron", file));
   }
   if (target.platform === "win32") await copyFile(join(root, "electron", "uninstall.ps1"), join(payload, "electron", "uninstall.ps1"));

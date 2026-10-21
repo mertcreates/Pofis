@@ -149,6 +149,12 @@ async function run() {
     console.log("PASS: paketli görsel aynı baytlarla sunuluyor; görseller doğrudan yükleniyor.");
     await until(() => evaluate("!!document.querySelector('input[name=username]') && !document.querySelector('input[name=username]').disabled"));
     assert.equal(await evaluate("typeof require + ':' + typeof process"), "undefined:undefined");
+    assert.equal(await evaluate("typeof window.pofisUpdates"), sourceMode ? "undefined" : "object");
+    if (!sourceMode) {
+      assert.deepEqual(await evaluate("Object.keys(window.pofisUpdates).sort()"), ["copyCommand", "get", "subscribe"]);
+      // Read through the real packaged authorization gate without changing the system clipboard.
+      assert.equal(await evaluate("window.pofisUpdates.get().then(() => true)"), true);
+    }
     const health = await fetch(`${ORIGIN}/api/health`);
     const identity = health.headers.get("X-Pofis-Desktop");
     assert.ok(identity);

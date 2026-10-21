@@ -8,7 +8,7 @@ web
 
 Pofis, web üzerinde ve ortak Electron kabuğuyla Windows x64 ile macOS Apple Silicon/Intel için sunulur. Windows ve macOS sürümleri aktif kullanımdadır. Paketleme ve masaüstü kabul durumu [masaüstü rehberinde](docs/desktop.md), üç hedefin yayın otomasyonu [sürüm yayınında](docs/release.md) açıklanır.
 
-Paketli masaüstü uygulaması açılışta yeni sürümü denetler; güncelleme varsa kurulum komutunu kopyalama seçeneği sunar. Davranışın sahibi [masaüstü sözleşmesidir](docs/desktop.md#açılışta-sürüm-denetimi).
+Paketli masaüstü uygulaması açılışta yeni sürümü denetler. Güncelleme varsa giriş ekranında ve uygulama menüsünde **Yeni sürüm var** düğmesi görünür; ortak modal platforma uygun kurulum komutunu kopyalama seçeneği sunar. Davranışın sahibi [masaüstü sözleşmesidir](docs/desktop.md#açılışta-sürüm-denetimi).
 
 ## Stack
 

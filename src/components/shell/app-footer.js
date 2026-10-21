@@ -6,7 +6,7 @@ import Modal from "../modal.js";
 import { version } from "../../../package.json";
 import { POFI_SURPRISES } from "@/domain/rules/pofi-surprises";
 
-export default function AppFooter() {
+export default function AppFooter({ updateAvailable = false, onOpenUpdate }) {
   const sequence = useRef(null);
   const [noteOpen, setNoteOpen] = useState(false);
 
@@ -47,6 +47,8 @@ export default function AppFooter() {
         >
           v{version}
         </button>
+        {updateAvailable && <button type="button" className="text-button desktop-update-trigger"
+          aria-haspopup="dialog" onClick={onOpenUpdate}>{ui.desktopUpdate.available}</button>}
         <span aria-hidden="true">·</span>
         <a href={product.creditUrl} target="_blank" rel="noopener noreferrer">
           {product.creditLabel}

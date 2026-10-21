@@ -116,9 +116,13 @@ Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedi
 
 ## Odak, modal ve tooltip
 
+Masaüstünde yeni sürüm bulunduğunda giriş ekranında sürümün yanında, oturum açıkken menünün alt bölümünde **Yeni sürüm var** düğmesi görünür. Kullanıcı açınca ortak modal kurulu/yeni sürümü, platforma uygun terminal yönlendirmesini ve seçilebilir komutu gösterir. **Komutu kopyala** başarıda **Kopyalandı** der; kopyalama hatası elle seçimi önerir. **Daha sonra** ve kapatma modalı kapatır; düğme kalır. Stil sahibi [desktop-update.css](src/components/shell/desktop-update.css), davranış sahibi [masaüstü sözleşmesidir](docs/desktop.md#açılışta-sürüm-denetimi).
+
 Metin seçimi normal bağlantılar, açıklamalar, girdiler ve teknik ayrıntılarda açıktır; buton ve `.button-link` üzerinde kapalıdır. Klavye odağı her zaman görünür kalır. Tarayıcının mavi veya dışarı taşan CSS `outline` çizgisi proje genelinde anti-pattern'dir; odak Pofis tokenlarıyla iç kenar (`box-shadow: inset`), kenarlık, yüzey değişimi veya alt çizgiyle gösterilir. Alternatif bir gösterge olmadan odak stili kaldırılmaz. Rapor akordeonunda metin rengi ve alt çizgi değişmez, iç kenar tüm satırı çevreler.
 
 Ortak [Modal](src/components/modal.js) native dialog kullanır: Escape, kapatma düğmesi, açan kontrole odak dönüşü ve içeride kaydırma. Varsayılan başlangıç odağı kapatma düğmesinde, plan modalında başlıktadır. Mobil tutamak aşağı sürükleyerek kapatır.
+
+Güncelleme modalında kopyalama sonucu kalıcı `role="status"` alanıyla duyurulur. Başarı duyurusu görsel olarak gizlidir; hata açıklaması komutun altında görünür. Dar menüden açılan modal kapanınca odak menü düğmesine döner.
 
 Ortak [Tooltip](src/components/tooltip.tsx) portal üzerinden çizilir. Fare/klavye odağıyla açılır; dokunmayla açılıp kapanır. Escape ve dışarı dokunma kapatır. Ekran kenarında yatay kayar, üstte yer yoksa alta açılır. Kaydırma, boyut ve canlı içerik değişiminde yeniden ölçülür; dinleyiciler içerik değişiminde yeniden kurulmaz. Grafik sütununun tamamı tetikleyicidir; konum görünen bölümden ölçülür. [Konum hesabı](src/components/tooltip-position.ts) ve [tema stilleri](src/components/tooltip.css) ortaktır.
 
