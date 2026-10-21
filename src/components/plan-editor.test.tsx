@@ -24,6 +24,14 @@ test("standart 40 saatlik planda fazla süre Tamamla eylemini ve bilgilendirmeyi
   expect($(".work-plan-day").eq(4).text()).toContain("8 sa");
 });
 
+test("fazla sürenin 36 dk 59 sn üzerinde kısmı vurgulanır", () => {
+  const $ = render([8, 8, 8 + 2219 / 3600]);
+  expect($(".work-planner > .inline-notice").text()).toBe(
+    "Beklenen toplam, haftalık hedefin 36 dk 59 sn üzerinde. Kalan günlerin planı korunuyor.",
+  );
+  expect($(".work-plan-surplus-emphasis").text()).toBe("36 dk 59 sn üzerinde");
+});
+
 test("hedefle aynı beklenen toplam gereksiz Tamamla eylemi göstermez", () => {
   const $ = render([8,8,8]);
   expect($(".work-plan-complete").length).toBe(0);

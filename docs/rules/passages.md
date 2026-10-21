@@ -10,22 +10,23 @@ Arayüz: `passageDay`, `passageRecordRows`.
 
 ## Sözleşme
 
-Raporun zorunlu hareket listesi giriş/çıkış çiftlerini ve son açık girişi belirler. Tekrarlanan yön veya eşleşmeyen çıkış belirsizliktir; geçmiş gündeki açık giriş belirsiz olarak işaretlenir. Gün değerlendirmesi saat sırasını kullanır. Kayıt satırları verilen sıradaki sorunları da korur. Çiftler hareket detaylarını oluşturur; kayıtlı mesai [ilk giriş–son çıkış sahibinde](recorded-time.md) hesaplanır. Adaptör seçili tarih aralığının bütün sayfalarını birleştirir; kaynak erişimi [kaynak politikasında](source-policy.md) tanımlıdır.
+Raporun zorunlu hareket listesi giriş/çıkış çiftlerini ve son açık girişi belirler. Art arda giriş veya çıkış uyarı üretir; ilk giriş–son çıkış süresini ve geçerli son açık girişten canlı hesabı durdurmaz. Girişsiz ilk çıkış, okunamayan hareket ve geçmiş gündeki açık giriş belirsizliktir. Gün değerlendirmesi saat sırasını kullanır. Kayıt satırları verilen sıradaki sorunları da korur. Çiftler hareket detaylarını oluşturur; kayıtlı mesai [ilk giriş–son çıkış sahibinde](recorded-time.md) hesaplanır. Adaptör seçili tarih aralığının bütün sayfalarını birleştirir; kaynak erişimi [kaynak politikasında](source-policy.md) tanımlıdır.
 
 ## Kayıt sorunları
 
-`passageDay.issues` neden kodu ve ilgili saati taşır. Nedenler süre hesabını değiştirmez; [kayıt durumu](record-status.md) bunları rapor modeline aktarır.
+`passageDay.issues` neden kodu ve ilgili saati taşır. Tekrarlar uyarı, eşleşmeyen ilk çıkış, geçmiş açık giriş ve okunamayan hareket belirsizlik nedenidir. Nedenler ilk giriş–son çıkış hesabını değiştirmez; [kayıt durumu](record-status.md) bunları rapor modeline aktarır.
 
 | Kod | Koşul |
 | --- | --- |
 | `repeated-entry` | Arada çıkış kaydı olmadan yeni giriş |
-| `unmatched-exit` | Girişle eşleşmeyen çıkış; art arda çıkışları da kapsar |
+| `repeated-exit` | Arada giriş kaydı olmadan yeni çıkış |
+| `unmatched-exit` | Öncesinde eşleşecek giriş bulunmayan ilk çıkış |
 | `missing-exit` | Geçmiş günde çıkışı bulunmayan giriş |
 | `invalid-record` | Okunamayan saat veya giriş–çıkış yönü |
 
 Bugünkü güvenilir açık giriş geçerli durumdur. Geçersiz saatte `time` alanı `null` olur.
 
-`hasReliableOpenEntry`, son girişin kendi eşleşmesi güvenilir olduğunda ve gün içinde okunamayan saat/yön bulunmadığında `true` olur. Önceki tekrarlı giriş/çıkışlar `uncertain` ve `issues` alanlarında korunur; sonradan gelen tek açık girişi engellemez. Son girişin kendisi tekrarlıysa güvenilir açık giriş yoktur. Kayıt satırlarında önceki çıkışın eşleşmemesi, son tek girişin açık satır olarak gösterilmesini engellemez.
+`hasReliableOpenEntry`, son hareket giriş olduğunda ve gün içinde okunamayan saat/yön bulunmadığında `true` olur. Art arda girişte son giriş açık kabul edilir; canlı süre yine günün ilk girişinden hesaplanır. Tekrarlar `issues` içinde uyarı olarak kalır ve tek başına `uncertain` üretmez. Gerçek eşleşmeyen çıkış ve geçersiz hareket belirsizliği korunur. Kayıt satırları tekrarın önceki hareketini eşleşmeyen, son girişi açık veya sonraki çıkışla eşleşmiş gösterir.
 
 ## Bağımlılıklar
 

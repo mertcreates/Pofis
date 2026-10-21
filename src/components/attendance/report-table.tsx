@@ -54,7 +54,7 @@ const DayRow = memo(function DayRow({
               <span>{ui.firstEntry}{" "}<time>{formatClock(day.firstEntry)}</time></span>
               <span>{ui.lastExit}{" "}<time>{formatClock(day.lastExit)}</time></span>
             </span>
-            {day.state === "uncertain" && <span className="report-accordion-warning">{stateLabel(day)}</span>}
+            {(day.state === "uncertain" || day.recordIssues.length > 0) && <span className="report-accordion-warning">{stateLabel(day)}</span>}
           </span>
           <span className="report-accordion-total"><span className="report-duration">{seconds === null ? ui.emptyValue : durationText(seconds)}</span><small>{live ? ui.live : ui.recordedTime}</small></span>
           <Icon name="chevron-down" />

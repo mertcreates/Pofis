@@ -43,6 +43,7 @@ export function PlanEditor({
   const weekDays = days.filter(day => weekStart(day.date) === week);
   const resolved = resolveWeekPlan(weekDays, plan, today, weekDays.length !== 7, targetSeconds, zeroOpenDays);
   const preservedSurplus = !WORK_PLAN_POLICY.autoReduceSurplus && resolved.unallocatedSeconds < 0;
+  const surplusCopy = preservedSurplus ? copy.surplus(durationText(-resolved.unallocatedSeconds)) : null;
   const activePlan = scope === "default" ? defaultPlan : plan;
   const locked = scope === "week" && resolved.locked[selectedDay];
   const selectedSeconds = scope === "week" ? resolved.displaySeconds[selectedDay] : activePlan[selectedDay] * 60;
@@ -89,7 +90,7 @@ export function PlanEditor({
       <div className="work-planner">
         {error && <InlineNotice tone="warning">{error}</InlineNotice>}
         {scope === "week" && resolved.unallocatedSeconds !== 0 && (!preservedSurplus || !different) && <InlineNotice tone={preservedSurplus ? "info" : "warning"}>
-          {preservedSurplus ? copy.surplus(durationText(-resolved.unallocatedSeconds))
+          {surplusCopy ? <>{surplusCopy.before}<strong className="work-plan-surplus-emphasis">{surplusCopy.emphasis}</strong>{surplusCopy.after}</>
             : copy.unallocated(durationText(Math.abs(resolved.unallocatedSeconds)), resolved.unallocatedSeconds > 0)}
         </InlineNotice>}
         <div className="work-plan-tabs" role="group" aria-label={copy.scope}>

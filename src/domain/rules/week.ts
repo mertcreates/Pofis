@@ -8,7 +8,8 @@ export function summarizeWeek(days: readonly DayReport[], today: string) {
   for (const day of days) {
     if (day.date > today) continue;
     estimatedSeconds += day.source.estimated;
-    if (day.state === "uncertain" || day.state === "missing" || day.recordIssues.length > 0) incomplete = true;
+    if (day.state === "uncertain" || day.state === "missing" || day.recordIssues.some(issue =>
+      issue.kind === "unmatched-exit" || issue.kind === "missing-exit" || issue.kind === "invalid-record")) incomplete = true;
     if (day.firstEntry !== null || day.lastExit !== null) recordedDays++;
     if (day.recordedSeconds !== null) {
       recorded += day.recordedSeconds;

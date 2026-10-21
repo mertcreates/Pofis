@@ -18,7 +18,7 @@ const DemoErrorPreview = dynamic(() => import("./error-preview").then(module => 
 
 const attendancePresets = {
   shortfall: { date: "2026-10-15", minutes: 0 },
-  uncertain: { date: "2026-10-07", minutes: 0 },
+  warning: { date: "2026-10-07", minutes: 0 },
   empty: { date: "2026-10-09", minutes: 0 },
   ongoing: { date: "2026-10-15", minutes: 120 },
 };

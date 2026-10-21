@@ -27,7 +27,7 @@ Günlük hedef [plan sahibinin](work-plan.md) etkin hedefidir; son açık günde
 
 Belirsizlik ve seçili gün kontrolleri ilerleme durumlarından önce gelir. Tahmini hedefe ulaşma çalışmayı tamamlamaz. `overworked`, kaynak görseliyle birlikte kendi başlık ve mesajını gösterir; canlı hedefteki bekleme mesajıyla örtülmez. Yüzde yuvarlaması [ilerleme sahibinden](progress.md) gelir. Dışarıda kalınan süre hesaplanıp düşülmez.
 
-Bugün önceki yön tekrarlarından sonra güvenilir tek açık giriş varsa geçiş sahibi bunu ayrıca bildirir; Pofi süre sahibinin canlı/kayıtlı ilerlemesini kullanır. Önceki tekrar uyarıları raporda korunur. Son giriş tekrarlıysa veya okunamayan hareket varsa `error` sürer.
+Bugün yön tekrarlarından sonra güvenilir açık giriş varsa geçiş sahibi bunu ayrıca bildirir; Pofi süre sahibinin canlı/kayıtlı ilerlemesini kullanır. Tekrar uyarıları raporda korunur. Okunamayan hareket veya güvenilir açık girişle ayrıştırılamayan gerçek eşleşme sorunu varsa `error` sürer.
 
 8 saat hedef, 08:00 ilk giriş: 14:24 canlı tahmin → `tired`; 16:00 → `working`; 17:07:12 (`%114`) → `working`; 17:12 (`%115`) → `overworked`. Son hareket 16:00 çıkışsa `completed`, 17:12 çıkışsa `overworked` gösterilir. Eski raporda durum kayıtlı süreye göre seçilir.
 

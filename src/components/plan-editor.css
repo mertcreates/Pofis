@@ -16,6 +16,7 @@
 }
 .work-planner { font-variant-numeric: tabular-nums; }
 .work-planner > .inline-notice { margin-bottom: 16px; }
+.work-plan-surplus-emphasis { font-weight: 700; }
 .work-plan-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;

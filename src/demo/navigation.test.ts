@@ -108,7 +108,9 @@ test("prior demo weeks retain missing and overtime days and their own Pofi notes
   );
   expect(overtime.days[2].recordedSeconds).toBe(33358);
   // Captured 13:11:57 / 13:11:58 / 13:29:27 entries are consecutive.
-  expect(overtime.days[2].source.pofi.state).toBe("error");
+  expect(overtime.days[2].state).toBe("outside");
+  expect(overtime.days[2].recordIssues.map(issue => issue.kind)).toEqual(["repeated-entry", "repeated-entry"]);
+  expect(overtime.days[2].source.pofi.state).toBe("overworked");
   expect(previewDemoReport(report, "2026-10-07").pofiNotes?.map((note) => note.date))
     .toEqual(["2026-10-05", "2026-10-06", "2026-10-07"]);
 });
@@ -153,15 +155,24 @@ test("demo extra time simulates an open entry and keeps the captured report unch
   expect(report).toEqual(original);
 });
 
-test("demo extra time is unavailable for empty and ambiguous days", () => {
+test("demo extra time is available for repeated entries and unavailable for empty or uncertain days", () => {
   const { now, reports } = demoData();
   const capturedDay = previewDemoDay(reports[3], "2026-10-16", now);
   expect(capturedDay.maxExtraMinutes).toBe(0);
   expect(() => previewDemoDay(reports[3], "2026-10-16", now, 15)).toThrow();
 
-  const ambiguousDay = previewDemoDay(reports[2], "2026-10-07", now);
-  expect(ambiguousDay.maxExtraMinutes).toBe(0);
-  expect(() => previewDemoDay(reports[2], "2026-10-07", now, 15)).toThrow();
+  const warningDay = previewDemoDay(reports[2], "2026-10-07", now, 15);
+  expect(warningDay.maxExtraMinutes).toBe(510);
+  const live = presentReport(warningDay.report, DEFAULT_WORK_PLAN, warningDay.now, false).days[2];
+  expect(live.state).toBe("ongoing");
+  expect(live.liveSeconds).toBe(34258);
+
+  const uncertainReport = { ...reports[2], passages: [
+    ...reports[2].passages,
+    { date: "2026-10-07", time: "05:00:00", direction: "out" as const },
+  ] };
+  expect(previewDemoDay(uncertainReport, "2026-10-07", now).maxExtraMinutes).toBe(0);
+  expect(() => previewDemoDay(uncertainReport, "2026-10-07", now, 15)).toThrow();
 });
 
 test.each([

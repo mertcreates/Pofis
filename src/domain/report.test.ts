@@ -248,7 +248,7 @@ test("aynı günün hareketleri bir güne birleşir; belirsiz geçiş canlı tah
   expect(view.days).toHaveLength(7);
   expect(view.days[4].records).toHaveLength(3);
   const uncertain = fixture();
-  uncertain.passages[9].direction = "in";
+  uncertain.passages[9].direction = "unknown" as "in";
   const day = presentReport(uncertain, DEFAULT_WORK_PLAN, now, false).days[4];
   expect(day.liveSeconds).toBeNull();
   expect(day.source!.pofi.state).toBe("error");
@@ -275,7 +275,7 @@ test.each([
     report.passages = report.passages.slice(0, 9);
     report.passages.push({ date: "2026-10-16", time: scenario.exit, direction: "out" });
   }
-  if (scenario.uncertain) report.passages[9].direction = "in";
+  if (scenario.uncertain) report.passages[9].direction = "unknown" as "in";
   const pofi = presentReport(
     report,
     DEFAULT_WORK_PLAN,

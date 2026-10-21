@@ -26,9 +26,9 @@ Girdiler günlük ilk giriş/son çıkış özeti, geçiş analizi, raporun İst
 | Giriş/çıkış kaydı tutarlı, bugün | `outside` | Son hareket: çıkış |
 | Giriş/çıkış kaydı tutarlı, geçmiş | `recorded` | Giriş–çıkış kaydı var |
 
-[Geçiş analizi](passages.md) kayıt sorunlarını belirler. İlk giriş ve son çıkış bulunması ara geçişlerdeki sorunu gidermez. Plan dışı günlerde de kayıtlar değerlendirilir; plan dışı bilgisi ayrıca gösterilir.
+[Geçiş analizi](passages.md) kayıt sorunlarını belirler. Çift giriş veya çıkış uyarısı, hesaplanabilen günlük durumu `uncertain` yapmaz; uyarı nedeni ve saati raporda kalır. Gerçek eşleşmeyen çıkış ve okunamayan hareket belirsizliği korunur. Plan dışı günlerde de kayıtlar değerlendirilir; plan dışı bilgisi ayrıca gösterilir.
 
-Bugünkü güvenilir açık giriş, önceki yön tekrarlarından bağımsız değerlendirilir. Örneğin 12:48:51/12:48:54 giriş ve 12:57:14/12:57:27 çıkış tekrarlarından sonra 13:24:46 tek girişi, güncel rapor ve uygun saatte `ongoing` olur. `recordIssues` ve durum metnindeki önceki tekrar uyarıları korunur. Rapor eskiyse veya saat son girişten önceyse `open` olur. Gün geçmişe geçtiğinde aynı sorunlar yeniden `uncertain` sonucuna girer; geçmiş devir kuralları korunur.
+Bugünkü güvenilir açık giriş, önceki ve son yön tekrarlarından bağımsız değerlendirilir. Örneğin 12:48:51/12:48:54 giriş ve 12:57:14/12:57:27 çıkış tekrarlarından sonra 13:24:46 girişi, güncel rapor ve uygun saatte `ongoing` olur. `recordIssues` ve durum metnindeki tekrar uyarıları korunur. Rapor eskiyse veya saat son girişten önceyse `open` olur. Gün geçmişe geçtiğinde çıkışsız son giriş `uncertain` olur; kapanmış tekrarlar `recorded` durumunu korur.
 
 Hedefin altında, hedefte veya üzerinde olmak kayıt bütünlüğünü değiştirmez. Örneğin 08:00–12:00 tutarlı geçmiş kayıt, dört saat süreyle `recorded` olur; hedef farkında dört saat eksik görünür. Eksik süre ile eksik geçiş ayrı bilgilerdir. Boş geçmiş günün kayıt durumu plan kapsamına göre `missing` veya `non-working` olur.
 

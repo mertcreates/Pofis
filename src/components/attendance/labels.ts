@@ -5,6 +5,7 @@ function recordIssueLabel(day: DayReport) {
     .map(issue => {
       switch (issue.kind) {
         case "repeated-entry": return ui.recordIssues.repeatedEntry(issue.time);
+        case "repeated-exit": return ui.recordIssues.repeatedExit(issue.time);
         case "unmatched-exit": return ui.recordIssues.unmatchedExit(issue.time);
         case "missing-exit": return ui.recordIssues.missingExit(issue.time);
         case "invalid-record": return ui.recordIssues.invalidRecord;
@@ -28,8 +29,8 @@ export function stateLabel(day: DayReport) {
     case "open":
       return [ui.lastEntryStatus, recordIssueLabel(day)].filter(Boolean).join(" ");
     case "outside":
-      return ui.lastExitStatus;
+      return [ui.lastExitStatus, recordIssueLabel(day)].filter(Boolean).join(" ");
     case "recorded":
-      return ui.recordedDay;
+      return [ui.recordedDay, recordIssueLabel(day)].filter(Boolean).join(" ");
   }
 }

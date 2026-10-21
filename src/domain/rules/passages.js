@@ -8,33 +8,34 @@ export function passageRecordRows(passages, date, today) {
     if (times[index] === null || !["in", "out"].includes(event.direction))
       unmatched.add(index);
     if (index === 0) continue;
-    const repeated = event.direction === events[index - 1].direction;
     const reversed =
       times[index] !== null &&
       times[index - 1] !== null &&
       times[index] < times[index - 1];
-    if (repeated || reversed) {
+    if (reversed) {
       unmatched.add(index - 1);
       unmatched.add(index);
     }
   }
   const rows = [];
+  let pending = null;
   for (let index = 0; index < events.length; index++) {
     const event = events[index];
-    const next = events[index + 1];
-    if (!unmatched.has(index) && event.direction === "in") {
-      if (next?.direction === "out" && !unmatched.has(index + 1)) {
-        rows.push({ type: "interval", entry: event, exit: next });
-        index++;
-        continue;
-      }
-      if (!next && date === today) {
-        rows.push({ type: "open", entry: event });
-        continue;
-      }
+    if (unmatched.has(index)) {
+      if (pending) rows.push({ type: "unmatched", event: pending });
+      rows.push({ type: "unmatched", event });
+      pending = null;
+    } else if (event.direction === "in") {
+      if (pending) rows.push({ type: "unmatched", event: pending });
+      pending = event;
+    } else if (pending) {
+      rows.push({ type: "interval", entry: pending, exit: event });
+      pending = null;
+    } else {
+      rows.push({ type: "unmatched", event });
     }
-    rows.push({ type: "unmatched", event });
   }
+  if (pending) rows.push(date === today ? { type: "open", entry: pending } : { type: "unmatched", event: pending });
   return rows;
 }
 
@@ -44,33 +45,33 @@ export function passageDay(passages, date, today) {
     .toSorted((a, b) => a.time.localeCompare(b.time));
   const intervals = [];
   let entry = null;
-  let ambiguousEntry = false;
+  let previousDirection = null;
   let uncertain = false;
-  /** @type {{kind: "invalid-record" | "repeated-entry" | "unmatched-exit" | "missing-exit", time: string | null}[]} */
+  /** @type {{kind: "invalid-record" | "repeated-entry" | "repeated-exit" | "unmatched-exit" | "missing-exit", time: string | null}[]} */
   const issues = [];
   for (const event of events) {
     const time = secondsOf(event.time);
     if (time === null || !["in", "out"].includes(event.direction)) {
       uncertain = true;
       issues.push({ kind: "invalid-record", time: time === null ? null : event.time });
+      previousDirection = null;
       continue;
     }
     if (event.direction === "in") {
-      if (entry !== null || ambiguousEntry) {
-        uncertain = true;
+      if (entry !== null)
         issues.push({ kind: "repeated-entry", time: event.time });
-        ambiguousEntry = true;
-        entry = null;
-      } else entry = time;
-    } else if (ambiguousEntry) {
-      ambiguousEntry = false;
+      entry = time;
     } else if (entry === null) {
-      uncertain = true;
-      issues.push({ kind: "unmatched-exit", time: event.time });
+      if (previousDirection === "out") issues.push({ kind: "repeated-exit", time: event.time });
+      else {
+        uncertain = true;
+        issues.push({ kind: "unmatched-exit", time: event.time });
+      }
     } else {
       intervals.push({ start: entry, end: time });
       entry = null;
     }
+    previousDirection = event.direction;
   }
   if (entry !== null && date !== today) {
     uncertain = true;

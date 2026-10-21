@@ -13,7 +13,7 @@ Mesaim, Hata ekranları ve Bildirimler sekmeleri arasında seçimler korunur. Me
 | Gün | Pazartesi–Cuma seçicisi günü sanal “bugün” yapar. Günün akışı, rapordaki “Bugün” ve Pofi aynı günü gösterir. Gün seçimi Pazartesi–Cuma seçicisinden yapılır. |
 | Geçmiş hafta | “Hazır senaryo → Geçmiş hafta” önceki haftanın tüm kayıtlarını yakalama saatiyle açar. Gün ve ek süre kontrolleri gizlenir. Hafta seçiciyle diğer geçmiş haftalara geçilebilir; yakalama haftasına geçmek veya gün senaryosu seçmek gün önizlemesine döner. |
 
-Gün senaryoları: Hedefin altında → 15 Ekim; Belirsiz kayıt → 7 Ekim; Kayıt olmayan gün → 9 Ekim; Devam eden mesai → 15 Ekim'e 120 dakika sanal ek süre. Hedef farkı kayıtlı demo planına göre hesaplanır. Elle seçim bir senaryoyla eşleşmezse “Özel seçim” görünür.
+Gün senaryoları: Hedefin altında → 15 Ekim; Tekrarlanan geçiş → 7 Ekim; Kayıt olmayan gün → 9 Ekim; Devam eden mesai → 15 Ekim'e 120 dakika sanal ek süre. Hedef farkı kayıtlı demo planına göre hesaplanır. Elle seçim bir senaryoyla eşleşmezse “Özel seçim” görünür.
 
 “Demoyu sıfırla” yakalama gününü sıfır ek süreyle açar; hata önizlemesini bağlantı, bildirim önizlemesini çıkış hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince geçici seçimler sıfırlanır.
 
@@ -47,7 +47,7 @@ Başlangıç günü 16 Ekim 2026, saati 11:24 Europe/Istanbul'dur. Bir gün seç
 
 Dört hafta arasında gezinilir; ilk yakalama haftasından önceki ve yakalama tarihinden sonraki haftalar seçilmez. Haftayı değiştirince haftanın aynı günü korunur; kısmi yakalama haftasında son kullanılabilir hafta içi gün seçilir. Kayıtsız hafta içi günler de seçilebilir. Seçim istemci belleğindedir; yeniden yükleme başlangıç gününü açar. Raporu yenile, aynı günün yakalanmış raporunu yeniden sunar. Gün gezintisi canlı Mesaim'de gösterilmez.
 
-Pozitif ek sürede sanal saat saniyede bir ilerler; sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Sekmeye dönüşte geçen süre yansır. Saat 23:59:59'da durur; sıfır ek süre ve “Demoyu sıfırla” çalışan saati durdurur. Geçmiş hafta önizlemesi tüm haftayı sabit yakalama saatiyle değerlendirir.
+Pozitif ek sürede sanal saat saniyede bir ilerler; sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Sekmeye dönüşte geçen süre yansır. Saat 23:59:59'da durur; sıfır ek süre ve “Demoyu sıfırla” çalışan saati durdurur. Tekrarlanan geçiş uyarısı ek süreyi engellemez. Geçmiş hafta önizlemesi tüm haftayı sabit yakalama saatiyle değerlendirir.
 
 | Haftanın başlangıcı | Hareket | Kayıtlı süre |
 | --- | ---: | ---: |
@@ -60,7 +60,7 @@ Gün önizlemesinde örnekler:
 
 - 9 Ekim: kayıtsız çalışma günü; haftalık toplam yaklaşık, hedef farkı hesaplanmıyor.
 - 15 Ekim: 04:51:52 kayıtlı süre; varsayılan 8 saat hedefe göre eksik.
-- 7 Ekim: 09:15:58 bilinen kayıtlı süre; 13:11:58'de arada çıkış kaydı olmadan yeni giriş vardır. Günlük hedef farkı gösterilmez; [kayıt sorunu](rules/record-status.md) saatiyle açıklanır.
+- 7 Ekim: 09:15:58 kayıtlı süre; 13:11:58'de arada çıkış kaydı olmadan yeni giriş vardır. Tekrar uyarısı saatiyle gösterilir; günlük hedef farkı ve Pofi ilerlemesi kayıtlı süreyi kullanır. Ek süre seçimi de açıktır.
 - 28 Eylül: eşleşmeyen ara hareketler; ham hareketler ve ilk giriş–son çıkış özeti birlikte korunuyor.
 - 14 Ekim: 05:57:32 erken giriş; İstanbul saatinde gösteriliyor.
 - 15 Ekim: 2 saatlik ek süre seçimi 04:51:52 kayıtlı süreyi korur ve 02:00:00 anlık tahmin üretir.
