@@ -29,6 +29,8 @@ const DayRow = memo(function DayRow({
   const [detailsLoaded, setDetailsLoaded] = useState(false);
   const id = `day-passages-${day.date}`;
   const label = formatDate(day.date);
+  const hasDetails = day.records.length > 0 || day.state === "uncertain" || day.recordIssues.length > 0;
+  const detailLabel = day.records.length > 0 ? ui.recordsForDate(label) : ui.recordStatus;
   const delta =
     (working || day.state === "recorded") &&
     day.state !== "uncertain" &&
@@ -54,7 +56,6 @@ const DayRow = memo(function DayRow({
               <span>{ui.firstEntry}{" "}<time>{formatClock(day.firstEntry)}</time></span>
               <span>{ui.lastExit}{" "}<time>{formatClock(day.lastExit)}</time></span>
             </span>
-            {(day.state === "uncertain" || day.recordIssues.length > 0) && <span className="report-accordion-warning">{stateLabel(day)}</span>}
           </span>
           <span className="report-accordion-total"><span className="report-duration">{seconds === null ? ui.emptyValue : durationText(seconds)}</span><small>{live ? ui.live : ui.recordedTime}</small></span>
           <Icon name="chevron-down" />
@@ -84,16 +85,16 @@ const DayRow = memo(function DayRow({
                 {day.date === today && <> · {ui.today}</>}
               </small>
             </div>
-            {(day.records.length > 0) && (
+            {hasDetails && (
               <button
                 type="button"
                 className="report-day-toggle"
                 aria-expanded={expanded}
                 aria-controls={id}
-                aria-label={ui.recordsForDate(label)}
+                aria-label={detailLabel}
                 onClick={() => setExpanded(!expanded)}
               >
-                <span>{ui.passageCount(day.records.length)}</span>
+                <span>{day.records.length > 0 ? ui.passageCount(day.records.length) : ui.recordStatus}</span>
                 <Icon name="chevron-down" />
               </button>
             )}
@@ -110,19 +111,20 @@ const DayRow = memo(function DayRow({
           {difference}
         </td>
         <td data-label={ui.recordStatus}>
-          <span className="report-status">{stateLabel(day)}</span>
+          <span className="report-status">{stateLabel(day, false)}</span>
           {!working && day.records.length > 0 && (
             <small>{ui.nonWorkingDay}</small>
           )}
         </td>
       </tr>
-      {(day.records.length > 0) && (
+      {hasDetails && (
         <tr className="report-detail-row" hidden={!expanded}>
           <td colSpan={6}>
             <div className="day-passages" id={id}>
               {expanded && (
                 <>
-                  <h3>{ui.recordsForDate(label)}</h3>
+                  <h3>{detailLabel}</h3>
+                  {(day.state === "uncertain" || day.recordIssues.length > 0) && <p className="report-detail-status">{stateLabel(day)}</p>}
                   {day.records.length > 0 && <RawPassages day={day} />}
                 </>
               )}

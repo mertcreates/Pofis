@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { loadPlans, savePlans } from "@/lib/plan-storage.js";
 import { workPlanStorage, type PlanScope } from "./work-plans";
 import {
-  emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, changeWeekPlan, changeDefaultPlan,
+  emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, resolveUserLockedDays, changeWeekLockedDays, changeWeekPlan, changeDefaultPlan,
   type WorkPlan, type WorkPlans,
 } from "@/domain/rules/work-plan";
 import { ui } from "@/lib/ui-text.js";
@@ -46,11 +46,13 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
     defaultPlan: plans.defaultPlan,
     leaveDays: resolveLeaveDays(plans, week),
     zeroOpenDays: resolveZeroOpenDays(plans, week),
-    special: Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length || plans.weekZeroOpenDays?.[week]?.length),
+    userLockedDays: resolveUserLockedDays(plans, week),
+    special: Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length || plans.weekZeroOpenDays?.[week]?.length || plans.weekLockedDays?.[week]?.length),
     ready,
     error,
     save: (plan: WorkPlan, completed: readonly (number | null)[], targetSeconds?: number, leaveDays?: readonly number[]) => persist(current => changeWeekPlan(current, week, plan, completed, targetSeconds, leaveDays)),
     saveDefault: (plan: WorkPlan, completed: readonly (number | null)[] = []) => persist(current => changeDefaultPlan(current, plan, week, completed)),
     reset: (completed: readonly (number | null)[] = []) => persist(current => changeWeekPlan(current, week, null, completed)),
+    setLockedDays: (days: readonly number[], plan: WorkPlan) => persist(current => changeWeekLockedDays(current, week, days, plan)),
   };
 }

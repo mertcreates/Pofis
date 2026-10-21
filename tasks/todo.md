@@ -21,7 +21,8 @@ Bu liste yerelde çalışan kurum içi Pofis uygulamasının açık işlerini tu
 ## Arayüz kabulü
 
 - [ ] Kullanıcı, [yemek menüsünü](../docs/rules/meal-menu.md) masaüstü/mobilde kontrol etsin: menüyü aç → gün değiştir → yeniden aç; gün ve not eşleşmesini, skeleton'ı, korunan modal yüksekliğini, kapatma butonunu ve banner taşmasını doğrulasın. Kısa menü, boş gün ve hata durumlarını da incelesin. Görsel kabul kullanıcıda.
-- [ ] Mesai planında izinli, şablondan kapalı, sıfır süreli açık ve kilitli günleri; kart/stepper süre eşitliğini ve dar ekran yerleşimini görsel olarak doğrula. Görsel kabul kullanıcıda.
+- [ ] Kullanıcı mesai planında serbest süre girişini ve +/- çizgilerini, manuel kilitli günden açık günlere uygulamayı, Sıfırla ile manuel kilidin kaldırılmasını ve tamamlanmış günlerin kayıt görünümünü doğrulasın. İki Tamamla seçeneğinin açılırken yerleşimi kaydırmadığını, eylem sırasını ve dar ekran yerleşimini kontrol etsin. Görsel kabul kullanıcıda.
+- [ ] Kullanıcı giriş–çıkış raporunda kapalı gün satırında turnike uyarısı görünmediğini, günün ayrıntısını açınca neden/saat ve ham hareketlerin bulunduğunu doğrulasın. Görsel kabul kullanıcıda.
 - [ ] 404 sahnesini, tema depolama bildirimini ve eksik notta defter gezinmesini masaüstü/mobil tarayıcıda doğrula. Boş normal havuzda nötr mesajı, önceki/sonraki gün gezinmesini ve özel gün notunu kontrol et.
 - [ ] Pofi'nin canlı/kayıtlı `%114 → %115` geçişinde `overworked` görselini ve “Hedefin üzerinde.” başlığını tarayıcıda doğrula.
 - [ ] Fiziksel mobil cihazda dokunmatik grafik ve modal tutamağından sürükleme davranışını kontrol et.

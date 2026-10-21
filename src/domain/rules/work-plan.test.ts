@@ -415,12 +415,13 @@ test("tek açık gün varsa ona dağıtır; kapasite yetmezse kısmi sonuç kayd
   expect(completeToDefaultTotal(readDayPlan([960, 450, 0, 0, 0, 0, 0])!, DEFAULT_WORK_PLAN, Array(7).fill(true))).toBeNull();
 });
 
-test("girdi yedi gün, 0–16 saat ve yarım saat adımıyla doğrulanır", () => {
+test("girdi yedi gün, tam dakika ve 0–16 saat aralığıyla doğrulanır", () => {
   for (const input of [[], [480], Array(7), [NaN, 0, 0, 0, 0, 0, 0], [Infinity, 0, 0, 0, 0, 0, 0],
-    [15, 0, 0, 0, 0, 0, 0], [-30, 0, 0, 0, 0, 0, 0], [990, 0, 0, 0, 0, 0, 0], ["480", 0, 0, 0, 0, 0, 0]]) {
+    [15.5, 0, 0, 0, 0, 0, 0], [-30, 0, 0, 0, 0, 0, 0], [990, 0, 0, 0, 0, 0, 0], ["480", 0, 0, 0, 0, 0, 0]]) {
     expect(readDayPlan(input)).toBeNull();
   }
   expect(readDayPlan([960, 0, 0, 0, 0, 0, 0])).toEqual([960, 0, 0, 0, 0, 0, 0]);
+  expect(readDayPlan([493, 0, 0, 0, 0, 0, 0])).toEqual([493, 0, 0, 0, 0, 0, 0]);
   expect(weeklyTarget(readDayPlan([0, 0, 0, 0, 0, 0, 0])!)).toBe(0);
   expect(setDayMinutes(DEFAULT_WORK_PLAN, 4, 0)).toEqual([480, 480, 480, 480, 0, 0, 0]);
   expect(() => setDayMinutes(DEFAULT_WORK_PLAN, 7, 480)).toThrow();

@@ -9,6 +9,8 @@
 | İşlem | Sahip |
 | --- | --- |
 | Planı doğrulama, haftayı ve hedefini okuma | `readDayPlan`, `readWeekPlan`, `resolveStoredPlan`, `resolveStoredTarget` |
+| Serbest süre girişini okuma ve +/- adımları | [plan-duration.ts](../../src/domain/rules/plan-duration.ts): `parsePlanDuration`, `stepPlanDuration` |
+| Manuel kilitleri okuma ve kaydetme | `resolveUserLockedDays`, `changeWeekLockedDays` |
 | İzin günlerini doğrulama/okuma ve izin sonrası referans hedef | `readLeaveDays`, `resolveLeaveDays`, `referenceWeekTarget` |
 | Hafta/şablon kaydetme ve sıfırlama | `changeWeekPlan`, `changeDefaultPlan` |
 | Kayıtlı süreyi, kilitli ve dağıtıma uygun günleri belirleme | `completedDaySeconds`, `lockedDays`, `planProtectionMarkers`, `planAdjustmentDays` |
@@ -24,7 +26,8 @@
 
 - `WorkPlan`, pazartesi–pazar sırasıyla yedi dakika değeri tutar. Düzenlenebilir günler pazartesi–cumadır; günlük aralık 0–960 dakikadır. Şablonda sıfır değer kapalı gündür; haftada otomatik hesapla sıfırlanmış açık gün ayrıca işaretlenir. Cumartesi/pazar bu plan modelinde düzenlenemez ve plan değerleri sıfırdır; mevcut PDKS kayıtları korunur.
 - İlk şablon pazartesi–cuma 480’er dakika, toplam 40 saattir. Şablonu kullanıcı düzenler; PDKS kayıtları gerçekleşen süreyi sağlar.
-- Şablon 30 dakika adımlarını kullanır. Haftalık gereken süreler ve bunların düzenlenmesi saniye hassasiyetini korur; stepper 30 dakikalık artış/azalış yapar ve sınırdaki son adımda 0 veya 16 saate ulaşır.
+- Şablon ve haftalık plan tam dakika girişi kabul eder (ör. `8 saat 13 dakika`, `8sa13dk`, `8h 13m`, `8:13`). Günlük sınır 0–16 saattir. Haftalık gereken süreler saniye hassasiyetini korur; +/- düğmeleri geçerli süreden sonraki veya önceki 30 dakikalık çizgiye gider.
+- Kabul edilen birimler, birimsiz/ondalık saatler ve +/- sınırları [süre girişi sözleşmesinde](plan-duration.md) tanımlıdır.
 - Haftanın planı özel hafta kaydından, böyle bir kayıt bulunmadığında varsayılan şablondan gelir. Şablon değişikliği onu miras alan geçmiş haftalara da uygulanır.
 - Düzenlenen haftada tamamlanan günlerin kayıtlı plan değerleri korunur. Haftanın şablonu izleme ve özel düzenlemeyi koruma koşulları aşağıdaki tabloda tanımlıdır.
 
@@ -35,6 +38,7 @@
 | Şablondan kapalı gün | Miras alınan şablon toplamına süre katmaz | Süre almaz |
 | Haftalık planda izinli yapılan gün | O günün güncel şablon karşılığı düşülür | Süre almaz |
 | Açık gün, gereken süresi 0 | Hedef aynı kalır | Kayıt veya plan değiştiğinde yeniden süre alabilir |
+| Kullanıcının kilitlediği açık gün | Hedef aynı kalır | Gereken süre korunur; diğer uygun günlere dağıtılır |
 
 İlk iki durumda gün kapalıdır. Üçüncü durumda gereken süre sıfırdır ve gün açıktır. Örneğin kullanıcı Tamamla ile Cuma'yı açık ve 0 saat kaydetmişse, Pzt–Per toplamı 40 saatten 39 saate düzeltildiğinde Cuma'ya 1 saat düşer. Güncel politikada Pzt–Per toplamının 40 saate ulaşması, planlanan 8 saatlik Cuma'yı korur; beklenen toplam 48 saat ve fazla süre 8 saattir. Cuma'yı izinli yapmak ise 8 saatlik şablonda hedefi 32 saate indirir.
 
@@ -72,6 +76,8 @@ Kilitli günün hesaplanabilen gerçekleşeni gösterilir; süre hesaplanamıyor
 
 Dağıtıma uygun gün: bugün veya gelecekte bulunan, açık, tamamlanmamış ve kayıt durumu belirsiz olmayan gündür. Pozitif planlı gün ile sıfır süreli açık gün işareti taşıyan gün açıktır. Tam hafta raporunda gereken süreler şu bakiyeyle hesaplanır:
 
+Kullanıcı seçtiği haftalık günü kilitleyebilir. Kilitleme, o anda görünen gereken süreyi haftanın planına kaydeder. Kilit açıkken süre alanı ve İzin eylemi kapalıdır; kilidi açınca kullanıcı yeniden düzenleyebilir. Otomatik devir, Tamamla, açık günlere uygulama ve şablon değişikliği kilitli günün planını korur. Sıfırla manuel kilidi kaldırır ve günü şablona döndürür. PDKS kaydıyla kilitlenen geçmiş günün davranışı ayrı kalır. Kilitli gün dağıtıma uygun değildir; kapasite yetersizse kalan fark görünür.
+
 ```text
 bakiye = haftalık hedef − günlük plan toplamı
        + Σ(tamamlanan günün plan saniyesi − gerçekleşen saniyesi)
@@ -87,7 +93,7 @@ Fazla sürenin otomatik azaltılmasını aynı modüldeki `WORK_PLAN_POLICY.auto
 | `false` (güncel) | Kalan günlerin kayıtlı plan süreleri korunur; fazla süre negatif bakiyede ve modalın bilgilendirmesinde gösterilir |
 | `true` | Önceki davranış: fazla süre son uygun günden geriye doğru, günlük alt sınır 0 olacak şekilde düşülür |
 
-Önceki davranışı geri açmak için yalnız bu sabiti `true` yapın. Modal, rapor, günlük hedef, hedef çıkış ve Pofi ortak hesabı kullanır. Ayar uygulama politikasıdır; kullanıcı ayarı veya kalıcı plan alanı değildir. `resolveWeekPlan` son parametresiyle her iki davranış izole testlerde doğrulanır. Eksik süre dağıtımı iki ayarda da sürer. Kullanıcının elle azaltma ve Tamamla eylemleri kendi sözleşmeleriyle çalışır.
+Önceki davranışı geri açmak için yalnız bu sabiti `true` yapın. Modal, rapor, günlük hedef, hedef çıkış ve Pofi ortak hesabı kullanır. Ayar uygulama politikasıdır; kullanıcı ayarı veya kalıcı plan alanı değildir. `resolveWeekPlan` içindeki `autoReduceSurplus` parametresiyle her iki davranış izole testlerde doğrulanır. Eksik süre dağıtımı iki ayarda da sürer. Kullanıcının elle azaltma ve Tamamla eylemleri kendi sözleşmeleriyle çalışır.
 
 Tam hafta hesabında `beklenen toplam + unallocatedSeconds = haftalık hedef` eşitliği korunur. Kalan uygun gün veya kapasite bulunmadığında fark bu bakiyede kalır.
 
@@ -101,7 +107,7 @@ Tamamla veya önceki otomatik azaltma politikasıyla sıfıra inen gereken süre
 
 `editRequiredMinutes`, tamamlanmamış günlerin güncel gereken sürelerini yeni çalışma planına alır. Pozitif süre düzenlemesinde haftalık hedef, açıkça değiştirilen gereken süre farkı kadar güncellenir. Tamamlanan günlerin kayıtlı planları korunur. Yeni hedefle otomatik devir yeniden hesaplanır; dağıtılamayan bakiye varsa elle düzenlenen güne de uygulanabilir.
 
-Toplu uygulama, seçili gereken süreyi diğer uygun açık günlere uygular. Tamamla işleminin dağıtım sırası [aşağıda](#izin-sonrası-referans-hedefe-tamamlama) tanımlıdır.
+Toplu uygulama, seçili gereken süreyi diğer uygun açık günlere uygular. Seçili günün manuel kilidi bu eylemi engellemez; seçili günün süresi ve diğer kilitli günler korunur. Uygun günlerden en az birinin süresi farklıysa “Açık günlere uygula” görünür. Tamamla işleminin dağıtım sırası [aşağıda](#izin-sonrası-referans-hedefe-tamamlama) tanımlıdır.
 
 <a id="izinli-gün"></a>
 
@@ -111,7 +117,7 @@ Haftalık düzenlemede günü kapatmak veya süresini elle sıfıra indirmek o g
 
 İzni kaldırıp yeniden açmak o günün varsayılan şablon süresini kullanır; şablonda kapalıysa ilk şablondaki 480 dakika uygulanır. Açılan süre haftalık hedefe eklenir. İzin karşılığı güncel şablondan okunur; izin işareti haftaya aittir. PDKS geçişleri ve şablon bu işlemle değişmez. İzinli günde gerçek kayıt oluşursa kayıtlı süre normal kayıt kurallarıyla hesaba katılır.
 
-Sıfırla, tamamlanmamış günlerin izinlerini kaldırıp günleri şablona döndürür. Hedef güncel şablon toplamıdır; tamamlanmış izinli gün varsa onun şablon karşılığı düşülür. Tamamlanan günlerin izin işaretleri, kayıtlı planları ve gerçekleşen süreleri korunur. Otomatik devir yeniden hesaplanır; seçili gün sıfırlama sonucunu etkilemez. Aynı şablon ve kayıtlarla tekrar sıfırlama aynı sonucu verir.
+Sıfırla, haftanın manuel kilitlerini ve tamamlanmamış günlerin izinlerini kaldırıp tamamlanmamış günleri şablona döndürür. Hedef güncel şablon toplamıdır; tamamlanmış izinli gün varsa onun şablon karşılığı düşülür. Tamamlanan günlerin izin işaretleri, kayıtlı planları ve gerçekleşen süreleri korunur. Otomatik devir yeniden hesaplanır; seçili gün sıfırlama sonucunu etkilemez. Aynı şablon ve kayıtlarla tekrar sıfırlama aynı sonucu verir.
 
 Örnek: Pzt–Çar 26 sa 40 dk kayıt, Per 8 sa, Cum planı 7,5 sa → Cum gereken 7 sa 30 dk, haftalık hedef 39 sa 30 dk, beklenen toplam 42 sa 10 dk ve fazla süre 2 sa 40 dk. Bu başlangıçtan:
 
@@ -128,12 +134,12 @@ Kapasite örneği: hedef 40 sa, Pzt–Çar gerçekleşeni 6 sa, Per/Cum gereken 
 
 ## İzin sonrası referans hedefe tamamlama
 
-`completeWeekPlan`, beklenen toplamı izin sonrası referans hedefe getirir. Haftalık hedef veya beklenen toplam bu referanstan farklıysa modal Tamamla eylemini gösterir; standart 40 saatlik plandaki fazla süre de bu kapsamdadır. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır. Kilitli, izinli, kapalı, geçmiş veya belirsiz günler uygunluk kuralıyla korunur.
+`completeWeekPlan`, beklenen toplamı izin sonrası referans hedefe getirir. Haftalık hedef veya beklenen toplam bu referanstan farklıysa modal Tamamla eylemini gösterir; standart 40 saatlik plandaki fazla süre de bu kapsamdadır. Eylem iki seçenek sunar: **Günlere eşit dağıt**, farkı uygun günlere 30 dakikalık turlarla (son turda kalan süreyle) dağıtır; **Son mesai gününe dağıt**, farkı son uygun günden başlayarak kapasitesi doldukça önceki güne aktarır. Her iki yönde de aynı seçenek uygulanır. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır. Kilitli, izinli, kapalı, geçmiş veya belirsiz günler uygunluk kuralıyla korunur.
 
-| Yön | Dağıtım |
+| Seçenek | Dağıtım |
 | --- | --- |
-| Süre ekleme | Önce seçili gün dışındaki uygun günlere pazartesi–cuma sırasıyla en fazla 30 dakikalık turlar; son adım kalan saniye kadar. Başka uygun gün yoksa veya kapasiteleri tükenirse seçili uygun güne eklenir |
-| Süre azaltma | Seçimden bağımsız, tüm uygun günlerin sonundan geriye; gün sıfıra inince önceki uygun güne geçiş |
+| Günlere eşit dağıt | Tüm uygun günlere pazartesi–cuma sırasıyla 30 dakikalık ekleme veya azaltma turları; son adım kalan saniye kadar |
+| Son mesai gününe dağıt | Son uygun günden geriye ekleme veya azaltma; günlük sınıra ulaşıldığında önceki uygun güne geçiş |
 
 Başarılı işlem kalan gereken süreleri çalışma planına, izin sonrası referansı haftalık hedefe kaydeder. Bütün uygun günlerin kapasitesi yetersizse sonuç `null` olur; arayüz işlemi kapasite açıklamasıyla devre dışı gösterir ve mevcut kayıt korunur.
 
@@ -157,13 +163,14 @@ Hesaplar saniye hassasiyetini korur. Görünür süreler saat/dakika, erişilebi
 
 ## Kalıcılık ve navigasyon
 
-Saklanan `WorkPlans` durumu `{ defaultPlan, weekOverrides, weekTargets?, weekLeaves?, weekZeroOpenDays? }` biçimindedir:
+Saklanan `WorkPlans` durumu `{ defaultPlan, weekOverrides, weekTargets?, weekLeaves?, weekZeroOpenDays?, weekLockedDays? }` biçimindedir:
 
 - `defaultPlan`: güncel şablon.
-- `weekOverrides`: pazartesi tarihiyle (`YYYY-MM-DD`) anahtarlanan hafta planları. Yedi değerin tamamı şablonla eşleşirse özel kayıt kaldırılır.
+- `weekOverrides`: pazartesi tarihiyle (`YYYY-MM-DD`) anahtarlanan hafta planları. Yedi değerin tamamı şablonla eşleştiğinde ve manuel kilit kalmadığında özel kayıt kaldırılır. Manuel kilit varsa kilitlenen süreyi koruyan plan kaydı tutulur.
 - `weekTargets`: izin karşılıkları düşülmeden önceki haftalık hedef, saniye cinsinden. Okunan net hedef `max(0, saklanan hedef − güncel izin karşılıkları)` olur. İzinli haftada bu kayıt tutulur; izinsiz haftada günlük toplamla eşleşen hedef girdisi kaldırılır. Kayıt yoksa hedef, izinler uygulanmış günlük plan toplamıdır.
 - `weekLeaves`: pazartesi tarihiyle anahtarlanan, tekil 0–4 gün indeksleri. Okunan haftalık planda bu günler sıfırlanır. Boş liste kaldırılır. Güncel şablon izin karşılığının tek kaynağıdır.
 - `weekZeroOpenDays`: sıfır plan süresine rağmen açık kalan günlerin tekil 0–4 indeksleri. Önceki açık gün kullanıcı düzenlemesinde veya Tamamla sonucunda sıfırla kaydedilirse işaretlenir. İzin verme işareti kaldırır; pozitif plan değeri açık durumu zaten taşır. Sıfırla tamamlanmamış işaretleri kaldırıp şablonu uygular; tamamlanan günün işareti korunur. Boş ve pozitif plan için gereksiz işaretler temizlenir; izinle çelişen işaretler reddedilir.
+- `weekLockedDays`: kullanıcı tarafından kilitlenen tekil 0–4 gün indeksleri. İzinli günle çakışmaz. Günün kilit anındaki gereken süresi `weekOverrides` içinde tutulur; kilit kaldırılınca bu süre plan olarak kalır. Sıfırla, seçili haftanın kilit listesini kaldırır.
 
 [plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulamayı, [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamını, [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonraki durum güncellemesini yönetir. Güncel şema tek `pofis:work-plans:v1` anahtarında saklanır; demo aynı şemayı `demo:pofis:work-plans:v1` anahtarında tutar. Yalnız bu anahtar okunur; kayıt yoksa varsayılan plan açılır. Depolama sözleşmesi güncel v1 şemasıdır. Güncel anahtardaki geçersiz veri görünür hata üretir ve düzenleme kilitlenir. Yazı hatasında son başarılı kayıt korunur.
 

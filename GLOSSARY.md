@@ -68,6 +68,9 @@ Mesai planına dahil olan hafta günü. Gereken süresi sıfır olsa da çalış
 **Seçili gün**:
 Plan düzenleyicisinde ayrıntıları ve süre kontrolleri gösterilen gün.
 
+**Manuel gün kilidi**:
+Kullanıcının haftalık planda günün gereken süresini korumak için koyduğu kilit. Otomatik devir ve toplu düzenlemeler o günü korur; Planı sıfırla kilidi kaldırır. Tamamlanmış günün PDKS kaydı nedeniyle oluşan kilidi kayıt sahibine bağlıdır.
+
 **Pofi notu**:
 Mesai kaydından bağımsız, belirli bir tarih ve kişi anahtarı için seçilen günlük metni.
 _Kapsam_: Pofi'nin günlük metni

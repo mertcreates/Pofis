@@ -12,6 +12,7 @@ export type WorkPlans = {
   weekLeaves?: Record<string, readonly number[]>;
   // A computed zero duration keeps its open-day intent when materialized and saved.
   weekZeroOpenDays?: Record<string, readonly number[]>;
+  weekLockedDays?: Record<string, readonly number[]>;
 };
 export const PLAN_LIMITS = Object.freeze({ stepMinutes: 30, maxDailyMinutes: 960 });
 export const WORK_PLAN_POLICY = Object.freeze({ autoReduceSurplus: false });
@@ -24,7 +25,7 @@ export function emptyWorkPlans(): WorkPlans {
 
 export function readDayPlan(value: unknown): WorkPlan | null {
   const plan = readWeekPlan(value);
-  return plan && plan.every(minutes => Number.isInteger(minutes) && minutes % PLAN_LIMITS.stepMinutes === 0) ? plan : null;
+  return plan && plan.every(Number.isInteger) ? plan : null;
 }
 
 export function readWeekPlan(value: unknown): WorkPlan | null {
@@ -52,6 +53,28 @@ export function resolveLeaveDays(plans: WorkPlans, week: string): readonly numbe
 
 export function resolveZeroOpenDays(plans: WorkPlans, week: string): readonly number[] {
   return plans.weekZeroOpenDays?.[week] ?? NO_PLAN_DAYS;
+}
+
+export function resolveUserLockedDays(plans: WorkPlans, week: string): readonly number[] {
+  return plans.weekLockedDays?.[week] ?? NO_PLAN_DAYS;
+}
+
+export function changeWeekLockedDays(plans: WorkPlans, week: string, days: readonly number[], plan: WorkPlan): WorkPlans {
+  if (!isPlanWeek(week) || !readLeaveDays(days) || !readWeekPlan(plan) ||
+    days.some(day => resolveLeaveDays(plans, week).includes(day))) throw new Error("Geçersiz kilitli günler");
+  const weekLockedDays = { ...plans.weekLockedDays };
+  if (days.length) weekLockedDays[week] = [...days].sort((a, b) => a - b);
+  else delete weekLockedDays[week];
+  const weekOverrides = { ...plans.weekOverrides, [week]: plan };
+  if (samePlan(plan, plans.defaultPlan) && !days.length) delete weekOverrides[week];
+  const weekTargets = { ...plans.weekTargets };
+  const target = resolveStoredTarget(plans, week);
+  const leaves = resolveLeaveDays(plans, week);
+  if (!leaves.length && target === weeklyTarget(plan)) delete weekTargets[week];
+  else weekTargets[week] = target + leaveSeconds(plans.defaultPlan, leaves);
+  const { weekLockedDays: _, weekTargets: __, ...rest } = plans;
+  return { ...rest, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
+    ...(Object.keys(weekLockedDays).length ? { weekLockedDays } : {}) };
 }
 
 export function isOpenPlanDay(plan: WorkPlan, day: number, zeroOpenDays: readonly number[] = []): boolean {
@@ -88,13 +111,16 @@ export function changeWeekPlan(plans: WorkPlans, week: string, plan: WorkPlan | 
     (targetSeconds !== undefined && (!Number.isSafeInteger(targetSeconds) || targetSeconds < 0))) throw new Error("Geçersiz mesai planı");
   const previous = resolveStoredPlan(plans, week);
   const reset = plan === null;
+  const userLocked = reset ? NO_PLAN_DAYS : resolveUserLockedDays(plans, week);
   const previousLeaves = resolveLeaveDays(plans, week);
   leaveDays = reset ? previousLeaves.filter(day => completed[day] != null) : leaveDays;
   if (previous.some((_, day) => completed[day] != null && previousLeaves.includes(day) !== leaveDays.includes(day)))
     throw new Error("Tamamlanan gün değiştirilemez");
-  plan = preserveCompletedPlan(applyLeave(plan ?? plans.defaultPlan, leaveDays), previous, completed);
+  leaveDays = leaveDays.filter(day => !userLocked.includes(day) || previousLeaves.includes(day));
+  plan = preserveCompletedPlan(applyLeave(plan ?? plans.defaultPlan, leaveDays), previous,
+    previous.map((_, day) => completed[day] != null || userLocked.includes(day) ? 0 : null));
   const weekOverrides = { ...plans.weekOverrides };
-  if (samePlan(plan, plans.defaultPlan)) delete weekOverrides[week];
+  if (samePlan(plan, plans.defaultPlan) && !userLocked.length) delete weekOverrides[week];
   else weekOverrides[week] = plan;
   const nextTarget = targetSeconds ?? (reset ? referenceWeekTarget(plans.defaultPlan, leaveDays)
     : resolveStoredTarget(plans, week) + weeklyTarget(plan) - weeklyTarget(previous));
@@ -107,13 +133,16 @@ export function changeWeekPlan(plans: WorkPlans, week: string, plan: WorkPlan | 
   const weekZeroOpenDays = { ...plans.weekZeroOpenDays };
   const previousZeroOpenDays = resolveZeroOpenDays(plans, week);
   const zeroOpenDays = plan.flatMap((minutes, day) => minutes === 0 && !leaveDays.includes(day) &&
-    isOpenPlanDay(previous, day, previousZeroOpenDays) && (!reset || completed[day] != null) ? [day] : []);
+    isOpenPlanDay(previous, day, previousZeroOpenDays) && (!reset || completed[day] != null || userLocked.includes(day)) ? [day] : []);
   if (zeroOpenDays.length) weekZeroOpenDays[week] = zeroOpenDays;
   else delete weekZeroOpenDays[week];
-  const { weekTargets: _, weekLeaves: __, weekZeroOpenDays: ___, ...rest } = plans;
+  const weekLockedDays = { ...plans.weekLockedDays };
+  if (reset) delete weekLockedDays[week];
+  const { weekTargets: _, weekLeaves: __, weekZeroOpenDays: ___, weekLockedDays: ____, ...rest } = plans;
   return { ...rest, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
     ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}),
-    ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}) };
+    ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}),
+    ...(Object.keys(weekLockedDays).length ? { weekLockedDays } : {}) };
 }
 
 export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?: string, completed: readonly (number | null)[] = []): WorkPlans {
@@ -125,12 +154,14 @@ export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?
     const leaves = resolveLeaveDays(plans, week);
     const previous = resolveStoredPlan(plans, week);
     const zeroOpenDays = resolveZeroOpenDays(plans, week);
-    const customRemainingDays = previous.some((minutes, day) => completed[day] == null && !leaves.includes(day) &&
+    const userLocked = resolveUserLockedDays(plans, week);
+    const customRemainingDays = previous.some((minutes, day) => completed[day] == null && !userLocked.includes(day) && !leaves.includes(day) &&
       (minutes !== plans.defaultPlan[day] || zeroOpenDays.includes(day)));
     const previousTarget = resolveStoredTarget(plans, week);
     const customTarget = previousTarget !== referenceWeekTarget(plans.defaultPlan, leaves);
     if (!customRemainingDays && !customTarget) {
-      weekOverrides[week] = preserveCompletedPlan(applyLeave(defaultPlan, leaves), previous, completed);
+      weekOverrides[week] = preserveCompletedPlan(applyLeave(defaultPlan, leaves), previous,
+        previous.map((_, day) => completed[day] != null || userLocked.includes(day) ? 0 : null));
       const nextTarget = referenceWeekTarget(defaultPlan, leaves);
       if (!leaves.length && nextTarget === weeklyTarget(weekOverrides[week])) delete weekTargets[week];
       else weekTargets[week] = weeklyTarget(defaultPlan);
@@ -151,9 +182,10 @@ export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?
   return {
     defaultPlan,
     weekOverrides: Object.fromEntries(Object.entries(weekOverrides)
-      .filter(([, plan]) => !samePlan(plan, defaultPlan))),
+      .filter(([key, plan]) => resolveUserLockedDays(plans, key).length || !samePlan(plan, defaultPlan))),
     ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
     ...(plans.weekLeaves ? { weekLeaves: plans.weekLeaves } : {}),
+    ...(plans.weekLockedDays ? { weekLockedDays: plans.weekLockedDays } : {}),
     ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}),
   };
 }
@@ -161,7 +193,7 @@ export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?
 export function setDayMinutes(plan: WorkPlan, day: number, minutes: number): WorkPlan {
   if (!Number.isInteger(day) || day < 0 || day >= WORKING_DAY_COUNT) throw new Error("Geçersiz plan günü");
   const next = readWeekPlan(plan.map((value, index) => index === day ? minutes : value));
-  if (!next) throw new Error("Günlük süre 0–16 saat arasında, yarım saat adımlarla seçilmeli");
+  if (!next) throw new Error("Günlük süre 0–16 saat arasında olmalı");
   return next;
 }
 
@@ -210,18 +242,18 @@ export function completedDaySeconds(days: readonly PlanDay[], week: string, toda
   return completed;
 }
 
-export function planAdjustmentDays(days: readonly PlanDay[], plan: WorkPlan, week: string, today: string, zeroOpenDays: readonly number[] = []): boolean[] {
+export function planAdjustmentDays(days: readonly PlanDay[], plan: WorkPlan, week: string, today: string, zeroOpenDays: readonly number[] = [], userLockedDays: readonly number[] = []): boolean[] {
   const locked = lockedDays(days, week, today);
-  return weekDates(week).map((date, index) => date >= today && isOpenPlanDay(plan, index, zeroOpenDays) && !locked[index] &&
+  return weekDates(week).map((date, index) => date >= today && isOpenPlanDay(plan, index, zeroOpenDays) && !locked[index] && !userLockedDays.includes(index) &&
     days.find(day => day.date === date)?.state !== "uncertain");
 }
 
-export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today: string, partial = false, targetSeconds = weeklyTarget(plan), zeroOpenDays: readonly number[] = [], autoReduceSurplus: boolean = WORK_PLAN_POLICY.autoReduceSurplus) {
+export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today: string, partial = false, targetSeconds = weeklyTarget(plan), zeroOpenDays: readonly number[] = [], autoReduceSurplus: boolean = WORK_PLAN_POLICY.autoReduceSurplus, userLockedDays: readonly number[] = []) {
   const week = weekStart(days[0]?.date ?? today);
   const completed = completedDaySeconds(days, week, today);
   const locked = lockedDays(days, week, today);
   const workingDays = plan.map((_, day) => isOpenPlanDay(plan, day, zeroOpenDays));
-  const eligible = planAdjustmentDays(days, plan, week, today, zeroOpenDays);
+  const eligible = planAdjustmentDays(days, plan, week, today, zeroOpenDays, userLockedDays);
   const openDays = plan.flatMap((_, day) => eligible[day] ? [day] : []);
   const required = plan.map(minutes => Math.round(minutes * 60));
   let unallocatedSeconds = completed.reduce<number>((sum, seconds, index) =>
@@ -276,20 +308,21 @@ export function editRequiredMinutes(plan: WorkPlan, resolved: ReturnType<typeof 
   return { plan: next, targetSeconds: Math.max(0, targetSeconds), leaveDays: [...leaves].sort((left, right) => left - right) };
 }
 
-export function completeWeekPlan(plan: WorkPlan, defaultPlan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, selectedDay: number | null = null, leaveDays: readonly number[] = []): WorkPlan | null {
+export function completeWeekPlan(plan: WorkPlan, defaultPlan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, selectedDay: number | null = null, leaveDays: readonly number[] = [], mode: "equal" | "last" | "legacy" = "legacy"): WorkPlan | null {
   const next = [...resolved.displaySeconds];
   let difference = referenceWeekTarget(defaultPlan, leaveDays) - resolved.projectedWeeklySeconds;
   const reducing = difference < 0;
   const eligible = plan.flatMap((_, day) => resolved.eligible[day] && !leaveDays.includes(day) ? [day] : []);
   const otherDays = eligible.filter(day => day !== selectedDay);
-  let recipients = reducing ? [...eligible].reverse() : otherDays.length > 0 ? otherDays : eligible;
+  let recipients = mode === "last" || (mode === "legacy" && reducing) ? [...eligible].reverse()
+    : mode === "equal" ? eligible : otherDays.length > 0 ? otherDays : eligible;
   while (difference !== 0) {
     let changed = false;
     for (const day of recipients) {
       const capacity = difference > 0 ? PLAN_LIMITS.maxDailyMinutes * 60 - next[day] : next[day];
       const step = difference > 0
-        ? Math.min(difference, PLAN_LIMITS.stepMinutes * 60, capacity)
-        : -Math.min(-difference, capacity);
+        ? Math.min(difference, mode === "last" ? capacity : PLAN_LIMITS.stepMinutes * 60, capacity)
+        : -Math.min(-difference, mode === "equal" ? PLAN_LIMITS.stepMinutes * 60 : capacity, capacity);
       if (step === 0) continue;
       next[day] += step;
       difference -= step;
@@ -297,7 +330,7 @@ export function completeWeekPlan(plan: WorkPlan, defaultPlan: WorkPlan, resolved
       if (difference === 0) break;
     }
     if (!changed) {
-      if (selectedDay !== null && eligible.includes(selectedDay) && !recipients.includes(selectedDay)) {
+      if (mode === "legacy" && selectedDay !== null && eligible.includes(selectedDay) && !recipients.includes(selectedDay)) {
         recipients = [selectedDay];
       } else return null;
     }

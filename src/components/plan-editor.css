@@ -137,11 +137,14 @@
 .work-plan-day-title strong { font-size: 15px; font-weight: 650; }
 .work-plan-day-title span { color: var(--muted); font-size: 12px; }
 .work-plan-editable .work-plan-editor-top { width: 100%; }
-.work-plan-editable .work-plan-day-title { flex-direction: row; align-items: center; gap: 8px; flex-shrink: 0; }
+.work-plan-editable .work-plan-day-title { flex-direction: row; align-items: center; gap: 8px; flex-wrap: wrap; }
+.work-plan-lock { display: inline-flex; align-items: center; gap: 4px; padding: 0 7px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--secondary); font-size: 12px; }
+.work-plan-lock[aria-pressed="true"] { color: var(--accent-text); border-color: var(--accent); background: var(--accent-soft); }
 .work-plan-day-action { width: 56px; flex-shrink: 0; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--secondary); font-size: 12px; font-weight: 500; white-space: nowrap; }
 .work-plan-closed-status { display: inline-flex; align-items: center; min-height: calc(var(--plan-control-size) + 8px); color: var(--secondary); font-size: 13px; }
 .work-plan-duration-control { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: calc(2 * var(--plan-control-size) + 72px); margin-left: auto; }
 .work-plan-stepper {
+  position: relative;
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
@@ -161,7 +164,10 @@
   color: var(--ink);
   font-size: 18px;
 }
-.work-plan-stepper output { min-width: 64px; text-align: center; font-size: 13px; font-weight: 600; }
+.work-plan-duration-input { width: 96px; min-width: 0; padding: 5px 3px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--ink); text-align: center; font-family: inherit; font-size: 13px; font-weight: 600; }
+.work-plan-duration-input:focus-visible { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.work-plan-duration-input[aria-invalid="true"] { border-color: var(--danger, #b42318); }
+.work-plan-input-help { position: absolute; z-index: 1; top: calc(100% + 4px); right: 0; width: max-content; max-width: 220px; padding: 5px 7px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--secondary); font-size: 11px; }
 .work-plan-apply {
   padding: 0 12px;
   border: 1px solid var(--line);
@@ -203,6 +209,11 @@
 }
 .work-plan-actions .work-plan-complete { background: var(--accent); color: var(--accent-content); border-color: var(--accent); }
 .work-plan-actions .work-plan-complete:is(:hover, :focus):not(:disabled) { background: var(--accent-hover); color: var(--accent-content); border-color: var(--accent-hover); }
+.work-plan-completion { position: relative; display: inline-flex; align-items: center; }
+.work-plan-completion > .work-plan-complete { display: inline-flex; align-items: center; gap: 10px; }
+.work-plan-completion-options { position: absolute; z-index: 3; right: 0; bottom: calc(100% + 6px); display: grid; gap: 2px; min-width: 190px; padding: 4px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); box-shadow: 0 8px 20px rgb(15 23 42 / 16%); }
+.work-plan-actions .work-plan-completion-options button { width: 100%; height: auto; min-height: 36px; padding: 6px 8px; border: 0; background: transparent; color: var(--ink); text-align: left; }
+.work-plan-actions .work-plan-completion-options button:is(:hover, :focus-visible):not(:disabled) { background: var(--accent-soft); }
 .work-plan-actions .work-plan-reset:hover:not(:disabled) { background: var(--accent-soft); }
 .work-plan-capacity { margin: 12px 0 0; font-size: 13px; color: var(--secondary); }
 .work-plan-modal button:focus-visible:not(:disabled) { box-shadow: inset 0 0 0 2px var(--accent); }
@@ -228,5 +239,5 @@
 @media (max-width: 359px) {
   .work-plan-total > span:first-of-type > .work-plan-total-label { display: none; }
   .work-plan-day-title strong { font-size: 14px; }
-  .work-plan-stepper output { min-width: 64px; }
+  .work-plan-duration-input { width: 80px; }
 }

@@ -59,7 +59,7 @@ test("39 saatlik plan ve 36:59 fazla kayıtta tek hedef karşılaştırması ana
 test("bütün günler kilitliyken fazla süre kalır; Tamamla kapasite açıklamasıyla kapalıdır", () => {
   const $ = render([9,8,8,8,8], "2026-10-17");
   expect($(".work-plan-complete").is(":disabled")).toBe(true);
-  expect($(".work-plan-capacity").text()).toContain("mevcut açık günlerle ulaşılamıyor");
+  expect($(".work-plan-capacity").text()).toContain("kalan günlerle ulaşılamıyor");
 });
 
 test("geçmiş girişsiz çıkış planlayıcıda süre belirsiz olarak kilitlenir", () => {
@@ -78,4 +78,34 @@ test("geçmiş girişsiz çıkış planlayıcıda süre belirsiz olarak kilitlen
   expect(thursday.attr("aria-label")).toContain("değiştirilemez");
   expect($(".work-plan-recorded-time").text()).toContain("Süre belirsiz");
   expect($(".work-plan-editable").length).toBe(0);
+});
+
+test("kullanıcı kilidi tamamlanmış günün kayıt görünümünü değiştirmez", () => {
+  const days: PlanDay[] = Array.from({ length: 7 }, (_, day) => ({
+    date: `2026-10-${12 + day}`,
+    state: day === 0 ? "recorded" : "awaiting-entry",
+    recordedSeconds: day === 0 ? 8 * 3600 + 31 : null,
+    records: day === 0 ? [{ direction: "in" }] : [],
+  }));
+  const $ = load(renderToStaticMarkup(<PlanEditor plan={readDayPlan([480, 0, 0, 0, 0, 0, 0])!} defaultPlan={DEFAULT_WORK_PLAN}
+    days={days} special ready week="2026-10-12" today="2026-10-16" error="" userLockedDays={[1]}
+    onSave={() => true} onSaveDefault={() => true} onReset={() => true} onSetLockedDays={() => true} onClose={() => {}} />));
+  const monday = $(".work-plan-day").eq(0);
+  expect(monday.attr("data-locked")).toBe("true");
+  expect(monday.attr("aria-label")).toContain("Kayıtlı süre, değiştirilemez");
+  expect($(".work-plan-recorded-time").text()).toContain("Gerçekleşen:");
+  expect($(".work-plan-lock").length).toBe(0);
+});
+
+test("yalnız manuel kilit bulunan haftada Sıfırla görünür", () => {
+  const days: PlanDay[] = Array.from({ length: 7 }, (_, day) => ({
+    date: `2026-10-${12 + day}`,
+    state: "awaiting-entry",
+    recordedSeconds: null,
+  }));
+  const $ = load(renderToStaticMarkup(<PlanEditor plan={DEFAULT_WORK_PLAN} defaultPlan={DEFAULT_WORK_PLAN}
+    days={days} special ready week="2026-10-12" today="2026-10-16" error="" userLockedDays={[4]}
+    onSave={() => true} onSaveDefault={() => true} onReset={() => true} onSetLockedDays={() => true} onClose={() => {}} />));
+  expect($(".work-plan-reset").text()).toBe("Planı sıfırla");
+  expect($(".work-plan-reset").is(":disabled")).toBe(false);
 });

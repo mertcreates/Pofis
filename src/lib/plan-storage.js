@@ -60,9 +60,23 @@ export function readStoredPlans(raw) {
     const zeroDays = days.filter(day => plan[day] === 0);
     if (zeroDays.length) weekZeroOpenDays[week] = zeroDays;
   }
+  if (stored.weekLockedDays !== undefined && (!stored.weekLockedDays || typeof stored.weekLockedDays !== "object" || Array.isArray(stored.weekLockedDays)))
+    throw new Error("Kayıtlı kilitli günler geçersiz. Kayıt korunuyor.");
+  const weekLockedDays = {};
+  for (const [week, value] of Object.entries(stored.weekLockedDays ?? {})) {
+    const days = readLeaveDays(value);
+    const lockedPlan = readWeekPlan(stored.weekOverrides[week]);
+    if (!isPlanWeek(week) || !days || !lockedPlan || days.some(day => weekLeaves[week]?.includes(day)))
+      throw new Error("Kayıtlı kilitli günler geçersiz. Kayıt korunuyor.");
+    if (days.length) {
+      weekLockedDays[week] = days;
+      weekOverrides[week] = lockedPlan;
+    }
+  }
   return { defaultPlan, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
     ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}),
-    ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}) };
+    ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}),
+    ...(Object.keys(weekLockedDays).length ? { weekLockedDays } : {}) };
 }
 
 /** @param {import('../domain/rules/work-plan').WorkPlans} plans */

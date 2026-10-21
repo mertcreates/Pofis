@@ -61,8 +61,8 @@ export function DashboardView({
   const firstWeek = data.kind === "demo" ? data.firstWeek : undefined;
   const prepared = useMemo(() => {
     if (!source) return null;
-    return prepareReport(source, workPlans.plan, today, stale, workPlans.targetSeconds, workPlans.zeroOpenDays);
-  }, [source, workPlans.plan, workPlans.targetSeconds, workPlans.zeroOpenDays, today, stale]);
+    return prepareReport(source, workPlans.plan, today, stale, workPlans.targetSeconds, workPlans.zeroOpenDays, workPlans.userLockedDays);
+  }, [source, workPlans.plan, workPlans.targetSeconds, workPlans.zeroOpenDays, workPlans.userLockedDays, today, stale]);
   const presentation = useMemo(() => {
     return prepared ? prepared(now) : null;
   }, [prepared, now]);
@@ -189,6 +189,8 @@ export function DashboardView({
             defaultPlan={workPlans.defaultPlan}
             leaveDays={workPlans.leaveDays}
             zeroOpenDays={workPlans.zeroOpenDays}
+            userLockedDays={workPlans.userLockedDays}
+            onSetLockedDays={workPlans.setLockedDays}
             special={workPlans.special}
             ready={workPlans.ready && source?.from === week}
             error={workPlans.error}

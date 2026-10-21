@@ -12,7 +12,8 @@ function recordIssueLabel(day: DayReport) {
       }
     }).join(" ");
 }
-export function stateLabel(day: DayReport) {
+export function stateLabel(day: DayReport, includeIssues = true) {
+  const issues = includeIssues ? recordIssueLabel(day) : "";
   switch (day.state) {
     case "future":
       return ui.future;
@@ -23,14 +24,14 @@ export function stateLabel(day: DayReport) {
     case "missing":
       return ui.noRecord;
     case "uncertain":
-      return recordIssueLabel(day) || ui.recordIssues.inconsistentSummary;
+      return includeIssues ? issues || ui.recordIssues.inconsistentSummary : ui.incompleteRecord;
     case "ongoing":
-      return [ui.mesaiOngoing, recordIssueLabel(day)].filter(Boolean).join(" ");
+      return [ui.mesaiOngoing, issues].filter(Boolean).join(" ");
     case "open":
-      return [ui.lastEntryStatus, recordIssueLabel(day)].filter(Boolean).join(" ");
+      return [ui.lastEntryStatus, issues].filter(Boolean).join(" ");
     case "outside":
-      return [ui.lastExitStatus, recordIssueLabel(day)].filter(Boolean).join(" ");
+      return [ui.lastExitStatus, issues].filter(Boolean).join(" ");
     case "recorded":
-      return [ui.recordedDay, recordIssueLabel(day)].filter(Boolean).join(" ");
+      return [ui.recordedDay, issues].filter(Boolean).join(" ");
   }
 }

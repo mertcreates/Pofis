@@ -31,7 +31,7 @@ Senaryolar canlı ekranlarla aynı [hata bileşenini](../src/components/request-
 | Uygulama içi hata | Ortak runtime hata görünümünün sunumu; framework yeniden denemesi kontrollü gerçek istisna senaryosuyla doğrulanır |
 | Rapor yenileme/çıkış hatası | Rapor üzerinde ortak bildirim; yeniden deneme yalnız örnek hatanın zamanını yeniler |
 | Tema/plan depolama ve eski rapor | Kompakt bildirim. Eski rapor senaryosu durum mesajıdır; tazelik durum makinesini çalıştırmaz |
-| Plan süre sınırları | “Planı aç” gerçek PlanEditor'ü açar; eksi/artı ile 0–16 saat, İzin/Aç ve açık günlere uygulama denenir. Süre düzenlemesi stepper üzerinden yapılır |
+| Plan süre sınırları | “Planı aç” gerçek PlanEditor'ü açar; serbest süre girişi, 30 dakikalık +/- çizgileri, manuel kilit, İzin/Aç, kilitli günden açık günlere uygulama, iki Tamamla seçeneği ve manuel kilidi kaldıran Sıfırla denenir. Günlük sınır 0–16 saattir. |
 | Plan kayıt hatası | Yazma reddedilir, son örnek plan korunur |
 | Eksik Pofi notu | “Defteri aç” gerçek Notebook/Modal'ı açar; ilk seçilecek günün notu önizleme girdisinden çıkarılır, tarih ve gezinme korunur |
 

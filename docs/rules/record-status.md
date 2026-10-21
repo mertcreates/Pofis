@@ -40,7 +40,7 @@ Eski raporda kayıtlı süre esas alınır. Son açık giriş bilgisi korunur, `
 
 ## Bağlı sonuçlar
 
-Rapor modeli `recordIssues` ile [geçiş sahibinin nedenlerini](passages.md#kayıt-sorunları) taşır. Gün akışı ve rapor neden ile saati gösterir. Her sorun türünün ilk örneği sunulur; ham hareketlerin tamamı ayrıntıda korunur. Geçiş nedeni bulunmayan tutarsız özette “Giriş ve çıkış saatlerinden süre hesaplanamıyor.” kullanılır.
+Rapor modeli `recordIssues` ile [geçiş sahibinin nedenlerini](passages.md#kayıt-sorunları) taşır. Gün akışı neden ile saati gösterir. Giriş–çıkış raporunun ana listesi turnike uyarılarını göstermez; neden ve saat açılan günün ayrıntısında bulunur. Her sorun türünün ilk örneği sunulur; ham hareketlerin tamamı ayrıntıda korunur. Geçiş nedeni bulunmayan tutarsız özette “Giriş ve çıkış saatlerinden süre hesaplanamıyor.” kullanılır.
 
 - [Rapor uyarlaması](../../src/domain/report.ts) durumu bir kez hazırlanan geçiş analizi ve süre sonucundan üretir. Belirsiz kayıt `state: "uncertain"` sonucuyla aktarılır.
 - Turnike hareketi bulunan geçmiş gün, `recorded` veya `uncertain` durumundan bağımsız olarak haftalık plan düzenlemesinde kilitlenir. İlk giriş–son çıkış süresi varsa [plan sahibi](work-plan.md) bu süreyi devir ve toplamda kullanır. Süre yoksa gerçekleşen bilinmez ve günün planı korunur. Bugünün `outside` durumunda tekrar giriş olasılığı için plan düzenlemesi açık kalır.

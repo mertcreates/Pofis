@@ -146,7 +146,6 @@
 .report-accordion-day > summary > .ui-icon { flex: 0 0 14px; width: 14px; height: 14px; color: var(--secondary); }
 .report-accordion-day[open] > summary > .ui-icon { transform: rotate(180deg); }
 .report-accordion-day.is-today .report-accordion-date { color: var(--accent-text); }
-.report-accordion-warning { display: block; margin-top: 6px; font-size: 11px; color: var(--warning); }
 .report-accordion-detail { padding: 16px var(--panel-padding) 20px; }
 .report-accordion-detail .day-passages { padding: 14px 0 0; border-top: 1px solid var(--line); border-radius: 0; background: transparent; }
 @media (max-width: 400px) { .report-accordion-day > summary { gap: 10px; } .report-accordion-clocks { flex-direction: column; } }
@@ -1059,6 +1058,7 @@ body {
   font-size: 12px;
   font-weight: 600;
 }
+.report-detail-status { margin: 0 0 12px; font-size: 12px; color: var(--secondary); }
 .day-passages ol {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));

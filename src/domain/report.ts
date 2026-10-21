@@ -1,5 +1,5 @@
 import { summarize } from "./rules/recorded-time.js";
-import { resolveWeekPlan, isOpenPlanDay, weeklyTarget, type WorkPlan } from "./rules/work-plan";
+import { resolveWeekPlan, isOpenPlanDay, weeklyTarget, WORK_PLAN_POLICY, type WorkPlan } from "./rules/work-plan";
 import { dailyDurationState, durationTotals } from "./rules/duration.js";
 import { passageDay, passageRecordRows } from "./rules/passages.js";
 import { dailyRecordStatus } from "./rules/record-status";
@@ -29,6 +29,7 @@ export function prepareReport(
   stale: boolean,
   targetSeconds = weeklyTarget(plan),
   zeroOpenDays: readonly number[] = [],
+  userLockedDays: readonly number[] = [],
 ) {
   const startOfDay = new Date(sourceTimestamp(today, "00:00:00")!);
   const summary = summarize(report.passages, report.from, report.to, today);
@@ -46,6 +47,8 @@ export function prepareReport(
     summary.partial,
     targetSeconds,
     zeroOpenDays,
+    WORK_PLAN_POLICY.autoReduceSurplus,
+    userLockedDays,
   );
   const prepared = sourceDays.map(({ row, passage, statusInput }, index) => {
     const selected = isOpenPlanDay(plan, weekday(row.date), zeroOpenDays);

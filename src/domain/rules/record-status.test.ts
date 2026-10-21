@@ -45,6 +45,7 @@ test("geçmiş tekrarlarda ilk giriş ve son çıkış planı kilitler ve devre 
   ]);
   expect(stateLabel(day)).toContain("09:00:00");
   expect(stateLabel(day)).toContain("13:00:00");
+  expect(stateLabel(day, false)).toBe("Giriş-çıkış kaydı var");
   expect(summarizeWeek([day], today).incomplete).toBe(false);
   expect(day.source.pofi.state).not.toBe("error");
   expect(day.recordedSeconds).toBe(5 * 3600);
