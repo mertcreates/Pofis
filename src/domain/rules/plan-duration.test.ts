@@ -1,5 +1,20 @@
 import { expect, test } from "bun:test";
-import { parsePlanDuration, stepPlanDuration } from "./plan-duration";
+import { parsePlanDuration, planDisplayMinutes, stepPlanDuration } from "./plan-duration";
+
+test("dakika gösterimi gereken süreyi eksiltmez, gerçekleşeni artırmaz", () => {
+  for (const seconds of [0, 1, 59, 60, 61, 1799, 1800, 1801, 28799, 28800, 28801, 57599, 57600]) {
+    const required = planDisplayMinutes(seconds, "required") * 60;
+    const recorded = planDisplayMinutes(seconds, "recorded") * 60;
+    expect(required).toBeGreaterThanOrEqual(seconds);
+    expect(required - seconds).toBeLessThan(60);
+    expect(recorded).toBeLessThanOrEqual(seconds);
+    expect(seconds - recorded).toBeLessThan(60);
+  }
+  expect(planDisplayMinutes(6 * 3600 + 50 * 60 + 43, "required")).toBe(411);
+  expect(planDisplayMinutes(8 * 3600 + 3 * 60 + 59, "recorded")).toBe(483);
+  expect(stepPlanDuration(planDisplayMinutes(28799, "required"), 1)).toBe(510);
+  expect(stepPlanDuration(planDisplayMinutes(28799, "required"), -1)).toBe(450);
+});
 
 test("serbest süre birimleri ve saat:dakika girişleri tam dakikaya çevrilir", () => {
   for (const input of ["8 saat 13 dakika", "8sa13dk", "8 h 13 min", "8 hours 13 minutes", "8:13"]) {

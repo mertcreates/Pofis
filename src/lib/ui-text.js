@@ -618,6 +618,7 @@ export const ui = {
     durationError: "0–16 saat arasında bir süre gir (ör. 8 sa 13 dk).",
     defaultLabel: "Varsayılan:",
     total: "Haftalık plan",
+    projectedTotal: "Beklenen toplam",
     surplus: (duration) => ({ before: "Beklenen toplam, haftalık hedefin ", emphasis: `${duration} üzerinde`, after: ". Kalan günlerin planı korunuyor." }),
     plannedLabel: "Planlanan:",
     recordedLabel: "Gerçekleşen:",

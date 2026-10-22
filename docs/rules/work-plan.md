@@ -44,6 +44,8 @@
 
 ### Varsayılan şablon değişikliği
 
+Varsayılan plan sekmesindeki “Planı sıfırla”, şablon ilk plandan farklıysa görünür. `onSaveDefault(DEFAULT_WORK_PLAN)` üzerinden mevcut şablon kaydetme akışını kullanır; pazartesi–cuma 480'er dakika, hafta sonu sıfır olur. Aşağıdaki miras ve koruma kuralları bu işlemde de geçerlidir. Kaydetme başarısızsa son başarılı plan korunur.
+
 `changeDefaultPlan`, düzenlenen haftanın kalan günlük planlarını ve haftalık hedefini birlikte değerlendirir:
 
 | Haftanın durumu | Şablon değiştiğinde sonuç |
@@ -155,11 +157,11 @@ Otomatik devir, mevcut haftalık hedefe göre kendiliğinden hesaplanır. Tamaml
 
 [report.ts](../../src/domain/report.ts), `resolveWeekPlan.targets` değerlerini günlük `dailyGoalSeconds` ve `exitGoalSeconds` alanlarına taşır. `workingDay` günlük açık durumunu taşır; kayıt durumu, grafik, tablo ve ilerleme bu alanı kullanır. Kayıtlı plan ve haftalık hedef [use-work-plans](../../src/data/use-work-plans.ts) sahibinden alınır; metrikler haftalık hedefi doğrudan kullanır. Dashboard, gün akışı, tablo ve Pofi aynı gereken süreyi kullanır. Hedef çıkış, ilk giriş + gereken süredir; bu çıkış hesabı için tam hafta raporu ve bugünün güvenilir kayıt durumu gerekir.
 
-Modalın süre etiketleri ve eylem yerleşimi [DESIGN](../../DESIGN.md#gezinme-ve-kontroller) sahibindedir. Güncel ayarda negatif bakiye ve izin sonrası referansla aynı haftalık hedef, “Beklenen toplam, haftalık hedefin … üzerinde. Kalan günlerin planı korunuyor.” bilgilendirmesini üretir; süre ve “üzerinde” bölümü vurgulanır. Haftalık hedef bu referanstan farklıysa üstteki fazla süre bildirimi gizlenir; alt bölümdeki hedef farkı ve Tamamla eylemi güncel hesapla çalışır. Otomatik azaltma açıkken dağıtılamayan fazla veya her iki ayarda dağıtılamayan eksik süre kapasite uyarısıyla gösterilir. Hafta sonu PDKS kayıtları gerçekleşen/beklenen toplama katılır; plan değerleri sıfır kalır.
+Modalın süre etiketleri ve eylem yerleşimi [DESIGN](../../DESIGN.md#gezinme-ve-kontroller) sahibindedir. Seçili haftanın üst toplamı `projectedWeeklySeconds` değerini “Beklenen toplam” olarak gösterir; alt fark aynı toplamı izin sonrası referans hedefle karşılaştırır. Bu gösterim ilk açılıştan itibaren geçerlidir ve kayıtlı haftalık hedefi değiştirmez. Örnek: Pzt–Çar 26 sa 40 dk 11 sn gerçekleşen ve Per/Cum 8'er saat gereken → beklenen toplam 42 sa 40 dk 11 sn. Per 6 sa 30 dk'ya indirilince haftalık hedef 38 sa 30 dk olur; beklenen toplam 41 sa 10 dk 11 sn ve 40 saatlik referansın üzerindeki fark 1 sa 10 dk 11 sn olarak gösterilir. Güncel ayarda negatif bakiye ve izin sonrası referansla aynı haftalık hedef, “Beklenen toplam, haftalık hedefin … üzerinde. Kalan günlerin planı korunuyor.” bilgilendirmesini üretir; süre ve “üzerinde” bölümü vurgulanır. Haftalık hedef bu referanstan farklıysa üstteki fazla süre bildirimi gizlenir; alt bölümdeki beklenen toplam farkı ve Tamamla eylemi güncel hesapla çalışır. Otomatik azaltma açıkken dağıtılamayan fazla veya her iki ayarda dağıtılamayan eksik süre kapasite uyarısıyla gösterilir. Hafta sonu PDKS kayıtları gerçekleşen/beklenen toplama katılır; plan değerleri sıfır kalır.
 
 Geçmiş kayıtsız veya süresi hesaplanamayan günün gerçekleşeni devir toplamına katılmaz; o günün plan süresi beklenen toplamda kalır. Ara geçişi belirsiz olsa da ilk giriş ve son çıkışı bulunan geçmiş günün süresi devir hesabına katılır. Bugünün kayıtları gün içinde açık/kapalı giriş durumuyla gösterilir; günlük fark ertesi gün kayıt tamamlandığında devre girer. Rapor haftanın yalnız bir bölümünü kapsıyorsa otomatik devir uygulanmaz ve hedef çıkış üretilmez. Bu durumların kayıt etiketleri [kayıt durumu sözleşmesindedir](record-status.md).
 
-Hesaplar saniye hassasiyetini korur; görünür ve erişilebilir süre biçimleri [DESIGN](../../DESIGN.md#sayılar-ve-süreler) sahibindedir.
+Hesaplar, Tamamla dağıtımı ve kalıcılık saniye hassasiyetini korur. Gereken sürenin dakika gösterimi yukarı, gerçekleşen süreninki aşağı yuvarlanır; gösterim kaynak kayıtları değiştirmez. Yuvarlama ve düzenleme sınırı [plan süresi sözleşmesinde](plan-duration.md#güvenli-dakika-gösterimi), görünür ve erişilebilir süre biçimleri [DESIGN](../../DESIGN.md#sayılar-ve-süreler) sahibindedir.
 
 ## Kalıcılık ve navigasyon
 

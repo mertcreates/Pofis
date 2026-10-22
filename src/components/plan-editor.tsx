@@ -3,10 +3,10 @@ import { Fragment, useEffect, useId, useRef, useState } from "react";
 import { ChevronDown, LockKeyhole } from "lucide-react";
 import { ui } from "@/lib/ui-text.js";
 import {
-  completeWeekPlan, editRequiredMinutes, isOpenPlanDay, referenceWeekTarget, resolveWeekPlan, setDayMinutes, weeklyTarget, DEFAULT_WORK_PLAN, PLAN_LIMITS, WORK_PLAN_POLICY, WORKING_DAY_COUNT, type WorkPlan, type PlanDay,
+  completeWeekPlan, editRequiredMinutes, isOpenPlanDay, referenceWeekTarget, resolveWeekPlan, samePlan, setDayMinutes, weeklyTarget, DEFAULT_WORK_PLAN, PLAN_LIMITS, WORK_PLAN_POLICY, WORKING_DAY_COUNT, type WorkPlan, type PlanDay,
 } from "@/domain/rules/work-plan";
 import { weekLabel, durationText } from "@/domain/time";
-import { parsePlanDuration, stepPlanDuration } from "@/domain/rules/plan-duration";
+import { parsePlanDuration, planDisplayMinutes, stepPlanDuration } from "@/domain/rules/plan-duration";
 import { weekday, weekStart } from "@/domain/rules/calendar";
 import Modal from "./modal.js";
 import { InlineNotice } from "./inline-notice";
@@ -71,16 +71,20 @@ export function PlanEditor({
   const activePlan = scope === "default" ? defaultPlan : plan;
   const locked = scope === "week" && resolved.locked[selectedDay];
   const selectedSeconds = scope === "week" ? resolved.displaySeconds[selectedDay] : activePlan[selectedDay] * 60;
-  const value = selectedSeconds / 60;
+  const value = planDisplayMinutes(selectedSeconds, "required");
   const closed = scope === "week" ? !resolved.workingDays[selectedDay] : activePlan[selectedDay] === 0;
   const onLeave = scope === "week" && leaveDays.includes(selectedDay);
   const userLocked = scope === "week" && userLockedDays.includes(selectedDay);
   const reopenMinutes = defaultPlan[selectedDay] || DEFAULT_WORK_PLAN[selectedDay];
   const plannedTotal = scope === "week" ? targetSeconds : weeklyTarget(activePlan);
-  const total = plannedTotal;
+  const total = scope === "week" ? resolved.projectedWeeklySeconds : plannedTotal;
   const defaultTotal = scope === "week" ? referenceWeekTarget(defaultPlan, leaveDays) : weeklyTarget(defaultPlan);
-  const different = scope === "week" && plannedTotal !== defaultTotal;
-  const needsCompletion = scope === "week" && (different || resolved.projectedWeeklySeconds !== defaultTotal);
+  const differenceSeconds = total - defaultTotal;
+  const differenceDuration = differenceSeconds > 0 && differenceSeconds < 60 ? durationText(differenceSeconds)
+    : durationText(planDisplayMinutes(Math.abs(differenceSeconds), differenceSeconds < 0 ? "required" : "recorded") * 60, false);
+  const targetDifferent = scope === "week" && plannedTotal !== defaultTotal;
+  const different = scope === "week" && differenceSeconds !== 0;
+  const needsCompletion = scope === "week" && (targetDifferent || different);
   const selectedDifferent = scope === "week" && plan[selectedDay] !== defaultPlan[selectedDay];
   const equalPlan = needsCompletion ? completeWeekPlan(plan, defaultPlan, resolved, selectedDay, leaveDays, "equal") : null;
   const lastPlan = needsCompletion ? completeWeekPlan(plan, defaultPlan, resolved, selectedDay, leaveDays, "last") : null;
@@ -139,14 +143,14 @@ export function PlanEditor({
           </button>
         </div>
         {error && <InlineNotice tone="warning">{error}</InlineNotice>}
-        {scope === "week" && resolved.unallocatedSeconds !== 0 && (!preservedSurplus || !different) && <InlineNotice tone={preservedSurplus ? "info" : "warning"}>
+        {scope === "week" && resolved.unallocatedSeconds !== 0 && (!preservedSurplus || !targetDifferent) && <InlineNotice tone={preservedSurplus ? "info" : "warning"}>
           {surplusCopy ? <>{surplusCopy.before}<strong className="work-plan-surplus-emphasis">{surplusCopy.emphasis}</strong>{surplusCopy.after}</>
             : copy.unallocated(durationText(Math.abs(resolved.unallocatedSeconds)), resolved.unallocatedSeconds > 0)}
         </InlineNotice>}
         <div className="work-plan-heading">
           <h3>{ui.workingDays}</h3>
           <span className={different ? "work-plan-total is-different" : "work-plan-total"} aria-live="polite">
-            <span><span className="work-plan-total-label">{copy.total}</span> {durationText(total, false)}</span>
+            <span title={durationText(total)}><span className="work-plan-total-label">{scope === "week" ? copy.projectedTotal : copy.total}</span> {durationText(total, false)}</span>
           </span>
         </div>
         <div className="work-plan-days" role="group" aria-label={copy.chooseDay}>
@@ -157,7 +161,8 @@ export function PlanEditor({
             const open = scope === "week" ? resolved.workingDays[day] : minutes > 0;
             const carried = scope === "week" && resolved.displaySeconds[day] !== minutes * 60;
             const displayedSeconds = recorded ?? (carried ? resolved.displaySeconds[day] : minutes * 60);
-            const displayed = scope === "week" ? hours(displayedSeconds / 60) : planHours(minutes);
+            const displayed = scope === "week"
+              ? hours(planDisplayMinutes(displayedSeconds, recorded !== null ? "recorded" : "required")) : planHours(minutes);
             return (
             <button key={day} type="button" className="work-plan-day"
               data-open={open || dayLocked} data-locked={dayLocked || userLockedDays.includes(day)} aria-pressed={selectedDay === day}
@@ -178,7 +183,7 @@ export function PlanEditor({
             <div className="work-plan-editor-top">
               <div className="work-plan-day-title">
                 <strong id={`${id}-day`}>{ui.weekdays[selectedDay].long}</strong>
-                <span>{copy.plannedLabel} {hours(plan[selectedDay])}
+                <span>{copy.plannedLabel} {hours(planDisplayMinutes(plan[selectedDay] * 60, "required"))}
                   {selectedDifferent && <> · {copy.defaultLabel} {hours(defaultPlan[selectedDay])}</>}
                 </span>
               </div>
@@ -224,9 +229,17 @@ export function PlanEditor({
           </div>
         </fieldset>
         )}
+        {scope === "default" && !samePlan(defaultPlan, DEFAULT_WORK_PLAN) && (
+          <div className="work-plan-actions">
+            <div>
+              <button type="button" className="work-plan-reset" disabled={!ready}
+                onClick={() => onSaveDefault(DEFAULT_WORK_PLAN)}>{copy.reset}</button>
+            </div>
+          </div>
+        )}
         {scope === "week" && (needsCompletion || (special && canReset)) && (
           <div className="work-plan-actions">
-            {different && <span>{copy.difference(durationText(defaultTotal, false), durationText(Math.abs(plannedTotal - defaultTotal), false), plannedTotal < defaultTotal)}</span>}
+            {different && <span>{copy.difference(durationText(defaultTotal, false), differenceDuration, differenceSeconds < 0)}</span>}
             <div>
               {canReset && <button type="button" className="work-plan-reset" disabled={!ready} onClick={onReset}>{copy.reset}</button>}
               {needsCompletion && <span className="work-plan-completion" ref={completionRef}

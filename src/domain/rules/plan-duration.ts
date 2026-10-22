@@ -1,5 +1,9 @@
 import { PLAN_LIMITS } from "./work-plan";
 
+export function planDisplayMinutes(seconds: number, kind: "required" | "recorded"): number {
+  return kind === "required" ? Math.ceil(seconds / 60) : Math.floor(seconds / 60);
+}
+
 // A bare number denotes hours. Unit-bearing parts can be entered in either order.
 export function parsePlanDuration(input: string): number | null {
   const value = input.trim().toLocaleLowerCase("tr-TR");
