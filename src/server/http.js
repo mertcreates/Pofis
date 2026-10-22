@@ -64,7 +64,7 @@ export async function readBody(request) {
 
 export async function failure(error, request) {
   if (!(error instanceof PdksError)) {
-    console.error("PDKS API unexpected error:", error?.name || "UnknownError");
+    console.error(ui.serverDiagnostics.pdksApiUnexpectedError, error?.name || "UnknownError");
     return json(
       {
         error: ui.apiErrors.requestFailed,
@@ -99,7 +99,7 @@ export async function failure(error, request) {
       await disconnect(request);
     } catch (cleanupError) {
       console.error(
-        "PDKS session cleanup failed:",
+        ui.serverDiagnostics.pdksSessionCleanupFailed,
         cleanupError.code || cleanupError.name,
       );
     }

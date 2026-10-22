@@ -1,9 +1,10 @@
+const { ui } = require("./ui-text.cjs");
 function versionParts(version) {
   if (typeof version !== "string" || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
-    throw new Error("Geçersiz uygulama sürümü.");
+    throw new Error(ui.desktop.invalidVersion);
   }
   const parts = version.split(".").map(Number);
-  if (!parts.every(Number.isSafeInteger)) throw new Error("Geçersiz uygulama sürümü.");
+  if (!parts.every(Number.isSafeInteger)) throw new Error(ui.desktop.invalidVersion);
   return parts;
 }
 
@@ -14,7 +15,7 @@ async function checkForUpdates({ target, currentVersion, isActive,
   const response = await fetchManifest(`https://pofis.app/releases/${directory}/latest.json`, {
     signal: AbortSignal.timeout(timeoutMs), cache: "no-store", credentials: "omit", redirect: "error",
   });
-  if (!response.ok) throw new Error("Sürüm bilgisi alınamadı.");
+  if (!response.ok) throw new Error(ui.desktop.versionUnavailable);
   const manifest = await response.json();
   const current = versionParts(currentVersion);
   const next = versionParts(manifest?.version);
@@ -22,7 +23,7 @@ async function checkForUpdates({ target, currentVersion, isActive,
       !Number.isSafeInteger(manifest.size) || manifest.size <= 0 || manifest.size >= 2 ** 31 ||
       typeof manifest.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(manifest.sha256) ||
       manifest.url !== `https://github.com/mertcreates/pofis-landing/releases/download/v${manifest.version}/Pofis-${manifest.version}-${target.id}.${target.archiveExtension}`) {
-    throw new Error("Geçersiz sürüm bilgisi.");
+    throw new Error(ui.desktop.invalidVersionInfo);
   }
   const difference = next.findIndex((part, index) => part !== current[index]);
   if (difference === -1 || next[difference] < current[difference] || !isActive()) return;

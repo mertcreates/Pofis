@@ -1,5 +1,5 @@
 import { SESSION_POLICY } from "@/domain/rules/session-policy";
-import { ui } from "@/lib/ui-text.js";
+import { product, ui } from "@/lib/ui-text.js";
 import RequestError from "./request-error.js";
 import type { RequestFailure } from "@/lib/pdks-failure";
 import { memo, useEffect, useId, useRef, useState } from "react";
@@ -46,7 +46,7 @@ export const Connection = memo(function Connection({
           className="connection-mascot"
           width={240}
           height={240}
-          alt="Pofi"
+          alt={product.mascotName}
           fetchPriority="high"
         />
       </div>
@@ -70,7 +70,7 @@ export const Connection = memo(function Connection({
               aria-invalid={fieldError || undefined}
               aria-describedby={fieldError ? "connection-error" : undefined}
               autoComplete="username"
-              placeholder="Kullanıcı Adı"
+              placeholder={ui.connectionFields.username}
               required
               maxLength={SESSION_POLICY.maxUsernameLength}
               disabled={busy}
@@ -87,7 +87,7 @@ export const Connection = memo(function Connection({
                 aria-describedby={fieldError ? "connection-error" : undefined}
                 type={passwordVisible && !busy ? "text" : "password"}
                 autoComplete="current-password"
-                placeholder="Şifre"
+                placeholder={ui.connectionFields.password}
                 required
                 maxLength={SESSION_POLICY.maxPasswordLength}
                 disabled={busy}

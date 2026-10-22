@@ -164,7 +164,7 @@ async function run() {
         Start-Sleep -Milliseconds 100
       } while ([DateTime]::UtcNow -lt $deadline);
       if (-not $windows.Count) { throw 'Kapatılacak Pofis penceresi bulunamadı.' }
-      $windows | ForEach-Object { $null = $_.CloseMainWindow() };
+      $windows | ForEach-Object { Start-Process -FilePath $_.Path -ArgumentList @(${quote('--user-data-dir="' + profile + '"')}, '--pofis-quit') -WindowStyle Hidden };
       $deadline=[DateTime]::UtcNow.AddSeconds(20);
       do {
         if (@(Get-Process | Where-Object { ${owned} }).Count -eq 0) { return }

@@ -3,6 +3,7 @@ import AppFooter from "./app-footer.js";
 import { InlineNotice } from "../inline-notice";
 import { useState } from "react";
 import { DesktopUpdateModal, useDesktopUpdate } from "./desktop-update";
+import { NotificationSettings } from "../notifications/settings";
 
 /**
  * @param {{
@@ -11,6 +12,7 @@ import { DesktopUpdateModal, useDesktopUpdate } from "./desktop-update";
  *   connected?: boolean,
  *   busy?: boolean,
  *   onDisconnect?: () => void,
+ *   notifications?: import('../notifications/settings').NotificationSettingsSource,
  *   settingsOpen?: boolean,
  *   mealsOpen?: boolean,
  *   showMeals?: boolean,
@@ -23,6 +25,7 @@ export default function AppShell({
   connected = false,
   busy = false,
   onDisconnect,
+  notifications,
   settingsOpen = false,
   mealsOpen = false,
   showMeals = false,
@@ -30,6 +33,7 @@ export default function AppShell({
 }) {
   const update = useDesktopUpdate();
   const [updateOpen, setUpdateOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   return (
     <div
       className={["app-shell", !connected && "app-shell-public"]
@@ -44,14 +48,18 @@ export default function AppShell({
         settingsOpen={settingsOpen}
         mealsOpen={mealsOpen}
         showMeals={showMeals}
-        onSection={onSection}
+        onSection={(section) => { setNotificationsOpen(false); onSection?.(section); }}
         updateAvailable={!!update}
         onOpenUpdate={() => setUpdateOpen(true)}
+        showNotifications={!!notifications}
+        notificationsOpen={notificationsOpen}
+        onOpenNotifications={() => setNotificationsOpen(true)}
       />
       <div className="app-content">
         <main>
           {appearance.error && <InlineNotice tone="warning">{appearance.error}</InlineNotice>}
-          {children}
+          <div hidden={connected && notificationsOpen}>{children}</div>
+          {connected && notifications && <NotificationSettings visible={notificationsOpen} source={notifications} />}
         </main>
         <AppFooter updateAvailable={!connected && !!update} onOpenUpdate={() => setUpdateOpen(true)} />
       </div>

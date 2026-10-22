@@ -8,7 +8,7 @@
 - Başlık `Pofis` veya `Pofis Demo`, yönlendiren adres boş, sayfa olayındaki `app_release` paket sürümüdür. Gerçek adresin sorgusu, fragment'i ve bilinmeyen yol parçaları ölçüm alanlarına alınmaz.
 - Google etiketi çerez tabanlı istemci/oturum ölçümü ve standart cihaz, dil, etkileşim bilgilerini toplar. Google istekleri ağ bağlantısı üzerinden iletilir; bu ölçüm anonimlik garantisi vermez. PDKS kimliği, kullanıcı adı, parola, turnike kayıtları, rapor ve mesai süreleri olay alanlarına bağlanmaz.
 - Google Signals ve reklam kişiselleştirme sinyalleri kapalıdır. `cookie_domain: none` yerel masaüstü origin'inde host çerezi kullanır.
-- `send_page_view: false` ile başlangıçtaki otomatik sayfa olayı kapatılır. İstemci her yol geçişinde bir `page_view` gönderir. Giriş ve rapor aynı yoldadır; bunlar ayrı ekran olayı olarak ölçülmez. Özel özellik olayları henüz tanımlı değildir.
+- `send_page_view: false` ile başlangıçtaki otomatik sayfa olayı kapatılır. İstemci her yol geçişinde bir `page_view` gönderir. Giriş ve rapor aynı yoldadır; bunlar ayrı ekran olayı olarak ölçülmez.
 - Ağ engeli veya çevrimdışı durumda Google betiği yüklenemese de Pofis çalışmaya devam eder.
 
 ## Hesap kimliği

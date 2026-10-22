@@ -8,6 +8,7 @@ Her kuralın bir kod sahibi vardır. Görünümler, route'lar ve depolama adapt�
 
 | Kural                                              | Kod sahibi                                                          |
 | -------------------------------------------------- | ------------------------------------------------------------------- |
+| [Mesai bildirimleri](notifications.md) | [notifications.ts](../../src/domain/rules/notifications.ts) |
 | [Takvim ve kaynak saati](calendar.md)              | [calendar.ts](../../src/domain/rules/calendar.ts)                   |
 | [Turnikeden günlük özet ve kayıtlı süre](recorded-time.md) | [recorded-time.js](../../src/domain/rules/recorded-time.js)         |
 | [Turnike geçişleri](passages.md)                   | [passages.js](../../src/domain/rules/passages.js)                   |

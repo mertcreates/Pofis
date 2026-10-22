@@ -11,5 +11,5 @@ test("account identity is stable across sessions and independent of session toke
 });
 
 test.each(["", " ", null, undefined])("invalid account key is an invariant failure: %s", value => {
-  expect(() => analyticsUserIdForAccount(value as string)).toThrow("Missing analytics account key");
+  expect(() => analyticsUserIdForAccount(value as string)).toThrow("Analitik hesap anahtarı bulunamadı.");
 });

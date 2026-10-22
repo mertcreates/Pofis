@@ -35,9 +35,9 @@ Bu belge görsel kimliği, oranları ve sahne yerleşimini tanımlar. Pofi'nin s
 
 ## Üretim yaklaşımı
 
-Mevcut tam gövde PNG/WebP dosyaları Pofi'nin yüz, renk, materyal, kuyruk ve kart kimliğini korumak için referans alınır; yeni tam gövde çizimlerinde kanonik ayakta poz kullanılır. Uygulamada kullanılacak dosyalar kullanıcı seçimiyle belirlenir. Etkin marka simgesi ve durum dosyaları [görsel kaynaklar](../../../docs/brand/assets.md) belgesinde yönetilir.
+Yeni sahnelerde kanonik referans ve aşağıdaki poz kuralları birlikte kullanılır. Etkin dosyalar [görsel kaynaklar](../../../docs/brand/assets.md) belgesindedir.
 
-Yeni bir sahne gerektiğinde ana referans görsel ve `docs/MASTER_PROMPT.md` birlikte kullanılır. Referans görsel kimliği taşır; prompt ayakta pozu ve nesnelerin sahnedeki yerini tarif eder. Şemsiye gibi bir nesne yüzün çevresinde boşluk bırakacak şekilde, başın üstünde ve yanında konumlandırılır. Yeni çıktı uygulamaya alınmadan önce kullanıcı tarafından seçilir. Yüz, kulak, kıvrım, gövde/pati oranı, poz ve kart eşleşmesi karşılaştırılarak ayrıca onaylanır.
+Yeni bir sahne gerektiğinde ana referans görsel ve `docs/MASTER_PROMPT.md` birlikte kullanılır. Referans görsel kimliği, prompt pozu ve nesne yerleşimini taşır. Yeni çıktı uygulamaya alınmadan önce kullanıcı tarafından seçilir. Yüz, kulak, kıvrım, gövde/pati oranı, poz ve kart eşleşmesi karşılaştırılarak ayrıca onaylanır.
 
 ## Poz ve nesne yerleşimi
 

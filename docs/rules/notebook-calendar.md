@@ -14,7 +14,7 @@ Mevcut haftanın hafta içi günleri ve özel tarihe denk gelen hafta sonları s
 
 ## Arayüz davranışı
 
-Seçilen tarihte not bulunamazsa defter tarihini ve gezinme kontrollerini korur; not alanında nötr durum mesajı gösterilir. Hafta değiştiğinde eski seçim kullanılabilir tarihler arasında değilse aynı takvim sahibinin varsayılan günü gösterilir. Eksik notta seçili tarihe ait nötr durum mesajı korunur.
+Seçilen tarihte not bulunamazsa defter tarihini ve gezinme kontrollerini korur; not alanında nötr durum mesajı gösterilir. Hafta değiştiğinde eski seçim kullanılabilir tarihler arasında değilse aynı takvim sahibinin varsayılan günü gösterilir.
 
 Normal tema havuzu boşken motor yalnız özel tarihlere ait notları döndürür. Normal günlerin notsuz olması takvimdeki hafta içi tarihlerini kaldırmaz; özel hafta sonu tarihleri dönen özel notlarla takvime katılır.
 

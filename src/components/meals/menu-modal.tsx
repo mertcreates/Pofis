@@ -21,7 +21,7 @@ function MealSideCard({ side, label = side.label, showItems = false }: { side: M
     <section className={`meal-side-card${showItems ? " meal-side-card--finish" : ""}${side.kind === "dessert" ? " meal-side-card--dessert" : ""}`} aria-label={label}>
       <div className="meal-side-card-heading">
         <span className="meal-side-label">{label}</span>
-        {!showItems && side.calorie !== null && <span className="meal-calorie">{side.calorie} kcal</span>}
+        {!showItems && side.calorie !== null && <span className="meal-calorie">{side.calorie} {ui.units.calorie}</span>}
       </div>
       <ul className={showItems ? "meal-side-card-items" : "meal-side-card-featured"}>
         {items.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}
@@ -65,13 +65,13 @@ export function MealMenuModal({ today, onClose }: { today: string; onClose: () =
                 <button type="button" className="text-button" onClick={retry}>{ui.meals.retry}</button>
               </div>
             ) : meal?.kind === "structured" ? (
-              <section className="meal-tray" aria-label="Yemek menüsü">
-                <section className="meal-main-group" aria-label="Ana yemek seçenekleri">
+              <section className="meal-tray" aria-label={ui.mealLabels.menu}>
+                <section className="meal-main-group" aria-label={ui.mealLabels.mains}>
                   <div className="meal-main-header">
                     <div className="meal-main-heading-copy">
-                      <span className="meal-main-label">Ana yemek</span>
+                      <span className="meal-main-label">{ui.mealLabels.main}</span>
                     </div>
-                    {meal.mainCalorie !== null && <span className="meal-calorie">{meal.mainCalorie} kcal</span>}
+                    {meal.mainCalorie !== null && <span className="meal-calorie">{meal.mainCalorie} {ui.units.calorie}</span>}
                   </div>
                   <ul className="meal-main-options">
                     {meal.mains.map((name, index) => <li className="meal-main-option-row" key={`${name}-${index}`}>
@@ -80,31 +80,31 @@ export function MealMenuModal({ today, onClose }: { today: string; onClose: () =
                     {meal.vegetarian && <li className="meal-main-option-row" key="vegetarian-choice">
                       <span className="meal-main-choice-line">
                         <span className="meal-main-choice">{meal.vegetarian.name}</span>
-                        <span className="meal-main-choice-meta">Vejetaryen</span>
+                        <span className="meal-main-choice-meta">{ui.mealLabels.vegetarian}</span>
                       </span>
                     </li>}
                   </ul>
                 </section>
                 <div className={`meal-top-cards${soup && accompaniment ? "" : " meal-top-cards--single"}`}>
                   {soup && <MealSideCard side={soup} />}
-                  {accompaniment && <MealSideCard side={accompaniment} label="Yanında" />}
+                  {accompaniment && <MealSideCard side={accompaniment} label={ui.mealLabels.alongside} />}
                 </div>
                 <div className="meal-finishes">
                   {finishSides.map((side) => <MealSideCard side={side} showItems key={side.kind} />)}
                 </div>
               </section>
             ) : meal?.kind === "source" && meal.dishes.length > 0 ? (
-              <section className="meal-source-menu" aria-label="Yemek listesi">
+              <section className="meal-source-menu" aria-label={ui.mealLabels.list}>
                 {meal.dishes.map((dish, index) => <div className="meal-source-row" key={index}>
-                  <span>{dish.name}</span>{dish.calorie !== null && hasSingleDishName(dish.name) && <span className="meal-calorie">{dish.calorie} kcal</span>}
+                  <span>{dish.name}</span>{dish.calorie !== null && hasSingleDishName(dish.name) && <span className="meal-calorie">{dish.calorie} {ui.units.calorie}</span>}
                 </div>)}
               </section>
             ) : (
               <p className="meal-empty" role="status">{ui.meals.empty}</p>
             )}
           </div>
-          {pofiCommentary && <aside className="meal-pofi-note" aria-label="Pofi’nin menüye notu">
-            <img className="meal-pofi" src="/pofi/pofi-meal.webp" width={40} height={40} alt="Pofi, yemek masasında" />
+          {pofiCommentary && <aside className="meal-pofi-note" aria-label={ui.mealLabels.pofiNote}>
+            <img className="meal-pofi" src="/pofi/pofi-meal.webp" width={40} height={40} alt={ui.mealLabels.pofiAlt} />
             <p>{pofiCommentary}</p>
           </aside>}
         </div>

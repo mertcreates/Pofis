@@ -26,9 +26,9 @@ Girdiler günlük ilk giriş/son çıkış özeti, geçiş analizi, raporun İst
 | Giriş/çıkış kaydı tutarlı, bugün | `outside` | Son hareket: çıkış |
 | Giriş/çıkış kaydı tutarlı, geçmiş | `recorded` | Giriş–çıkış kaydı var |
 
-[Geçiş analizi](passages.md) kayıt sorunlarını belirler. Çift giriş veya çıkış uyarısı, hesaplanabilen günlük durumu `uncertain` yapmaz; uyarı nedeni ve saati raporda kalır. Bugünkü güvenilir son açık girişten önceki eşleşmeyen çıkış da günlük durumu hata yapmaz; neden ve saat görünür. Açık giriş bulunmayan eşleşmeyen çıkış ve okunamayan hareket belirsizliği korunur. Plan dışı günlerde de kayıtlar değerlendirilir; plan dışı bilgisi ayrıca gösterilir.
+[Geçiş analizi](passages.md) sorunları belirler. Çift giriş/çıkış ve bugünkü güvenilir son açık girişten önceki eşleşmeyen çıkış uyarı olarak korunur; tek başlarına `uncertain` üretmez. Açık giriş bulunmayan eşleşmeyen çıkış, okunamayan hareket ve geçmişte çıkışsız kalan giriş belirsizdir. Plan dışı günlerde de aynı kayıt kuralları uygulanır.
 
-Bugünkü güvenilir açık giriş, önceki ve son yön tekrarlarından bağımsız değerlendirilir. Örneğin 12:48:51/12:48:54 giriş ve 12:57:14/12:57:27 çıkış tekrarlarından sonra 13:24:46 girişi, güncel rapor ve uygun saatte `ongoing` olur. 12:00 çıkış / 13:00 giriş de kayıtlı süresi bilinmeyen açık gündür; 15:00'te 2 saat canlı toplam üretir. `recordIssues` ve durum metnindeki önceki sorunlar korunur. Rapor eskiyse veya saat son girişten önceyse `open` olur. Gün geçmişe geçtiğinde çıkışsız son giriş `uncertain` olur; kapanmış tekrarlar `recorded` durumunu korur.
+Örnek: 12:00 çıkış / 13:00 giriş bugün güvenilir açık gündür. Güncel rapor ve uygun saatte `ongoing`, eski raporda veya saat son girişten önceyse `open`, ertesi gün hâlâ çıkış yoksa `uncertain` olur. Canlı süre örnekleri [süre sözleşmesindedir](duration.md).
 
 Hedefin altında, hedefte veya üzerinde olmak kayıt bütünlüğünü değiştirmez. Örneğin 08:00–12:00 tutarlı geçmiş kayıt, dört saat süreyle `recorded` olur; hedef farkında dört saat eksik görünür. Eksik süre ile eksik geçiş ayrı bilgilerdir. Boş geçmiş günün kayıt durumu plan kapsamına göre `missing` veya `non-working` olur.
 

@@ -14,6 +14,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Ortak Windows/macOS/Linux Electron altyapısı, paketleme, kurulum ve kabul durumu | [Masaüstü](desktop.md) |
 | Dört hedefli GitHub Actions release, Cloudflare Workers ayarları ve HTTPS kabulü | [Sürüm yayını](release.md) |
 | Demo verisi, saat ve gezinme | [Mesaim demosu](demo.md) |
+| Masaüstü/Telegram tercihleri, zamanlama ve gönderim kaydı | [Mesai bildirimleri](rules/notifications.md) |
 | GA4 akışı ve kullanım ölçümünün veri sınırları | [Kullanım ölçümü](analytics.md) |
 | Pofi içeriği ve tek havuz seçimi | [Pofi notları](pofi-notes.md) |
 | Yemek kaynağı, menü ayrıştırma ve Pofi yemek yorumları | [Yemek menüsü](rules/meal-menu.md) |
@@ -25,16 +26,12 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 
 ## Belge bakımı
 
-Güncel ürün kapsamı PRODUCT'ta, davranışlar kural belgelerinde, görsel kararlar DESIGN'da ve açık işler görev listesinde tutulur. Yeni kararları ilgili sahibinde güncelleyin; tamamlanmış aktarım planlarını, eski spec'leri ve doğrulama raporlarını kaldırın.
+Yeni kararı tablodaki konu sahibinde güncelleyin; diğer belgelerden bağlantı verin. Açık işler görev listesinde tutulur. Tamamlanan planların geçerli kararlarını sahibine taşıyıp planı kaldırın. Doğrulama ve geçici çıktıların yönetimi [doğrulama rehberindedir](verification.md#sonuçların-yönetimi).
 
-Public `pofis-landing` README'si kısa ürün tanıtımı, slogan ve site bağlantısı içerir. Geliştirme, build ve dağıtım ayrıntılarının sahibi bu depodaki teknik rehberlerdir.
-
-Davranış değiştiğinde ilgili sözleşmeyi ve bağımlı testleri birlikte güncelleyin. Tamamlanan doğrulamanın sonucunu kullanıcıya bildirin; tamamlanmış audit raporlarını, ekran görüntülerini ve ölçüm çıktılarını temizleyin. Geçerli kararlar konu sahibinde, çözülmemiş bulgular görev listesinde tutulur. Davranış testleri korunur; arayüz kabulü doğrulama rehberine göre demoda yapılır.
+Public `pofis-landing` README'si ürün tanıtımı ve site bağlantısı içerir; teknik işletim bilgileri bu depodaki rehberlerde tutulur.
 
 ## Karakter kaynakları
 
 - [Marka kiti](../extras/pofis-brand-kit/README.md): özgün karakter dosyaları ve bağımsız prototipin kullanımı.
 - [Karakter kuralları](../extras/pofis-brand-kit/docs/CHARACTER_BIBLE.md) ve [üretim promptu](../extras/pofis-brand-kit/docs/MASTER_PROMPT.md): yeni görsellerin kimlik ve inceleme ölçütleri.
 - [Pofi görsel setleri](brand/pofi-review-2026-10-15/README.md): mevcut aday dosyaları ve uygulamaya alma sınırı.
-
-Ton rehberi güncel Pofi dilinin, DESIGN arayüzün ve kural belgeleri hesapların sahibidir.

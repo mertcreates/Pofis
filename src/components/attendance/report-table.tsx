@@ -29,6 +29,15 @@ const DayRow = memo(function DayRow({
   const [detailsLoaded, setDetailsLoaded] = useState(false);
   const id = `day-passages-${day.date}`;
   const label = formatDate(day.date);
+  if (day.date > today) {
+    const content = <div className="report-future-day">
+      <span className="report-accordion-date">{label} <small>{formatDate(day.date, { weekday: "long" })}</small></span>
+      <span className="report-status">{ui.reportFutureDay}</span>
+    </div>;
+    return compact
+      ? <div className="report-accordion-day future-row">{content}</div>
+      : <tr className="future-row"><th colSpan={6} className="report-future-cell">{content}</th></tr>;
+  }
   const hasDetails = day.records.length > 0 || day.state === "uncertain" || day.recordIssues.length > 0;
   const detailLabel = day.records.length > 0 ? ui.recordsForDate(label) : ui.recordStatus;
   const delta =
@@ -47,7 +56,7 @@ const DayRow = memo(function DayRow({
     const live = day.liveSeconds !== null;
     const seconds = live ? day.source.total : day.recordedSeconds;
     return (
-      <details className={`report-accordion-day${day.date === today ? " is-today" : ""}${day.date > today ? " future-row" : ""}`}
+      <details className={`report-accordion-day${day.date === today ? " is-today" : ""}`}
         onToggle={event => { if (event.currentTarget.open) setDetailsLoaded(true); }}>
         <summary>
           <span className="report-accordion-heading">
@@ -74,7 +83,7 @@ const DayRow = memo(function DayRow({
   return (
     <>
       <tr
-        className={`${day.date === today ? "today-row" : ""} ${day.date > today ? "future-row" : ""}`}
+        className={day.date === today ? "today-row" : ""}
       >
         <th scope="row">
           <div className="report-day">

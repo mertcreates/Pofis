@@ -1,3 +1,4 @@
+import { ui } from "../lib/ui-text.js";
 import { isDateKey } from "@/domain/rules/calendar";
 import { getIstanbulDate, getMealDateRange } from "@/lib/meals/dates";
 import type { MealMenu } from "@/lib/meals/presentation";
@@ -10,15 +11,15 @@ export class MealInputError extends Error {}
 export class MealSourceError extends Error {}
 
 export function readMealSourceResponse(value: unknown, requestedDate: string): MealMenu | null {
-  if (!Array.isArray(value)) throw new MealSourceError("Unexpected meal response");
+  if (!Array.isArray(value)) throw new MealSourceError(ui.mealErrors.unexpectedResponse);
   if (value.length === 0) return null;
-  if (value.length !== 1) throw new MealSourceError("Ambiguous meal response");
+  if (value.length !== 1) throw new MealSourceError(ui.mealErrors.ambiguousResponse);
   try {
     const menu = readMealMenu(value[0], requestedDate);
-    if (!menu) throw new Error("Empty meal record");
+    if (!menu) throw new Error(ui.internalErrors.emptyMealRecord);
     return menu;
   } catch (error) {
-    throw new MealSourceError("Invalid meal menu", { cause: error });
+    throw new MealSourceError(ui.mealErrors.invalidMenu, { cause: error });
   }
 }
 
@@ -32,7 +33,7 @@ export function createMealSource(fetchImpl: MealFetch = fetch, clock: () => numb
     const now = clock();
     const { minDate, maxDate } = getMealDateRange(getIstanbulDate(new Date(now)));
     if (!isDateKey(date) || date < minDate || date > maxDate) {
-      throw new MealInputError("Meal date is outside the available range");
+      throw new MealInputError(ui.mealErrors.dateOutsideRange);
     }
 
     for (const [key, entry] of cache) {
@@ -49,7 +50,7 @@ export function createMealSource(fetchImpl: MealFetch = fetch, clock: () => numb
       let response: Response;
       try {
         response = await fetchImpl(url, { cache: "no-store", signal: AbortSignal.timeout(8000) });
-        if (!response.ok) throw new MealSourceError(`Meal source returned ${response.status}`);
+        if (!response.ok) throw new MealSourceError(ui.mealErrors.sourceStatus(response.status));
         const menu = readMealSourceResponse(await response.json(), date);
         const checkedAt = clock();
         const currentRange = getMealDateRange(getIstanbulDate(new Date(checkedAt)));
@@ -59,7 +60,7 @@ export function createMealSource(fetchImpl: MealFetch = fetch, clock: () => numb
         return menu;
       } catch (error) {
         if (error instanceof MealSourceError) throw error;
-        throw new MealSourceError("Meal source request failed", { cause: error });
+        throw new MealSourceError(ui.mealErrors.sourceFailed, { cause: error });
       }
     })().finally(() => inFlight.delete(date));
     inFlight.set(date, request);

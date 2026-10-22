@@ -1,3 +1,4 @@
+import { ui } from "../../lib/ui-text.js";
 export const TIME_ZONE = "Europe/Istanbul";
 const dateFormatter = new Intl.DateTimeFormat("en-CA", {
   timeZone: TIME_ZONE,
@@ -55,14 +56,14 @@ export function isDateKey(value: unknown): value is string {
 
 export function addDays(date: string, days: number): string {
   if (!isDateKey(date) || !Number.isInteger(days))
-    throw new Error("Geçersiz takvim günü");
+    throw new Error(ui.validationErrors.calendarDay);
   const at = new Date(`${date}T12:00:00Z`);
   at.setUTCDate(at.getUTCDate() + days);
   return at.toISOString().slice(0, 10);
 }
 
 export function weekday(date: string): number {
-  if (!isDateKey(date)) throw new Error("Geçersiz takvim günü");
+  if (!isDateKey(date)) throw new Error(ui.validationErrors.calendarDay);
   return (new Date(`${date}T12:00:00Z`).getUTCDay() + 6) % 7;
 }
 

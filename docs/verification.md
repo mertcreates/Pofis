@@ -27,9 +27,7 @@ bun run build
 
 Kapsam yüzdesini testlerin yüklediği modüllerle birlikte değerlendirin. Taşıma ve reducer testleri kendi modüllerinin davranışını doğrular. `usePdks` içindeki React effect ve istek sahipliği için bekleyen çıkış, hafta değişimi ve geciken rapor yanıtı zincirini tarayıcıda doğrulayın.
 
-UI bileşenlerinin DOM, metin, yerleşim ve sunum yardımcılarını demo üzerinden elle kontrol edin. Otomatik testler mesai hesabı, takvim sınırları, veri doğrulama, oturum izolasyonu ve diğer davranış sözleşmelerine odaklanır. Beklenen test sonuçlarını ilgili davranış sözleşmesindeki somut senaryolardan çıkarın.
-
-Her test somut bir hata veya davranış farkını yakalamalıdır. Testin kendi örnek listesini denetleyen kontrolleri ve aynı senaryoyu tekrar eden beklentileri ayıklayın. İçerik düzenlemelerinde metni ve önizlemeyi inceleyin; Pofi notlarının otomatik testlerinde seçim, tarih, tekrar ve özel gün sözleşmelerini doğrulayın.
+UI metinlerini, DOM davranışını ve yerleşimi demoda kontrol edin. Otomatik testler hesap, takvim, veri doğrulama ve oturum izolasyonu gibi davranış sözleşmelerini korur. Her test somut bir davranış farkını yakalamalı; kendi örnek listesini doğrulayan veya aynı beklentiyi yineleyen kontroller eklenmemelidir. İçerik testleri seçim, tarih, tekrar ve özel gün davranışını sınar; metnin doğallığı editoryal inceleme gerektirir.
 
 ## Plan doğrulaması
 
@@ -58,19 +56,25 @@ Yerel oturum ölçümü için `bun scripts/benchmark-sessions.ts 100` çalışt�
 
 ## Masaüstü kabulü
 
-Paketli açılış kabulü [smoke.cjs](../scripts/electron/smoke.cjs) ile gerçek `app.isPackaged` sınırından güncelleme bilgisinin okunabildiğini ve köprünün yalnız üç işlem açtığını doğrular; geliştirme açılışında köprünün bulunmadığını kontrol eder. Bu okuma sistem panosunu değiştirmez. Intel'in [statik paket kontrolü](../scripts/electron/macos-static-check.cjs), `preload.cjs` ve `update-bridge.cjs` dosyalarını zorunlu tutar; eksik dosya senaryoları [testinde](../scripts/electron/macos-static-check.test.cjs) sınanır.
+Paketleme, süreç ve installer kabulünün ayrıntılı kapsamı [masaüstü rehberindedir](desktop.md#tekrarlanabilir-kabul). Değişikliğe göre şu komutları seçin:
 
-Genel paket/kurulum kabulleri `POFIS_TEST_BLOCK_ANALYTICS=1` ile çalışır. Electron ilk belge yüklenmeden Google etiket ve ölçüm trafiğini engeller; loopback uygulama erişimi sürer. `bun run test:desktop` içindeki gerçek Electron ağ testi bu ayrımı doğrular. GA4 olay alanları ve hesap kimliği davranışı sahte `window.dataLayer` kullanan [istemci testlerinde](analytics.md#doğrulama) doğrulanır.
+| Kontrol | Komut / sınır |
+| --- | --- |
+| Electron ve bildirim birimleri | `bun run test:desktop` |
+| Kabuk ve dağıtım betiklerinin tüm birimleri | `bun test ./electron ./scripts/electron`; `.cjs` dosyaları için açık dizin seçimi gerekir |
+| Paket açılışı | `bun run test:desktop:smoke <paket-klasörü>` |
+| Windows installer | `bun run test:desktop:distribution`; landing komutu için `--site ../pofis-landing` |
+| macOS installer | Native ARM64 ortamında `bun scripts/electron/macos-distribution-test.cjs --site ../pofis-landing`; Intel statik kontrolü [yayın rehberinde](release.md#cache-ve-süre-ölçümü) |
+| Installer kapanışı | `bun test ./scripts/electron/install-close.test.cjs ./scripts/electron/install-macos.test.cjs`; Windows'ta `POFIS_TEST_BASH` Git Bash yolunu gösterir |
+| Windows arşiv sınırları | `bun test ./scripts/electron/install-archive.test.cjs`; sistem aracı ve .NET açıcı |
+| Güncelleme arayüzü | Güncel standalone sonrasında `bun scripts/electron/update-demo.cjs --verify`; [senaryolar](desktop.md#güncelleme-bildirimini-deneme) |
+| Bildirim arayüzü ve IPC | Güncel standalone sonrasında `bun scripts/electron/notification-demo.cjs --verify`; sağlayıcılar fixture'dır |
+| Sistem panosu | `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`; panoyu değiştirdiği için yalnız izole CI/VM masaüstünde |
+| Electron motor geçişi | Gerçek önceki/yeni paketlerle [motor geçişi kabulü](desktop.md#motor-geçişi-kabulü) |
 
-`bun test` uygulamanın TypeScript testlerini keşfeder. `.cjs` masaüstü ve dağıtım betiği testleri için `bun test ./electron ./scripts/electron` çalıştırılır; release bu grubu `--parallel=2` ile iki ayrı worker'da çağırır. Tür kontrolü, uygulama testleri ve masaüstü grubu birlikte çalışır; tümü tamamlanıp başarılı olduğunda pano ve derlemeye geçilir. Windows kapanış kararları tek PowerShell sürecinde, her senaryoya yeni fonksiyon ve fixture kapsamı açılarak sınanır. Gerçek süreç kullanan fixture'lar kendi geçici dizinlerinde çalışır. Gerçek zorla kapatma testi ilk kapanış beklemesini taklit eder; iki onay, gerçek süreç sonlandırma, sonlanmayı bekleme ve dış süreci koruma kontrollerini uygular.
+Genel paket/kurulum kabulleri `POFIS_TEST_BLOCK_ANALYTICS=1` ile Google trafiğini engeller; loopback erişimi sürer. GA4 alanları ve hesap kimliği [ölçüm testlerinde](analytics.md#doğrulama) sahte `window.dataLayer` ile doğrulanır.
 
-`bun run test:desktop`, [sürüm denetimi testlerini](../electron/updates.test.cjs) de çalıştırır. Test manifestleriyle Windows/macOS hedef seçimi, sayısal sürüm karşılaştırması, sabit kurulum komutu, kapanış sırasında sonucu bırakma ve zaman aşımı doğrulanır. IPC testleri uygulama penceresi/ana çerçeve/origin sınırını ve geliştirme erişiminin reddini kapsar. Güncel standalone çıktısından sonra `bun scripts/electron/update-demo.cjs --verify`, gerçek Electron/preload ve ortak arayüzle giriş/menü düğmesi, yeniden yüklemede sürüm, modal, kopyalama hatası/tekrar, Daha sonra/Escape, odak dönüşü ve dar/koyu görünümü panoyu değiştirmeden sınar. Sistem panosu izole CI/VM pano kabulünde, canlı HTTPS manifestleri hedef cihazda kontrol edilir.
-
-Installer kapanış sözleşmesi `bun test ./scripts/electron/install-close.test.cjs ./scripts/electron/install-macos.test.cjs` ile sınanır. macOS'ta sistem Bash'i, Windows'ta `POFIS_TEST_BASH` ile belirtilen Git Bash kullanılır. Onay reddi, yanıtsız çalıştırma, normal kapanış, ayrı zorla kapatma onayı ve süreçler bitmeden ilerlememe senaryoları işletim sistemi işlemleri taklit edilerek doğrulanır. Windows testi ayrıca izole kurulum yolunda çalışan gerçek bir fixture sürecini zorla kapatıp dışarıdaki sürecin çalışmaya devam ettiğini doğrular. Windows dağıtım kabulü gerçek paketle açık uygulamanın normal kapanışını ve yeni sürümün açılışını da sınar; bu testte yalnız terminal yanıtı sağlanır ve zorla kapatma sorusuna ihtiyaç duyulmadığı kontrol edilir. macOS native kabulü aynı normal kapanış zincirini gerçek `osascript` ile çalıştırır.
-
-[Masaüstü rehberi](desktop.md#tekrarlanabilir-kabul) ortak platform/süreç testlerini, Node/Bun bulunmayan PATH ile paket kabulünü ve gerçek PDKS elle kontrol zincirini yönetir. Windows ve macOS hedefinde `bun run test:desktop` ve paket hazırlandıktan sonra aynı `bun run test:desktop:smoke` çalıştırılır. Windows ZIP'i için ayrıca `bun run test:desktop:distribution` kurulum/güncelleme/temizlik ve veri koruma yollarını izole dizinlerde sınar. macOS sistem araçlarını, gerçek pencereyi, izinleri ve Gatekeeper davranışını hedef macOS cihazında kontrol edin. Gerçek PDKS kabulünde kurum hesabını ve ağını kullanın. Tamamlanan masaüstü kabullerinin güncel durumu [masaüstü rehberindedir](desktop.md).
-
-`bun test ./scripts/electron/install-archive.test.cjs`, Windows sistem aracı ve .NET arşiv açıcılarında dosya içeriğini, mevcut dosyanın korunmasını ve arşiv sınırlarını doğrular. Dizin dışına çıkan yollar, alternatif veri akışları, sembolik bağlantılar ve yinelenen dosyalar yazma başlamadan reddedilir. Gerçek ZIP'in uzun yolları ve uygulama açılışı tam dağıtım kabulünde sınanır.
+Windows kapanış testleri her senaryoya ayrı fixture kapsamı açar; gerçek zorla kapatma testi yalnız izole kurulumdaki süreci sonlandırır ve dış süreci korur. macOS fixture testleri sistem işlemlerini taklit eder; native kabul gerçek `osascript`, ZIP ve uygulama süreçlerini kullanır. Hedef cihazda Gatekeeper, sistem izinleri, bildirim görünümü ve gerçek PDKS akışını ayrıca doğrulayın. Pano veya fixture sonucu bu kabulün yerine geçmez.
 
 ## Linux ve ortak Unix installer kabulü
 
@@ -82,8 +86,6 @@ Aynı oturumda `bun scripts/electron/notification-demo.cjs --verify` gerçek ana
 
 ## Sonuçların yönetimi
 
-Electron motoru değiştiğinde [motor geçişi kabulünü](desktop.md#motor-geçişi-kabulü) gerçek önceki/yeni paketlerle çalıştırın. Aynı paketin sürümünü değiştiren installer fixture'ları profilin farklı Chromium sürümleri arasında okunmasını kanıtlamaz. Ortak paket kabulü gerçek görsel baytlarını ve Geist fontunun yüklenmesini de sınar; pano kabulü yalnız izole CI/VM masaüstünde çalışır. Monterey için iki mimaride gerçek macOS 12 kabulü gerekir.
-
-macOS installer için `bun scripts/electron/macos-distribution-test.cjs --site ../pofis-landing` gerçek macOS runner'ında gerçek ZIP kullanır; ARM64 release işi bunu otomatik çalıştırır. Intel paketi aynı runner üzerinde yalnız statik mimari, imza, paket içeriği ve ZIP kontrollerinden geçer; Intel pencere/kurulum/güncelleme kabulü otomatik çalışmaz. İlk kurulum/pencere, Finder uygulama yolu, aynı sürüm/tek örnek, alternatif port, indirme hatası, açıkken güncelleme, sürüm yükseltme, gerçek sunucu hatasının raporlanması, profil dosyası kalıcılığı, kurulum kilidi ve çökme sonrası yeniden açılışı sınar. Bash/sürüm/arşiv yolu birim testleri betik sözleşmelerini doğrular. Gatekeeper ve gerçek PDKS oturumu hedef cihazda kontrol edilir.
+Her sonucu kullanılan kaynak, paket ve ortamla birlikte değerlendirin. Sürümü değiştirilmiş installer fixture'ı, farklı Chromium motorları arasında profil geçişini kanıtlamaz. Intel statik kontrolleri pencere/kurulum kabulü, `macos-15` sonucu macOS 12 çalışma kanıtı değildir. Açık kabuller [görev listesinde](../tasks/todo.md) tutulur.
 
 Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulamaların rapor, ekran görüntüsü ve ölçüm çıktılarını temizleyin. Geçerli ürün kararlarını ilgili sözleşmeye, açık bulguları görev listesine taşıyın. Davranış testleri ve demo üzerinden elle tarayıcı kabulü doğrulama yönteminin parçasıdır.

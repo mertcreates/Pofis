@@ -1,3 +1,4 @@
+import { ui } from "../lib/ui-text.js";
 import snapshot from "./passages.json";
 import { addDays, dateKey, weekStart } from "@/domain/rules/calendar";
 import { readReportResponse } from "@/data/report-response";
@@ -19,7 +20,7 @@ export function demoData() {
     reports.push(
       readReportResponse(
         {
-          person: { id: "self", name: "Örnek kullanıcı", unit: "", title: "" },
+          person: { id: "self", name: ui.demoMessages.person, unit: "", title: "" },
           from,
           to,
           fetchedAt: snapshot.capturedAt,

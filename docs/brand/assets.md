@@ -12,6 +12,6 @@ Kullanıcının paylaştığı [marka kiti](../../extras/pofis-brand-kit/README.
 | `public/pofi/` | Arşivin kanonik Pofi varlıkları |
 | `public/icons/` | Arşiv ikonları; lisans aynı klasörde |
 
-Yedi durum görseli ve albüm uygulamadadır. `overworked`, albümde ve `%115` ilerlemeden itibaren otomatik akışta kullanılır; koşullar [durum seçicide](../rules/pofi.md) yönetilir. Slogan **Mesaiye biraz Pofi**; durum görsellerinin kaynak arşivi `pofis-1.0.0-docker-source.zip`; SHA-256 değeri `555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca`.
+Durum görsellerinin seçim koşulları [Pofi kuralında](../rules/pofi.md) yönetilir. Slogan **Mesaiye biraz Pofi**; durum görsellerinin kaynak arşivi `pofis-1.0.0-docker-source.zip`; SHA-256 değeri `555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca`.
 
 [İnceleme setleri](pofi-review-2026-10-15/README.md) etkin dosyalardan ayrı tutulur. Yeni görseller uygulamaya alınmadan önce karakter kuralları ve kullanıcı seçimiyle değerlendirilir.

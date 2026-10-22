@@ -15,6 +15,7 @@ async function build() {
     child.once("exit", code => code === 0 ? resolve() : reject(new Error(`Next.js derlemesi başarısız (${code}).`)));
   });
   const standalone = join(root, ".next", "standalone");
+  await require("./build-notifications.cjs").buildNotifications(standalone);
   await cp(join(root, "public"), join(standalone, "public"), { recursive: true });
   await cp(join(root, ".next", "static"), join(standalone, ".next", "static"), { recursive: true });
 }

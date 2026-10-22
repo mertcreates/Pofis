@@ -1,6 +1,6 @@
 {
   "name": "pofis",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
   "packageManager": "bun@1.4.3",
   "scripts": {
@@ -10,15 +10,10 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "desktop": "bun scripts/electron/launch.cjs",
-    "desktop:update-demo": "bun scripts/electron/update-demo.cjs",
-    "desktop:install-demo": "bun scripts/electron/install-close-demo.cjs",
     "desktop:install": "bun node_modules/electron/install.js",
     "desktop:prepare": "bun run desktop:install && bun scripts/electron/build.cjs",
     "desktop:package": "bun run desktop:prepare && bun scripts/electron/package.cjs",
-    "desktop:release": "bun scripts/electron/release.cjs",
-    "desktop:site": "bun scripts/electron/prepare-site.cjs",
-    "test:desktop": "bun test ./electron/server.test.cjs ./electron/startup.test.cjs ./electron/platform.test.cjs ./electron/updates.test.cjs ./electron/external-links.test.cjs ./electron/permissions.test.cjs ./electron/acceptance-network.test.cjs",
-    "desktop:serve": "bun scripts/electron/serve-releases.cjs",
+    "test:desktop": "bun test ./electron ./src/desktop",
     "test:desktop:distribution": "bun scripts/electron/distribution-test.cjs",
     "test:desktop:smoke": "bun scripts/electron/smoke.cjs"
   },

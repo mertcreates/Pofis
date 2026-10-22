@@ -1,3 +1,4 @@
+const { ui } = require("./ui-text.cjs");
 const { ORIGIN } = require("./server.cjs");
 
 function installUpdateBridge({ ipcMain, getWindow, isPackaged, platform, writeClipboard }) {
@@ -8,7 +9,7 @@ function installUpdateBridge({ ipcMain, getWindow, isPackaged, platform, writeCl
     const contents = getWindow()?.webContents;
     if (!isPackaged || !contents || contents.isDestroyed() || event.sender !== contents ||
         event.senderFrame !== contents.mainFrame || new URL(event.senderFrame.url).origin !== ORIGIN) {
-      throw new Error("Güncelleme isteğine izin verilmedi.");
+      throw new Error(ui.desktop.updateForbidden);
     }
   }
   ipcMain.handle("pofis:update:get", event => {
@@ -17,7 +18,7 @@ function installUpdateBridge({ ipcMain, getWindow, isPackaged, platform, writeCl
   });
   ipcMain.handle("pofis:update:copy", event => {
     authorize(event);
-    if (!update) throw new Error("Yeni sürüm bilgisi bulunamadı.");
+    if (!update) throw new Error(ui.desktop.updateMissing);
     writeClipboard(command);
   });
   return next => {

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { loadPlans, savePlans } from "@/lib/plan-storage.js";
+import { loadPlans, savePlans, serializePlans } from "@/lib/plan-storage.js";
 import { workPlanStorage, type PlanScope } from "./work-plans";
 import {
   emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, resolveUserLockedDays, changeWeekLockedDays, changeWeekPlan, changeDefaultPlan,
@@ -14,6 +14,7 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const plan = useMemo(() => resolveStoredPlan(plans, week), [plans, week]);
+  const serialized = useMemo(() => serializePlans(plans), [plans]);
   useEffect(() => {
     setReady(false);
     try {
@@ -42,6 +43,7 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
   }
   return {
     plan,
+    serialized: ready ? serialized : null,
     targetSeconds: resolveStoredTarget(plans, week),
     defaultPlan: plans.defaultPlan,
     leaveDays: resolveLeaveDays(plans, week),

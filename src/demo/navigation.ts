@@ -1,3 +1,4 @@
+import { ui } from "../lib/ui-text.js";
 import { dateKey, sourceTimestamp, weekDates } from "@/domain/rules/calendar";
 import { passageDay } from "@/domain/rules/passages.js";
 import type { Report } from "@/domain/report";
@@ -12,7 +13,7 @@ function validateExtraMinutes(minutes: number, maximum: number) {
     minutes > maximum ||
     minutes % EXTRA_TIME_STEP_MINUTES !== 0
   )
-    throw new Error("Demo ek süresi seçili gün için geçersiz.");
+    throw new Error(ui.demoMessages.invalidExtraTime);
 }
 
 export function demoDays(week: string, capturedAt: number) {
@@ -24,22 +25,22 @@ export function demoDays(week: string, capturedAt: number) {
 
 export function demoClock(date: string, capturedAt: number) {
   const lastDate = dateKey(capturedAt);
-  if (date > lastDate) throw new Error("Demo günü yakalama tarihini aşamaz.");
+  if (date > lastDate) throw new Error(ui.demoMessages.futureDate);
   if (date === lastDate) return capturedAt;
   const at = sourceTimestamp(date, "23:59:59");
-  if (at === null) throw new Error("Geçersiz demo günü.");
+  if (at === null) throw new Error(ui.demoMessages.invalidDay);
   return at;
 }
 
 export function advanceDemoClock(now: number, elapsedMilliseconds: number) {
   const dayEnd = sourceTimestamp(dateKey(now), "23:59:59");
-  if (dayEnd === null) throw new Error("Geçersiz demo saati.");
+  if (dayEnd === null) throw new Error(ui.demoMessages.invalidTime);
   return Math.min(now + Math.max(0, elapsedMilliseconds), dayEnd);
 }
 
 export function previewDemoReport(report: Report, date: string): Report {
   if (date < report.from || date > report.to)
-    throw new Error("Demo günü seçili rapor haftasında olmalı.");
+    throw new Error(ui.demoMessages.dayOutsideWeek);
   return {
     ...report,
     passages: report.passages.filter((event) => event.date <= date),

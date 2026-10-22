@@ -6,22 +6,30 @@ Yerel adres: http://127.0.0.1:3000/demo. Sayfa giriş gerektirmeden Mesaim'i yak
 
 ### Mesaim önizlemesi
 
-Mesaim, Hata ekranları ve Bildirimler sekmeleri arasında seçimler korunur. Mesaim'de iki önizleme vardır:
+Mesaim, Hata ekranları ve Durum mesajları sekmeleri arasında seçimler korunur. Mesaim'de iki önizleme vardır:
 
 | Önizleme | Kontrol ve sonuç |
 | --- | --- |
-| Gün | Pazartesi–Cuma seçicisi günü sanal “bugün” yapar. Günün akışı, rapordaki “Bugün” ve Pofi aynı günü gösterir. Gün seçimi Pazartesi–Cuma seçicisinden yapılır. |
+| Gün | Pazartesi–Cuma seçicisi günü sanal “bugün” yapar. Günün akışı, rapordaki “Bugün” ve Pofi aynı günü gösterir. |
 | Geçmiş hafta | “Hazır senaryo → Geçmiş hafta” önceki haftanın tüm kayıtlarını yakalama saatiyle açar. Gün ve ek süre kontrolleri gizlenir. Hafta seçiciyle diğer geçmiş haftalara geçilebilir; yakalama haftasına geçmek veya gün senaryosu seçmek gün önizlemesine döner. |
 
 Gün senaryoları: Hedefin altında → 15 Ekim; Tekrarlanan geçiş → 7 Ekim; Kayıt olmayan gün → 9 Ekim; Devam eden mesai → 15 Ekim'e 120 dakika sanal ek süre. Hedef farkı kayıtlı demo planına göre hesaplanır. Elle seçim bir senaryoyla eşleşmezse “Özel seçim” görünür.
 
-“Demoyu sıfırla” yakalama gününü sıfır ek süreyle açar; hata önizlemesini bağlantı, bildirim önizlemesini çıkış hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince geçici seçimler sıfırlanır.
+“Demoyu sıfırla” yakalama gününü sıfır ek süreyle açar; hata önizlemesini bağlantı, durum mesajı önizlemesini çıkış hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince geçici seçimler sıfırlanır.
 
 [Demo kontrolleri](../src/demo/controls.tsx) sekmeleri ve sıfırlamayı sunar; durum [demo istemcisinde](../src/demo/dashboard.tsx) tutulur. Ortak DashboardView içeriği standart `children` ile alır.
 
-## Hata ekranları ve bildirimler
+## Mesai bildirimi ayarları
 
-Senaryolar canlı ekranlarla aynı [hata bileşenini](../src/components/request-error.js), [teknik ayrıntıları](../src/components/request-error-details.tsx) ve [kompakt bildirimleri](../src/components/inline-notice.tsx) kullanır. Hata sınıfları, İz kaydı ve toparlanma kuralları [hata sözleşmesinde](pdks-errors.md) yönetilir; demo yalnız örnek girdileri sağlar.
+Yan menüdeki Bildirimler, Electron ile aynı [NotificationSettings](../src/components/notifications/settings.tsx) ekranını açar. Kontroller, açık kaydetme eylemi ve Telegram kurulumu aynı bileşenden gelir; demoya özel görünüm veya stil bulunmaz.
+
+[Demo adaptörü](../src/demo/use-notifications.ts) yalnız durum ve işlem sonuçlarını sağlar. Tercihler başlangıçta kapalıdır. Süre ve kanal seçimleri kaydedilebilir; Telegram kurulumu örnek kişisel sohbeti bulur, bağlantı kurar ve kaldırır. Deneme gönderimleri yalnız örnek başarı sonucuyla tamamlanır. Gerçek token gerektirmez; girilen token saklanmaz. Ağ, Electron köprüsü, işletim sistemi bildirimi veya kalıcı depolama kullanılmaz. Sayfa yenilenince bildirim tercihleri ve örnek bağlantı sıfırlanır.
+
+Masaüstünün gerçek bağlantı ve gönderim davranışını [bildirim sözleşmesi](rules/notifications.md) açıklar.
+
+## Hata ekranları ve durum mesajları
+
+Senaryolar canlı ekranlarla aynı [hata bileşenini](../src/components/request-error.js), [teknik ayrıntıları](../src/components/request-error-details.tsx) ve [kompakt durum mesajlarını](../src/components/inline-notice.tsx) kullanır. Hata sınıfları, İz kaydı ve toparlanma kuralları [hata sözleşmesinde](pdks-errors.md) yönetilir; demo yalnız örnek girdileri sağlar.
 
 | Önizleme | Etkileşim ve sınır |
 | --- | --- |
@@ -37,17 +45,17 @@ Senaryolar canlı ekranlarla aynı [hata bileşenini](../src/components/request-
 
 Yerel modal ve örnek plan senaryo/sekme değişiminde sıfırlanır. Bu örneklerin saklama alanı yalnız süreç belleğidir.
 
-Önizleme sahipleri: [hatalar](../src/demo/error-preview.tsx), [bildirimler](../src/demo/notice-preview.tsx), [yerel modal senaryoları](../src/demo/local-preview.tsx). Ortak DashboardView bu senaryoları bilmez.
+Önizleme sahipleri: [hatalar](../src/demo/error-preview.tsx), [durum mesajları](../src/demo/notice-preview.tsx), [yerel modal senaryoları](../src/demo/local-preview.tsx). Ortak DashboardView bu senaryoları bilmez.
 
 ## Veri ve zaman
 
-[Yakalanan turnike verisi](../src/demo/passages.json) 21 Eylül–16 Ekim 2026 aralığındaki 297 hareketi içerir. Her hareket yalnız `date`, `time`, `direction` taşır. Ekranda “Örnek kullanıcı” görünür. Fixture yalnız tarih, saat ve yön içerir; gerçek tarih ve saatler korunmuştur. Veri paylaşımında bu zamanların kaynak kişiyi tanımlama olasılığı dikkate alınır.
+[Yakalanan turnike verisi](../src/demo/passages.json) 21 Eylül–16 Ekim 2026 aralığındaki 297 hareketi içerir. Her hareket yalnız `date`, `time`, `direction` taşır; gerçek tarih ve saatler korunmuştur. Ekranda “Örnek kullanıcı” görünür. Veri paylaşımında bu zamanların kaynak kişiyi tanımlama olasılığı dikkate alınır.
 
 Başlangıç günü 16 Ekim 2026, saati 11:24 Europe/Istanbul'dur. Bir gün seçildiğinde demo o günü “bugün” kabul eder. Normal görünümde önceki günler İstanbul saatinde 23:59:59, yakalama günü özgün yakalama saatiyle gösterilir. Anlık ek süre seçildiğinde yalnız seçili günün sanal saati, o günün son geçerli hareketinden seçilen süre kadar sonrasına alınır. Son hareket çıkışsa aynı saniyeye demo amaçlı açık giriş eklenir; yakalanmış hareketler ve kayıtlı toplam değişmez. Süre 15 dakika adımlıdır, gün sonunu aşamaz ve seçili gün değişince sıfırlanır. Hareketi olmayan veya güvenilir açık giriş kurulamayan günlerde kontrol kapalıdır. Önceki eşleşmeyen çıkış güvenilir son girişi engellemez. Bilgisayarın tarihi sonucu etkilemez. Seçilen tarihten sonraki hareketler ve Pofi notları önizleme girdisine katılmaz; fixture korunur. Böylece haftalık toplam yalnız seçilen güne kadarki gerçek kayıtlardan oluşur.
 
-Dört hafta arasında gezinilir; ilk yakalama haftasından önceki ve yakalama tarihinden sonraki haftalar seçilmez. Haftayı değiştirince haftanın aynı günü korunur; kısmi yakalama haftasında son kullanılabilir hafta içi gün seçilir. Kayıtsız hafta içi günler de seçilebilir. Seçim istemci belleğindedir; yeniden yükleme başlangıç gününü açar. Raporu yenile, aynı günün yakalanmış raporunu yeniden sunar. Gün gezintisi canlı Mesaim'de gösterilmez.
+Dört hafta arasında gezinilir; ilk yakalama haftasından önceki ve yakalama tarihinden sonraki haftalar seçilmez. Haftayı değiştirince haftanın aynı günü korunur; kısmi yakalama haftasında son kullanılabilir hafta içi gün seçilir. Kayıtsız hafta içi günler de seçilebilir. Raporu yenile, aynı günün yakalanmış raporunu yeniden sunar. Gün gezintisi canlı Mesaim'de gösterilmez.
 
-Pozitif ek sürede sanal saat saniyede bir ilerler; sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Sekmeye dönüşte geçen süre yansır. Saat 23:59:59'da durur; sıfır ek süre ve “Demoyu sıfırla” çalışan saati durdurur. Tekrarlanan geçiş uyarısı ek süreyi engellemez. Geçmiş hafta önizlemesi tüm haftayı sabit yakalama saatiyle değerlendirir.
+Pozitif ek sürede sanal saat saniyede bir ilerler; sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Sekmeye dönüşte geçen süre yansır. Saat 23:59:59'da durur; sıfır ek süre ve “Demoyu sıfırla” çalışan saati durdurur. Geçmiş hafta önizlemesi tüm haftayı sabit yakalama saatiyle değerlendirir.
 
 | Haftanın başlangıcı | Hareket | Kayıtlı süre |
 | --- | ---: | ---: |

@@ -1,3 +1,4 @@
+const { ui } = require("./ui-text.cjs");
 const { execFile } = require("node:child_process");
 const { createServer } = require("node:net");
 const { randomBytes } = require("node:crypto");
@@ -41,7 +42,7 @@ async function stopProcessTree(child, { platform = process.platform, processGrou
     signal("SIGKILL");
     deadline = Date.now() + timeoutMs;
     while (signal(0) && Date.now() < deadline) await delay(50);
-    if (signal(0)) throw new Error("Pofis süreç grubu kapatılamadı.");
+    if (signal(0)) throw new Error(ui.desktop.processGroupStopFailed);
     return;
   }
   return new Promise((resolve, reject) => {
@@ -77,7 +78,7 @@ function createDesktopServer({ root, fork, sessionDirectory, onUnexpectedExit, p
     // Next may handle SIGTERM; bound shutdown on both supported platforms.
     try { process.kill(child.pid, "SIGKILL"); }
     catch (error) { if (error.code !== "ESRCH") throw error; }
-    if (!(await waitForExit())) throw new Error("Pofis sunucusu kapatılamadı.");
+    if (!(await waitForExit())) throw new Error(ui.desktop.serverStopFailed);
   }
   async function isHealthy() {
     if (stopping || failure) return false;
@@ -97,11 +98,11 @@ function createDesktopServer({ root, fork, sessionDirectory, onUnexpectedExit, p
     isHealthy,
     async start() {
       await access(join(root, "server.js")).catch(() => {
-        throw new Error("Pofis sunucu dosyaları bulunamadı. Uygulamayı yeniden kur. Geliştirme ortamında bun run desktop:prepare çalıştır.");
+        throw new Error(ui.desktop.serverMissing);
       });
       const selectedPort = await selectPort(port);
       origin = `http://${HOST}:${selectedPort}`;
-      if (stopping) throw new Error("Başlatma iptal edildi.");
+      if (stopping) throw new Error(ui.desktop.startupCancelled);
       child = fork(join(__dirname, "server-entry.cjs"), [String(selectedPort)], {
         cwd: root,
         serviceName: "Pofis Sunucusu",
@@ -111,11 +112,11 @@ function createDesktopServer({ root, fork, sessionDirectory, onUnexpectedExit, p
       });
       exitPromise = new Promise(resolve => child.once("exit", () => { exited = true; resolve(); }));
       child.once("error", () => {
-        failure = new Error("Pofis sunucusu başlatılamadı.");
+        failure = new Error(ui.desktop.serverStartFailed);
         controller.abort();
       });
       child.once("exit", (code) => {
-        failure = new Error(`Pofis sunucusu kapandı (kod: ${code}). Pofis'i yeniden aç; gerekirse uygulamayı yeniden kur.`);
+        failure = new Error(ui.desktop.serverClosed(code));
         controller.abort();
         if (ready && !stopping) onUnexpectedExit(failure);
       });
@@ -129,7 +130,7 @@ function createDesktopServer({ root, fork, sessionDirectory, onUnexpectedExit, p
         }
         await delay(150, undefined, { signal: controller.signal }).catch(() => {});
       }
-      throw failure || new Error(stopping ? "Başlatma iptal edildi." : "Sunucu 30 saniye içinde hazır olmadı. Pofis'i yeniden aç.");
+      throw failure || new Error(stopping ? ui.desktop.startupCancelled : ui.desktop.serverTimeout);
     },
     stop() {
       stopping = true;

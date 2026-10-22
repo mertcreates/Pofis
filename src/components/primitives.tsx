@@ -5,7 +5,7 @@ import { percentage } from "@/domain/rules/progress.js";
 import { ui } from "@/lib/ui-text.js";
 
 export function Duration({ seconds }: { seconds: number | null }) {
-  if (seconds === null) return <span className="empty-value">–</span>;
+  if (seconds === null) return <span className="empty-value">{ui.time.empty}</span>;
   const p = durationParts(seconds);
   return (
     <time
@@ -13,15 +13,15 @@ export function Duration({ seconds }: { seconds: number | null }) {
       title={durationClock(seconds)}
       aria-label={durationText(seconds)}
     >
-      {p.hours > 0 && <>{p.hours} <small>sa</small></>}
-      {p.minutes > 0 && <>{p.hours > 0 && " "}{p.minutes} <small>dk</small></>}
+      {p.hours > 0 && <>{p.hours} <small>{ui.units.hour}</small></>}
+      {p.minutes > 0 && <>{p.hours > 0 && " "}{p.minutes} <small>{ui.units.minute}</small></>}
       {p.seconds > 0 && (
         <span className="duration-seconds">
           {(p.hours > 0 || p.minutes > 0) && " "}
-          {p.seconds} sn
+          {p.seconds} {ui.units.second}
         </span>
       )}
-      {p.hours === 0 && p.minutes === 0 && p.seconds === 0 && <>0 <small>sn</small></>}
+      {p.hours === 0 && p.minutes === 0 && p.seconds === 0 && <>0 <small>{ui.units.second}</small></>}
     </time>
   );
 }

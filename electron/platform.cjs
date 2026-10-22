@@ -1,10 +1,11 @@
+const { ui } = require("./ui-text.cjs");
 const { join } = require("node:path");
 
 function platformTarget(platform = process.platform, arch = process.arch) {
   if ((platform !== "win32" || arch !== "x64") &&
       (platform !== "darwin" || !["x64", "arm64"].includes(arch)) &&
       (platform !== "linux" || arch !== "x64")) {
-    throw new Error(`Desteklenmeyen Pofis hedefi: ${platform}/${arch}`);
+    throw new Error(ui.internalErrors.unsupportedTarget(platform, arch));
   }
   const mac = platform === "darwin";
   const linux = platform === "linux";

@@ -1,3 +1,4 @@
+import { ui } from "../lib/ui-text.js";
 import { SESSION_POLICY } from "../domain/rules/session-policy";
 import {
   mkdir,
@@ -24,7 +25,7 @@ export function createSessionStorage(directory) {
   const sessionFile = (id) => format({ dir: directory, name: id, ext: ".json" });
   function serialize(id, action) {
     if (!validSessionId(id))
-      return Promise.reject(new Error("Invalid session id"));
+      return Promise.reject(new Error(ui.internalErrors.invalidSessionId));
     const result = (pending.get(id) || Promise.resolve()).then(action);
     // The caller receives failures; the internal queue remains usable for logout/retry.
     const settled = result
@@ -62,11 +63,11 @@ export function createSessionStorage(directory) {
             !record.jar ||
             !record.self
           )
-            throw new Error("Invalid session record");
+            throw new Error(ui.internalErrors.invalidSessionRecord);
           return record;
         } catch {
           console.error(
-            "Invalid PDKS session record; reauthentication required",
+            ui.serverDiagnostics.invalidPdksSessionRecordReauthenticationRequired,
           );
           return null;
         }

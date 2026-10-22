@@ -2,13 +2,7 @@
 
 Bu rehber kurum sunucusundaki Docker/ingress dağıtımını yönetir. Electron paketleri ve Windows kurulumu [masaüstü rehberinde](desktop.md), GitHub Actions/Workers otomasyonu [sürüm yayınında](release.md) açıklanır.
 
-Masaüstü güncellemesinde [onaylı kapanış](desktop.md#açık-uygulamada-onaylı-güncelleme), eski paketlerin temizlenmesi ve Windows/macOS/Linux [kaldırma davranışı](desktop.md#kaldırma) masaüstü rehberinde yönetilir; kullanıcı profili uygulama dosyalarından bağımsız korunur.
-
-Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Her kullanıcı kendi PDKS istemcisi, CookieJar ve kısa rapor önbelleğine sahiptir. Kubernetes'te bir replica kullanılır; güncellemede eski pod durduktan sonra yenisi başlatılır (`Recreate`). Oturum dizininin sahibi tek uygulama sürecidir.
-
-## Hesap anahtarı geçişi
-
-[Pofi hesap anahtarı](pofi-notes.md#hesap-anahtarı) başarılı girişte oluşturulur. Bu alanı içermeyen mevcut oturumlar güncelleme sonrasında yeniden girişle yenilenir. Yeni girişler aynı anahtarla diskten geri yüklenir. Not seçimleri geçmiş tarihler dahil değişebilir.
+Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Kubernetes'te bir replica ve `Recreate` stratejisi kullanılır. Oturum izolasyonu, kalıcılık ve hesap anahtarı geçişi [oturum mimarisinde](architecture/multi-user-sessions.md) yönetilir.
 
 ## Çalışma zamanı ayarları
 
@@ -30,21 +24,19 @@ Kalıcı dizinin yazı hataları için [oturum politikasındaki](rules/session-p
 
 TLS ingress üzerinde sonlanabilir; pod HTTP dinler. Secure çerezi doğrudan HTTPS bağlantısında veya `X-Forwarded-Proto` başlığının ilk değeri `https` olduğunda kullanılır. Ingress bu başlığı tarayıcının bağlantı protokolüne göre yeniden yazmalı, Host bilgisini doğru iletmeli ve pod'a erişim kurumun ingress ağıyla sınırlandırılmalıdır. Giriş, heartbeat ve çıkış uçları Origin/Sec-Fetch-Site değerlerinden bağımsız çalışır; bağlantı protokolü istekten belirlenir. Ingress erişim loglarını yöntem, yol, durum ve süre gibi operasyon alanlarıyla sınırlandırın; hassas gövde ve çerez alanlarını maskeleyin.
 
-Kişisel API yanıtlarında `Cache-Control: no-store` vardır; ingress/CDN bu yanıtları ortak önbelleğe almamalıdır. 20 saniyelik rapor önbelleği sunucudaki ilgili oturuma aittir. Aynı tarih aralığındaki eşzamanlı raporlar birleşir; farklı kullanıcılar bağımsız çalışır. Kaynak [sözleşmesi](rules/source-policy.md).
+Kişisel API yanıtlarındaki `Cache-Control: no-store` başlığı korunmalı; ingress/CDN bu yanıtları ortak önbelleğe almamalıdır. Uygulama içi önbellekler [kaynak](rules/source-policy.md) ve [yemek](rules/meal-menu.md) sözleşmelerine aittir.
 
-`/api/meals` de kişisel Pofi metni içerdiği için HTTP yanıtı ortak önbelleğe alınmaz. Bir saatlik ortak yemek önbelleği yalnız kaynak menüsünü tutar; yorum oturumdaki mevcut hesap anahtarıyla seçilir. İçerik uygulamayla birlikte paketlenir. [Yemek sözleşmesi](rules/meal-menu.md#pofi-yemek-yorumları).
-
-Haftalık mesai raporu kişisel turnike listesinin bütün sayfalarını toplar. Sayfa boyutunu kaynak belirler; adaptör kaynağın sayfalama bilgisini izler. Giriş/profil, turnike sorgusu ve sayfa callback'leri kurum ağı üzerinden erişilebilir olmalıdır.
+PDKS giriş/profil, turnike sorgusu ve sayfalama callback'leri kurum ağından erişilebilir olmalıdır.
 
 Kaynak erişim kabulünde bağlantı/DNS hatası (`CONNECTION_FAILED`) ile PDKS HTTP hata yanıtını (`SOURCE_ERROR`) ayrı doğrulayın. `ENOTFOUND` DNS çözümlemesinin başarısız olduğunu belirtir; tek başına VPN durumunu belirlemez. Kaynağın `403/429/5xx` hata sayfası oturumu düşürmemelidir. [Hata sözleşmesi](pdks-errors.md).
 
 ## Docker
 
-Yerelde `bun run build` standart Next çıktısı üretir; `bun run start` bunu `next start --hostname 127.0.0.1` ile çalıştırır. Başka bir dinleme adresi için `bun run start --hostname 0.0.0.0` kullanılır. İki komutun `bun --bun` öneki Next'i Bun çalışma zamanıyla çalıştırır.
+Yerel üretim önizlemesi [README'deki](../README.md#doğrulama-ve-üretim-çalıştırması) standart Next komutlarını kullanır.
 
 Dockerfile derleme sırasında `POFIS_STANDALONE=1` ayarlar. Çalışma imajına standalone sunucuyu, `public` ve `.next/static` dizinlerini ayrı ayrı kopyalar; sunucu `bun server.js` ile başlar.
 
-`/demo` statik sayfası aynı derlemeye dahildir ve oturum gerektirmez. Yakalanan veride kişi adı/kimliği çıkarılmış, gerçek geçiş tarihleri/saatleri korunmuştur. Sayfa herkese açıktır; `noindex, nofollow` arama motoru indeksleme yönergesidir. [Veri kapsamı ve sahipliği](demo.md).
+Oturumsuz erişilen statik `/demo` aynı derlemeye dahildir. Veri kapsamı ve erişim sınırı [demo rehberindedir](demo.md#veri-ve-zaman).
 
 ```sh
 docker build -t pofis:local .
@@ -67,3 +59,7 @@ Giriş kabulünde `mert.ercan` ve `mert.ercan@trt.net.tr` biçimlerinin aynı ku
 Bekleyen dağıtım kabulünü [görev listesinde](../tasks/todo.md) yönetin. Yerel kontrol yöntemi [doğrulama rehberindedir](verification.md).
 
 Next.js çalışma zamanı kaynakları: kurulu sürümün `node_modules/next/dist/docs/01-app/02-guides/self-hosting.md` ve `03-api-reference/05-config/01-next-config-js/output.md` belgeleri. [Resmî self-hosting rehberi](https://nextjs.org/docs/app/guides/self-hosting).
+
+## Masaüstü bildirimleri
+
+[Mesai bildirimleri](rules/notifications.md) çalışan Electron uygulamasında üretilir. Telegram bağlantısını her kullanıcı kendi botuyla cihazında kurar; kanal tercihleri ve şifreli bağlantı profilinde saklanır. Kurum sunucusunda bildirim işçisi kurulmaz.

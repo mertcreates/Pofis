@@ -14,6 +14,7 @@ foreach ($statement in $ast.EndBlock.Statements) {
 # All process operations are simulated; no real process is inspected or stopped.
 $script:running = $true
 $script:forceDemo = $ForceClose.IsPresent
+$UserDataDir = 'C:\Pofis-demo-profile'
 $script:owned = [pscustomobject]@{ HasExited = $false; MainWindowHandle = 1 }
 $script:owned | Add-Member ScriptMethod CloseMainWindow {
     if (-not $script:forceDemo) { $script:running = $false }
@@ -22,6 +23,7 @@ $script:owned | Add-Member ScriptMethod CloseMainWindow {
 $script:owned | Add-Member ScriptMethod Kill { $script:running = $false }
 function Get-InstalledProcess { if ($script:running) { $script:owned } }
 function Wait-PofisClosed { return (-not $script:running) }
+function Start-Process { if (-not $script:forceDemo) { $script:running = $false } }
 if ($Preview) {
     function Read-Host([string]$Prompt) { Write-Host "${Prompt}: e (demo)"; return 'e' }
 }

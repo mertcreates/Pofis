@@ -28,7 +28,7 @@ function sampleError(scenario: Scenario, attempt: number) {
     } }, "connect");
     case "upstream": return toRequestFailure({ code: "SOURCE_ERROR", status: 502, details: {
       ...details, method: "GET", path: "/PizzyKurumWeb/Giris.aspx",
-      sourceStatus: 500, diagnostic: "PDKS bir HTTP hata yanıtı verdi.",
+      sourceStatus: 500, diagnostic: ui.demoMessages.sourceHttpError,
     } }, "connect");
     case "internal": return toRequestFailure({ code: "INTERNAL_ERROR", status: 500, details: {
       ...details, type: "UnexpectedError", diagnostic: ui.apiErrors.unexpectedServerError,

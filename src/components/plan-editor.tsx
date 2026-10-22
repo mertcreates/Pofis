@@ -13,9 +13,9 @@ import { InlineNotice } from "./inline-notice";
 import "./plan-editor.css";
 
 const copy = ui.planner;
-const hours = (minutes: number) => minutes === 0 ? "0 sa" : durationText(Math.round(minutes * 60), false);
+const hours = (minutes: number) => minutes === 0 ? `0 ${ui.units.hour}` : durationText(Math.round(minutes * 60), false);
 const planHours = (minutes: number) => minutes % 30 === 0
-  ? `${(minutes / 60).toLocaleString("tr-TR")} sa` : durationText(Math.round(minutes * 60), false);
+  ? `${(minutes / 60).toLocaleString("tr-TR")} ${ui.units.hour}` : durationText(Math.round(minutes * 60), false);
 
 function DurationInput({ value, label, disabled, onCommit }: { value: number; label: string; disabled: boolean; onCommit: (minutes: number) => void }) {
   const [draft, setDraft] = useState(hours(value));
@@ -129,11 +129,6 @@ export function PlanEditor({
   return (
     <Modal title={ui.workPlan} className="work-plan-modal" initialFocus="title" onClose={onClose}>
       <div className="work-planner">
-        {error && <InlineNotice tone="warning">{error}</InlineNotice>}
-        {scope === "week" && resolved.unallocatedSeconds !== 0 && (!preservedSurplus || !different) && <InlineNotice tone={preservedSurplus ? "info" : "warning"}>
-          {surplusCopy ? <>{surplusCopy.before}<strong className="work-plan-surplus-emphasis">{surplusCopy.emphasis}</strong>{surplusCopy.after}</>
-            : copy.unallocated(durationText(Math.abs(resolved.unallocatedSeconds)), resolved.unallocatedSeconds > 0)}
-        </InlineNotice>}
         <div className="work-plan-tabs" role="group" aria-label={copy.scope}>
           <button type="button" aria-pressed={scope === "default"} onClick={() => setScope("default")}>
             {copy.defaultPlan}
@@ -143,6 +138,11 @@ export function PlanEditor({
             {special && <span className="work-plan-dot" role="img" aria-label={copy.customWeek} />}
           </button>
         </div>
+        {error && <InlineNotice tone="warning">{error}</InlineNotice>}
+        {scope === "week" && resolved.unallocatedSeconds !== 0 && (!preservedSurplus || !different) && <InlineNotice tone={preservedSurplus ? "info" : "warning"}>
+          {surplusCopy ? <>{surplusCopy.before}<strong className="work-plan-surplus-emphasis">{surplusCopy.emphasis}</strong>{surplusCopy.after}</>
+            : copy.unallocated(durationText(Math.abs(resolved.unallocatedSeconds)), resolved.unallocatedSeconds > 0)}
+        </InlineNotice>}
         <div className="work-plan-heading">
           <h3>{ui.workingDays}</h3>
           <span className={different ? "work-plan-total is-different" : "work-plan-total"} aria-live="polite">

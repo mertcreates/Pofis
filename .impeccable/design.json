@@ -1,71 +1,68 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-15T19:03:10.2466275+03:00",
+  "generatedAt": "2026-10-21T19:13:08.9726592+03:00",
   "title": "Design System: Pofis",
   "extensions": {
     "colorMeta": {
       "primary": {
         "role": "primary",
-        "displayName": "Güçlü lavanta",
-        "tonalRamp": [
-          "oklch(15% 0.12 290)",
-          "oklch(27% 0.12 290)",
-          "oklch(39% 0.12 290)",
-          "oklch(51% 0.12 290)",
-          "oklch(63% 0.12 290)",
-          "oklch(75% 0.12 290)",
-          "oklch(87% 0.12 290)",
-          "oklch(95% 0.12 290)"
-        ]
+        "displayName": "Arayüz moru"
+      },
+      "secondary": {
+        "role": "neutral",
+        "displayName": "Mor alt tonlu yardımcı metin"
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Düşük öncelikli metin"
       }
     },
     "shadows": [
       {
-        "name": "week-picker",
-        "value": "0 10px 30px #16102714",
-        "purpose": "Hafta seçiciyi ana yüzeyin üstünde gösterir."
+        "name": "card",
+        "value": "var(--card-shadow)",
+        "purpose": "Kart yüzeyinin hafif derinliği."
       },
       {
-        "name": "dialog",
-        "value": "0 24px 80px #15102130",
-        "purpose": "Diyaloğun üst katmanını belirtir."
+        "name": "popover",
+        "value": "var(--popover-shadow)",
+        "purpose": "Yerel seçim katmanı."
       },
       {
-        "name": "toast",
-        "value": "0 8px 24px #1610271a",
-        "purpose": "Geçici bildirim."
+        "name": "modal",
+        "value": "var(--modal-shadow)",
+        "purpose": "Ortak dialog katmanı."
       }
     ],
     "motion": [
       {
-        "name": "theme-switch",
-        "value": "transform .16s ease",
-        "purpose": "Tema anahtarının konum geçişi."
-      },
-      {
-        "name": "mobile-menu",
-        "value": "transform .18s ease",
-        "purpose": "Mobil menünün açılması; reduced-motion ile kapanır."
+        "name": "modal",
+        "value": "220ms cubic-bezier(.2, .8, .2, 1)",
+        "purpose": "Dialog açılışı; reduced-motion altında animasyon kaldırılır."
       }
     ],
     "breakpoints": [
       {
-        "name": "compact-desktop",
-        "value": "1190px"
+        "name": "single-middle-row",
+        "value": "1170px"
       },
       {
-        "name": "single-records-column",
-        "value": "950px"
+        "name": "top-menu",
+        "value": "1000px"
       },
       {
-        "name": "mobile",
-        "value": "760px"
-      },
-      {
-        "name": "narrow-mobile",
-        "value": "440px"
+        "name": "single-metrics",
+        "value": "700px"
       }
-    ]
+    ],
+    "controls": {
+      "defaultMinimumHeight": "40px",
+      "compactMinimumHeight": "36px",
+      "smallMinimumHeight": "28px",
+      "smallIconSize": "32px",
+      "touchTarget": "44px",
+      "fieldFontSize": "var(--field-font-size)"
+    }
   },
   "components": [
     {
@@ -73,76 +70,42 @@
       "kind": "button",
       "refersTo": "button-primary",
       "description": "Kaydet gibi ana eylemler.",
-      "html": "<button class=\"ds-primary\">Kaydet</button>",
-      "css": ".ds-primary{font:550 12px sans-serif;min-height:36px;padding:8px 13px;border:1px solid var(--primary,#6554c0);border-radius:var(--control-radius,8px);background:var(--primary,#6554c0);color:var(--primary-content,#fcfcfd);cursor:pointer}.ds-primary:hover{background:var(--primary-hover,#5140ab)}.ds-primary:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--primary-content,#fcfcfd)}.ds-primary:disabled{opacity:.4;cursor:default}"
+      "html": "<button class=\"sample-primary\">Kaydet</button>",
+      "css": ".sample-primary{font:500 14px var(--font-geist-sans,sans-serif);min-height:var(--control-height,40px);padding:8px 16px;border:1px solid transparent;border-radius:var(--radius-control,8px);background:var(--accent);color:var(--accent-content)}.sample-primary:hover{background:var(--accent-hover)}.sample-primary:focus-visible{box-shadow:inset 0 0 0 2px var(--accent-content)}@media(forced-colors:active){.sample-primary:focus-visible{outline:2px solid Highlight;outline-offset:-2px}}"
     },
     {
       "name": "İkincil düğme",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Vazgeç ve destek eylemleri.",
-      "html": "<button class=\"ds-secondary\">Vazgeç</button>",
-      "css": ".ds-secondary{font:550 12px sans-serif;min-height:36px;padding:8px 13px;border:1px solid var(--border,#e2e6ee);border-radius:var(--control-radius,8px);background:var(--surface,#fcfcfd);color:var(--text,#151821);cursor:pointer}.ds-secondary:hover{background:var(--subtle,#f1f3f7)}.ds-secondary:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--primary,#6554c0)}"
-    },
-    {
-      "name": "Tarih alanı",
-      "kind": "input",
-      "refersTo": "date-input",
-      "description": "Başka bir haftaya tarih ile gitme.",
-      "html": "<label class=\"ds-date-label\">Başka bir tarih<input class=\"ds-date\" type=\"date\" value=\"2026-10-12\"></label>",
-      "css": ".ds-date-label{display:grid;gap:6px;font:12px sans-serif;color:var(--secondary,#475569)}.ds-date{border:1px solid var(--border-strong,#cbd5e1);border-radius:var(--control-radius,8px);padding:8px;background:var(--surface,#fcfcfd);color:var(--text,#151821);caret-color:var(--primary,#6554c0)}.ds-date:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--primary,#6554c0)}"
-    },
-    {
-      "name": "Etkin gezinme",
-      "kind": "nav",
-      "refersTo": "navigation-active",
-      "description": "Mevcut sayfanın seçimi.",
-      "html": "<button class=\"ds-nav\" aria-current=\"page\">Mesaim</button>",
-      "css": ".ds-nav{display:flex;align-items:center;min-height:40px;width:170px;padding:0 13px;border:0;border-radius:8px;background:var(--soft,#f1eeff);color:var(--accent-text,#4f3fa0);font:600 13px sans-serif;text-align:left;cursor:pointer}.ds-nav:hover{background:var(--subtle,#f1f3f7)}.ds-nav:focus-visible{outline:none;box-shadow:inset 0 0 0 2px var(--primary,#6554c0)}"
-    },
-    {
-      "name": "Yüzde etiketi",
-      "kind": "chip",
-      "refersTo": "percentage",
-      "description": "Hedefe göre ilerleme; tek başına veri kesinliği iddiası taşımaz.",
-      "html": "<span class=\"ds-percent\">%81</span>",
-      "css": ".ds-percent{display:inline-block;font:650 12px sans-serif;white-space:nowrap;padding:4px 6px;border-radius:6px;background:var(--soft,#f1eeff);color:var(--accent-text,#4f3fa0)}"
+      "description": "Vazgeç gibi destek eylemleri.",
+      "html": "<button class=\"sample-secondary\">Vazgeç</button>",
+      "css": ".sample-secondary{font:500 14px var(--font-geist-sans,sans-serif);min-height:var(--control-height,40px);padding:8px 16px;border:1px solid var(--line);border-radius:var(--radius-control,8px);background:var(--paper);color:var(--ink)}.sample-secondary:hover{background:var(--surface-hover)}.sample-secondary:focus-visible{box-shadow:inset 0 0 0 2px var(--accent)}@media(forced-colors:active){.sample-secondary:focus-visible{outline:2px solid Highlight;outline-offset:-2px}}"
     },
     {
       "name": "Bilgi paneli",
       "kind": "card",
       "refersTo": "panel",
-      "description": "Kayıtlar ve gün akışı gibi ilişkili bilgileri toplar.",
-      "html": "<section class=\"ds-panel\"><h2>Günün akışı</h2><p>15 Ekim Perşembe</p></section>",
-      "css": ".ds-panel{padding:20px;border:1px solid var(--border,#e2e6ee);border-radius:var(--radius,12px);background:var(--surface,#fcfcfd);color:var(--text,#151821);font:14px sans-serif}.ds-panel h2{margin:0;font-size:14px;font-weight:620;line-height:1.4;letter-spacing:-.015em}.ds-panel p{margin:6px 0 0;color:var(--muted,#64748b);font-size:12px}"
+      "description": "İlişkili mesai bilgilerini toplar.",
+      "html": "<section class=\"sample-panel\"><h2>Günün akışı</h2><p>Kayıtlı süre</p></section>",
+      "css": ".sample-panel{padding:var(--panel-padding,24px);border:1px solid var(--line);border-radius:var(--radius,12px);background:var(--paper);color:var(--ink);font:14px var(--font-geist-sans,sans-serif)}.sample-panel h2{margin:0;font-size:var(--section-title-size,18px);font-weight:600}.sample-panel p{margin:8px 0 0;color:var(--secondary)}"
     }
   ],
   "narrative": {
-    "northStar": "Mesaiye biraz Pofi.",
-    "overview": "Gündelik mesaiyi sakin, anlaşılır ve yargılamayan bir dille sunan çalışma ekranı. Açık yüzeyler ve lavanta vurgular, kullanıcının paylaştığı Pofi karakterini tamamlar. Görsel kaynak `extras/pofis-brand-kit`, dil kaynağı `docs/brand/pofi-tone-guide.md` dosyasıdır.\n\nSistem sayısal gerçeği söyler; Pofi ona eşlik eder. Ölçüm, belirsizlik ve tahmin açık etiketlerle ayrılır. Karakter yeni baştan çizilmez.",
+    "overview": "Sakin, anlaşılır ve kullanıcıyı yargılamayan mesai arayüzü. Sistem sayısal gerçeği söyler; Pofi ona eşlik eder.",
     "keyCharacteristics": [
-      "Sakin yüzeyler ve ölçülü lavanta vurgular.",
-      "Taranabilir süreler ve açık kayıt durumları.",
-      "Özgün Pofi ve doğal Türkçe."
-    ],
-    "rules": [
-      "Dashboard süre ve ilerleme çubukları ortak bileşeni kullanır; kayıtlı süre marka moru #8b7bff ile baskındır. Anlık tahmin açık temada #c9c2f2, koyu temada #514a73 kullanarak geri planda kalır. Ayrım açıklık farkından gelir; tüm çubuklar ve lejant ortaktır, tarama ve gradyan yoktur.",
-      "Dış focus outline kullanılmaz; klavye odağı yüzey tonu ve iç kenarla gösterilir.",
-      "Mobil ana kontroller en az 44px yüksekliğindedir; yardımcı metinler genel olarak 12px kullanır.",
-      "Plan değişiklikleri anında kaydedilir; kapanış geri almaz. Kayıt hatasında son kaydedilen değer korunur.",
-      "Pofi durum metni tüm ekran boyutlarında görselin altındaki lavanta kutudadır.",
-      "Dashboard yerleşim referansı docs/screenshots/dashboard-reference.png; masaüstünde 200px menü, 20px panel iç boşluğu, 14px bölüm başlığı ve 28px ana metrik kullanılır.",
-      "Gün akışı/Pofi ve grafik/gün kayıtları masaüstünde aynı 1,65:1 oranını paylaşır; örnek veri açıklaması alt bilginin önündedir."
+      "Semantik açık/koyu tema tokenları.",
+      "Bitişik iki düz ton ve metinsel süre bilgisi.",
+      "Göreve uygun yoğunluk ve okunabilir sayılar."
     ],
     "dos": [
-      "Sayısal bilgiye açık durum etiketi ekle.",
-      "Özgün Pofi görselinin oranını koru.",
-      "Yeni ekranlarda semantik tema değişkenlerini kullan."
+      "Odak göstergesini normal ve yüksek kontrast modunda görünür tut.",
+      "Süreleri renk dışında metinle de açıkla.",
+      "Kontrollerin büyüyen metne uyum sağlamasını doğrula."
     ],
     "donts": [
-      "Belirsiz kaydı sıfır çalışılmış gibi gösterme.",
-      "Sistem mesajını Pofi'nin ağzından yazma.",
-      "Eksik durum illüstrasyonlarını yeni maskotlarla doldurma."
+      "Süre dolgusuna çizgili desen veya ayırıcı ekleme.",
+      "Eksik mesaiyi hata kırmızısıyla yargılama.",
+      "Ölçü varsayılanını bağlamdan bağımsız erişilebilirlik zorunluluğu sayma."
     ]
   }
 }

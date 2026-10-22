@@ -1,6 +1,6 @@
 import { specialMinuteRemaining } from "@/domain/rules/pofi-surprises";
 import Icon from "../ui-icon.js";
-import { ui } from "@/lib/ui-text.js";
+import { product, ui } from "@/lib/ui-text.js";
 import { type DayReport } from "@/domain/attendance";
 import { useEffect, useState } from "react";
 type Props = {
@@ -29,7 +29,7 @@ export function PofiPanel({ day, now, onOpen }: Props) {
   return (
     <section className="dashboard-card pofi-panel" data-state={pofiText.state}>
       <header className="panel-heading">
-        <h2>Pofi</h2>
+        <h2>{product.mascotName}</h2>
         {pofiText.percentage === undefined && (
           <span className="small-label pofi-badge">
             <Icon name="spark" className="pofi-spark" />
@@ -60,8 +60,8 @@ export function PofiPanel({ day, now, onOpen }: Props) {
           </button>
         </div>
         <div className="pofi-message">
-          {pofiText.basis !== "live" && <p>{pofiText.title}</p>}
-          <p>{message}</p>
+          {pofiText.basis !== "live" && <p className="pofi-message-title">{pofiText.title}</p>}
+          <p className="pofi-message-copy">{message}</p>
         </div>
       </div>
     </section>

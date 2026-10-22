@@ -1,6 +1,6 @@
 # Pofis masaüstü altyapısı
 
-Pofis, mevcut Next.js standalone uygulamasını Electron'un dahili Node.js runtime'ıyla ayrı bir UtilityProcess içinde çalıştırır. Paket, çalışma zamanında Electron'un dahili Node.js'ini kullanır. Geliştirme, test ve build Bun kullanır. Windows x64 ve macOS Apple Silicon/Intel aynı Electron, sunucu, paketleme ve manifest kodunu kullanır. Windows kurulumu kullanıcı yetkileriyle, kullanıcı başına yapılır. Windows ve macOS sürümleri aktif kullanımdadır. Yayımlanmış 0.4.0 sürümünün gerçek cihaz ve canlı güncelleme kabulleri kullanıcının 20 Ekim 2026 tarihli teyidiyle tamamlanmıştır.
+Pofis, mevcut Next.js standalone uygulamasını Electron'un dahili Node.js runtime'ıyla ayrı bir UtilityProcess içinde çalıştırır. Geliştirme, test ve build Bun kullanır. Windows x64 ve macOS Apple Silicon/Intel aynı Electron, sunucu, paketleme ve manifest kodunu kullanır. Windows kurulumu kullanıcı yetkileriyle, kullanıcı başına yapılır. Windows ve macOS sürümleri aktif kullanımdadır. Yayımlanmış 0.4.0 sürümünün gerçek cihaz ve canlı güncelleme kabulleri kullanıcının 20 Ekim 2026 tarihli teyidiyle tamamlanmıştır.
 
 ## Motor ve macOS alt sınırı
 
@@ -12,7 +12,7 @@ Tek dağıtım kanalı kullanılır; Linux x64 için dördüncü manifest yolu e
 
 ## Ortak platform sözleşmesi
 
-Üretim masaüstü arayüzü [GA4 kullanım ölçümünü](analytics.md) otomatik başlatır. Google etiketi hidrasyon sonrasında yüklenir; ağ erişimi engellendiğinde uygulama çalışmaya devam eder. Sabit rapor adresleri gerçek yerel origin'i değiştirmez.
+Üretim ölçümü ve ağ sınırları [GA4 sözleşmesindedir](analytics.md).
 
 [Platform tanımı](../electron/platform.cjs) desteklenen işletim sistemi/mimariyi, executable adlarını, kaynak yollarını, çıktı dizinini ve `metadataFile` meta veri yolunu tek yerde belirler. Windows, macOS ve Linux hedefleri ortak uygulama girişini ve iş mantığını kullanır. Her paket hedef işletim sisteminde hazırlanır. macOS'ta ARM64 Bun tek Next çıktısını iki hedefle paylaşır; Electron her hedefin kendi mimarisindedir. Hazırlama, Electron'un platform/mimarisini seçilen paket hedefiyle ve motor sürümünü kök bağımlılıktaki tam sürümle karşılaştırır; farklı hedef veya motor bulunursa paket kopyalanmadan durur. Intel runtime doğrulaması `PlistBuddy` ve `lipo -verify_arch x86_64` ile statik sözleşmeyle yapılır; diğer hedeflerde yerel dinamik sorgu kullanılır. `release.json` meta veri yolu platform tanımındaki `metadataFile` üzerinden ortak yönetilir.
 
@@ -37,7 +37,7 @@ bun run test:desktop
 bun run test:desktop:smoke <paket-komutunun-yazdığı-klasör>
 ```
 
-[Derleme betiği](../scripts/electron/build.cjs) `POFIS_STANDALONE=1` ve `POFIS_DESKTOP_BUILD=1` ile Next çıktısını hazırlar; `public` ve `.next/static` dosyalarını standalone klasörüne ekler. SWC yalnız derleme makinesinde çalışır. macOS CI, ARM64'te üretilen taşınabilir çıktıyı `POFIS_SHARED_STANDALONE` yoluyla Intel paketleyicisine verir. Intel için Rosetta veya x64 Bun hazırlığı gerekmez. [Ortak paketleyici](../scripts/electron/package.cjs) çıktıyı `resources/app/server/` altına kopyalar. Intel CI, paketleyiciye `x64`, [ZIP üreticisine](../scripts/electron/release.cjs) `-Arch x64` verir. Yalnız Next'in izlediği üretim bağımlılıkları taşınır; kök `node_modules` ağacı kopyalanmaz. Windows junction bağlantıları dereference edilerek paket kaynak depodan bağımsızlaştırılır. Dağıtım üreticisi tüm hedeflerde aynı manifest şemasını, sürüm kontrolünü ve SHA-256 hesabını kullanır. ZIP üretimi Windows'ta .NET, macOS'ta `ditto` aracına bırakılır; macOS arşivi `.app` izinlerini ve bağlantılarını korur. Dağıtım kabul testlerinde fixture paketleri APFS Copy-on-Write ve üst bundle imzasıyla hazırlanır.
+[Derleme betiği](../scripts/electron/build.cjs) `POFIS_STANDALONE=1` ve `POFIS_DESKTOP_BUILD=1` ile Next çıktısını hazırlar; `public` ve `.next/static` dosyalarını standalone klasörüne ekler. SWC yalnız derleme makinesinde çalışır. macOS CI, ARM64'te üretilen taşınabilir çıktıyı `POFIS_SHARED_STANDALONE` yoluyla Intel paketleyicisine verir. Intel için Rosetta veya x64 Bun hazırlığı gerekmez. [Ortak paketleyici](../scripts/electron/package.cjs) çıktıyı `resources/app/server/` altına kopyalar. Intel CI, paketleyiciye `x64`, [ZIP üreticisine](../scripts/electron/release.cjs) `-Arch x64` verir. Yalnız Next'in izlediği üretim bağımlılıkları taşınır; kök `node_modules` ağacı kopyalanmaz. Windows junction bağlantıları dereference edilerek paket kaynak depodan bağımsızlaştırılır. Dağıtım üreticisi tüm hedeflerde aynı manifest şemasını, sürüm kontrolünü ve SHA-256 hesabını kullanır. ZIP üretimi Windows'ta .NET, macOS'ta `ditto` aracına bırakılır; macOS arşivi `.app` izinlerini ve bağlantılarını korur.
 
 Oturum JSON'ları çalışma anında kullanıcı profilinde oluşur. [Depolama adaptörü](../src/server/session-storage.js) bu yolları `path.format` ile oluşturur. Turbopack'in dinamik ``path.join(directory, `${id}.json`)`` ifadesini proje genelindeki JSON dosyalarıyla eşleştirmesi böylece önlenir. Paket içeriğini Next tarafından izlenen üretim bağımlılıkları belirler. Next sürümü veya depolama yolları değiştiğinde yeni standalone/paket içeriği ve oturum kalıcılığı birlikte doğrulanır.
 
@@ -46,6 +46,10 @@ Oturum JSON'ları çalışma anında kullanıcı profilinde oluşur. [Depolama a
 İmzalanacak yollar önce toplanır ve en derindeki bileşenden dışa doğru sıralanır. Framework içindeki `Helpers` ve `Libraries`, framework ana dosyasından önce imzalanır. Uygulama ve helper ana çalıştırılabilir dosyaları ayrıca imzalanmaz; iç bileşenler tamamlandıktan sonra kapsayıcı `.app` ile birlikte imzalanır. Paketleyicide uygulama klasörü ile ana çalıştırılabilir dosya aynı adı taşır.
 
 Masaüstü standalone derlemesinde `experimental.isrFlushToDisk: false` kullanılır. Next.js çalışma zamanı önbelleği bellekte tutulur; imzalı uygulamanın dosyaları korunur. Paket açılış testi macOS'ta uygulama kapandıktan sonra imzayı yeniden doğrular. Web derlemesinin önbellek ayarı değişmez.
+
+### Masaüstünde ortak metin kaynağı
+
+[Bildirim derlemesi](../scripts/electron/build-notifications.cjs) standalone dizinine `pofis-notifications.cjs`, `ui-text.cjs` ve `preload.cjs` üretir. Ana süreç ve utility process ortak metinleri `ui-text.cjs` üzerinden okur. Sandbox preload yerel modül yükleyemediği için kullandığı metinler kendi derlemesine dahil edilir; metinlerin tek kaynağı [ui-text.js](../src/lib/ui-text.js) olarak kalır. BrowserWindow bu derlenmiş preload dosyasını açar.
 
 ## Ubuntu 24.04 LTS x64 ve ortak Unix kurulumu
 
@@ -117,6 +121,8 @@ Kabul betiği arayüz ve IPC sonuçlarını koşul gerçekleşene kadar bekler; 
 
 Uygulama simgesinin tek kaynağı [pofi-mark-256.png](../public/pofi/pofi-mark-256.png) dosyasıdır. Pencere ve macOS Dock aynı PNG'yi kullanır. Paketleme, görseli değiştirmeden `dist/electron/icons/` altında ICO ve ICNS üretir; Windows EXE/kısayol simgesine ve macOS uygulama paketine işler.
 
+Windows paketinde EXE ürün adı ve dosya açıklaması **Pofis** olarak işlenir. Electron 43 bildirim kısayolunun adını bu ürün bilgisinden okur; yalnız `app.setName` çağrısı yeterli değildir. `bun test ./scripts/electron/windows-branding.test.cjs` gerçek Electron EXE kopyasında Pofis adı/ikonu ile korunan motor sürümünü doğrular. Bildirim başlık, gövde ve kanal kimliği [bildirim sözleşmesindedir](rules/notifications.md#sunum-ve-uygulama-kimliği).
+
 Geliştirici bilgisayarında Bun 1.4.3 ile:
 
 ```powershell
@@ -136,11 +142,9 @@ Yerel sunucu açıkken Windows PowerShell'de kurulum/güncelleme komutu:
 
 Bu komut mevcut Windows hesabına gerçek kurulum yapar ve Pofis'i açar. Sonraki açılışlar Başlat menüsündeki **Pofis** simgesinden yapılır. Güncellemek için aynı komut çalıştırılır. Kurulum sonrası yerel dağıtım sunucusu kapatılabilir.
 
-Canlı Windows kurulum ve güncelleme komutu:
-
 ### Kendi bilgisayarında geliştirme sürümünü deneme
 
-Yukarıdaki yerel dağıtım akışı çalışma ağacındaki değişiklikleri paketler. `desktop:package` çıktısındaki gerçek klasörü `release.cjs -PackageDirectory` argümanına ver. `serve-releases.cjs` terminalini açık bırakıp kurulum komutunu ikinci PowerShell terminalinde çalıştır. Açık Pofis varsa installer kapatmak için onay ister. Mevcut profil, mesai planları ve oturumun kalan TTL süresi korunur. Kurulum tamamlanınca **Bildirimler** menüsünden kanalları açıp deneme düğmelerini kullanabilirsin.
+Yukarıdaki yerel dağıtım akışı çalışma ağacını paketleyip installer üzerinden kurar. Bildirim kanalları kurulumdan sonra **Bildirimler** menüsündeki deneme düğmeleriyle kontrol edilebilir.
 
 Kurulu sürüm ile geliştirme sürümü aynı numaradaysa farklı paket içeriği için yeni sürüm numarası gerekir. Hızlı denemede `bun run desktop:package` çıktısındaki `Pofis.exe`yi ayrı profille açabilirsin:
 
@@ -152,6 +156,8 @@ Bu profil kendi girişini, planlarını ve bildirim tercihlerini tutar. Windows 
 
 `desktop:install`, geliştirme bağımlılığı olan Electron runtime'ını indirir. Kullanıcı hesabına Pofis kurulumu yukarıdaki `install.ps1` komutuyla yapılır.
 
+Canlı Windows kurulum ve güncelleme komutu:
+
 ```powershell
 irm https://pofis.app/install.ps1 | iex
 ```
@@ -160,7 +166,7 @@ irm https://pofis.app/install.ps1 | iex
 
 ## pofis.app yayın hazırlığı
 
-Landing bu depodan ayrılmıştır; varsayılan yerleşim yan yana `Pofis/` ve `pofis-landing/` klasörleridir. Ana uygulama deposu private kalır. Public hedef `mertcreates/pofis-landing`, landing kaynaklarını, installer kopyasını ve manifestleri içerir; ZIP'ler bu deponun GitHub Releases asset'leridir. ZIP dağıtımının sahibi GitHub Releases'tir. Public README, Pofis'i kısa bir ürün tanıtımı ve site bağlantısıyla sunar. Cloudflare ayarları ve yayın sırası bu depodaki [sürüm rehberinde](release.md) yönetilir.
+Landing varsayılan olarak kardeş `pofis-landing/` klasöründedir. Public depo, paket barındırma, Cloudflare ve yayın sırası [sürüm rehberinde](release.md) yönetilir.
 
 Yerel release üretildikten sonra bu depoda:
 
@@ -173,7 +179,7 @@ bun test ./scripts/electron/prepare-site.test.cjs
 
 [Hazırlama aracı](../scripts/electron/prepare-site.cjs), yerel manifestin gerçek paket boyutunu ve SHA-256 değerini doğrular. Hedef public depo adresini landing `package.json` içindeki `repository.url` alanından okur; göreli arşiv adresini GitHub Releases HTTPS adresine çevirir; Windows/macOS için ZIP, Linux için tar.gz uzantısını platform sahibinden alır. Yalnız ilgili platformun `public/releases/<hedef>/latest.json` dosyasını ve Windows installer’ını ya da üretilen ortak Unix installer’ını (`install.sh`) yazar. Çıktı, landing deposundaki manifest ve installer dosyalarıdır; yayın [sürüm akışında](release.md) gerçekleştirilir.
 
-[Otomatik sürüm yayını](release.md), Cloudflare build ayarlarının, cache başlıklarının ve DNS/HTTPS kabulünün sahibidir. Windows x64, iki macOS mimarisi ve Ubuntu x64 paketlerini aynı release altında toplar: Windows/ARM64/Linux tam otomatik kabulü ve Intel statik kontrolü → draft asset'leri → dört paket hazır olduğunda release → anonim indirme doğrulaması → landing commit'i → Workers HTTPS doğrulaması. ZIP ve tar.gz dosyaları GitHub Releases üzerinde tutulur. Yerel hazırlık dosyaları üretir; canlı paket ve alan adı kabulü yayın akışında yapılır. Yayın ve DNS değişiklikleri kullanıcı yetkisiyle gerçekleştirilir.
+Yerel hazırlık dosyaları üretir. Canlı paket, anonim indirme ve HTTPS kabulü kullanıcı yetkisiyle başlatılan [yayın akışında](release.md#bir-sürüm-yayımlama) yapılır.
 
 ## Depo ve çıktı yerleşimi
 
@@ -191,7 +197,7 @@ bun test ./scripts/electron/prepare-site.test.cjs
 
 ## Kurulum ve güncelleme sözleşmesi
 
-[Installer](../scripts/electron/install.ps1) Windows/mimari, yazılabilir dizin, manifest sürümü, boyut, SHA-256, arşiv yolları, gerekli dosyalar ve executable mimarisini kontrol eder. HTTPS kullanılır; yalnız yerel test için loopback HTTP kabul edilir. Windows PowerShell 5.1 desteklenir. Tek komutlu kurulum `Restricted` yürütme politikası altında da çalışır; doğrulanmış paketin temizlik fonksiyonlarını bellekten yükler ve sistemin yürütme politikasını değiştirmez. Arşiv dışına yazma, sembolik bağlantı ve yinelenen dosyalar reddedilir.
+[Installer](../scripts/electron/install.ps1) Windows/mimari, yazılabilir dizin, manifest sürümü, boyut, SHA-256, arşiv yolları, gerekli dosyalar ve executable mimarisini kontrol eder. HTTPS kullanılır; yalnız yerel test için loopback HTTP kabul edilir. Arşiv sistemdeki `System32/tar.exe` ile açılır; araç bulunmazsa .NET açıcı kullanılır. Windows PowerShell 5.1 desteklenir. Tek komutlu kurulum `Restricted` yürütme politikası altında da çalışır; doğrulanmış paketin temizlik fonksiyonlarını bellekten yükler ve sistemin yürütme politikasını değiştirmez. Arşiv dışına yazma, sembolik bağlantı ve yinelenen dosyalar reddedilir.
 
 - Uygulama `%LOCALAPPDATA%/Programs/Pofis/versions/<kimlik>/` altına kurulur; etkin sürüm `installed.json` ile belirlenir. `install.lock` aynı kökte eşzamanlı işlemleri engeller.
 - Güncel sürüm yeniden indirilmez/kurulmaz; dosyaları kontrol edilir, kısayolu onarılır, uygulama açılır veya mevcut pencere öne gelir. Sürüm düşürülmez; aynı sürümün farklı hash taşıması reddedilir.
@@ -256,9 +262,13 @@ Installer rastgele istek kimliğiyle başlatır. Electron ancak sağlıklı sunu
 
 Normal çıkış `before-quit` üzerinden sunucuya kapanış mesajı yollar. Sunucu kapanmazsa 2,5 saniye sonra UtilityProcess `kill()`, bir 2,5 saniye sonra yalnız sahip olunan PID için `SIGKILL` uygulanır. Ana Electron süreci beklenmedik kapanırsa sunucu saniyelik ana PID kontrolünde çıkar. İşletim sistemi/donanım çökmesi ayrı gerçek cihaz kabulüdür. Süreç yönetimi uygulamanın sahip olduğu PID'lerle sınırlıdır.
 
-Sunucu Windows/macOS'ta aynı UtilityProcess yaşam döngüsünü kullanır; Next uygulaması tek sunucu sürecinde çalışır. İki platformda da son pencerenin kapanması uygulamayı tamamen kapatır. macOS Dock `activate` olayı mevcut pencereyi öne getirir; temel yerel uygulama/Düzenle menüsü Command-Q ve kopyala/yapıştır kısayollarını sağlar. Uygulamanın yaşam döngüsü pencere ve Dock üzerinden yönetilir.
+Sunucu Windows/macOS'ta aynı UtilityProcess yaşam döngüsünü kullanır; Next uygulaması tek sunucu sürecinde çalışır. Pencere kapatılınca Pofis Windows sistem tepsisinde veya macOS menü çubuğunda çalışır. Simge menüsündeki **Pofis’i aç** pencereyi gösterir; **Pofis’ten çık** uygulamayı ve sunucuyu sonlandırır. Command-Q gerçek çıkış yapar. macOS Dock `activate` olayı mevcut pencereyi öne getirir; temel yerel uygulama/Düzenle menüsü Command-Q ve kopyala/yapıştır kısayollarını sağlar. Uygulamanın yaşam döngüsü pencere ve Dock üzerinden yönetilir.
 
 Node integration kapalı, context isolation/sandbox açıktır. Origin dışı üst pencere gezinmesi, yeni pencere, webview, indirme ve cihaz izinleri engellenir. PDKS giriş/rapor/yenileme/çıkış mevcut API'lerdedir. Normal kapanışta [oturum TTL kuralları](rules/session-policy.md) korunur. Masaüstü kendi kullanıcı profilini kullanır. [Kurum ağı koşulları](deployment.md) geçerlidir.
+
+## Mesai bildirimleri
+
+Menüdeki **Bildirimler** hatırlatma tercihlerini açar. Kanal bağlantısı, rapor yenilemesi, heartbeat, şifreli saklama ve tekrar kontrolü [bildirim sözleşmesinde](rules/notifications.md) yönetilir. Komutlar ve fixture/gerçek cihaz ayrımı [doğrulama rehberindedir](verification.md#masaüstü-kabulü).
 
 ## Tekrarlanabilir kabul
 
@@ -276,13 +286,11 @@ bun run test:desktop:distribution --startup-only --site ../pofis-landing
 
 [Dağıtım kabulü](../scripts/electron/distribution-test.cjs) Windows PowerShell 5.1, Node/Bun içermeyen PATH, geçici kurulum/profil/kısayol ve gerçek ZIP kullanır. İlk kurulum, otomatik açılış, kısayol, ikinci açılış, aynı sürüm, sürüm yükseltme, açık uygulamada güncelleme, bozuk/eksik indirme, port çakışması, gerçek Node sunucusu başlangıç hatası, eski sürüm temizliği ve kaldırma, ana süreç çökmesi, normal kapanış ve veri korumasını sınar. Güncelleme fixture'ları gerçek paketin sürümünü değiştirir; hata fixture'ında gerçek sunucu giriş noktası hata koduyla çıkar. Başarı gerçek süreç ve pencere sonucuyla belirlenir. Testler yalnız geçici kullanıcı profillerini kullanır.
 
-Güncelleme/veri koruma ile başlangıç hatası/onarım zincirleri ayrı kurulum, profil ve kayıt yollarında birlikte çalışır. Güncelleme zinciri bir, onarım zinciri iki fixture ZIP'i üretir; her grup yalnız kullandığı arşivleri hazırlar. Ortak fixture sunucusu iki zincir tamamlanana kadar 3210'u dolu tutar; uygulamalar ayrı geçici portlara geçer. Her zincir kendi uygulamasının başlangıç sonucundaki executable/sürüm/port bilgisini ve sağlık kimliğini doğrular. Onarım zinciri port çakışması, kurulum kilidi ve kaldırma kontrollerini kendi kurulumunda tamamlar. Fixture sunucusunun iki zincir sonrasında yanıt verdiği de doğrulanır. Pencerenin normal kapatılması ve süreçlerin bitmesini bekleme aynı PowerShell sürecinde yapılır. Üretilen kısayol CDP portu argümanıyla açılır; aynı pencerede tema/plan kaydı hazırlanır. CDP hedefi ve hazır belge beklenir, ardından mevcut uygulamanın başlangıç sonucu ve süreç kimliği doğrulanır. Onarılmış sürümün ilk açılışı, dolu port kabulünü de tamamlar. İki zincir de başarılı olduğunda kabul tamamlanır. Windows installer ZIP'i .NET akışıyla dosyaya yazar; son yönlendirme adresi, zaman aşımı, boyut ve SHA-256 kontrolleri uygulanır.
+Güncelleme/veri koruma ile başlangıç hatası/onarım zincirleri ayrı kurulum, profil ve kayıt yollarında birlikte çalışır. Güncelleme zinciri bir, onarım zinciri iki fixture ZIP'i üretir; her grup yalnız kullandığı arşivleri hazırlar. Ortak fixture sunucusu iki zincir tamamlanana kadar 3210'u dolu tutar; uygulamalar ayrı geçici portlara geçer. Her zincir kendi uygulamasının başlangıç sonucundaki executable/sürüm/port bilgisini ve sağlık kimliğini doğrular. Onarım zinciri port çakışması, kurulum kilidi ve kaldırma kontrollerini kendi kurulumunda tamamlar. Fixture sunucusunun iki zincir sonrasında yanıt verdiği de doğrulanır. Uygulamadan çıkış isteği ve süreçlerin bitmesini bekleme aynı PowerShell sürecinde yapılır. Üretilen kısayol CDP portu argümanıyla açılır; aynı pencerede tema/plan kaydı hazırlanır. CDP hedefi ve hazır belge beklenir, ardından mevcut uygulamanın başlangıç sonucu ve süreç kimliği doğrulanır. Onarılmış sürümün ilk açılışı, dolu port kabulünü de tamamlar. İki zincir de başarılı olduğunda kabul tamamlanır. Windows installer ZIP'i .NET akışıyla dosyaya yazar; son yönlendirme adresi, zaman aşımı, boyut ve SHA-256 kontrolleri uygulanır.
 
 `--site` seçeneği landing içeriğindeki Windows komutunu ve public installer kopyasını okur. Public kopyanın canonical installer ile yalnız BOM farkı taşıdığını doğrular. Komutun adresi loopback test sunucusuna çevrilir; indirilen betikte yalnız beş parametrenin varsayılanı izole manifest/kurulum/kısayol/profil yollarıyla değiştirilir. Installer iş akışı ve gerçek ZIP korunur. İlk kurulum ve aynı sürümün tekrar açılışı `Restricted` politikası altında çalıştırılır. `--startup-only` bu iki akışı, port çakışması/ikinci açılış, kurulum kilidi, kapanış ve kaldırmayı sınar; tam sürüm yükseltme kabulü normal komuttadır. Canlı GitHub/HTTPS indirmesi ayrıca doğrulanır.
 
-Yayımlanmış 0.4.0 için gerçek cihaz ve canlı güncelleme kabulleri, kullanıcının 20 Ekim 2026 tarihli tamamlanma teyidiyle açık görevlerden çıkarılmıştır. Yeni sürümlerde etkilenen kurulum, açılış ve güncelleme yolları aynı kabul yöntemiyle kontrol edilir. Bağımsız gerçek PDKS senaryoları [görev listesinde](../tasks/todo.md) izlenir.
-
-Windows installer arşivin tüm yollarını açılmadan önce doğrular. Dizin dışına çıkan yollar, sembolik bağlantılar, yinelenen dosyalar ve mevcut dosyanın üzerine yazma reddedilir. Paket sistemdeki `System32/tar.exe` ile açılır; araç bulunmadığında .NET açıcı kullanılır.
+Yeni sürümlerde etkilenen yollar aynı kabul yöntemiyle kontrol edilir. Bekleyen cihaz ve PDKS senaryoları [görev listesinde](../tasks/todo.md) izlenir.
 
 ### Motor geçişi kabulü
 
@@ -301,6 +309,5 @@ macOS 12'de ilk kurulum ve 43 → 43 uygulama güncellemesini; macOS 13+ üzerin
 Güncelleme akışı açılış bildirimi, platform komutunun kopyalanması ve installer'ın kullanıcı tarafından çalıştırılmasıyla tamamlanır.
 
 API referansları: [Electron app](https://www.electronjs.org/docs/latest/api/app), [Electron paketleme ve macOS bundle düzeni](https://www.electronjs.org/docs/latest/tutorial/application-distribution), [Electron UtilityProcess](https://www.electronjs.org/docs/latest/api/utility-process), [Get-FileHash](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-5.1).
-ft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-5.1).
 
 Kaldırma referansları: [Apple: Mac uygulamalarını kaldırma](https://support.apple.com/en-us/102610), [Microsoft: kaldırma kaydı alanları](https://learn.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key).

@@ -1,9 +1,10 @@
 # Arayüz sahipleri
 
-Demo ve canlı ekran aynı bileşenleri kullanır. Görsel kararlar [DESIGN](../../DESIGN.md), hesaplar [kural haritası](../rules/README.md), demo verisi ve sanal saat [demo rehberi](../demo.md) tarafından yönetilir.
+Paylaşılan yüzeylerde demo ve canlı ekran aynı bileşenleri kullanır. Görsel kararlar [DESIGN](../../DESIGN.md), hesaplar [kural haritası](../rules/README.md), demo verisi ve sanal saat [demo rehberi](../demo.md) tarafından yönetilir.
 
 | Alan | Kod sahibi ve sorumluluk |
 | --- | --- |
+| Metinler | [ui-text.js](../../src/lib/ui-text.js): arayüz etiketleri, erişilebilir adlar, bildirim başlık/gövdeleri, işlem sonuçları ve hata metinleri. Bildirim metinleri `notifications`, `notificationMessages`, `notificationErrors`, `telegramSetup`, `telegramErrors` kategorilerindedir. Pofi günlükleri kendi [tema/özel not dosyalarında](../pofi-notes.md), yemek yorumları kendi [senaryo dosyalarında](../rules/meal-menu.md) kalır; konsol easter egg metni yerinde korunur |
 | Uygulama çerçevesi | [AppShell](../../src/components/shell/app-shell.js), [başlık](../../src/components/shell/app-header.js), [alt bilgi](../../src/components/shell/app-footer.js): menü, ayarlar ve sürüm bilgisi |
 | Tema | [ThemeSwitch](../../src/components/shell/theme-switch.js), [useAppearance](../../src/data/use-appearance.ts): tercih ve işletim sistemi teması |
 | Masaüstü güncellemesi | [useDesktopUpdate / DesktopUpdateModal](../../src/components/shell/desktop-update.tsx): köprüden sürüm bilgisini alma, platform yönlendirmesi ve komut kopyalama; [masaüstü sözleşmesi](../desktop.md#açılışta-sürüm-denetimi) |
@@ -21,6 +22,7 @@ Demo ve canlı ekran aynı bileşenleri kullanır. Görsel kararlar [DESIGN](../
 | Yemek menüsü | [MealMenuModal](../../src/components/meals/menu-modal.tsx), [tarih seçici](../../src/components/meals/date-picker.tsx): oturumlu ana ekrandan açılan menü ve Pofi notu; veri ve kategori sahipleri [menü sözleşmesinde](../rules/meal-menu.md) |
 | Mesai planı | [PlanEditor](../../src/components/plan-editor.tsx): varsayılan/özel hafta kontrolleri ve kayıt; hesaplar [plan sözleşmesinden](../rules/work-plan.md) gelir |
 | Dialog ve tooltip | [Modal](../../src/components/modal.js), [Tooltip](../../src/components/tooltip.tsx): odak, kapatma ve konumlandırma |
+| Bildirim tercihleri | [NotificationSettings](../../src/components/notifications/settings.tsx): masaüstü/web/demo ortak ekranı, opt-in, kanal bağlantısı ve durum. [useDesktopNotifications](../../src/data/use-desktop-notifications.ts) gerçek köprüyü, [useDemoNotifications](../../src/demo/use-notifications.ts) bellekte örnek işlem sonuçlarını sağlar; zamanlama Electron ana sürecindedir |
 | Giriş | [Connection](../../src/components/connection.tsx): PDKS giriş formu ve oturum eylemleri |
 | Hata ve bildirim | [RequestError](../../src/components/request-error.js), [InlineNotice](../../src/components/inline-notice.tsx): [hata sözleşmesine](../pdks-errors.md) uygun sunum ve toparlanma |
 | Yardımcı ekranlar | [LoadingState](../../src/components/loading-state.js), [NotFoundState](../../src/components/not-found-state.tsx), [error](../../src/app/error.tsx): yükleme, 404 ve hata sınırı |

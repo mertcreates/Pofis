@@ -12,6 +12,7 @@ import {
   SESSION_COOKIE,
   SESSION_SECONDS,
 } from "@/server/session.js";
+import { notificationSession } from "@/server/notification-identity";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -19,7 +20,7 @@ export const dynamic = "force-dynamic";
 export async function GET(request) {
   try {
     const session = await sessionFor(request);
-    return json({ connected: !!session });
+    return json({ connected: !!session, ...(session ? { notificationSession: notificationSession(session) } : {}) });
   } catch (error) {
     return failure(error, request);
   }

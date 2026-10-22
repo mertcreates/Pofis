@@ -72,7 +72,7 @@ async function prepare(arch = process.arch) {
         "-Executable", join(output, target.executable), "-Icon", icons.windows], { windowsHide: true });
   }
   await mkdir(join(payload, "electron"), { recursive: true });
-  for (const file of ["main.cjs", "transport.cjs", "server.cjs", "server-entry.cjs", "startup.cjs", "platform.cjs", "updates.cjs", "update-bridge.cjs", "preload.cjs", "external-links.cjs", "permissions.cjs", "acceptance-network.cjs"]) {
+  for (const file of ["main.cjs", "ui-text.cjs", "background.cjs", "transport.cjs", "server.cjs", "server-entry.cjs", "startup.cjs", "platform.cjs", "updates.cjs", "update-bridge.cjs", "external-links.cjs", "permissions.cjs", "acceptance-network.cjs"]) {
     await copyFile(join(root, "electron", file), join(payload, "electron", file));
   }
   if (target.platform === "win32") await copyFile(join(root, "electron", "uninstall.ps1"), join(payload, "electron", "uninstall.ps1"));
@@ -80,6 +80,7 @@ async function prepare(arch = process.arch) {
   await cp(standalone, join(payload, "server"), { recursive: true, dereference: true,
     filter: path => !/^\.env(?:\.|$)/.test(basename(path)) });
   if (process.env.POFIS_SHARED_STANDALONE) await assertPortableStandalone(join(payload, "server"));
+  await require("./build-notifications.cjs").buildNotifications(join(payload, "server"));
   await mkdir(join(payload, "public", "pofi"), { recursive: true });
   await copyFile(join(root, "public", "pofi", "pofi-mark-256.png"), join(payload, "public", "pofi", "pofi-mark-256.png"));
   await writeFile(join(payload, "package.json"), JSON.stringify({

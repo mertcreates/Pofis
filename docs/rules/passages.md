@@ -10,11 +10,11 @@ Arayüz: `passageDay`, `passageRecordRows`.
 
 ## Sözleşme
 
-Raporun zorunlu hareket listesi giriş/çıkış çiftlerini ve son açık girişi belirler. Art arda giriş veya çıkış uyarı üretir; ilk giriş–son çıkış süresini ve geçerli son açık girişten canlı hesabı durdurmaz. İlk eşleşmeyen çıkışın ardından bugünkü güvenilir son giriş canlı hesabı sürdürür; açık giriş bulunmayan eşleşmeyen çıkış, okunamayan hareket ve geçmiş gündeki açık giriş belirsizliktir. Gün değerlendirmesi saat sırasını kullanır. Kayıt satırları verilen sıradaki sorunları da korur. Çiftler hareket detaylarını oluşturur; kayıtlı mesai [ilk giriş–son çıkış sahibinde](recorded-time.md) hesaplanır. Adaptör seçili tarih aralığının bütün sayfalarını birleştirir; kaynak erişimi [kaynak politikasında](source-policy.md) tanımlıdır.
+Raporun zorunlu hareket listesi saat sırasıyla değerlendirilerek giriş/çıkış çiftleri ve son açık giriş belirlenir. Çiftler hareket ayrıntılarını oluşturur. Kayıt satırları kaynak sırasındaki sorunları da korur. Kayıtlı mesai [ilk giriş–son çıkış sahibinde](recorded-time.md), sayfalamanın bütünlüğü [kaynak politikasında](source-policy.md) yönetilir.
 
 ## Kayıt sorunları
 
-`passageDay.issues` neden kodu ve ilgili saati taşır. Tekrarlar uyarıdır. Eşleşmeyen ilk çıkış, geçmiş açık giriş ve okunamayan hareketin günlük duruma etkisini [kayıt durumu](record-status.md) belirler. Nedenler ilk giriş–son çıkış hesabını değiştirmez; kayıt durumu bunları rapor modeline aktarır.
+`passageDay.issues` neden kodu ve ilgili saati taşır. Nedenler ilk giriş–son çıkış hesabını değiştirmez; günlük duruma etkileri [kayıt durumu sahibinde](record-status.md) değerlendirilir.
 
 | Kod | Koşul |
 | --- | --- |

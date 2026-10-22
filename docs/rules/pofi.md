@@ -10,7 +10,7 @@ Arayüz: `POFI_ASSETS`, `pofiNote`.
 
 ## Sözleşme
 
-İlerleme duration sahibinden alınır. Yedi durumun görselleri 1.0.0 Docker kaynak arşivinden gelir. Başlıklar ve mesajlar [ui-text.js](../../src/lib/ui-text.js) sahibinde [ton rehberine](../brand/pofi-tone-guide.md) göre yönetilir: başlık kayıt/hedef durumunu belirtir; Pofi'nin kısa mesajı kendi küçük gözlemini veya davranışını anlatır. Belirsizlikte açık kontrol yönlendirmesi kullanılır. Pofi kendi deneyimini anlatır; sistem başlığı gözlenen kayıt/hedef durumunu belirtir.
+İlerleme duration sahibinden alınır. Yedi durumun görselleri 1.0.0 Docker kaynak arşivinden gelir. Başlıklar ve mesajlar [ui-text.js](../../src/lib/ui-text.js) sahibinde [ton rehberine](../brand/pofi-tone-guide.md) göre yönetilir: başlık kayıt/hedef durumunu belirtir; Pofi'nin kısa mesajı kendi küçük gözlemini veya davranışını anlatır. Belirsizlikte açık kontrol yönlendirmesi kullanılır.
 
 Günlük hedef [plan sahibinin](work-plan.md) etkin hedefidir; son açık gündeki devir Pofi'ye de yansır. Devirle hedef sıfırsa geçerli süre %100 kabul edilir: açık girişte `working`, tamamlanmış kayıtta `completed`. Belirsizlik yoksa plan dışı gün `idle` kalır.
 

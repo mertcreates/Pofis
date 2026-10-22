@@ -40,7 +40,7 @@ export function createSessionManager({
         await saveSession(id, session);
       } catch (error) {
         console.error(
-          "PDKS session persistence failed:",
+          ui.serverDiagnostics.pdksSessionPersistenceFailed,
           error.code || error.name,
         );
         throw error;
@@ -65,7 +65,7 @@ export function createSessionManager({
       try {
         client.jar = CookieJar.deserializeSync(record.jar);
       } catch {
-        console.error("Invalid PDKS cookie jar; reauthentication required");
+        console.error(ui.serverDiagnostics.invalidPdksCookieJarReauthenticationRequired);
         return null;
       }
       client.self = record.self;
@@ -97,7 +97,7 @@ export function createSessionManager({
             .check()
             .catch((error) =>
               console.error(
-                "PDKS session maintenance failed:",
+                ui.serverDiagnostics.pdksSessionMaintenanceFailed,
                 error.code || error.name,
               ),
             ),
@@ -172,7 +172,7 @@ export function createSessionManager({
         await storage.pruneExpired?.(clock());
       } catch (error) {
         console.error(
-          "PDKS session disk cleanup failed:",
+          ui.serverDiagnostics.pdksSessionDiskCleanupFailed,
           error.code || error.name,
         );
       }
@@ -210,7 +210,7 @@ export function createSessionManager({
             );
             state.retryAt =
               clock() + Math.max(backoff, error.details?.retryAfterMs || 0);
-            console.error("PDKS keep-alive failed:", error.code || error.name);
+            console.error(ui.serverDiagnostics.pdksKeepAliveFailed, error.code || error.name);
           } finally {
             state.checking = false;
             state.controller = null;
@@ -218,7 +218,7 @@ export function createSessionManager({
         })
         .catch((error) => {
           console.error(
-            "PDKS keep-alive queue failed:",
+            ui.serverDiagnostics.pdksKeepAliveQueueFailed,
             error.code || error.name,
           );
         })
@@ -263,7 +263,7 @@ export function createSessionManager({
     for (const result of results) {
       if (result.status === "rejected")
         console.error(
-          "PDKS expired session cleanup failed:",
+          ui.serverDiagnostics.pdksExpiredSessionCleanupFailed,
           result.reason.code || result.reason.name,
         );
     }
@@ -342,7 +342,7 @@ export function createSessionManager({
         await removeSession(id);
       } catch (cleanupError) {
         console.error(
-          "PDKS new session rollback failed:",
+          ui.serverDiagnostics.pdksNewSessionRollbackFailed,
           cleanupError.code || cleanupError.name,
         );
       }

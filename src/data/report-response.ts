@@ -18,7 +18,7 @@ export function readReportResponse(
     new ApiError(
       ui.apiErrors.responseUnreadable, 200, "INVALID_RESPONSE", {
         apiPath: "/api/report", apiMethod: "GET",
-        diagnostic: "Rapor yanıtı beklenen kişi, tarih veya kayıt yapısıyla uyuşmuyor.",
+        diagnostic: ui.sourceErrors.reportContractMismatch,
       },
     );
   if (

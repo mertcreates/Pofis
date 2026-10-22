@@ -2,7 +2,7 @@
 
 ## Uygulanan yapı
 
-Tek uygulama süreci, süreç belleğinde oturumlar ve yerel JSON dosyaları kullanılır. Her oturum kendi `PdksClient`, CookieJar ve doğrulanmış kişi kimliğiyle çalışır. Her doğrulanmış kullanıcıya ayrı oturum açılır. Sabit 8 saat TTL korunur.
+Tek uygulama süreci, süreç belleğinde oturumlar ve yerel JSON dosyaları kullanılır. Her oturum kendi `PdksClient`, CookieJar ve doğrulanmış kişi kimliğiyle çalışır. Süreler ve kimlik güvenceleri aşağıdaki oturum politikasında yönetilir.
 
 | Sahip                                                    | Sorumluluk                                                                                 |
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
@@ -14,9 +14,9 @@ Tek uygulama süreci, süreç belleğinde oturumlar ve yerel JSON dosyaları kul
 
 ## Oturum yaşam döngüsü
 
-Girişte e-posta biçiminde yazılan değerde ilk `@` öncesindeki bölüm kullanıcı adı olarak kullanılır. Oturum yöneticisi bu değeri PDKS adaptörüne iletir; hesap anahtarı da aynı kullanıcı adıyla üretilir. Boşluk ve uzunluk sınırları [oturum politikasında](../rules/session-policy.md) tanımlıdır.
+Kullanıcı adının normalizasyonu, hesap anahtarı gereksinimi ve parola temizliği [oturum politikasında](../rules/session-policy.md#güvenceler) tanımlıdır.
 
-Bellekteki yönetici `pofis.session-manager:account-key-v1` anahtarıyla tutulur. Bu anahtar geliştirme sunucusundaki yönetici ve giriş istemcisi fabrikasını hesap anahtarı sözleşmesine göre oluşturur. API, anahtarsız oturumda `SESSION_EXPIRED` / 401 ile yeniden giriş ister.
+Bellekteki yönetici `pofis.session-manager:account-key-v1` anahtarıyla tutulur. Bu anahtar geliştirme sunucusundaki yönetici ve giriş istemcisi fabrikasını hesap anahtarı sözleşmesine göre oluşturur.
 
 1. Girişte ayrı istemci oluşturulur; parola yalnız kaynak girişinde kullanılır. Oturum yöneticisi yeni oturumu kaydeder, mevcut oturumu kapatır ve ardından tarayıcıya yeni token verilir. Yeni kimlik doğrulama veya ilk kayıt başarısızsa mevcut oturum korunur. Eski oturumun diskten silinmesi başarısızsa yeni oturum da iptal edilip dosyası silinmeye çalışılır; istek başarısız döner.
 2. İstek yalnız güncel oturum çerezindeki kimliği arar. Bellekte yoksa v1 biçimindeki ilgili dosya asenkron okunur; aynı kimliğin eşzamanlı okumaları birleştirilir. Desteklenmeyen dosya biçimi yeniden kimlik doğrulama gerektirir.
@@ -25,34 +25,26 @@ Bellekteki yönetici `pofis.session-manager:account-key-v1` anahtarıyla tutulur
 5. Dosya silme başarısızsa hata döner ve aynı süreç oturumu yeniden yüklemeyi engeller; silme yeniden denenebilir. Bu sınır, yeniden bağlantının geri alınmasındaki silme hatası için de geçerlidir. Silinemeyen kayıt süreç yeniden başlatılınca TTL sonuna kadar yeniden yüklenebilir; iptal bilgisi süreç belleğinde yaşar. Dosya erişimi ve disk hatalarının izlenmesi işletim sorumluluğudur.
 6. Etkin bellek oturumları varken tek bakım zamanlayıcısı çalışır. Süresi dolan bellek kayıtları dakikalık kontrolde, soğuk dosyalar saatlik dizin taramasında temizlenir. Silme veya tarama hataları loglanır ve sağlıklı oturumların keepalive işleri sürer. Hatalı soğuk tarama sonraki saatlik aralıkta yeniden denenir. Süreç boşken zamanlayıcı durur; yeni oturumla bakım devam eder. Süresi geçmiş dosyalar erişimde reddedilir.
 
-Bozuk dosyada ilgili kullanıcı yeniden giriş yapar; diğer kullanıcıların yüklenmesi bağımsız sürer. Kaynak çerezleri hassastır; oturum dizinine yalnız uygulama hesabı erişmelidir. Şifre yalnız giriş isteği süresince kullanılır ve her denemeden sonra temizlenir; kullanıcı adı yalnız açık formda tekrar deneme için korunur ([hata sözleşmesi](../pdks-errors.md)). Plan ve tema mevcut tarayıcı depolamasını kullanmayı sürdürür.
+Bozuk dosyada ilgili kullanıcı yeniden giriş yapar; diğer kullanıcıların yüklenmesi bağımsız sürer. Kaynak çerezleri hassastır; oturum dizinine yalnız uygulama hesabı erişmelidir. Plan ve tema mevcut tarayıcı depolamasını kullanmayı sürdürür.
 
 ## Kaynak istekleri
 
-Aktif oturumun kendi raporu, Pofi hesap anahtarından sunucuda türetilen `analyticsUserId` alanını da taşır. Pofi anahtarı sunucuda kalır; istemci bu ayrı kimliği GA4 hesabını eşleştirmek için kullanır. Kimlik ilk başarılı rapordan sonra etkinleşir; çıkış, hesap değişimi ve doğrulanmış oturum bitişinde temizlenir. Ayrıntılar [ölçüm sözleşmesindedir](../analytics.md#hesap-kimliği).
+[Kaynak politikası](../rules/source-policy.md) profil doğrulamasını, kişisel turnike sayfalamasını, oturum başına işlem sırasını ve kısa rapor önbelleğini yönetir. [Hata sözleşmesi](../pdks-errors.md) hangi kaynak yanıtının oturumu bitirdiğini belirler.
 
-Giriş, `PizzyMain.aspx` profilindeki kişi bilgisiyle doğrulanır. Mesai raporu seçili haftanın kişisel turnike hareketlerini alır, bütün sayfaları birleştirir ve API'de zorunlu `passages` olarak sunar. Günlük ilk giriş–son çıkış ve süreler [kayıtlı süre sahibinde](../rules/recorded-time.md), açık giriş güvenilirliği [geçiş sahibinde](../rules/passages.md) çözülür. Başarılı girişte üretilen `self.pofiKey`, Pofi notları için sunucu oturumunda korunur ve diskten aynı değerle yüklenir. Kalıcı hesap bilgisi `self.pofiKey` alanıyla sınırlıdır. Anahtarı olmayan oturumlar yeniden girişle hesap anahtarını alır. [Anahtar sözleşmesi](../pofi-notes.md#hesap-anahtarı).
+Başarılı girişte üretilen `self.pofiKey` sunucu oturumunda saklanır ve diskten aynı değerle yüklenir. Anahtarı olmayan oturumlar yeniden giriş ister; [üretim ve geçiş sözleşmesi](../pofi-notes.md#hesap-anahtarı). Kendi raporuna eklenen [analytics kimliği](../analytics.md#hesap-kimliği) ayrı kullanım alanına sahiptir.
 
-Farklı kullanıcıların istekleri ortak bir sıra beklemeden başlar. Aynı oturumdaki WebForms işlemleri kendi istemcisinde sıralanır; diğer oturumlar bağımsız çalışır. Her HTTP isteğinde 30 saniyelik zaman aşımı ve oturumun iptal sinyali uygulanır. Aynı oturum/aralıktaki başarılı rapor 20 saniye ilgili istemcinin belleğinde tutulur; önbellek her istemciye özeldir. Ayrıntılar [kaynak sözleşmesinde](../rules/source-policy.md).
-
-Kaynak HTTP hatası gövdesinde giriş formu bulunsa da oturum korunur. API temizliği, kaynak kontrolü ve keepalive ortak kod/durum doğrulamasını kullanır; istemci de başarılı oturum yanıtını işlemine göre doğrular. [Hata sözleşmesi](../pdks-errors.md).
-
-[Yemek menüsünün](../rules/meal-menu.md) kaynak önbelleği tarihe göre ortaktır. Pofi yemek yorumu, bu menü üzerinden oturumdaki `self.pofiKey` ve seçilen gün için her istekte sunucuda seçilir. API yalnız menü ve seçilen metni döndürür; hesap anahtarı sunucu oturumunda kalır. Yanıt `Cache-Control: no-store` taşır.
+[Yemek kaynağı önbelleği](../rules/meal-menu.md) oturumlar arasında ortaktır; kişisel yorum her istekte mevcut hesap anahtarıyla seçilir. HTTP yanıtı `no-store` taşır.
 
 Yerel üretim önizlemesi standart `next start`, Docker dağıtımı standalone `server.js` kullanır; iki yöntem de tek uygulama süreci çalıştırır. [Tek pod, derleme, TZ ve ingress ayarları](../deployment.md).
 
 ## İşletim sınırları
 
-[Windows/macOS/Linux masaüstü kabuğu](../desktop.md) aynı oturum yöneticisini Electron’un Node.js UtilityProcess’iyle kullanır. Profil ve sunucu oturumları sürüm dosyalarından, dış tarayıcıdan ve kurum sunucusundan ayrıdır; dizinler ve güncelleme davranışı masaüstü rehberinde yönetilir. Normal pencere kapanışı sunucuyu kapatır ve PDKS oturumunun mevcut TTL süresini korur. Yeniden açılışta mevcut sabit TTL uygulanır.
-
-Masaüstü sürüm temizliği ve uygulama kaldırma kullanıcı profilini silmez. Yeniden kurulum mevcut profili ve oturumların sabit TTL kuralını kullanır; kaldırma ayrıntıları [masaüstü rehberindedir](../desktop.md#kaldırma).
+[Masaüstü kabuğu](../desktop.md#yaşam-döngüsü-ve-sorumluluklar) aynı oturum yöneticisini Node UtilityProcess ile kullanır. Kullanıcı profili dış tarayıcıdan ve kurum sunucusundan ayrıdır. Port, arka plan ve kapanış davranışı masaüstü rehberinde; heartbeat ve hesaba özgü işler [bildirim sözleşmesinde](../rules/notifications.md) yönetilir.
 
 Dağıtım tek uygulama süreci ve kalıcı yerel oturum diziniyle yapılmalıdır. Bellek kullanımı yüklenen oturum sayısıyla büyür; oturum dizininin sahibi tek uygulama sürecidir. Kurum ağı, TLS, yeniden başlatma, disk izinleri/yedekleri ve gerçek hesap kabulü dağıtım ortamında doğrulanır.
 
 Yerel fixture ve sentetik yük kontrolleri gerçek PDKS kapasitesini belirlemez. Bekleyen kurum kabulü [görev listesinde](../../tasks/todo.md), kontrol yöntemi [doğrulama rehberinde](../verification.md) tutulur.
 
-Masaüstünde sunucu portu doluysa boş loopback portu seçilir. Electron içindeki sabit origin, HTTP protokol yönlendirmesiyle korunur; port değişimi tema/plan depolamasını veya çerez profilini değiştirmez. Ayrıntılar [masaüstü sözleşmesindedir](../desktop.md#yaşam-döngüsü-ve-sorumluluklar).
-
 ## Sonraki karar
 
-Gerçek ölçümde tek süreç yetersiz kalırsa veya yüksek erişilebilirlik gerekirse ortak oturum deposu ve süreçler arası sahiplik birlikte tasarlanır. Depo seçimi o gereksinime göre yapılır. Mevcut adım yeni altyapı veya bağımlılık gerektirmez.
+Gerçek ölçümde tek süreç yetersiz kalırsa veya yüksek erişilebilirlik gerekirse ortak oturum deposu ve süreçler arası sahiplik birlikte tasarlanır. Depo seçimi o gereksinime göre yapılır.

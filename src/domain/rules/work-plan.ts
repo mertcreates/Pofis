@@ -1,3 +1,4 @@
+import { ui } from "../../lib/ui-text.js";
 import { weekday, isDateKey, weekStart, weekDates } from "./calendar";
 import type { DayState } from "./record-status";
 
@@ -61,7 +62,7 @@ export function resolveUserLockedDays(plans: WorkPlans, week: string): readonly 
 
 export function changeWeekLockedDays(plans: WorkPlans, week: string, days: readonly number[], plan: WorkPlan): WorkPlans {
   if (!isPlanWeek(week) || !readLeaveDays(days) || !readWeekPlan(plan) ||
-    days.some(day => resolveLeaveDays(plans, week).includes(day))) throw new Error("Geçersiz kilitli günler");
+    days.some(day => resolveLeaveDays(plans, week).includes(day))) throw new Error(ui.validationErrors.lockedDays);
   const weekLockedDays = { ...plans.weekLockedDays };
   if (days.length) weekLockedDays[week] = [...days].sort((a, b) => a - b);
   else delete weekLockedDays[week];
@@ -108,14 +109,14 @@ export function resolveStoredTarget(plans: WorkPlans, week: string): number {
 export function changeWeekPlan(plans: WorkPlans, week: string, plan: WorkPlan | null, completed: readonly (number | null)[] = [], targetSeconds?: number, leaveDays = resolveLeaveDays(plans, week)): WorkPlans {
   if (!isPlanWeek(week) || (plan !== null && !readWeekPlan(plan)) ||
     !readLeaveDays(leaveDays) ||
-    (targetSeconds !== undefined && (!Number.isSafeInteger(targetSeconds) || targetSeconds < 0))) throw new Error("Geçersiz mesai planı");
+    (targetSeconds !== undefined && (!Number.isSafeInteger(targetSeconds) || targetSeconds < 0))) throw new Error(ui.validationErrors.workPlan);
   const previous = resolveStoredPlan(plans, week);
   const reset = plan === null;
   const userLocked = reset ? NO_PLAN_DAYS : resolveUserLockedDays(plans, week);
   const previousLeaves = resolveLeaveDays(plans, week);
   leaveDays = reset ? previousLeaves.filter(day => completed[day] != null) : leaveDays;
   if (previous.some((_, day) => completed[day] != null && previousLeaves.includes(day) !== leaveDays.includes(day)))
-    throw new Error("Tamamlanan gün değiştirilemez");
+    throw new Error(ui.validationErrors.completedDay);
   leaveDays = leaveDays.filter(day => !userLocked.includes(day) || previousLeaves.includes(day));
   plan = preserveCompletedPlan(applyLeave(plan ?? plans.defaultPlan, leaveDays), previous,
     previous.map((_, day) => completed[day] != null || userLocked.includes(day) ? 0 : null));
@@ -146,7 +147,7 @@ export function changeWeekPlan(plans: WorkPlans, week: string, plan: WorkPlan | 
 }
 
 export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?: string, completed: readonly (number | null)[] = []): WorkPlans {
-  if (!readDayPlan(defaultPlan)) throw new Error("Geçersiz varsayılan plan");
+  if (!readDayPlan(defaultPlan)) throw new Error(ui.validationErrors.defaultPlan);
   const weekOverrides = { ...plans.weekOverrides };
   const weekTargets = { ...plans.weekTargets };
   const weekZeroOpenDays = { ...plans.weekZeroOpenDays };
@@ -191,9 +192,9 @@ export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?
 }
 
 export function setDayMinutes(plan: WorkPlan, day: number, minutes: number): WorkPlan {
-  if (!Number.isInteger(day) || day < 0 || day >= WORKING_DAY_COUNT) throw new Error("Geçersiz plan günü");
+  if (!Number.isInteger(day) || day < 0 || day >= WORKING_DAY_COUNT) throw new Error(ui.validationErrors.planDay);
   const next = readWeekPlan(plan.map((value, index) => index === day ? minutes : value));
-  if (!next) throw new Error("Günlük süre 0–16 saat arasında olmalı");
+  if (!next) throw new Error(ui.validationErrors.dayDuration);
   return next;
 }
 
@@ -283,7 +284,7 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
 export function editRequiredMinutes(plan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, updates: readonly { day: number; minutes: number }[], defaultPlan = DEFAULT_WORK_PLAN, leaveDays: readonly number[] = []) {
   for (const { day, minutes } of updates) {
     setDayMinutes(plan, day, minutes);
-    if (resolved.locked[day]) throw new Error("Tamamlanan gün değiştirilemez");
+    if (resolved.locked[day]) throw new Error(ui.validationErrors.completedDay);
   }
   if (updates.every(({ day, minutes }) => minutes === 0 ? leaveDays.includes(day)
     : !leaveDays.includes(day) && Math.round(minutes * 60) === resolved.displaySeconds[day])) {

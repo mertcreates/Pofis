@@ -28,15 +28,18 @@ Yerel hazırlık yapıldı; gerçek Ubuntu kabulü ve yayın bekliyor. Destek ka
 - [ ] İki gerçek hesap/tarayıcıyla kimlik, kaynak çerezi ve rapor ayrımını doğrula.
 - [ ] İstanbul gece yarısı, gün/hafta geçişi ve yeni kaynak hareketlerinin ekrana yansımasını kontrol et.
 
+- [ ] Paketli Windows ve macOS cihazlarda bildirim izni/görünümü/tıklama, tepsi/menü çubuğu, uyku dönüşü ve gerçek çıkışı doğrula. Kullanıcının kendi Telegram botuyla açıkça başlattığı deneme mesajını kontrol et; [bildirim sözleşmesi](../docs/rules/notifications.md).
+
 ## Arayüz kabulü
 
+- [ ] Tasarım ölçeğinde kalan yerel istisnaları sahiplerinde değerlendir: `globals.css` 1 px radius, `pofis.css` 5 px radius ve 23 px yazı, `pofi/room.css` 24 px radius, `notification-lab.css` 2 px radius. Anlamlı rolleri [DESIGN](../DESIGN.md) içinde belgele veya ortak basamakla eşleştir. Güncel günün tablo işareti görsel bağlamıyla değerlendirilsin.
 - [ ] Kullanıcı, [yemek menüsünü](../docs/rules/meal-menu.md) masaüstü/mobilde kontrol etsin: menüyü aç → gün değiştir → yeniden aç; gün ve not eşleşmesini, skeleton'ı, korunan modal yüksekliğini, kapatma butonunu ve banner taşmasını doğrulasın. Kısa menü, boş gün ve hata durumlarını da incelesin. Görsel kabul kullanıcıda.
 - [ ] Kullanıcı mesai planında serbest süre girişini ve +/- çizgilerini, manuel kilitli günden açık günlere uygulamayı, Sıfırla ile manuel kilidin kaldırılmasını ve tamamlanmış günlerin kayıt görünümünü doğrulasın. İki Tamamla seçeneğinin açılırken yerleşimi kaydırmadığını, eylem sırasını ve dar ekran yerleşimini kontrol etsin. Görsel kabul kullanıcıda.
 - [ ] Kullanıcı giriş–çıkış raporunda kapalı gün satırında turnike uyarısı görünmediğini, günün ayrıntısını açınca neden/saat ve ham hareketlerin bulunduğunu doğrulasın. Görsel kabul kullanıcıda.
 - [ ] 404 sahnesini, tema depolama bildirimini ve eksik notta defter gezinmesini masaüstü/mobil tarayıcıda doğrula. Boş normal havuzda nötr mesajı, önceki/sonraki gün gezinmesini ve özel gün notunu kontrol et.
 - [ ] Pofi'nin canlı/kayıtlı `%114 → %115` geçişinde `overworked` görselini ve “Hedefin üzerinde.” başlığını tarayıcıda doğrula.
 - [ ] Fiziksel mobil cihazda dokunmatik grafik ve modal tutamağından sürükleme davranışını kontrol et.
-- [ ] Safari, forced-colors ve ekran okuyucuyla temel gezinme, durum etiketleri ve dialog odağını kontrol et.
+- [ ] Safari ve ekran okuyucuyla temel gezinme, durum etiketleri ve dialog odağını kontrol et.
 - [ ] Rapor hazırlığı veya saat izdüşümü istisnasının ortak hata sınırına geçişini ve yeniden denemeyi kontrollü tarayıcı senaryosuyla doğrula.
 
 ## Sonraki işler

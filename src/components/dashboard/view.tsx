@@ -18,6 +18,8 @@ import { ui } from "@/lib/ui-text.js";
 import { PlanEditor } from "../plan-editor";
 import { PofiRoom } from "../pofi-room-content";
 import { MealMenuModal } from "../meals/menu-modal";
+import { useDesktopNotifications } from "@/data/use-desktop-notifications";
+import type { NotificationSettingsSource } from "../notifications/settings";
 
 type Source =
   | { kind: "pdks"; state: ReturnType<typeof usePdks> }
@@ -27,6 +29,7 @@ type Source =
       refresh: () => void;
       firstWeek: string;
       capturedDate: string;
+      notifications: NotificationSettingsSource;
     };
 export function DashboardView({
   now,
@@ -58,6 +61,8 @@ export function DashboardView({
   const stale = pdks?.stale ?? false;
   const refresh = data.kind === "pdks" ? data.state.refresh : data.refresh;
   const source = data.kind === "pdks" ? data.state.report : data.report;
+  const notifications = useDesktopNotifications(data.kind === "pdks", connected,
+    pdks?.busy === "connect" || pdks?.busy === "disconnect", workPlans.serialized);
   const firstWeek = data.kind === "demo" ? data.firstWeek : undefined;
   const prepared = useMemo(() => {
     if (!source) return null;
@@ -99,6 +104,7 @@ export function DashboardView({
         connected={!!connected}
         busy={busy}
         appearance={appearance}
+        notifications={data.kind === "demo" ? data.notifications : { ...notifications, mode: notifications.available ? "desktop" : "web" }}
         settingsOpen={dialog === "plan"}
         mealsOpen={dialog === "meals"}
         showMeals={data.kind === "pdks"}

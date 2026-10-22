@@ -1,5 +1,7 @@
 "use client";
 
+import { ui } from "../../lib/ui-text.js";
+
 import { useEffect, useRef, useState } from "react";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { createPortal } from "react-dom";
@@ -26,7 +28,7 @@ function mealWeekRange(weekDates: string[]) {
 }
 
 const calendarMonthFormatter = new Intl.DateTimeFormat("tr-TR", { month: "long", year: "numeric", timeZone: "Europe/Istanbul" });
-const calendarWeekdays = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
+const calendarWeekdays = ui.weekdays.map(day => day.short);
 
 export function MealDatePicker({ value, today, minDate, maxDate, onChange }: {
   value: string;
@@ -147,14 +149,14 @@ export function MealDatePicker({ value, today, minDate, maxDate, onChange }: {
   const nextWeek = shiftMealWeek(value, 1, minDate, maxDate);
 
   return (
-    <span className="meal-date-picker" ref={rootRef} role="group" aria-label="Menü tarihi">
+    <span className="meal-date-picker" ref={rootRef} role="group" aria-label={ui.mealLabels.date}>
       <span className="meal-week-navigation">
         <span className="meal-week-control-group">
-          <button type="button" className="meal-date-step" aria-label="Önceki hafta" disabled={previousWeek === null} onClick={() => changeSelectedDate(previousWeek)}>
+          <button type="button" className="meal-date-step" aria-label={ui.previousWeek} disabled={previousWeek === null} onClick={() => changeSelectedDate(previousWeek)}>
             <ChevronLeft size={18} strokeWidth={1.9} aria-hidden="true" />
           </button>
           <span className="meal-week-label" role="status" aria-atomic="true" aria-label={weekAccessibleLabel}>{weekLabel}</span>
-          <button type="button" className="meal-date-step" aria-label="Sonraki hafta" disabled={nextWeek === null} onClick={() => changeSelectedDate(nextWeek)}>
+          <button type="button" className="meal-date-step" aria-label={ui.nextWeek} disabled={nextWeek === null} onClick={() => changeSelectedDate(nextWeek)}>
             <ChevronRight size={18} strokeWidth={1.9} aria-hidden="true" />
           </button>
         </span>
@@ -162,7 +164,7 @@ export function MealDatePicker({ value, today, minDate, maxDate, onChange }: {
           ref={triggerRef}
           type="button"
           className="meal-calendar-trigger"
-          aria-label={`Takvimden tarih seç. Seçili gün: ${value === today ? `Bugün, ${mealDate(value)}` : mealDate(value)}`}
+          aria-label={ui.mealLabels.dateTrigger(ui.mealLabels.dateLabel(mealDate(value), value === today))}
           aria-haspopup="dialog"
           aria-expanded={open}
           onClick={() => {
@@ -180,12 +182,12 @@ export function MealDatePicker({ value, today, minDate, maxDate, onChange }: {
           <CalendarDays size={17} strokeWidth={1.7} aria-hidden="true" />
         </button>
       </span>
-      <span className="meal-week-days" role="group" aria-label="Haftanın günleri">
+      <span className="meal-week-days" role="group" aria-label={ui.mealLabels.weekdays}>
         {weekDates.map((date, index) => <button
           type="button"
           className="meal-week-day"
           key={date}
-          aria-label={`${date === today ? "Bugün, " : ""}${mealDate(date)}`}
+          aria-label={ui.mealLabels.dateLabel(mealDate(date), date === today)}
           aria-current={date === today ? "date" : undefined}
           aria-pressed={date === value}
           disabled={date < minDate || date > maxDate}
@@ -196,17 +198,17 @@ export function MealDatePicker({ value, today, minDate, maxDate, onChange }: {
           <span className="meal-weekday-dot" aria-hidden="true" />
         </button>)}
       </span>
-      {open && portalTarget && createPortal(<div popover="manual" className="meal-calendar-popover" role="dialog" aria-label="Menü tarihi seç" ref={calendarRef} style={popoverPosition ? {
+      {open && portalTarget && createPortal(<div popover="manual" className="meal-calendar-popover" role="dialog" aria-label={ui.mealLabels.chooseDate} ref={calendarRef} style={popoverPosition ? {
         top: popoverPosition.top,
         left: popoverPosition.left,
         maxHeight: popoverPosition.maxHeight,
       } : { visibility: "hidden" }}>
         <span className="meal-calendar-header">
-          <button type="button" className="meal-calendar-nav" aria-label="Önceki ay" disabled={previousMonth < minDate.slice(0, 7)} onClick={() => showMonth(previousMonth)}>
+          <button type="button" className="meal-calendar-nav" aria-label={ui.previousMonth} disabled={previousMonth < minDate.slice(0, 7)} onClick={() => showMonth(previousMonth)}>
             <ChevronLeft size={17} strokeWidth={1.75} aria-hidden="true" />
           </button>
           <span aria-live="polite">{monthLabel}</span>
-          <button type="button" className="meal-calendar-nav" aria-label="Sonraki ay" disabled={nextMonth > maxDate.slice(0, 7)} onClick={() => showMonth(nextMonth)}>
+          <button type="button" className="meal-calendar-nav" aria-label={ui.nextMonth} disabled={nextMonth > maxDate.slice(0, 7)} onClick={() => showMonth(nextMonth)}>
             <ChevronRight size={17} strokeWidth={1.75} aria-hidden="true" />
           </button>
         </span>

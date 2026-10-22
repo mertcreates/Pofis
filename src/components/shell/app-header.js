@@ -16,6 +16,9 @@ export default function AppHeader({
   onSection,
   updateAvailable = false,
   onOpenUpdate,
+  showNotifications = false,
+  notificationsOpen = false,
+  onOpenNotifications,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuId = useId();
@@ -85,7 +88,7 @@ export default function AppHeader({
               <nav className="sidebar-nav" aria-label={ui.mainMenu}>
                 <button
                   type="button"
-                  aria-current="page"
+                  aria-current={!notificationsOpen ? "page" : undefined}
                   onClick={() => selectSection("overview")}
                 >
                   <Icon name="layout" />
@@ -104,13 +107,18 @@ export default function AppHeader({
             )}
             {onSection && (
               <div className="sidebar-nav settings-nav">
+                {showNotifications && <button type="button" aria-current={notificationsOpen ? "page" : undefined}
+                  onClick={() => {
+                    if (menuOpen) menuButton.current?.focus({ preventScroll: true });
+                    setMenuOpen(false); onOpenNotifications();
+                  }}><Icon name="bell" />{ui.notifications.title}</button>}
                 <button
                   type="button"
                   aria-haspopup="dialog"
                   aria-expanded={settingsOpen}
                   onClick={() => selectSection("settings")}
                 >
-                  <Icon name="settings" />
+                  <Icon name="calendar" />
                   {ui.settings}
                 </button>
               </div>

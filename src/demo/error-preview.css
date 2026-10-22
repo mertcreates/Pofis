@@ -5,25 +5,26 @@
 .demo-view-switch button { min-height: 44px; padding: 12px 16px; border: 0; border-radius: 0; border-bottom: 2px solid transparent; color: var(--secondary); background: transparent; }
 .demo-view-switch button[aria-pressed="true"] { border-bottom-color: var(--accent); color: var(--accent-text); background: var(--accent-soft); }
 .demo-view-switch button:hover, .demo-reset:hover { color: var(--accent-text); background: var(--accent-soft); }
-.demo-view-switch button:focus-visible, .demo-reset:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.demo-view-switch button:focus-visible { border-bottom-color: var(--accent); color: var(--accent-text); background: var(--accent-soft); }
+.demo-reset:focus-visible { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
 .demo-reset { min-height: 40px; border: 0; background: transparent; color: var(--secondary); font-size: 12px; }
-.demo-controls-body { padding-block: 20px; }
+.demo-controls-body { padding-block: 16px; }
 .demo-preset-row { display: flex; align-items: center; flex-wrap: wrap; gap: 12px 24px; margin-bottom: 20px; }
-.demo-control-select { display: grid; gap: 6px; color: var(--secondary); font-size: 12px; }
-.demo-control-select select { min-width: 210px; min-height: 38px; font-size: 13px; }
+.demo-control-select { display: grid; gap: 4px; color: var(--secondary); font-size: 12px; }
+.demo-control-select select { min-width: 210px; min-height: var(--control-height); font-size: 14px; }
 .demo-preset-row .demo-notice { margin: 0; }
 @media(max-width: 480px) {
   .demo-controls-heading { gap: 4px; }
   .demo-view-switch { gap: 0; }
-  .demo-view-switch button { padding-inline: 10px; font-size: 13px; }
-  .demo-reset { padding-inline: 6px; }
+  .demo-view-switch button { padding-inline: 8px; font-size: 14px; }
+  .demo-reset { padding-inline: 4px; }
   .demo-control-select { width: 100%; }
   .demo-control-select select { width: 100%; min-width: 0; }
 }
 .demo-error-workbench { max-width: 1040px; margin-inline: auto; }
 .demo-error-toolbar > p { margin: 12px 0 0; color: var(--secondary); font-size: 12px; }
-.demo-error-login > button { margin-top: 20px; }
-.demo-notice-controls { display: flex; flex-wrap: wrap; gap: 20px; }
-.demo-notice-help { margin: 14px 0 0; color: var(--secondary); font-size: 12px; line-height: 1.6; }
+.demo-error-login > button { margin-top: 16px; }
+.demo-notice-controls { display: flex; flex-wrap: wrap; gap: 16px; }
+.demo-notice-help { margin: 12px 0 0; color: var(--secondary); font-size: 12px; line-height: 1.6; }
 .demo-notice-preview { margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--line); }
 .demo-preview-open { margin-top: 16px; }

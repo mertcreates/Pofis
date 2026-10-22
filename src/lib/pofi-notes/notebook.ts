@@ -1,3 +1,4 @@
+import { ui } from "../ui-text.js";
 import { isDateKey, weekStart, weekday } from "@/domain/rules/calendar";
 import {
   isNotebookDate,
@@ -26,10 +27,10 @@ export function createPofiNotebook(
 ) {
   const notes = catalogue.createPool();
   if ((notes.length > 0 && notes.length < 5) || new Set(notes).size !== notes.length)
-    throw new Error("The note pool needs at least five unique notes");
+    throw new Error(ui.internalErrors.notePoolTooSmall);
   for (const id of notes) {
     if (id.startsWith("special:"))
-      throw new Error(`Regular pool contains special note: ${id}`);
+      throw new Error(ui.internalErrors.regularPoolContainsSpecialNote(id));
     catalogue.resolve(id);
   }
 
@@ -39,10 +40,10 @@ export function createPofiNotebook(
   >();
   for (const [date, special] of Object.entries(specialDaySource)) {
     if (date.length !== 5 || !isDateKey(`2000-${date}`))
-      throw new Error(`Invalid special day: ${date}`);
+      throw new Error(ui.internalErrors.invalidSpecialDay(date));
     const variants = catalogue.variants(special.note);
     if (special.sharedVariant && !variants.includes(special.sharedVariant))
-      throw new Error(`Unknown shared variant: ${date}`);
+      throw new Error(ui.internalErrors.unknownSharedVariant(date));
     specialDays.set(date, { ...special, variants });
   }
 
@@ -54,12 +55,12 @@ export function createPofiNotebook(
 
   function noteForDate(date: string, userKey: string): DatedNote {
     if (!isDateKey(date))
-      throw new RangeError(`Invalid Pofi note date: ${date}`);
+      throw new RangeError(ui.internalErrors.invalidPofiNoteDate(date));
     if (typeof userKey !== "string" || !userKey.trim())
-      throw new Error("Missing Pofi user key");
+      throw new Error(ui.internalErrors.missingPofiUserKey);
     if (!isNotebookDate(date, specialDates))
       throw new RangeError(
-        `Pofi notes are for weekdays and special dates: ${date}`,
+        ui.internalErrors.pofiNotesAreForWeekdaysAndSpecialDates(date),
       );
     const special = specialDays.get(date.slice(5));
     let id: string;
@@ -72,7 +73,7 @@ export function createPofiNotebook(
         ];
       id = `special:${special.note}:${variant}`;
     } else {
-      if (!notes.length) throw new Error("No regular Pofi notes");
+      if (!notes.length) throw new Error(ui.internalErrors.noRegularPofiNotes);
       const seed = hash(`pofi-notes:v1:${userKey}:${weekStart(date)}`);
       const stride = strides[(seed >>> 16) % strides.length];
       id = notes[(seed + weekday(date) * stride) % notes.length];
@@ -84,9 +85,9 @@ export function createPofiNotebook(
     noteForDate,
     notesForWeek(today: string, userKey: string): DatedNote[] {
       if (!isDateKey(today))
-        throw new RangeError(`Invalid Pofi note date: ${today}`);
+        throw new RangeError(ui.internalErrors.invalidPofiNoteDate(today));
       if (typeof userKey !== "string" || !userKey.trim())
-        throw new Error("Missing Pofi user key");
+        throw new Error(ui.internalErrors.missingPofiUserKey);
       return pofiNotebookDates(today, specialDates)
         .filter((date) => notes.length > 0 || specialDays.has(date.slice(5)))
         .map((date) => noteForDate(date, userKey));

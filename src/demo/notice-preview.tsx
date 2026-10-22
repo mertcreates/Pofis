@@ -54,7 +54,7 @@ export function DemoNoticePreview({ state, onChange, today, notes }: {
         apiPath: state.scenario === "disconnect" ? "/api/session" : "/api/report",
         apiMethod: state.scenario === "disconnect" ? "DELETE" : "GET",
         type: "PdksError", causeCode: "ETIMEDOUT",
-        diagnostic: "PDKS isteği zaman aşımına uğradı.",
+        diagnostic: ui.demoMessages.sourceTimeout,
         occurredAt: new Date(Date.UTC(2026, 9, 17, 8, 34, 40) + state.attempt * 1000).toISOString(),
       },
     }, state.scenario);

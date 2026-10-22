@@ -572,7 +572,7 @@ export class PdksClient {
           }
         }
         console.error(
-          "PDKS upstream failure:",
+          ui.serverDiagnostics.pdksUpstreamFailure,
           stage,
           response.status,
           diagnostic,

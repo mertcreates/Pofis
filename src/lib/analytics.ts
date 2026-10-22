@@ -1,3 +1,4 @@
+import { product, ui } from "./ui-text.js";
 import { version } from "../../package.json";
 import { isAnalyticsUserId } from "./analytics-identity";
 
@@ -25,7 +26,7 @@ export function trackPageView(pathname: string) {
   const path = pathname === "/" ? "/app" : pathname === "/demo" ? "/demo" : "/other";
   const page = {
     page_location: `https://pofis.app${path}`,
-    page_title: path === "/demo" ? "Pofis Demo" : "Pofis",
+    page_title: path === "/demo" ? ui.metadata.analyticsDemoTitle : product.name,
     page_referrer: "",
     app_release: version,
   };

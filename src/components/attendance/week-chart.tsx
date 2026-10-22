@@ -70,11 +70,12 @@ export function WeekChart({
                 key={day.date}
                 className={`chart-column ${day.date === today ? "today" : ""} ${live ? "live" : ""}`}
                 label={label}
-                anchorSelector=".chart-estimate"
-                content={live ? <>
+                anchorSelector={live ? ".chart-estimate" : ".bar-area"}
+                content={<>
+                  <span className="pofis-tooltip-heading">{formatDate(day.date)}</span>
                   <span>{ui.recordedTime}<b>{day.recordedSeconds === null ? ui.noRecordedDuration : durationClock(recorded)}</b></span>
-                  <span>{ui.liveTotalLabel}<b>{durationClock(total)}</b></span>
-                </> : null}
+                  {live && <span>{ui.liveTotalLabel}<b>{durationClock(total)}</b></span>}
+                </>}
               >
                 <div className="bar-area" aria-hidden="true">
                   <div

@@ -26,8 +26,8 @@
 
 - `WorkPlan`, pazartesi–pazar sırasıyla yedi dakika değeri tutar. Düzenlenebilir günler pazartesi–cumadır; günlük aralık 0–960 dakikadır. Şablonda sıfır değer kapalı gündür; haftada otomatik hesapla sıfırlanmış açık gün ayrıca işaretlenir. Cumartesi/pazar bu plan modelinde düzenlenemez ve plan değerleri sıfırdır; mevcut PDKS kayıtları korunur.
 - İlk şablon pazartesi–cuma 480’er dakika, toplam 40 saattir. Şablonu kullanıcı düzenler; PDKS kayıtları gerçekleşen süreyi sağlar.
-- Şablon ve haftalık plan tam dakika girişi kabul eder (ör. `8 saat 13 dakika`, `8sa13dk`, `8h 13m`, `8:13`). Günlük sınır 0–16 saattir. Haftalık gereken süreler saniye hassasiyetini korur; +/- düğmeleri geçerli süreden sonraki veya önceki 30 dakikalık çizgiye gider.
-- Kabul edilen birimler, birimsiz/ondalık saatler ve +/- sınırları [süre girişi sözleşmesinde](plan-duration.md) tanımlıdır.
+- Süre giriş biçimleri ve +/- adımları [süre girişi sözleşmesinde](plan-duration.md) tanımlıdır. Haftalık gereken süreler saniye hassasiyetini korur.
+
 - Haftanın planı özel hafta kaydından, böyle bir kayıt bulunmadığında varsayılan şablondan gelir. Şablon değişikliği onu miras alan geçmiş haftalara da uygulanır.
 - Düzenlenen haftada tamamlanan günlerin kayıtlı plan değerleri korunur. Haftanın şablonu izleme ve özel düzenlemeyi koruma koşulları aşağıdaki tabloda tanımlıdır.
 
@@ -74,9 +74,9 @@ Kilitli günün hesaplanabilen gerçekleşeni gösterilir; süre hesaplanamıyor
 
 ## Otomatik devir
 
-Dağıtıma uygun gün: bugün veya gelecekte bulunan, açık, tamamlanmamış ve kayıt durumu belirsiz olmayan gündür. Pozitif planlı gün ile sıfır süreli açık gün işareti taşıyan gün açıktır. Tam hafta raporunda gereken süreler şu bakiyeyle hesaplanır:
+Dağıtıma uygun gün: bugün veya gelecekte bulunan, açık, tamamlanmamış ve kayıt durumu belirsiz olmayan gündür. Pozitif planlı gün ile sıfır süreli açık gün işareti taşıyan gün açıktır. Kullanıcı seçtiği haftalık günü kilitleyebilir. Kilitleme, o anda görünen gereken süreyi haftanın planına kaydeder. Kilit açıkken süre alanı ve İzin eylemi kapalıdır; kilidi açınca kullanıcı yeniden düzenleyebilir. Otomatik devir, Tamamla, açık günlere uygulama ve şablon değişikliği kilitli günün planını korur. Sıfırla manuel kilidi kaldırır ve günü şablona döndürür. PDKS kaydıyla kilitlenen geçmiş günün davranışı ayrı kalır. Kilitli gün dağıtıma uygun değildir; kapasite yetersizse kalan fark görünür.
 
-Kullanıcı seçtiği haftalık günü kilitleyebilir. Kilitleme, o anda görünen gereken süreyi haftanın planına kaydeder. Kilit açıkken süre alanı ve İzin eylemi kapalıdır; kilidi açınca kullanıcı yeniden düzenleyebilir. Otomatik devir, Tamamla, açık günlere uygulama ve şablon değişikliği kilitli günün planını korur. Sıfırla manuel kilidi kaldırır ve günü şablona döndürür. PDKS kaydıyla kilitlenen geçmiş günün davranışı ayrı kalır. Kilitli gün dağıtıma uygun değildir; kapasite yetersizse kalan fark görünür.
+Tam hafta raporunda gereken süreler şu bakiyeyle hesaplanır:
 
 ```text
 bakiye = haftalık hedef − günlük plan toplamı
@@ -134,7 +134,7 @@ Kapasite örneği: hedef 40 sa, Pzt–Çar gerçekleşeni 6 sa, Per/Cum gereken 
 
 ## İzin sonrası referans hedefe tamamlama
 
-`completeWeekPlan`, beklenen toplamı izin sonrası referans hedefe getirir. Haftalık hedef veya beklenen toplam bu referanstan farklıysa modal Tamamla eylemini gösterir; standart 40 saatlik plandaki fazla süre de bu kapsamdadır. Eylem iki seçenek sunar: **Günlere eşit dağıt**, farkı uygun günlere 30 dakikalık turlarla (son turda kalan süreyle) dağıtır; **Son mesai gününe dağıt**, farkı son uygun günden başlayarak kapasitesi doldukça önceki güne aktarır. Her iki yönde de aynı seçenek uygulanır. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır. Kilitli, izinli, kapalı, geçmiş veya belirsiz günler uygunluk kuralıyla korunur.
+`completeWeekPlan`, beklenen toplamı izin sonrası referans hedefe getirir. Haftalık hedef veya beklenen toplam bu referanstan farklıysa modal Tamamla eylemini gösterir; standart 40 saatlik plandaki fazla süre de bu kapsamdadır. Eylem aşağıdaki iki dağıtımı sunar. Her ikisi ekleme ve azaltmada uygulanır. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır. Kilitli, izinli, kapalı, geçmiş veya belirsiz günler uygunluk kuralıyla korunur.
 
 | Seçenek | Dağıtım |
 | --- | --- |
@@ -155,11 +155,11 @@ Otomatik devir, mevcut haftalık hedefe göre kendiliğinden hesaplanır. Tamaml
 
 [report.ts](../../src/domain/report.ts), `resolveWeekPlan.targets` değerlerini günlük `dailyGoalSeconds` ve `exitGoalSeconds` alanlarına taşır. `workingDay` günlük açık durumunu taşır; kayıt durumu, grafik, tablo ve ilerleme bu alanı kullanır. Kayıtlı plan ve haftalık hedef [use-work-plans](../../src/data/use-work-plans.ts) sahibinden alınır; metrikler haftalık hedefi doğrudan kullanır. Dashboard, gün akışı, tablo ve Pofi aynı gereken süreyi kullanır. Hedef çıkış, ilk giriş + gereken süredir; bu çıkış hesabı için tam hafta raporu ve bugünün güvenilir kayıt durumu gerekir.
 
-Modalda tamamlanan gün gerçekleşeni, izinli gün “İzinli”, diğer açık hafta günleri gereken süreyi gösterir. Varsayılan sekmesi şablonu düzenler. Üstteki değer “Haftalık plan” olarak gösterilir. Planın izin sonrası referans hedefe farkı alt eylem alanında “40 sa hedefine kalan: 1 sa” gibi gösterilir. Güncel ayarda negatif bakiye ve izin sonrası referansla aynı haftalık hedef, “Beklenen toplam, haftalık hedefin … üzerinde. Kalan günlerin planı korunuyor.” bilgilendirmesini üretir; süre ve “üzerinde” bölümü vurgulanır. Haftalık hedef bu referanstan farklıysa üstteki fazla süre bildirimi gizlenir; alt bölümdeki hedef farkı ve Tamamla eylemi güncel hesapla çalışır. Otomatik azaltma açıkken dağıtılamayan fazla veya her iki ayarda dağıtılamayan eksik süre kapasite uyarısıyla gösterilir. Hafta sonu PDKS kayıtları gerçekleşen/beklenen toplama katılır; plan değerleri sıfır kalır.
+Modalın süre etiketleri ve eylem yerleşimi [DESIGN](../../DESIGN.md#gezinme-ve-kontroller) sahibindedir. Güncel ayarda negatif bakiye ve izin sonrası referansla aynı haftalık hedef, “Beklenen toplam, haftalık hedefin … üzerinde. Kalan günlerin planı korunuyor.” bilgilendirmesini üretir; süre ve “üzerinde” bölümü vurgulanır. Haftalık hedef bu referanstan farklıysa üstteki fazla süre bildirimi gizlenir; alt bölümdeki hedef farkı ve Tamamla eylemi güncel hesapla çalışır. Otomatik azaltma açıkken dağıtılamayan fazla veya her iki ayarda dağıtılamayan eksik süre kapasite uyarısıyla gösterilir. Hafta sonu PDKS kayıtları gerçekleşen/beklenen toplama katılır; plan değerleri sıfır kalır.
 
 Geçmiş kayıtsız veya süresi hesaplanamayan günün gerçekleşeni devir toplamına katılmaz; o günün plan süresi beklenen toplamda kalır. Ara geçişi belirsiz olsa da ilk giriş ve son çıkışı bulunan geçmiş günün süresi devir hesabına katılır. Bugünün kayıtları gün içinde açık/kapalı giriş durumuyla gösterilir; günlük fark ertesi gün kayıt tamamlandığında devre girer. Rapor haftanın yalnız bir bölümünü kapsıyorsa otomatik devir uygulanmaz ve hedef çıkış üretilmez. Bu durumların kayıt etiketleri [kayıt durumu sözleşmesindedir](record-status.md).
 
-Hesaplar saniye hassasiyetini korur. Görünür süreler saat/dakika, erişilebilir etiketler ve tam süre başlıkları saniye hassasiyetindedir. Etiketler, kontrol durumları ve yerleşim [DESIGN](../../DESIGN.md) sahibindedir.
+Hesaplar saniye hassasiyetini korur; görünür ve erişilebilir süre biçimleri [DESIGN](../../DESIGN.md#sayılar-ve-süreler) sahibindedir.
 
 ## Kalıcılık ve navigasyon
 

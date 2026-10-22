@@ -6,11 +6,9 @@ Kişisel PDKS mesaisini takip ederken kullanılan ortak terimler.
 
 **Kayıtlı süre**:
 Turnike hareketlerinden türetilen günlük ilk giriş ile son çıkış arasındaki süre.
-_Gösterim_: Kayıtlı süre
 
 **Canlı toplam**:
 Güncel ve güvenilir açık giriş bulunduğunda, ilk girişten şimdiki ana kadar uzanan toplam süre.
-_Gösterim_: Canlı toplam
 
 **Anlık tahmin**:
 Canlı toplamın kayıtlı süreyi aşan bölümü; süre çubuğunun açık tonlu parçası.
@@ -23,7 +21,7 @@ Varsayılan veya özel hafta planında belirlenen günlük çalışma süresi.
 Güncel gereken çalışma süresi; haftalık hedef ve tamamlanan günlerin kayıtlarıyla dengelenmiş günlük hedef.
 
 **Devir**:
-Tamamlanan günlerin gerçekleşen süreleri ile kayıtlı günlük planları arasındaki net farkın plan politikasına göre değerlendirilmesi. Eksik süre kalan uygun günlere aktarılır; güncel politikada fazla süre ayrı gösterilir ve kalan günlük planlar korunur. Otomatik azaltma `WORK_PLAN_POLICY.autoReduceSurplus` ile açılabilir.
+Tamamlanan günlerin gerçekleşen süreleri ile kayıtlı planları arasındaki net farkın kalan günlere etkisi. Dağıtım ve fazla süre politikası [plan sözleşmesindedir](docs/rules/work-plan.md#otomatik-devir).
 
 **Haftalık hedef**:
 Hafta için belirlenen, izin karşılıkları düşülmüş toplam çalışma süresi.

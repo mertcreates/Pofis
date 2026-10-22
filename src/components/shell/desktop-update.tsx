@@ -26,7 +26,7 @@ export function useDesktopUpdate() {
       if (active && next) setUpdate(next);
     };
     const unsubscribe = bridge.subscribe(receive);
-    bridge.get().then(receive).catch(() => console.warn("Pofis güncelleme bilgisi alınamadı."));
+    bridge.get().then(receive).catch(() => console.warn(ui.diagnostics.updateLoadFailed));
     return () => { active = false; unsubscribe(); };
   }, []);
   return update;
@@ -37,11 +37,11 @@ export function DesktopUpdateModal({ update, onClose }: { update: DesktopUpdate;
   async function copy() {
     setStatus("copying");
     try {
-      if (!window.pofisUpdates) throw new Error("Masaüstü bağlantısı bulunamadı.");
+      if (!window.pofisUpdates) throw new Error(ui.desktop.bridgeMissing);
       await window.pofisUpdates.copyCommand();
       setStatus("copied");
     } catch {
-      console.warn("Pofis kurulum komutu kopyalanamadı.");
+      console.warn(ui.diagnostics.updateCopyFailed);
       setStatus("error");
     }
   }
@@ -49,7 +49,7 @@ export function DesktopUpdateModal({ update, onClose }: { update: DesktopUpdate;
   return <Modal title={text.title} onClose={onClose} className="desktop-update-modal"
     description={text.versions(update.currentVersion, update.version)}>
     <div className="desktop-update-content">
-      <p>{text.instruction(update.platform === "win32" ? "PowerShell’e" : "Terminal’e")}</p>
+      <p>{text.instruction(update.platform === "win32" ? ui.desktop.powershell : ui.desktop.terminal)}</p>
       <code className="desktop-update-command">{update.command}</code>
       <p>{text.confirmation}</p>
       <div className="desktop-update-actions">

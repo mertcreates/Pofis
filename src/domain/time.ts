@@ -1,3 +1,4 @@
+import { ui } from "../lib/ui-text.js";
 import { TIME_ZONE, addDays } from "./rules/calendar";
 const dateFormatters = new Map<string, Intl.DateTimeFormat>();
 
@@ -70,7 +71,7 @@ export function weekLabel(
 }
 
 export function formatClock(at: number | null, seconds = true): string {
-  if (at === null || !Number.isFinite(new Date(at).getTime())) return "–";
+  if (at === null || !Number.isFinite(new Date(at).getTime())) return ui.time.empty;
   return (seconds ? clockFormatter : minuteFormatter).format(at);
 }
 
@@ -90,10 +91,10 @@ export function durationParts(seconds: number): {
 export function durationText(seconds: number, includeSeconds = true): string {
   const p = durationParts(seconds);
   const parts = [];
-  if (p.hours > 0) parts.push(`${p.hours} sa`);
-  if (p.minutes > 0) parts.push(`${p.minutes} dk`);
-  if (includeSeconds && p.seconds > 0) parts.push(`${p.seconds} sn`);
-  return parts.join(" ") || (includeSeconds ? "0 sn" : "0 dk");
+  if (p.hours > 0) parts.push(`${p.hours} ${ui.units.hour}`);
+  if (p.minutes > 0) parts.push(`${p.minutes} ${ui.units.minute}`);
+  if (includeSeconds && p.seconds > 0) parts.push(`${p.seconds} ${ui.units.second}`);
+  return parts.join(" ") || `0 ${includeSeconds ? ui.units.second : ui.units.minute}`;
 }
 
 export function durationClock(seconds: number): string {

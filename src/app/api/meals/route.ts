@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   try {
     const session = await requireSession(request);
     const date = request.nextUrl.searchParams.get("date");
-    if (!date) throw new MealInputError("Missing meal date");
+    if (!date) throw new MealInputError(ui.mealErrors.missingDate);
     let menu;
     try {
       menu = await getMealForDate(date);
@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       return json({ error: ui.meals.invalidDate, code: "INVALID_INPUT" }, 400);
     }
     if (error instanceof MealSourceError) {
-      console.error("Meal source failed:", error.message);
+      console.error(ui.serverDiagnostics.mealSourceFailed, error.message);
       return json({ error: ui.meals.unavailable, code: "MEAL_SOURCE_UNAVAILABLE" }, 502);
     }
     return failure(error, request);

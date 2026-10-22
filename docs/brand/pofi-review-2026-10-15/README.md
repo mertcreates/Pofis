@@ -17,8 +17,6 @@ Klasör adları korunur. Uygulamanın etkin görselleri [görsel kaynaklar](../a
 
 - Kanonik kimlik: `extras/pofis-brand-kit/assets/pofi-full.png`.
 - Personel kartı sembolü: `extras/pofis-brand-kit/references/tabii-logo-provided.png`.
-- Karakter kuralları: marka kitindeki CHARACTER_BIBLE.md ve MASTER_PROMPT.md; güncel proje ton rehberi.
-- Aynı krem-lavanta kedi; yuvarlak baş, tek kıvrımlı perçem, koyu oval gözler, pembe yanaklar, lavanta kuyruk ve kart askısı korunur.
 - Uygulamaya alınacak görselde yüz/kimlik, kart, dört uzuv, gerçek şeffaflık ve küçük boyutta okunurluk incelenir.
 - Kullanıcı uygulamaya alınacak dosyaları seçip onayladıktan sonra görseller uygulanır.
 

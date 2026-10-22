@@ -1,22 +1,22 @@
-.work-plan-modal { --plan-control-size: 32px; }
+.work-plan-modal { --plan-control-size: var(--control-compact); }
 .work-plan-modal button {
   min-height: var(--plan-control-size);
   appearance: none;
   text-decoration: none !important;
 }
 .work-plan-modal .app-modal-header { align-items: center; }
-.work-plan-modal .app-modal-header h2 { font-size: 20px; font-weight: 650; }
+.work-plan-modal .app-modal-header h2 { font-size: var(--modal-title-size); font-weight: 600; }
 .work-plan-modal .app-modal-close {
-  flex: 0 0 var(--plan-control-size);
-  width: var(--plan-control-size);
-  height: var(--plan-control-size);
+  flex: 0 0 var(--icon-button-sm);
+  width: var(--icon-button-sm);
+  height: var(--icon-button-sm);
+  min-height: var(--icon-button-sm);
   border: 0;
-  border-radius: 8px;
   background: var(--surface-subtle);
 }
 .work-planner { font-variant-numeric: tabular-nums; }
-.work-planner > .inline-notice { margin-bottom: 16px; }
-.work-plan-surplus-emphasis { font-weight: 700; }
+.work-planner > .inline-notice { margin: 16px 0 0; }
+.work-plan-surplus-emphasis { font-weight: 600; }
 .work-plan-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -29,21 +29,21 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   min-width: 0;
-  padding: 6px 8px;
+  padding: 4px 8px;
   border: 0;
   border-radius: 8px;
   background: transparent;
   color: var(--secondary);
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.4;
 }
 .work-plan-tabs button[aria-pressed="true"] {
   background: var(--paper);
   color: var(--accent-text);
-  box-shadow: 0 2px 4px rgb(15 23 42 / 8%);
-  font-weight: 600;
+  box-shadow: var(--card-shadow);
+  font-weight: 500;
 }
 .work-plan-dot {
   display: inline-block;
@@ -59,7 +59,7 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 8px;
-  margin: 18px 0 10px;
+  margin: 16px 0 8px;
 }
 .work-plan-heading h3 { margin: 0; font-size: 14px; font-weight: 600; }
 .work-plan-total {
@@ -69,7 +69,7 @@
   flex-wrap: wrap;
   gap: 8px;
   margin-left: auto;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--ink);
 }
@@ -82,12 +82,12 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  height: 58px;
-  padding: 6px 2px;
+  min-height: 64px;
+  padding: 4px 4px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius-control);
   background: var(--sidebar);
-  color: light-dark(#64748b, #b8b3c6);
+  color: var(--secondary);
   font-size: 12px;
 }
 .work-plan-day strong { font-size: 14px; font-weight: 600; }
@@ -96,7 +96,7 @@
 .work-plan-duration-part { white-space: nowrap; }
 .work-plan-day .work-plan-day-label { display: inline-flex; align-items: center; gap: 4px; }
 .work-plan-day-label svg { flex-shrink: 0; }
-.work-plan-recorded-time { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; font-weight: 650; white-space: nowrap; }
+.work-plan-recorded-time { display: inline-flex; align-items: center; gap: 4px; font-size: 16px; font-weight: 600; white-space: nowrap; }
 .work-plan-recorded-label { font-size: 12px; font-weight: 400; color: var(--secondary); }
 .work-plan-day[data-open="true"] {
   background: var(--paper);
@@ -104,24 +104,24 @@
   color: var(--ink);
 }
 .work-plan-day[data-locked="true"] {
-  background: light-dark(#f6f4ff, #322a45);
-  border-color: light-dark(#ddd6fe, #655881);
+  background: var(--accent-soft);
+  border-color: var(--accent);
   color: var(--accent-text);
 }
 .work-plan-day:hover:not(:disabled) { border-color: var(--accent); }
 .work-plan-day[aria-pressed="true"],
 .work-plan-day[aria-pressed="true"][data-locked="true"],
 .work-plan-day[aria-pressed="true"]:is(:hover, :focus):not(:disabled) {
-  background: light-dark(#ede9fe, #44375f);
-  border: 1.5px solid var(--accent);
-  color: light-dark(#3b0764, #eee6ff);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent);
+  color: var(--accent-text);
 }
 .work-plan-day-editor {
   display: flex;
   flex-direction: column;
   gap: 12px;
   min-width: 0;
-  margin: 14px 0 0;
+  margin: 12px 0 0;
   padding: 12px 16px;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -134,46 +134,43 @@
   gap: 12px;
 }
 .work-plan-day-title { display: flex; flex-direction: column; gap: 4px; }
-.work-plan-day-title strong { font-size: 15px; font-weight: 650; }
+.work-plan-day-title strong { font-size: 14px; font-weight: 600; }
 .work-plan-day-title span { color: var(--muted); font-size: 12px; }
 .work-plan-editable .work-plan-editor-top { width: 100%; }
 .work-plan-editable .work-plan-day-title { flex-direction: row; align-items: center; gap: 8px; flex-wrap: wrap; }
-.work-plan-lock { display: inline-flex; align-items: center; gap: 4px; padding: 0 7px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--secondary); font-size: 12px; }
+.work-plan-lock { display: inline-flex; align-items: center; gap: 4px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--paper); color: var(--secondary); font-size: 12px; }
 .work-plan-lock[aria-pressed="true"] { color: var(--accent-text); border-color: var(--accent); background: var(--accent-soft); }
-.work-plan-day-action { width: 56px; flex-shrink: 0; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--secondary); font-size: 12px; font-weight: 500; white-space: nowrap; }
-.work-plan-closed-status { display: inline-flex; align-items: center; min-height: calc(var(--plan-control-size) + 8px); color: var(--secondary); font-size: 13px; }
-.work-plan-duration-control { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: calc(2 * var(--plan-control-size) + 72px); margin-left: auto; }
+.work-plan-day-action { min-width: 56px; flex-shrink: 0; padding: 0 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--paper); color: var(--secondary); font-size: 12px; font-weight: 500; white-space: nowrap; }
+.work-plan-closed-status { display: inline-flex; align-items: center; min-height: calc(var(--plan-control-size) + 8px); color: var(--secondary); font-size: 14px; }
+.work-plan-modal :is(.work-plan-lock, .work-plan-day-action) { min-height: var(--control-sm); }
+.work-plan-duration-control { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: calc(2 * var(--icon-button-sm) + 72px); margin-left: auto; }
 .work-plan-stepper {
   position: relative;
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
-  padding: 3px;
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  background: var(--surface-subtle);
+  gap: 4px;
 }
 .work-plan-stepper button,
 .work-plan-stepper button:is(:hover, :focus):not(:disabled) {
-  width: var(--plan-control-size);
-  height: var(--plan-control-size);
+  width: max(var(--icon-button-sm), 1.5em);
+  min-height: max(var(--icon-button-sm), 1.5em);
   padding: 0;
   border: 0;
-  border-radius: 7px;
+  border-radius: var(--radius-control);
   background: var(--surface-subtle);
   color: var(--ink);
   font-size: 18px;
 }
-.work-plan-duration-input { width: 96px; min-width: 0; padding: 5px 3px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--ink); text-align: center; font-family: inherit; font-size: 13px; font-weight: 600; }
-.work-plan-duration-input:focus-visible { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-.work-plan-duration-input[aria-invalid="true"] { border-color: var(--danger, #b42318); }
-.work-plan-input-help { position: absolute; z-index: 1; top: calc(100% + 4px); right: 0; width: max-content; max-width: 220px; padding: 5px 7px; border: 1px solid var(--line); border-radius: 7px; background: var(--paper); color: var(--secondary); font-size: 11px; }
+.work-plan-duration-input { width: 96px; min-width: 0; padding: 4px 4px; border: 1px solid var(--control); border-radius: 8px; color: var(--ink); text-align: center; font-family: inherit; font-size: var(--field-font-size); font-weight: 600; }
+.work-plan-duration-input[aria-invalid="true"] { border-color: var(--error); }
+.work-plan-input-help { position: absolute; z-index: 1; top: calc(100% + 4px); right: 0; width: max-content; max-width: 220px; padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--paper); color: var(--secondary); font-size: 12px; }
 .work-plan-apply {
   padding: 0 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--paper);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   white-space: nowrap;
 }
@@ -185,46 +182,46 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
-  margin-top: 10px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: light-dark(#f5f2ff, #322a45);
-  border: 1px solid light-dark(#ddd6fe, #655881);
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: var(--radius-control);
+  background: var(--accent-soft);
   color: var(--accent-text);
-  font-size: 13px;
-  font-weight: 500;
+  font-size: 14px;
+  font-weight: 400;
 }
 .work-plan-actions > div { display: inline-flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; margin-left: auto; max-width: 100%; }
 .work-plan-actions button {
   padding: 0 12px;
-  height: 30px;
-  min-height: 30px;
-  border: 1px solid light-dark(#c4b5ee, #655881);
-  border-radius: 7px;
-  background: light-dark(#fff, #221f2a);
+  min-height: var(--control-compact);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-control);
+  background: var(--paper);
   color: var(--accent-text);
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
 }
 .work-plan-actions .work-plan-complete { background: var(--accent); color: var(--accent-content); border-color: var(--accent); }
 .work-plan-actions .work-plan-complete:is(:hover, :focus):not(:disabled) { background: var(--accent-hover); color: var(--accent-content); border-color: var(--accent-hover); }
 .work-plan-completion { position: relative; display: inline-flex; align-items: center; }
-.work-plan-completion > .work-plan-complete { display: inline-flex; align-items: center; gap: 10px; }
-.work-plan-completion-options { position: absolute; z-index: 3; right: 0; bottom: calc(100% + 6px); display: grid; gap: 2px; min-width: 190px; padding: 4px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); box-shadow: 0 8px 20px rgb(15 23 42 / 16%); }
-.work-plan-actions .work-plan-completion-options button { width: 100%; height: auto; min-height: 36px; padding: 6px 8px; border: 0; background: transparent; color: var(--ink); text-align: left; }
+.work-plan-completion > .work-plan-complete { display: inline-flex; align-items: center; gap: 8px; }
+.work-plan-completion-options { position: absolute; z-index: 3; right: 0; bottom: calc(100% + 6px); display: grid; gap: 4px; min-width: 190px; padding: 4px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--paper); box-shadow: var(--popover-shadow); }
+.work-plan-actions .work-plan-completion-options button { width: 100%; height: auto; min-height: 36px; padding: 4px 8px; border: 0; background: transparent; color: var(--ink); font-weight: 400; text-align: left; }
 .work-plan-actions .work-plan-completion-options button:is(:hover, :focus-visible):not(:disabled) { background: var(--accent-soft); }
 .work-plan-actions .work-plan-reset:hover:not(:disabled) { background: var(--accent-soft); }
-.work-plan-capacity { margin: 12px 0 0; font-size: 13px; color: var(--secondary); }
-.work-plan-modal button:focus-visible:not(:disabled) { box-shadow: inset 0 0 0 2px var(--accent); }
-.work-plan-actions .work-plan-complete:focus-visible:not(:disabled) { box-shadow: inset 0 0 0 2px var(--accent-content); }
+.work-plan-capacity { margin: 12px 0 0; font-size: 14px; color: var(--secondary); }
+.work-plan-stepper button:focus-visible:not(:disabled) { border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent-text); }
+.work-plan-actions .work-plan-completion-options button:focus-visible:not(:disabled) { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.work-plan-actions .work-plan-complete:focus-visible:not(:disabled) { border-color: var(--accent-content); }
+.work-plan-day[aria-pressed="true"]:focus-visible:not(:disabled) { border-color: var(--accent-text); }
 @media (pointer: coarse) {
   .work-plan-modal { --plan-control-size: 44px; }
-  .work-plan-actions button { min-height: 44px; height: 44px; }
+  .work-plan-actions button { min-height: 44px; }
 }
 @media (min-width: 700px) {
   .work-plan-modal { width: min(640px, calc(100% - 48px)); }
-  .work-plan-modal .app-modal-header { padding: 20px 24px; }
+  .work-plan-modal .app-modal-header { padding: 16px 24px; }
   .work-plan-modal .app-modal-body { padding: 24px; }
 }
 @media (max-width: 480px) {
@@ -232,7 +229,7 @@
   .work-plan-duration-control { width: 100%; }
   .work-plan-stepper { margin-left: auto; }
   .work-plan-days { gap: 4px; }
-  .work-plan-day strong { font-size: 13px; }
+  .work-plan-day strong { font-size: 14px; }
   .work-plan-day > .work-plan-day-time { white-space: normal; line-height: 1.1; }
   .work-plan-tabs button { font-size: 12px; }
 }

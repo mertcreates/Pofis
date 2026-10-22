@@ -29,11 +29,9 @@ Secure çerezi doğrudan HTTPS veya proxy'nin ilk `X-Forwarded-Proto` değeri `h
 - Temizlik ve keepalive hatalarında sağlıklı oturumlar çalışmayı sürdürür. Dosya yazma/silme sırası, yeniden başlatma ve silinemeyen dosyanın sınırları mimari sahibinde yönetilir.
 - Yalnız `SESSION_EXPIRED` + 401 oturumu bitirir. Yanlış şifrede mevcut oturum korunur. İstemci GET'te boolean, giriş/heartbeat başarısında `true`, çıkışta `false` bekler. [Yanıt ve toparlanma sözleşmesi](../pdks-errors.md).
 
-[Windows/macOS masaüstü](../desktop.md) aynı kuralları kullanır; normal uygulama kapanışında mevcut PDKS oturumunun TTL süresi korunur. Rapor önbelleği ve kaynak kapasitesi [kaynak politikasına](source-policy.md) aittir.
+[Masaüstü](../desktop.md) aynı TTL kurallarını kullanır. Heartbeat sahibi Electron ana sürecidir; pencere gizliyken de bir dakikalık döngü sürer. [Bildirim sözleşmesi](notifications.md). Rapor önbelleği ve kaynak kapasitesi [kaynak politikasına](source-policy.md) aittir.
 
 ## Kullanan yerler
-
-Kendi raporuna eklenen analytics kimliği ve istemcide temizlenmesi [ölçüm sözleşmesinde](../analytics.md#hesap-kimliği) yönetilir. Oturum token'ı, TTL ve Pofi hesap anahtarının sahipliği korunur.
 
 - [session-manager.js](../../src/server/session-manager.js): giriş, geri yükleme, TTL ve iptal.
 - [session-storage.js](../../src/server/session-storage.js): dosya kalıcılığı.

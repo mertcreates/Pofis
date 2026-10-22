@@ -139,7 +139,7 @@ def assert_bundle(app, version):
                  "resources/app/server/pofis-notifications.cjs", "resources/app/server/.next/BUILD_ID",
                  "resources/app/public/pofi/pofi-mark-256.png"):
         if not (app / name).is_file() or (app / name).is_symlink():
-            fail("Paketin gerekli dosyaları eksik.")
+            fail(f"Paketin gerekli dosyası eksik veya güvenli olmayan bağlantı: {name}")
     metadata = read_json(app / "release.json")
     if (metadata != dict(schemaVersion=1, version=version, platform="linux", arch="x64") or
             read_json(app / "resources/app/package.json").get("version") != version):

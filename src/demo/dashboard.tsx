@@ -7,6 +7,7 @@ import { addDays, dateKey, weekday, weekStart } from "@/domain/rules/calendar";
 import type { demoData } from "./report";
 import { demoDays, previewDemoDay } from "./navigation";
 import { useDemoClock } from "./use-demo-clock";
+import { useDemoNotifications } from "./use-notifications";
 import { DemoDayPicker } from "./day-picker";
 import { DemoControls, initialErrorPreview, type DemoView, type ErrorPreviewState } from "./controls";
 import { DemoNoticeControls, DemoNoticePreview, initialNoticePreview, type NoticePreviewState } from "./notice-preview";
@@ -34,6 +35,7 @@ export function DemoDashboard({
   const [view, setView] = useState<DemoView>("attendance");
   const [errorPreview, setErrorPreview] = useState<ErrorPreviewState>(initialErrorPreview);
   const [noticePreview, setNoticePreview] = useState<NoticePreviewState>(initialNoticePreview);
+  const notifications = useDemoNotifications();
   const week = weekStart(date);
   const dates = demoDays(week, capturedAt);
   const selectWeek = useCallback(
@@ -55,7 +57,7 @@ export function DemoDashboard({
   const report = useMemo(() => {
     const captured = reports.find((report) => report.from === week);
     if (!captured)
-      throw new Error("Seçilen hafta örnek veri aralığında bulunmuyor.");
+      throw new Error(ui.demoMessages.weekUnavailable);
     if (historical) return { report: captured, now: capturedAt, maxExtraMinutes: 0 };
     return previewDemoDay(captured, date, capturedAt, extraMinutes);
   }, [reports, week, date, capturedAt, extraMinutes, revision, historical]);
@@ -101,6 +103,7 @@ export function DemoDashboard({
         refresh,
         firstWeek,
         capturedDate: dateKey(capturedAt),
+        notifications,
       }}
       workPlans={workPlans}
     >

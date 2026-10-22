@@ -1,3 +1,4 @@
+import { ui } from "../ui-text.js";
 import { createHash } from "node:crypto";
 import { isDateKey } from "../../domain/rules/calendar";
 import type { MealPresentation } from "./presentation";
@@ -18,8 +19,8 @@ export function getMealPofiCommentary(
   meal: MealPresentation,
   { date, accountKey }: { date: string; accountKey: string },
 ): MealCommentary | null {
-  if (!isDateKey(date)) throw new RangeError("Invalid meal commentary date");
-  if (typeof accountKey !== "string" || !accountKey.trim()) throw new Error("Missing Pofi account key");
+  if (!isDateKey(date)) throw new RangeError(ui.internalErrors.invalidMealCommentaryDate);
+  if (typeof accountKey !== "string" || !accountKey.trim()) throw new Error(ui.internalErrors.missingPofiAccountKey);
   const candidates = matchingScenarios(meal, mealScenarios);
   if (!candidates.length) return null;
 

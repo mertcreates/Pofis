@@ -62,6 +62,23 @@ function Read-Host { $script:prompts++; return 'e' }
 Close-PofisForUpdate;
 Assert (-not $script:running -and $script:closed -eq 1 -and $script:killed -eq 0 -and $script:prompts -eq 1);
 `],
+    ["gizli uygulamadan gerçek çıkış isteği", fixture + `
+$UserDataDir='C:\\fixture\\profile'; $script:launches=0;
+$script:owned.MainWindowHandle=0;
+$script:owned | Add-Member NoteProperty Path 'C:\\fixture\\Pofis\\versions\\abc\\Pofis.exe';
+$helper=[pscustomobject]@{ HasExited=$false; MainWindowHandle=0; Path='C:\\fixture\\Pofis\\versions\\abc\\crashpad_handler.exe' };
+function Test-Path { return $true }
+function Get-InstalledProcess { if ($script:running) { @($script:owned, $script:owned, $helper) } }
+function Read-Host { return 'e' }
+function Start-Process {
+  param($FilePath, $WindowStyle, $ArgumentList, [switch]$PassThru)
+  Assert ($FilePath -eq $script:owned.Path -and $WindowStyle -eq 'Hidden');
+  Assert ($ArgumentList[0] -eq '--pofis-quit' -and $ArgumentList[1] -eq ('--user-data-dir="' + $UserDataDir + '"'));
+  $script:launches++; $script:running=$false;
+}
+Close-PofisForUpdate;
+Assert ($script:launches -eq 1 -and $script:closed -eq 0 -and $script:killed -eq 0);
+`],
     ["zorla kapatma iptali", fixture + `
 $script:owned | Add-Member ScriptMethod CloseMainWindow { $script:closed++; return $false } -Force;
 function Read-Host { $script:prompts++; if ($script:prompts -eq 1) { return 'e' }; return 'h' }
@@ -95,6 +112,21 @@ Close-PofisForUpdate; Assert (Wait-PofisClosed);
   const { stdout } = await run(scenarios.map(([name, code]) =>
     `& { ${definitions}\n${code}\nWrite-Output ${quote(`PASS ${name}`)} }`).join("\n"));
   for (const [name] of scenarios) expect(stdout).toContain(`PASS ${name}`);
+});
+
+windowsTest("Windows kısayolu native bildirim için Pofis uygulama kimliğini taşır", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-shortcut-"));
+  try {
+    await run(`
+$ShortcutPath=${quote(join(directory, "Pofis.lnk"))}; $UserDataDir=${quote(join(directory, "profile"))};
+Set-PofisShortcut ${quote(process.execPath)};
+$shell=New-Object -ComObject Shell.Application;
+try {
+  $item=$shell.NameSpace(${quote(directory)}).ParseName('Pofis.lnk');
+  Assert ($item.ExtendedProperty('System.AppUserModel.ID') -eq 'app.pofis.client');
+} finally { [Runtime.InteropServices.Marshal]::ReleaseComObject($shell) | Out-Null }
+`);
+  } finally { await rm(directory, { recursive: true, force: true }); }
 });
 
 windowsTest("Windows gerçek zorla kapatma yalnız izole kurulum sürecini durdurur", async () => {
@@ -135,7 +167,8 @@ windowsTest("Windows gerçek zorla kapatma yalnız izole kurulum sürecini durdu
     await start(executable);
     const foreign = await start(process.execPath);
     await run(`
-$InstallRoot=${quote(root)}; $script:prompts=0;
+$InstallRoot=${quote(root)}; $UserDataDir=${quote(join(directory, "profile"))}; $script:prompts=0;
+function Start-Process { }
 function Read-Host { $script:prompts++; return 'e' }
 # The fixture has no window: go directly to force-close consent, then use the real process-exit wait.
 $script:waits=0; $realWait=(Get-Item Function:Wait-PofisClosed).ScriptBlock;

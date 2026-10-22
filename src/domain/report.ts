@@ -1,3 +1,4 @@
+import { ui } from "../lib/ui-text.js";
 import { summarize } from "./rules/recorded-time.js";
 import { resolveWeekPlan, isOpenPlanDay, weeklyTarget, WORK_PLAN_POLICY, type WorkPlan } from "./rules/work-plan";
 import { dailyDurationState, durationTotals } from "./rules/duration.js";
@@ -142,7 +143,7 @@ export function prepareReport(
   const todayIndex = presentation.days.findIndex((day) => day.date === today);
   return (now: number) => {
     if (dateKey(now) !== today)
-      throw new Error("Rapor hazırlığı güncel İstanbul tarihiyle yenilenmeli.");
+      throw new Error(ui.validationErrors.reportDate);
     if (todayIndex === -1) return presentation;
     const day = prepared[todayIndex].at(new Date(now));
     if (day === presentation.days[todayIndex]) return presentation;

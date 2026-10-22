@@ -1,0 +1,115 @@
+.notification-page { max-width: 1160px; width: 100%; padding-bottom: 32px; }
+.notification-page[hidden], #telegram-setup[hidden] { display: none; }
+.notification-page h1 { margin: 0 0 24px; font-size: var(--page-title-size); font-weight: 700; letter-spacing: -0.025em; }
+.notification-page h1:focus { outline: none; }
+.notification-context { color: var(--secondary); margin: -12px 0 24px; font-size: 14px; }
+.notification-settings { display: block; }
+.notification-layout { display: grid; grid-template-columns: minmax(0, 65fr) minmax(280px, 35fr); align-items: start; gap: var(--section-gap); }
+.notification-reminders, .notification-channels { min-width: 0; padding: var(--panel-padding); border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); }
+.notification-reminders-form { min-width: 0; }
+.notification-reminders fieldset { display: grid; gap: 0; min-width: 0; padding: 0; margin: 0; border: 0; }
+.notification-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.notification-event { display: grid; gap: 16px; min-width: 0; }
+.notification-event + .notification-event { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line); }
+.notification-event-heading h2 { margin: 0; font-size: var(--section-title-size); font-weight: 600; line-height: 1.4; letter-spacing: -0.015em; }
+.notification-event-heading { display: grid; gap: 8px; }
+.notification-event-heading p { margin: 0; color: var(--secondary); font-size: 14px; line-height: 1.5; }
+.notification-lead { display: grid; gap: 8px; min-width: 0; }
+.notification-lead > span { color: var(--secondary); font-size: 13px; }
+.notification-event-footer { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 24px; }
+.notification-channel-switch { display: inline-flex; position: relative; align-items: center; gap: 8px; min-height: var(--control-compact); margin: 0; padding: 0; cursor: pointer; color: var(--ink); font-size: 14px; font-weight: 500; }
+.notification-channel-switch > input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.notification-switch-track { position: relative; flex: 0 0 32px; width: 32px; height: 20px; border-radius: 10px; background: var(--control); }
+.notification-switch-track::after { content: ''; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--paper); transition: transform 120ms ease-out, background-color 120ms ease-out; }
+.notification-channel-switch input:checked ~ .notification-switch-track { background: var(--accent); }
+.notification-channel-switch input:checked ~ .notification-switch-track::after { transform: translateX(12px); background: var(--accent-content); }
+.notification-channel-switch:has(input:focus-visible) .notification-switch-label { color: var(--accent-text); text-decoration: underline; text-underline-offset: 4px; }
+.notification-channel-switch:hover:not(:has(input:disabled)) .notification-switch-track { background: var(--secondary); }
+.notification-channel-switch:hover:has(input:checked):not(:has(input:disabled)) .notification-switch-track { background: var(--accent-hover); }
+.notification-channel-switch:has(input:disabled) { opacity: 0.6; cursor: default; }
+.notification-channel-switch > input:disabled { cursor: default; }
+.notification-segments { display: inline-flex; justify-self: start; flex-wrap: wrap; max-width: 100%; gap: 4px; padding: 4px; border-radius: var(--radius-control); background: var(--surface-subtle); }
+.notification-segments button { min-height: var(--control-compact); padding: 8px 12px; border: 0; border-radius: calc(var(--radius-control) - 2px); background: transparent; color: var(--secondary); font-size: 14px; font-weight: 500; line-height: 1.4; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.notification-segments button[aria-pressed='true'] { background: var(--paper); color: var(--accent-text); box-shadow: var(--card-shadow); font-weight: 600; }
+.notification-segments button:hover:not(:disabled):not([aria-pressed='true']) { background: var(--surface-hover); color: var(--ink); }
+.notification-segments button:focus-visible { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.notification-custom-toggle { anchor-name: --notification-custom-lead; }
+.notification-custom-popover { position: fixed; position-anchor: --notification-custom-lead; inset: auto; top: anchor(bottom); left: anchor(right); transform: translate(-100%, 8px); width: min(240px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: auto; margin: 0; padding: 16px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--paper); color: var(--ink); box-shadow: var(--popover-shadow); }
+.notification-custom-popover:not(:popover-open) { display: none; }
+.notification-custom-popover > label { display: block; margin-bottom: 8px; color: var(--secondary); font-size: 13px; font-weight: 500; }
+.notification-custom-field { display: flex; align-items: center; gap: 8px; height: var(--control-height); padding-inline: 12px; border: 1px solid var(--control); border-radius: var(--radius-control); background: var(--paper); color: var(--ink); }
+.notification-custom-field:focus-within:not([data-invalid='true']) { border-color: var(--accent-text); background: var(--accent-soft); }
+.notification-custom-field[data-invalid='true'] { border-color: var(--error); color: var(--error); }
+.notification-custom-field[data-invalid='true']:focus-within { background: var(--error-soft); }
+.notification-settings .notification-custom-field input { flex: 1; min-width: 0; min-height: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: inherit; box-shadow: none; font-size: var(--field-font-size); font-variant-numeric: tabular-nums; appearance: textfield; -moz-appearance: textfield; }
+.notification-custom-field input::-webkit-inner-spin-button, .notification-custom-field input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.notification-custom-field > span { color: var(--secondary); font-size: 13px; }
+.notification-settings .notification-custom-popover .notification-error { margin-top: 8px; font-size: 12px; }
+.notification-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.notification-reminders .notification-actions { margin-top: 24px; }
+.notification-actions .primary { min-height: var(--control-height); }
+.notification-help { color: var(--secondary); font-size: 13px; }
+.notification-channels h2 { margin: 0 0 16px; font-size: var(--section-title-size); font-weight: 600; line-height: 1.4; }
+.notification-channel { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px 12px; padding: 16px 0; }
+.notification-channels h2 + .notification-channel { padding-top: 0; }
+.notification-channel + .notification-channel { border-top: 1px solid var(--line); }
+.notification-channel:last-of-type { padding-bottom: 0; }
+.notification-channel-info { min-width: 0; }
+.notification-channel-info h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.notification-channel-info span { display: block; margin-top: 4px; color: var(--secondary); font-size: 12px; overflow-wrap: anywhere; }
+.notification-channel-actions, .notification-setup-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.notification-channel-actions { grid-column: 1 / -1; justify-content: flex-start; max-width: 100%; }
+.notification-channel > .text-button, .notification-channel-actions .text-button { display: inline-flex; align-items: center; justify-content: center; min-height: var(--control-compact); max-width: 100%; padding: 8px 12px; border: 0; border-radius: var(--radius-control); background: transparent; color: var(--accent-text); font-size: 13px; line-height: 1.4; text-align: center; text-decoration: none; overflow-wrap: anywhere; }
+.notification-channel > .text-button { justify-self: end; }
+.notification-channel .text-button:hover:not(:disabled) { background: var(--surface-hover); text-decoration: none; }
+.notification-channel .text-button:focus:not(:disabled) { background: var(--accent-soft); }
+.notification-channel .text-button:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+.notification-settings > p { margin: 16px 0 0; }
+.notification-settings .notification-message { color: var(--success); font-size: 13px; }
+.notification-settings .notification-message:empty { display: none; }
+.notification-settings .notification-error { color: var(--error); font-size: 13px; overflow-wrap: anywhere; }
+.notification-feedback { margin: 0; min-width: 0; font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.notification-feedback:empty, .notification-connection-feedback:empty { display: none; }
+.notification-channel .notification-feedback { grid-column: 1 / -1; text-align: start; }
+.notification-channels > .notification-error { margin-top: 16px; }
+.notification-actions .notification-feedback { flex: 1 1 160px; }
+.notification-settings > .notification-connection-feedback { margin: 0 0 16px; }
+.notification-telegram-setup { margin: 0; min-width: 0; }
+.notification-setup-modal .app-modal-header { align-items: center; }
+.notification-telegram-setup fieldset { display: grid; gap: 24px; min-width: 0; padding: 0; margin: 0; border: 0; }
+.notification-setup-fields { display: grid; gap: 16px; min-width: 0; }
+.notification-setup-field-group { display: grid; gap: 8px; min-width: 0; }
+.notification-setup-fields label { display: grid; gap: 8px; min-width: 0; color: var(--secondary); font-size: 13px; font-weight: 500; }
+.notification-settings :where(input:not([type="checkbox"]), select) { min-height: var(--control-height); border: 1px solid var(--control); border-radius: var(--radius-control); padding: 8px 12px; color: var(--ink); font: inherit; font-size: var(--field-font-size); width: 100%; background: var(--paper); }
+.notification-settings input::placeholder { color: var(--muted); }
+.notification-telegram-setup :is(input, select) { margin: 0; line-height: 1.5; }
+.notification-setup-guide { color: var(--secondary); font-size: 13px; line-height: 1.6; }
+.notification-setup-guide summary { width: fit-content; min-height: var(--control-compact); padding-block: 8px; color: var(--accent-text); cursor: pointer; }
+.notification-setup-guide summary:is(:hover, :focus-visible) { text-decoration: underline; text-underline-offset: 3px; }
+.notification-setup-guide ol { display: grid; gap: 8px; margin: 8px 0 0; padding-inline-start: 24px; overflow-wrap: anywhere; }
+.notification-chat-select { position: relative; display: block; }
+.notification-chat-select select { appearance: none; padding-inline-end: 36px; }
+.notification-chat-select .ui-icon { position: absolute; inset-inline-end: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--secondary); pointer-events: none; }
+.notification-setup-link { justify-self: start; min-height: var(--control-compact); padding: 4px 0; border: 0; border-radius: 0; background: transparent; color: var(--accent-text); font-size: 13px; line-height: 1.4; text-align: start; }
+.notification-setup-link:is(:hover, :focus):not(:disabled) { background: transparent; text-decoration: underline; text-underline-offset: 3px; }
+.notification-telegram-setup .notification-setup-feedback { margin: 0; }
+.notification-setup-feedback:empty { display: none; }
+.notification-setup-footer { display: grid; gap: 12px; min-width: 0; }
+.notification-telegram-setup .notification-setup-actions { justify-content: flex-end; gap: 8px; margin: 0; }
+.notification-setup-actions button { min-height: var(--control-height); padding: 8px 16px; font-size: 14px; line-height: 1.4; }
+.notification-setup-cancel { border-color: transparent; background: transparent; color: var(--secondary); }
+.notification-setup-cancel:hover:not(:disabled) { border-color: transparent; }
+@media (min-width: 700px) {
+  .notification-setup-modal { max-width: 480px; }
+}
+@media (max-width: 1100px) {
+  .notification-layout { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .notification-page h1 { margin-bottom: 24px; }
+  .notification-reminders, .notification-channels { padding: 16px; }
+  .notification-event-footer { column-gap: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .notification-switch-track::after { transition: none; }
+}

@@ -14,7 +14,8 @@
   background: transparent;
 }
 .pofi-trigger:focus-visible:not(:disabled) {
-  box-shadow: inset 0 0 0 2px var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent-text);
 }
 .pofi-text-trigger {
   padding: 0;
@@ -31,12 +32,14 @@
   color: inherit;
 }
 .pofi-text-trigger:focus-visible:not(:disabled) {
-  box-shadow: inset 0 0 0 2px var(--accent);
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .pofi-room-note {
   margin: 8px 0 0;
   color: var(--secondary);
-  font-size: 0.8125rem;
+  font-size: 14px;
   font-weight: 400;
   line-height: 1.6;
   white-space: pre-line;
@@ -51,17 +54,17 @@
 }
 .pofi-room-modal .app-modal-header {
   gap: 12px;
-  padding: 0 20px 16px;
+  padding: 0 16px 16px;
 }
 .pofi-room-modal .app-modal-header h2 {
-  font-size: 1.375rem;
+  font-size: var(--modal-title-size);
 }
 .pofi-room-modal .app-modal-header p {
   margin-top: 4px;
   line-height: 1.5;
 }
 .pofi-room-modal .app-modal-body {
-  padding: 20px 20px max(20px, env(safe-area-inset-bottom));
+  padding: 16px 16px max(16px, env(safe-area-inset-bottom));
 }
 .pofi-room-modal .app-modal-close {
   position: relative;
@@ -83,14 +86,13 @@
 }
 .pofi-room-modal .app-modal-close:focus-visible::before {
   background: var(--accent-soft);
-  border-color: var(--accent);
 }
 .pofi-room-welcome {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  margin: 0 0 20px;
+  gap: 4px;
+  margin: 0 0 16px;
   text-align: center;
 }
 .pofi-room-welcome img {
@@ -99,10 +101,10 @@
 .pofi-room-welcome-copy {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 .pofi-room-welcome h3 {
-  margin: 2px 0 0;
+  margin: 4px 0 0;
   font-size: 1.625rem;
   font-weight: 600;
   letter-spacing: -0.025em;
@@ -119,7 +121,7 @@
 .pofi-room-tile {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   width: 100%;
   min-width: 0;
   min-height: 100px;
@@ -146,9 +148,10 @@
 }
 .pofi-room-tile small {
   display: block;
-  margin-top: 5px;
+  margin-top: 4px;
   color: var(--secondary);
-  font-size: 0.8125rem;
+  font-size: 14px;
+  font-weight: 400;
 }
 .pofi-room-tile .pofi-room-arrow {
   width: 16px;
@@ -168,9 +171,13 @@
   background: var(--accent-soft);
   text-align: center;
 }
-.pofi-album-photo:hover:not(:disabled),
+.pofi-album-photo:hover:not(:disabled):not(:focus-visible) {
+  border-color: var(--accent);
+}
 .pofi-album-photo:focus:not(:disabled) {
   background: var(--accent-soft);
+}
+.pofi-album-photo:focus-visible:not(:disabled) {
   border-color: var(--accent);
 }
 .pofi-room-album img {
@@ -180,7 +187,7 @@
   object-fit: contain;
 }
 .pofi-album-photo > span {
-  font-size: 0.8125rem;
+  font-size: 14px;
   color: var(--accent-text);
 }
 .pofi-missing-placeholder {
@@ -213,7 +220,7 @@
 }
 .pofi-room-photo figcaption {
   margin-top: 16px;
-  font-size: 0.8125rem;
+  font-size: 14px;
   line-height: 1.5;
   color: var(--secondary);
   text-align: center;
@@ -260,11 +267,11 @@
   flex-wrap: wrap;
   gap: 8px;
   color: var(--accent-text);
-  font-size: 0.8125rem;
+  font-size: 14px;
 }
 .pofi-room-notes p {
   max-width: 55ch;
-  margin: 20px 0 0;
+  margin: 16px 0 0;
   white-space: pre-line;
   font-size: 0.9375rem;
   line-height: 1.8;
@@ -278,7 +285,7 @@
 .pofi-notes-nav button {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   min-height: 44px;
   padding: 8px 12px;
   border: 1px solid var(--line);
@@ -287,7 +294,7 @@
 }
 .pofi-notes-nav > span {
   color: var(--secondary);
-  font-size: 0.8125rem;
+  font-size: 14px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
@@ -298,7 +305,7 @@
   display: grid;
   justify-items: center;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   max-width: 620px;
   margin: 0 auto;
   padding: 24px;
@@ -322,7 +329,7 @@
 .pofi-room-identity dt,
 .pofi-room-work dt {
   color: var(--secondary);
-  font-size: 0.8125rem;
+  font-size: 14px;
 }
 .pofi-room-identity dd,
 .pofi-room-work dd {
@@ -337,7 +344,7 @@
 .pofi-room-fiction {
   max-width: 840px;
   margin: 16px auto 0;
-  font-size: 0.8125rem;
+  font-size: 14px;
   color: var(--secondary);
 }
 .pofi-room-work {
@@ -347,7 +354,7 @@
   margin: 0 auto;
 }
 .pofi-room-work > div {
-  padding: 20px;
+  padding: 16px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
@@ -379,10 +386,10 @@
     max-height: min(90dvh, calc(100dvh - 40px));
   }
   .pofi-room-modal .app-modal-header {
-    padding: 20px 24px 16px;
+    padding: 16px 24px 16px;
   }
   .pofi-room-modal .app-modal-body {
-    padding: 20px 24px 24px;
+    padding: 16px 24px 24px;
   }
 }
 @media (min-width: 900px) {

@@ -79,7 +79,12 @@ async function run() {
     return result.result.value;
   };
   const close = async () => {
-    await evaluate("window.close(); true").catch(() => {});
+    await evaluate("window.close(); true");
+    assert.equal(child.exitCode, null, "Pencere kapatması uygulamayı sonlandırmamalı.");
+    assert.equal(await fetch(`${serverOrigin}/api/health`).then(response => response.ok), true);
+    const quit = spawn(executable, [...appArgs, `--user-data-dir=${profile}`, "--pofis-quit"],
+      { env, cwd: folder, windowsHide: true, stdio: "ignore" });
+    await until(() => quit.exitCode !== null || quit.signalCode !== null, 15000);
     await until(() => child.exitCode !== null || child.signalCode !== null, 15000);
     cdp.close();
     cdp = null;
@@ -107,7 +112,10 @@ async function run() {
     assert.equal(cookie.sameSite, "Strict");
     assert.ok(Math.abs(cookie.expires - sessionRecord.expiresAt / 1000) < 1);
     const response = await fetch(`${serverOrigin}/api/session`, { headers: { Cookie: `pofis_session=${token}` } });
-    assert.deepEqual(await response.json(), { connected: true });
+    const sessionData = await response.json();
+    assert.equal(sessionData.connected, true);
+    assert.match(sessionData.notificationSession.accountId, /^[a-f0-9]{64}$/);
+    assert.equal(sessionData.notificationSession.expiresAt, sessionRecord.expiresAt);
     assert.deepEqual(JSON.parse(await readFile(sessionPath, "utf8")), sessionRecord);
   };
   try {
@@ -149,7 +157,9 @@ async function run() {
     console.log("PASS: paketli görsel aynı baytlarla sunuluyor; görseller doğrudan yükleniyor.");
     await until(() => evaluate("!!document.querySelector('input[name=username]') && !document.querySelector('input[name=username]').disabled"));
     assert.equal(await evaluate("typeof require + ':' + typeof process"), "undefined:undefined");
-    assert.equal(await evaluate("typeof window.pofisUpdates"), sourceMode ? "undefined" : "object");
+    assert.equal(await evaluate("typeof window.pofisUpdates"), "object");
+    assert.equal(await evaluate("typeof window.pofisNotifications"), "object");
+    assert.equal((await evaluate("window.pofisNotifications.get()")).active, false);
     if (!sourceMode) {
       assert.deepEqual(await evaluate("Object.keys(window.pofisUpdates).sort()"), ["copyCommand", "get", "subscribe"]);
       // Read through the real packaged authorization gate without changing the system clipboard.
@@ -223,7 +233,10 @@ async function run() {
     cdp?.close();
     await stopProcessTree(child);
     occupied?.stop(true);
-    await rm(profile, { recursive: true, force: true });
+    await until(() => rm(profile, { recursive: true, force: true }).then(() => true, error => {
+      if (error.code !== "EBUSY" && error.code !== "EPERM" && error.code !== "ENOTEMPTY") throw error;
+      return false;
+    }), 10000);
   }
 }
 

@@ -35,7 +35,7 @@ def archive_bytes(entries):
     return output.getvalue()
 
 
-def bundle(version, machine=b"\x3e\0"):
+def bundle(version, machine=b"\x3e\0", omit=()):
     names = ["chrome-sandbox", "uninstall.sh", "resources/app/electron/main.cjs",
              "resources/app/electron/server.cjs", "resources/app/electron/server-entry.cjs",
              "resources/app/electron/startup.cjs", "resources/app/electron/platform.cjs",
@@ -46,7 +46,7 @@ def bundle(version, machine=b"\x3e\0"):
     entries += [("pofis", b"\x7fELF\x02\x01" + b"\0" * 12 + machine, tarfile.REGTYPE),
                 ("resources/app/package.json", json.dumps({"version": version}).encode(), tarfile.REGTYPE),
                 ("release.json", json.dumps(dict(schemaVersion=1, platform="linux", arch="x64", version=version)).encode(), tarfile.REGTYPE)]
-    return archive_bytes(entries)
+    return archive_bytes([entry for entry in entries if entry[0] not in omit])
 
 
 class InstallerTests(unittest.TestCase):
@@ -257,11 +257,15 @@ class InstallerTests(unittest.TestCase):
 
     def test_incomplete_or_wrong_architecture_package_cannot_replace_app(self):
         self.install()
-        for data in (archive_bytes([("readme", b"partial", tarfile.REGTYPE)]), bundle("1.0.1", b"\xb7\0")):
+        for data, error in (
+                (archive_bytes([("readme", b"partial", tarfile.REGTYPE)]), "pofis"),
+                (bundle("1.0.1", omit={"resources/app/server/pofis-notifications.cjs"}), "resources/app/server/pofis-notifications"),
+                (bundle("1.0.1", b"\xb7\0"), "x64")):
             self.version, self.bytes = "1.0.1", data
-            with self.assertRaises((RuntimeError, tarfile.TarError)):
+            with self.assertRaisesRegex(RuntimeError, error):
                 self.install()
             self.assertEqual(installer.read_json(self.root / "app/release.json")["version"], "1.0.0")
+            self.assertEqual(self.launch.call_count, 1, "incomplete packages must not launch")
 
     def test_cancelled_close_preserves_existing_app(self):
         self.install()

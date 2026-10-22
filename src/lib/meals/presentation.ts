@@ -1,3 +1,4 @@
+import { ui } from "../ui-text.js";
 export interface MealDish {
   name: string;
   calorie: number | null;
@@ -30,7 +31,7 @@ export type MealPresentation = {
 };
 
 function displayItem(name: string) {
-  return name.normalize("NFC").trim().replace(/ZYT\.\s*/giu, "Zeytinyağlı ")
+  return name.normalize("NFC").trim().replace(/ZYT\.\s*/giu, ui.mealLabels.oliveOil)
     .replace(/\p{L}+/gu, (word, offset, source) => {
       // Keep source abbreviations such as K.Lahana and Şhr.Pirinç intact.
       if (source[offset + word.length] === ".") return word;
@@ -93,17 +94,17 @@ export function presentMeal(menu: MealMenu): MealPresentation {
     vegetarian,
     sharedCalorie,
     sides: [
-      { ...soup, name: displayItems(soupItems), items: soupItems, kind: "soup", label: "Çorba" },
+      { ...soup, name: displayItems(soupItems), items: soupItems, kind: "soup", label: ui.mealLabels.soup },
       ...(accompaniment.length > 0 ? [{
         kind: "accompaniment" as const,
-        label: "Yanına",
+        label: ui.mealLabels.accompaniment,
         name: displayItems(accompaniment),
         calorie: isVegetarian ? null : third.calorie,
         items: accompaniment,
       }] : []),
-      { ...dessert, name: displayItems(dessertItems), items: dessertItems, kind: "dessert", label: "Tatlı / İçecek" },
-      { ...cold, name: displayItems(coldItems), items: coldItems, kind: "extras", label: "Diğer seçenekler" },
-      { ...salad, name: displayItems(saladItems), items: saladItems, kind: "salad", label: "Salata" },
+      { ...dessert, name: displayItems(dessertItems), items: dessertItems, kind: "dessert", label: ui.mealLabels.dessert },
+      { ...cold, name: displayItems(coldItems), items: coldItems, kind: "extras", label: ui.mealLabels.extras },
+      { ...salad, name: displayItems(saladItems), items: saladItems, kind: "salad", label: ui.mealLabels.salad },
     ],
   };
 }

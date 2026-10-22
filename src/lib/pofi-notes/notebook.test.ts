@@ -52,8 +52,8 @@ test("boş normal havuz haftayı boş bırakır ve özel günleri korur", () => 
     { date: "2026-12-08", id: "special:star:v1", theme: "Yıldız", parts: ["Ortak not."] },
   ]);
   expect(notebook.notesForWeek("2029-12-08", "a")[0].date).toBe("2029-12-08");
-  expect(() => notebook.notesForWeek("2026-10-16", " ")).toThrow("Missing Pofi user key");
-  expect(() => notebook.noteForDate("2026-10-16", "a")).toThrow("No regular Pofi notes");
+  expect(() => notebook.notesForWeek("2026-10-16", " ")).toThrow("Pofi kullanıcı anahtarı bulunamadı.");
+  expect(() => notebook.noteForDate("2026-10-16", "a")).toThrow("Özel günler dışında Pofi notu bulunamadı.");
 });
 
 test("katalog tek havuzu güncel bütün tema ve parçalardan üretir", () => {
@@ -140,7 +140,7 @@ test("bozuk içerik ve geçersiz tarih başarı gibi sunulmaz", () => {
     "Invalid Pofi note date",
   );
   expect(() => notebook.noteForDate("2026-10-16", " ")).toThrow(
-    "Missing Pofi user key",
+    "Pofi kullanıcı anahtarı bulunamadı.",
   );
   expect(() => notebook.noteForDate("2026-10-17", "a")).toThrow(
     "weekdays and special dates",

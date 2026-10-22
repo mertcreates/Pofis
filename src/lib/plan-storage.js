@@ -1,3 +1,4 @@
+import { ui } from "./ui-text.js";
 import {
   readDayPlan, readWeekPlan, readLeaveDays, isPlanWeek, emptyWorkPlans, samePlan,
 } from "../domain/rules/work-plan";
@@ -22,52 +23,52 @@ export function readStoredPlans(raw) {
   const stored = JSON.parse(raw);
   const defaultPlan = readDayPlan(stored?.defaultPlan);
   if (!defaultPlan || !stored.weekOverrides || typeof stored.weekOverrides !== "object" || Array.isArray(stored.weekOverrides))
-    throw new Error("Kayıtlı mesai planı geçersiz. Kayıt korunuyor.");
+    throw new Error(ui.planStorageErrors.plan);
   /** @type {import('../domain/rules/work-plan').WorkPlans['weekOverrides']} */
   const weekOverrides = {};
   for (const [week, value] of Object.entries(stored.weekOverrides)) {
     const plan = readWeekPlan(value);
-    if (!isPlanWeek(week) || !plan) throw new Error("Kayıtlı haftalık plan geçersiz. Kayıt korunuyor.");
+    if (!isPlanWeek(week) || !plan) throw new Error(ui.planStorageErrors.week);
     if (!samePlan(plan, defaultPlan)) weekOverrides[week] = plan;
   }
   if (stored.weekTargets !== undefined && (!stored.weekTargets || typeof stored.weekTargets !== "object" || Array.isArray(stored.weekTargets)))
-    throw new Error("Kayıtlı haftalık hedef geçersiz. Kayıt korunuyor.");
+    throw new Error(ui.planStorageErrors.target);
   /** @type {Record<string, number>} */
   const weekTargets = {};
   for (const [week, seconds] of Object.entries(stored.weekTargets ?? {})) {
     if (!isPlanWeek(week) || !Number.isSafeInteger(seconds) || seconds < 0)
-      throw new Error("Kayıtlı haftalık hedef geçersiz. Kayıt korunuyor.");
+      throw new Error(ui.planStorageErrors.target);
     weekTargets[week] = seconds;
   }
   if (stored.weekLeaves !== undefined && (!stored.weekLeaves || typeof stored.weekLeaves !== "object" || Array.isArray(stored.weekLeaves)))
-    throw new Error("Kayıtlı izin günleri geçersiz. Kayıt korunuyor.");
+    throw new Error(ui.planStorageErrors.leave);
   /** @type {NonNullable<import('../domain/rules/work-plan').WorkPlans['weekLeaves']>} */
   const weekLeaves = {};
   for (const [week, value] of Object.entries(stored.weekLeaves ?? {})) {
     const days = readLeaveDays(value);
-    if (!isPlanWeek(week) || !days) throw new Error("Kayıtlı izin günleri geçersiz. Kayıt korunuyor.");
+    if (!isPlanWeek(week) || !days) throw new Error(ui.planStorageErrors.leave);
     if (days.length) weekLeaves[week] = days;
   }
   if (stored.weekZeroOpenDays !== undefined && (!stored.weekZeroOpenDays || typeof stored.weekZeroOpenDays !== "object" || Array.isArray(stored.weekZeroOpenDays)))
-    throw new Error("Kayıtlı açık günler geçersiz. Kayıt korunuyor.");
+    throw new Error(ui.planStorageErrors.openDays);
   /** @type {NonNullable<import('../domain/rules/work-plan').WorkPlans['weekZeroOpenDays']>} */
   const weekZeroOpenDays = {};
   for (const [week, value] of Object.entries(stored.weekZeroOpenDays ?? {})) {
     const days = readLeaveDays(value);
     if (!isPlanWeek(week) || !days || days.some(day => weekLeaves[week]?.includes(day)))
-      throw new Error("Kayıtlı açık günler geçersiz. Kayıt korunuyor.");
+      throw new Error(ui.planStorageErrors.openDays);
     const plan = weekOverrides[week] ?? defaultPlan;
     const zeroDays = days.filter(day => plan[day] === 0);
     if (zeroDays.length) weekZeroOpenDays[week] = zeroDays;
   }
   if (stored.weekLockedDays !== undefined && (!stored.weekLockedDays || typeof stored.weekLockedDays !== "object" || Array.isArray(stored.weekLockedDays)))
-    throw new Error("Kayıtlı kilitli günler geçersiz. Kayıt korunuyor.");
+    throw new Error(ui.planStorageErrors.lockedDays);
   const weekLockedDays = {};
   for (const [week, value] of Object.entries(stored.weekLockedDays ?? {})) {
     const days = readLeaveDays(value);
     const lockedPlan = readWeekPlan(stored.weekOverrides[week]);
     if (!isPlanWeek(week) || !days || !lockedPlan || days.some(day => weekLeaves[week]?.includes(day)))
-      throw new Error("Kayıtlı kilitli günler geçersiz. Kayıt korunuyor.");
+      throw new Error(ui.planStorageErrors.lockedDays);
     if (days.length) {
       weekLockedDays[week] = days;
       weekOverrides[week] = lockedPlan;

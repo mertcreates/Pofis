@@ -3,7 +3,7 @@ const { join } = require("node:path");
 
 const args = process.argv.slice(2);
 if (process.platform !== "win32" || args.some(arg => !["--force", "--preview"].includes(arg))) {
-  console.error("Windows terminalinde: bun run desktop:install-demo [--force] [--preview]");
+  console.error("Windows terminalinde: bun scripts/electron/install-close-demo.cjs [--force] [--preview]");
   process.exitCode = 1;
 } else {
   const script = join(__dirname, "install-close-demo.ps1").replaceAll("'", "''");

@@ -1,4 +1,5 @@
-const { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, session, shell, utilityProcess } = require("electron");
+const { product, ui } = require("./ui-text.cjs");
+const { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, session, shell, utilityProcess, Tray, nativeImage, Notification, safeStorage, powerMonitor } = require("electron");
 const { join } = require("node:path");
 const { createDesktopServer, ORIGIN } = require("./server.cjs");
 const { startupId, writeStartupResult } = require("./startup.cjs");
@@ -8,11 +9,13 @@ const { installUpdateBridge } = require("./update-bridge.cjs");
 const { createWindowOpenHandler } = require("./external-links.cjs");
 const { installPermissions } = require("./permissions.cjs");
 const { isolateAcceptanceAnalytics } = require("./acceptance-network.cjs");
+const { installBackground } = require("./background.cjs");
 const { createDesktopTransport } = require("./transport.cjs");
 const target = platformTarget();
 
-app.setName("Pofis");
+app.setName(product.name);
 if (target.platform === "linux") app.setDesktopName("app.pofis.client.desktop");
+if (target.platform === "win32") app.setAppUserModelId("app.pofis.client");
 app.setPath("userData", app.commandLine.getSwitchValue("user-data-dir") || join(app.getPath("appData"), "Pofis"));
 
 let window;
@@ -22,6 +25,8 @@ let quitting = false;
 let reportingFailure = false;
 let ready = false;
 let updateTimer;
+let notifications;
+let background;
 const requests = new Set();
 const firstRequest = startupId(process.argv);
 if (firstRequest) requests.add(firstRequest);
@@ -40,7 +45,7 @@ async function report(status, message) {
 async function focusAndReport() {
   if (!ready || quitting || reportingFailure) return;
   if (!window || window.isDestroyed() || window.webContents.isDestroyed() || !(await server.isHealthy())) {
-    await report("error", "Pofis açık ancak kullanıma hazır değil. Uygulamayı kapatıp yeniden aç.");
+    await report("error", ui.desktop.notReady);
     return;
   }
   if (window.isMinimized()) window.restore();
@@ -56,10 +61,10 @@ async function fail(error) {
   try { await report("error", error.message); }
   catch {
     // A profile write failure must still release the server and single-instance lock.
-    console.error("Pofis başlangıç sonucu kaydedilemedi.");
+    console.error(ui.diagnostics.startupReportFailed);
   }
   if (window && !window.isDestroyed()) window.hide();
-  if (!installerIsWaiting) await dialog.showMessageBox({ type: "error", title: "Pofis açılamadı", message: error.message });
+  if (!installerIsWaiting) await dialog.showMessageBox({ type: "error", title: ui.desktop.startupFailed, message: error.message });
   app.quit();
 }
 
@@ -74,6 +79,7 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
   });
   app.on("activate", () => { focusAndReport().catch(fail); });
   if (target.platform === "linux") {
+    // The installer requests a graceful quit; the existing handler drains the server.
     process.on("SIGTERM", () => app.quit());
     process.on("SIGINT", () => app.quit());
   }
@@ -83,30 +89,32 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     event.preventDefault();
     quitting = true;
     clearTimeout(updateTimer);
+    notifications?.stop();
+    background?.stop();
     if (!server) { app.quit(); return; }
     server.stop().then(() => app.quit()).catch(async () => {
-      await dialog.showMessageBox({ type: "error", title: "Pofis", message:
-        "Pofis'in sunucu süreci kapatılamadı. Sistem süreç yöneticisinden kontrol et." });
+      await dialog.showMessageBox({ type: "error", title: product.name, message:
+        ui.desktop.stopFailed });
       app.quit();
     });
   });
   app.whenReady().then(async () => {
     const icon = join(__dirname, "..", "public", "pofi", "pofi-mark-256.png");
     if (target.platform === "darwin") app.setAboutPanelOptions({
-      applicationName: "Pofis", applicationVersion: app.getVersion(),
-      copyright: "© Mert Ercan", credits: "https://pofis.app",
+      applicationName: product.name, applicationVersion: app.getVersion(),
+      copyright: ui.desktop.copyright, credits: ui.desktop.credits,
     });
     if (app.dock) app.dock.setIcon(icon);
     Menu.setApplicationMenu(target.platform === "darwin" ? Menu.buildFromTemplate([
-      { label: "Pofis", submenu: [
-        { label: "Pofis Hakkında", role: "about" }, { type: "separator" },
-        { label: "Pofis'i Gizle", role: "hide" }, { label: "Tümünü Göster", role: "unhide" },
-        { type: "separator" }, { label: "Pofis'ten Çık", role: "quit" },
+      { label: product.name, submenu: [
+        { label: ui.desktop.about, role: "about" }, { type: "separator" },
+        { label: ui.desktop.hide, role: "hide" }, { label: ui.desktop.showAll, role: "unhide" },
+        { type: "separator" }, { label: ui.desktop.menuQuit, role: "quit" },
       ] },
-      { label: "Düzenle", submenu: [
-        { label: "Geri Al", role: "undo" }, { label: "Yinele", role: "redo" },
-        { type: "separator" }, { label: "Kes", role: "cut" }, { label: "Kopyala", role: "copy" },
-        { label: "Yapıştır", role: "paste" }, { label: "Tümünü Seç", role: "selectAll" },
+      { label: ui.desktop.edit, submenu: [
+        { label: ui.desktop.undo, role: "undo" }, { label: ui.desktop.redo, role: "redo" },
+        { type: "separator" }, { label: ui.desktop.cut, role: "cut" }, { label: ui.desktop.copy, role: "copy" },
+        { label: ui.desktop.paste, role: "paste" }, { label: ui.desktop.selectAll, role: "selectAll" },
       ] },
     ]) : null);
     installPermissions(session.defaultSession, () => window?.webContents);
@@ -128,18 +136,33 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
       isPackaged: app.isPackaged, platform: target.platform, writeClipboard: text => clipboard.writeText(text) });
     window = new BrowserWindow({
       icon,
-      title: "Pofis", width: 1280, height: 900, minWidth: 800, minHeight: 600,
+      title: product.name, width: 1280, height: 900, minWidth: 800, minHeight: 600,
       show: false, autoHideMenuBar: true,
       webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true,
-        ...(app.isPackaged ? { preload: join(__dirname, "preload.cjs") } : {}) },
+        preload: app.isPackaged ? join(__dirname, "..", "server", "preload.cjs")
+          : join(__dirname, "..", ".next", "standalone", "preload.cjs") },
+    });
+    const showWindow = () => {
+      if (quitting || reportingFailure || !window || window.isDestroyed()) return;
+      if (window.isMinimized()) window.restore();
+      window.show(); window.focus();
+    };
+    background = installBackground({ app, window, Tray, Menu, nativeImage, icon,
+      platform: target.platform, showWindow, isQuitting: () => quitting });
+    const runtimePath = app.isPackaged ? join(__dirname, "..", "server", "pofis-notifications.cjs")
+      : join(__dirname, "..", ".next", "standalone", "pofis-notifications.cjs");
+    notifications = require(runtimePath).installDesktopNotifications({ app, ipcMain, session: session.defaultSession,
+      Notification, safeStorage, powerMonitor, getWindow: () => window, origin: ORIGIN, showWindow });
+    window.webContents.on("did-start-navigation", (_event, _url, isInPlace, isMainFrame) => {
+      if (isMainFrame && !isInPlace) notifications.pause();
     });
     window.webContents.setWindowOpenHandler(createWindowOpenHandler({
       openExternal: url => shell.openExternal(url),
       onError: () => {
-        console.error("Pofis dış bağlantısı tarayıcıda açılamadı.");
-        dialog.showMessageBox(window, { type: "error", title: "Bağlantı açılamadı",
-          message: "Tarayıcı açılamadı. https://mertcreates.com adresini tarayıcında açabilirsin." })
-          .catch(() => console.error("Pofis bağlantı hatası gösterilemedi."));
+        console.error(ui.diagnostics.externalLinkFailed);
+        dialog.showMessageBox(window, { type: "error", title: ui.desktop.linkFailedTitle,
+          message: ui.desktop.linkFailed })
+          .catch(() => console.error(ui.diagnostics.linkDialogFailed));
       },
     }));
     const restrictNavigation = (event, url) => {
@@ -148,7 +171,7 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     window.webContents.on("will-navigate", restrictNavigation);
     window.webContents.on("will-redirect", restrictNavigation);
     window.webContents.on("will-attach-webview", (event) => event.preventDefault());
-    window.webContents.on("render-process-gone", () => fail(new Error("Pofis arayüzü kapandı. Uygulamayı yeniden aç.")));
+    window.webContents.on("render-process-gone", () => fail(new Error(ui.desktop.rendererClosed)));
     const painted = new Promise(resolve => window.once("ready-to-show", resolve));
     await window.loadURL(ORIGIN);
     await painted;
@@ -161,7 +184,7 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
           isActive: () => !quitting && !reportingFailure && !window.isDestroyed() && !window.webContents.isDestroyed(),
         }).then(publishUpdate).catch(() => {
           // Update failures are optional diagnostics and must never fail application startup.
-          console.warn("Pofis güncelleme denetimi tamamlanamadı.");
+          console.warn(ui.diagnostics.updateCheckFailed);
         });
       }, 3000);
       updateTimer.unref();

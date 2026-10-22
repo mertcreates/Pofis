@@ -1,4 +1,5 @@
 "use client";
+import { ui } from "../lib/ui-text.js";
 
 import { useCallback, useEffect, useEffectEvent, useReducer, useRef, useState } from "react";
 import { api, createLatestRequest } from "@/lib/api-client.js";
@@ -10,6 +11,7 @@ import { readReportResponse } from "./report-response";
 import { initialPdksState, pdksReducer } from "./pdks-state";
 import { setAnalyticsUserId } from "@/lib/analytics";
 import { readAnalyticsUserId } from "@/lib/analytics-identity";
+import type { NotificationReport } from "@/desktop/notification-contract";
 
 export function usePdks(week: string) {
   const [state, dispatch] = useReducer(pdksReducer, initialPdksState);
@@ -29,8 +31,27 @@ export function usePdks(week: string) {
   }, [requests]);
 
   const onExpired = useEffectEvent((error: unknown) => fail(error, "session"));
+  const onDesktopReport = useEffectEvent((value: NotificationReport) => {
+    if (!connected || state.busy || mutationInFlight.current || value.from !== week) return;
+    try {
+      const next = readReportResponse(value, week, addDays(week, 6));
+      setAnalyticsUserId(readAnalyticsUserId(value));
+      dispatch({ type: "report-loaded", report: next });
+    } catch (error) { fail(error, "report"); }
+  });
+  useEffect(() => {
+    const bridge = window.pofisNotifications;
+    if (!bridge) return;
+    const stopReport = bridge.onReport(onDesktopReport);
+    const stopExpiry = bridge.onExpired(() => {
+      setAnalyticsUserId(null); requests.cancel(); generation.current++;
+      dispatch({ type: "session-checked", connected: false });
+    });
+    return () => { stopReport(); stopExpiry(); };
+  }, [requests]);
   useEffect(() => {
     if (!connected) return;
+    if (window.pofisNotifications) return;
     return startSessionHeartbeat(onExpired);
   }, [connected]);
 
@@ -71,6 +92,7 @@ export function usePdks(week: string) {
       const nextReport = readReportResponse(result, week, addDays(week, 6));
       setAnalyticsUserId(readAnalyticsUserId(result));
       dispatch({ type: "report-loaded", report: nextReport });
+      void window.pofisNotifications?.refresh().catch(() => console.warn(ui.serverDiagnostics.backgroundRefreshFailed));
     } catch (error) {
       if (id === generation.current) fail(error, "report");
     }
