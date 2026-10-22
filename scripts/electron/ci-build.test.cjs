@@ -10,6 +10,41 @@ const { version } = require("../../package.json");
 const { until } = require("./acceptance-wait.cjs");
 const intel = process.platform === "darwin" && process.arch === "x64";
 
+async function runningPids(pids, { platform = process.platform, execute = promisify(execFile) } = {}) {
+  if (platform !== "darwin") return pids.filter(pid => {
+    try { process.kill(pid, 0); return true; }
+    catch (error) { if (error.code === "ESRCH") return false; throw error; }
+  });
+  let stdout;
+  try {
+    ({ stdout } = await execute("/bin/ps", ["-o", "pid=,stat=", "-p", pids.join(",")], { timeout: 3000 }));
+  } catch (error) {
+    if (error.code === 1 && !error.stdout?.trim() && !error.stderr?.trim()) return [];
+    throw error;
+  }
+  // Darwin kill(pid, 0) succeeds for zombies; their execution has already ended.
+  return stdout.split("\n").filter(line => line.trim()).map(line => {
+    const match = line.match(/^\s*(\d+)\s+(\S+)\s*$/);
+    if (!match) throw new Error(`Geçersiz süreç durumu: ${line}`);
+    return { pid: Number(match[1]), state: match[2] };
+  }).filter(entry => pids.includes(entry.pid) && !entry.state.startsWith("Z")).map(entry => entry.pid);
+}
+
+test("macOS PID kontrolü zombie süreci bitmiş, uyuyan ve duraklatılmış süreci çalışır sayar", async () => {
+  expect(await runningPids([101, 102, 103, 104], { platform: "darwin", execute: async () => ({
+    stdout: "101 Z\n102 Z+\n103 S\n104 T\n",
+  }) })).toEqual([103, 104]);
+});
+
+test("macOS PID kontrolü yalnız kaybolan süreçleri kabul eder; ps hatasını gizlemez", async () => {
+  const gone = Object.assign(new Error("no processes"), { code: 1, stdout: "", stderr: "" });
+  expect(await runningPids([101], { platform: "darwin", execute: async () => { throw gone; } })).toEqual([]);
+  const failure = Object.assign(new Error("ps failed"), { code: 1, stdout: "", stderr: "permission denied" });
+  await expect(runningPids([101], { platform: "darwin", execute: async () => { throw failure; } })).rejects.toBe(failure);
+  await expect(runningPids([101], { platform: "darwin", execute: async () => ({ stdout: "invalid" }) }))
+    .rejects.toThrow("Geçersiz süreç durumu");
+});
+
 test("iptal edilen CI komutu hazır alt süreçlerini de kapatır", async () => {
   const directory = await mkdtemp(join(tmpdir(), "pofis-ci-timeout-"));
   const script = join(directory, "hang.cjs");
@@ -29,10 +64,12 @@ test("iptal edilen CI komutu hazır alt süreçlerini de kapatır", async () => 
     pending.catch(() => {}); // Observe rejection even if fixture startup fails first.
     await until(async () => Bun.file(record).exists(), 5000);
     pids = JSON.parse(await readFile(record, "utf8"));
+    expect(pids).toHaveLength(3);
+    expect((await runningPids(pids)).sort((a, b) => a - b)).toEqual([...pids].sort((a, b) => a - b));
     const reason = new Error("kardeş hedef başarısız");
     controller.abort(reason);
     await expect(pending).rejects.toBe(reason);
-    for (const pid of pids) expect(() => process.kill(pid, 0)).toThrow();
+    expect(await runningPids(pids)).toEqual([]);
   } finally {
     controller.abort();
     await pending?.catch(() => {});
@@ -80,7 +117,8 @@ test("derleme bütün paralel doğrulamaları bekler; tek doğrulama hatası pan
         calls.push(args);
         if (args[1] === "typecheck") return new Promise(done => { finishTypes = done; });
         if (args[0] === "test" && args.includes("./src") && failApplication) throw failure;
-        if (args.includes("--parallel=2")) {
+        if (args[0] === "test" && args.includes("./electron")) {
+          expect(args).toEqual(["test", "--parallel=4", "./electron", "./scripts/electron"]);
           gatesStarted();
           return new Promise(done => { finishDesktop = done; });
         }
