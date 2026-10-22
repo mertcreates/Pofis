@@ -1,4 +1,4 @@
-import { reportRangeIssue } from "../domain/rules/report-access";
+import { REPORT_ACCESS, reportRangeIssue } from "../domain/rules/report-access";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { createSessionManager } from "./session-manager.js";
@@ -45,7 +45,7 @@ export function validDates(from, to) {
   if (issue)
     throw new PdksError(
       issue === "too-long"
-        ? ui.apiErrors.dateRangeTooLong
+        ? ui.apiErrors.dateRangeTooLong(REPORT_ACCESS.maxDays)
         : ui.apiErrors.invalidDateRange,
       "INVALID_INPUT",
       400,

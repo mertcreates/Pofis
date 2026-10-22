@@ -41,7 +41,7 @@ Pofis / Pofi / “Mesaiye biraz Pofi”. Özgün karakter ve [ton rehberi](docs/
 
 ## Evidence on Hand
 
-Güncel davranış sözleşmeleri [kural belgelerinde](docs/rules/README.md), tekrarlanabilir kontroller [doğrulama rehberinde](docs/verification.md), bekleyen kabul işleri [görev listesinde](tasks/todo.md) tutulur.
+Davranış sözleşmeleri [kural belgelerinde](docs/rules/README.md), kabul durumu ve tekrarlanabilir kontroller [doğrulama rehberinde](docs/verification.md), açık geliştirme işleri [görev listesinde](tasks/todo.md) tutulur.
 
 ## Product Principles
 

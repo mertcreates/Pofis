@@ -5,7 +5,7 @@ import { ui } from "../../lib/ui-text.js";
 import { useEffect, useId, useRef, useState } from "react";
 import { TelegramSetup } from "./telegram-setup";
 import type { NotificationSettingsActions, NotificationStatus } from "@/desktop/notification-contract";
-import { defaultNotificationPreferences, type NotificationChannel, type NotificationPreferences } from "@/domain/rules/notifications";
+import { defaultNotificationPreferences, NOTIFICATION_POLICY, type NotificationChannel, type NotificationPreferences } from "@/domain/rules/notifications";
 import "./settings.css";
 
 export type NotificationSettingsSource = {
@@ -81,7 +81,8 @@ function NotificationForm({ status, connectionError, actions, mode, visible }: {
       : ui.notifications.telegramTestSent);
   }
   const leadMinutes = preferences.leadMinutes;
-  const leadOptions = [5, 10, 15, 30];
+  const leadOptions = [5, 10, 15, 30].filter(minutes =>
+    minutes >= NOTIFICATION_POLICY.minLeadMinutes && minutes <= NOTIFICATION_POLICY.maxLeadMinutes);
   const customLead = !leadOptions.includes(leadMinutes);
   useEffect(() => {
     if (editingLead) {
@@ -194,7 +195,7 @@ function NotificationForm({ status, connectionError, actions, mode, visible }: {
                     <label htmlFor="notification-custom-minutes">{ui.notifications.customLeadQuestion}</label>
                     <div className="notification-custom-field" data-invalid={leadError}>
                       <input ref={leadInput} id="notification-custom-minutes" type="number" inputMode="numeric"
-                        min="1" max="120" step="1" required value={leadDraft}
+                        min={NOTIFICATION_POLICY.minLeadMinutes} max={NOTIFICATION_POLICY.maxLeadMinutes} step="1" required value={leadDraft}
                         aria-invalid={leadError} aria-describedby={leadError ? leadErrorId : undefined} disabled={!!busy}
                         onChange={event => { setLeadDraft(event.target.value); setLeadError(false); }}
                         onInvalid={event => { event.preventDefault(); setLeadError(true); }}
@@ -214,7 +215,7 @@ function NotificationForm({ status, connectionError, actions, mode, visible }: {
                         }} />
                       <span aria-hidden="true">{ui.units.minute}</span>
                     </div>
-                    {leadError && <p id={leadErrorId} className="notification-error" role="alert">{ui.notifications.leadValidation}</p>}
+                    {leadError && <p id={leadErrorId} className="notification-error" role="alert">{ui.notifications.leadValidation(NOTIFICATION_POLICY.minLeadMinutes, NOTIFICATION_POLICY.maxLeadMinutes)}</p>}
                   </div>
                 </div>}
                 <div className="notification-event-footer" role="group" aria-label={ui.notifications.eventChannels(label)}>

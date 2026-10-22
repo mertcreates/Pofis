@@ -32,7 +32,7 @@ function DurationInput({ value, label, disabled, onCommit }: { value: number; la
     aria-label={label} aria-invalid={invalid} aria-describedby={invalid ? "plan-duration-error" : undefined}
     onChange={event => { setDraft(event.target.value); setInvalid(false); }} onBlur={commit}
     onKeyDown={event => { if (event.key === "Enter") event.currentTarget.blur(); if (event.key === "Escape") { setDraft(hours(value)); setInvalid(false); } }} />
-    {invalid && <span id="plan-duration-error" className="work-plan-input-help" role="alert">{copy.durationError}</span>}</>;
+    {invalid && <span id="plan-duration-error" className="work-plan-input-help" role="alert">{copy.durationError(PLAN_LIMITS.maxDailyMinutes / 60)}</span>}</>;
 }
 
 export function PlanEditor({

@@ -2,6 +2,10 @@
 
 Kontrolü değişen davranışa göre seçin. Beklenen sonucu ürün sözleşmesinden alın; otomatik test, fixture tarayıcı kabulü ve gerçek kaynak kabulünün kapsamlarını ayrı belirtin.
 
+## Kabul durumu
+
+22 Ekim 2026'da kullanıcı, görev listesindeki “Sonraki işler” dışındaki test ve kabullerin tamamlandığını bildirdi. Bu kabul; platform/kurulum/güncelleme, yayın performansı ve GA4, gerçek PDKS/hesap ayrımı ve arayüz kontrollerini kapsar. Aşağıdaki yöntemler değişen yolların tekrar doğrulanması için korunur; açık geliştirme işleri [görev listesindedir](../tasks/todo.md).
+
 ## Yerel kontroller
 
 Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta yalnız elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama) bulunur; bu akış tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
@@ -14,7 +18,7 @@ bun run build
 
 Önce etkilenen test dosyalarını çalıştırın. Hesap ve ortak politika değişikliklerinde ilgili bağımlı davranışları da kontrol edin. Üretim derlemesi, derleme veya çalışma zamanı etkisi olan değişikliklerin son kontrolüdür; görsel iterasyon `bun run dev` ile yapılır.
 
-Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron ./src/desktop` kullanılır. İptal/alt süreç temizliği, yayın kaynağı ve paket sınırları izole testlerle; macOS süreç seçimi ve Keychain reddi adaptörlerle sınanır. Süreç sözleşmesi [yayın rehberinde](release.md#yayın-sırası-ve-hata-davranışı), gerçek cihazda tamamlanacak kabul [görev listesindedir](../tasks/todo.md).
+Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron ./src/desktop` kullanılır. İptal/alt süreç temizliği, yayın kaynağı ve paket sınırları izole testlerle; macOS süreç seçimi ve Keychain reddi adaptörlerle sınanır. Süreç sözleşmesi [yayın rehberinde](release.md#yayın-sırası-ve-hata-davranışı), cihaz kontrolleri aşağıdaki masaüstü kabul bölümlerindedir.
 
 | Değişiklik | Kontrol |
 | --- | --- |
@@ -26,6 +30,8 @@ Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron
 | Belge | Diff, yerel bağlantılar, kod sahibiyle tutarlılık ve `bun test src/domain/rules/rules.test.ts` |
 
 [Kurallar testi](../src/domain/rules/rules.test.ts) modül belgelerini, kural bağlantılarını ve bağımlılık sınırlarını denetler. Bun'ın import tarayıcısıyla türleri silindikten sonra kalan değer, yan etki, yeniden dışa aktarım, `require` ve sabit adresli dinamik importları kontrol eder. Serbest metin ile kodun anlamca tutarlılığı ayrıca incelenir.
+
+[Politika tüketim testi](../src/domain/rules/policy-consumers.test.ts), ayrı Bun süreçlerinde gerçek modülleri yükler. Bir senaryoda yalnız kural sahibinin değerlerini bellekte değiştirir; bildirim formu/varsayılanları, plan ve rapor sınırları, hata metinleri ve yemek takviminin yeni değerleri kullandığını sınar. Depodaki dosyalar değişmez. Yeni sahiplik riskleri, ilgili tüketiciye ulaşan somut davranış senaryosuyla kapsanır.
 
 Kapsam yüzdesini testlerin yüklediği modüllerle birlikte değerlendirin. Taşıma ve reducer testleri kendi modüllerinin davranışını doğrular. `usePdks` içindeki React effect ve istek sahipliği için bekleyen çıkış, hafta değişimi ve geciken rapor yanıtı zincirini tarayıcıda doğrulayın.
 
@@ -53,7 +59,7 @@ Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut se
 
 [Mesaim demosu](demo.md) ortak bileşenleri örnek kayıtlarla incelemek içindir. Arayüz kabulünü ilgili senaryoyu seçip işlem ve sonuç metinlerini, boş/hata durumlarını ve dar ekran yerleşimini tarayıcıda kontrol ederek yapın. Gerçek PDKS erişimi ve kurum kapasitesi için hedef kurum ortamında kaynak kabulünü yapın.
 
-Gerçek kaynak ve dağıtım kabulünde kurum ağı, kullanıcı hesabı ve hedef çalışma ortamı kullanılır. `/api/health` uygulamanın ayakta olduğunu gösterir. PDKS bağlantısını gerçek giriş ve rapor isteğiyle kontrol edin. Bekleyen senaryolar [görev listesinde](../tasks/todo.md) yönetilir.
+Gerçek kaynak ve dağıtım kabulünde kurum ağı, kullanıcı hesabı ve hedef çalışma ortamı kullanılır. `/api/health` uygulamanın ayakta olduğunu gösterir. PDKS bağlantısını gerçek giriş ve rapor isteğiyle kontrol edin.
 
 Yerel oturum ölçümü için `bun scripts/benchmark-sessions.ts 100` çalıştırılabilir. [Betik](../scripts/benchmark-sessions.ts) sahte kaynak ve izole oturum dosyaları kullanır; geçici sonuç `work/session-benchmark/latest.json` dosyasına yazılır. Sonuç incelendikten sonra temizlenir; gerçek PDKS iş yükü ayrıca ölçülür.
 
@@ -93,6 +99,6 @@ Aynı D-Bus/anahtarlık oturumunda önce `bun scripts/electron/smoke.cjs <linux-
 
 ## Sonuçların yönetimi
 
-Her sonucu kullanılan kaynak, paket ve ortamla birlikte değerlendirin. Sürümü değiştirilmiş installer fixture'ı, farklı Chromium motorları arasında profil geçişini kanıtlamaz. Intel statik kontrolleri pencere/kurulum kabulü, `macos-15` sonucu macOS 12 çalışma kanıtı değildir. Açık kabuller [görev listesinde](../tasks/todo.md) tutulur.
+Her sonucu kullanılan kaynak, paket ve ortamla birlikte değerlendirin. Sürümü değiştirilmiş installer fixture'ı, farklı Chromium motorları arasında profil geçişini kanıtlamaz. Intel statik kontrolleri pencere/kurulum kabulü, `macos-15` sonucu macOS 12 çalışma kanıtı değildir.
 
 Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulamaların rapor, ekran görüntüsü ve ölçüm çıktılarını temizleyin. Geçerli ürün kararlarını ilgili sözleşmeye, açık bulguları görev listesine taşıyın. Davranış testleri ve demo üzerinden elle tarayıcı kabulü doğrulama yönteminin parçasıdır.

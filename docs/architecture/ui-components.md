@@ -27,4 +27,4 @@ Paylaşılan yüzeylerde demo ve canlı ekran aynı bileşenleri kullanır. Gör
 | Hata ve bildirim | [RequestError](../../src/components/request-error.js), [InlineNotice](../../src/components/inline-notice.tsx): [hata sözleşmesine](../pdks-errors.md) uygun sunum ve toparlanma |
 | Yardımcı ekranlar | [LoadingState](../../src/components/loading-state.js), [NotFoundState](../../src/components/not-found-state.tsx), [error](../../src/app/error.tsx): yükleme, 404 ve hata sınırı |
 
-Stil sahipleri, etkileşim ayrıntıları ve erişilebilirlik kararları DESIGN'da tutulur. Görünür akışlar [doğrulama rehberine](../verification.md) göre kontrol edilir; açık kabul işleri [görev listesindedir](../../tasks/todo.md).
+Stil sahipleri, etkileşim ayrıntıları ve erişilebilirlik kararları DESIGN'da tutulur. Görünür akışlar [doğrulama rehberine](../verification.md) göre kontrol edilir.

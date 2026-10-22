@@ -6,6 +6,8 @@
 
 [plan-duration.ts](../../src/domain/rules/plan-duration.ts), `parsePlanDuration` ile serbest metni dakikaya çevirir; `stepPlanDuration` ile +/- adımını, `planDisplayMinutes` ile güvenli dakika gösterimini hesaplar. [PlanEditor](../../src/components/plan-editor.tsx) bu sonuçları plan düzenlemesine bağlar. Günlük sınır ve adım büyüklüğü [plan sahibindeki](../../src/domain/rules/work-plan.ts) `PLAN_LIMITS` değerlerinden alınır.
 
+Plan doğrulamasındaki ve süre alanındaki hata metinleri, üst sınırı aynı `maxDailyMinutes` değerinden saat olarak alır. Metin kataloğu sayısal sınırı parametre olarak biçimlendirir.
+
 ## Giriş sözleşmesi
 
 - Sonuç 0–960 arasında tam dakikadır. Boş, tanınmayan, negatif veya sınır dışı giriş `null` döndürür; mevcut süre korunur.

@@ -15,6 +15,8 @@
 
 Her bildirim türü için masaüstü ve Telegram ayrı ayrı açılır. Varsayılanların tamamı kapalıdır. Hatırlatma ön süresi 1–120 dakika, başlangıç değeri 10 dakikadır. Deneme gönderimi kullanıcının ilgili düğmeye basmasıyla yapılır.
 
+Ön süre sınırları ve başlangıç değeri `NOTIFICATION_POLICY` sahibindedir. Doğrulayıcı, formun min/max değerleri ve hata metinleri bu değerleri kullanır; hazır seçenekler bu aralığa göre süzülür. Bildirim saatinin gösterimi ortak [takvimin](calendar.md) saat dilimini kullanır.
+
 Güncel haftanın raporu açılışta ve 30 dakikada bir ana süreçten yenilenir. Görünen geçmiş hafta bu işi değiştirmez. Başarılı manuel yenileme arka plan raporunun yenilenmesini de ister. Ekran planın bütün kayıtlarını doğrulanmış mevcut serileştirmeyle ana sürece aktarır; plan değişikliğinde hedef yeniden hesaplanır.
 
 Son başarılı raporda güvenilir açık giriş varsa geçici ağ/yenileme hatası bildirimleri durdurmaz. Görünümün eski rapor nedeniyle canlı tahmini durdurması kendi sözleşmesini korur; bildirimler son bilinen giriş ve güncel planla sürer. Yeni raporda çıkış, belirsiz hedef veya kapalı gün bulunursa mesai bildirimi üretilmez. Önceki günün açık girişi bugüne taşınmaz.

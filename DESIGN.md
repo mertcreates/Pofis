@@ -238,6 +238,8 @@ Yüzeyler zemin ve ince sınırla ayrılır. Kartın hafif gölgesi, popover ve 
 
 Kontroller `rounded.control`, paneller `rounded.panel`, modallar `rounded.modal` kullanır. Grafik uçları ve küçük işaretler `rounded.indicator` basamağındadır. İç içe sınırların optik hizası için dış radius eksi sınır kalınlığı hesaplanabilir. Daireler ve kapsül biçimleri yalnız işaret, anahtar veya belirgin gezinme biçiminde kullanılır; genel kartların yerine geçmez.
 
+Yerel görsel ölçüler: haftalık grafik sütunlarının üst köşeleri 5 px, Pofi not defterinin önceki/sonraki gezinme düğmeleri 24 px radius kullanır. Dar ekran marka yazısı 23 px'tir; bu ölçü metin hiyerarşisinden ayrı marka yerleşimine aittir.
+
 ## Components
 
 ### Etkileşim ve formlar

@@ -1,32 +1,17 @@
-function parseDate(date: string) {
-  const [year, month, day] = date.split("-").map(Number);
-  return new Date(Date.UTC(year, month - 1, day));
-}
-
-function dateKey(date: Date) {
-  return [date.getUTCFullYear(), String(date.getUTCMonth() + 1).padStart(2, "0"), String(date.getUTCDate()).padStart(2, "0")].join("-");
-}
+import { addDays, dateKey, weekday, weekDates, weekStart } from "@/domain/rules/calendar";
 
 export function getIstanbulDate(now = new Date()) {
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Europe/Istanbul",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).formatToParts(now);
-  const value = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
-  return `${value.year}-${value.month}-${value.day}`;
+  return dateKey(now);
 }
 
 export function shiftMealDate(date: string, { days = 0, months = 0 }: { days?: number; months?: number }) {
-  const shifted = parseDate(date);
+  const shifted = new Date(`${date}T12:00:00Z`);
   if (months !== 0) {
     const targetMonth = new Date(Date.UTC(shifted.getUTCFullYear(), shifted.getUTCMonth() + months, 1));
     const lastDay = new Date(Date.UTC(targetMonth.getUTCFullYear(), targetMonth.getUTCMonth() + 1, 0)).getUTCDate();
     shifted.setUTCFullYear(targetMonth.getUTCFullYear(), targetMonth.getUTCMonth(), Math.min(shifted.getUTCDate(), lastDay));
   }
-  shifted.setUTCDate(shifted.getUTCDate() + days);
-  return dateKey(shifted);
+  return addDays(shifted.toISOString().slice(0, 10), days);
 }
 
 export function getMealDateRange(today = getIstanbulDate()) {
@@ -34,14 +19,7 @@ export function getMealDateRange(today = getIstanbulDate()) {
 }
 
 export function getMealWeekDates(date: string) {
-  const monday = parseDate(date);
-  const daysSinceMonday = (monday.getUTCDay() + 6) % 7;
-  monday.setUTCDate(monday.getUTCDate() - daysSinceMonday);
-  return Array.from({ length: 7 }, (_, index) => {
-    const day = new Date(monday);
-    day.setUTCDate(day.getUTCDate() + index);
-    return dateKey(day);
-  });
+  return weekDates(weekStart(date));
 }
 
 export function shiftMealWeek(date: string, direction: -1 | 1, minDate: string, maxDate: string) {
@@ -62,10 +40,11 @@ export function shiftMealCalendarMonth(month: string, amount: number) {
 
 export function getMealCalendarDates(month: string) {
   const [year, monthNumber] = month.split("-").map(Number);
-  const firstWeekday = (new Date(Date.UTC(year, monthNumber - 1, 1)).getUTCDay() + 6) % 7;
+  const firstDate = `${month}-01`;
+  const firstWeekday = weekday(firstDate);
   const daysInMonth = new Date(Date.UTC(year, monthNumber, 0)).getUTCDate();
   return [
     ...Array<string | null>(firstWeekday).fill(null),
-    ...Array.from({ length: daysInMonth }, (_, index) => dateKey(new Date(Date.UTC(year, monthNumber - 1, index + 1)))),
+    ...Array.from({ length: daysInMonth }, (_, index) => addDays(firstDate, index)),
   ];
 }

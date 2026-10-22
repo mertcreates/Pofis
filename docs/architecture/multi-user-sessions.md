@@ -43,7 +43,7 @@ Yerel üretim önizlemesi standart `next start`, Docker dağıtımı standalone 
 
 Dağıtım tek uygulama süreci ve kalıcı yerel oturum diziniyle yapılmalıdır. Bellek kullanımı yüklenen oturum sayısıyla büyür; oturum dizininin sahibi tek uygulama sürecidir. Kurum ağı, TLS, yeniden başlatma, disk izinleri/yedekleri ve gerçek hesap kabulü dağıtım ortamında doğrulanır.
 
-Gerçek PDKS kapasitesi hedef kurum ortamında ölçülür. Bekleyen kurum kabulü [görev listesinde](../../tasks/todo.md), yerel fixture ve yük kontrolleri [doğrulama rehberinde](../verification.md) tutulur.
+Gerçek PDKS kapasitesi hedef kurum ortamında ölçülür. Yerel fixture ve yük kontrolleri [doğrulama rehberinde](../verification.md) açıklanır.
 
 ## Sonraki karar
 

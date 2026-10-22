@@ -194,7 +194,7 @@ export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?
 export function setDayMinutes(plan: WorkPlan, day: number, minutes: number): WorkPlan {
   if (!Number.isInteger(day) || day < 0 || day >= WORKING_DAY_COUNT) throw new Error(ui.validationErrors.planDay);
   const next = readWeekPlan(plan.map((value, index) => index === day ? minutes : value));
-  if (!next) throw new Error(ui.validationErrors.dayDuration);
+  if (!next) throw new Error(ui.validationErrors.dayDuration(PLAN_LIMITS.maxDailyMinutes / 60));
   return next;
 }
 

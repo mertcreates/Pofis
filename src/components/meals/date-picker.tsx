@@ -7,11 +7,12 @@ import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
 import { createPortal } from "react-dom";
 import { getMealCalendarDates, getMealWeekDates, shiftMealCalendarMonth, shiftMealDate, shiftMealWeek } from "@/lib/meals/dates";
 import { getMealCalendarHeight, getMealCalendarPosition } from "./calendar-position";
-const dateFormatter = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", weekday: "long", timeZone: "Europe/Istanbul" });
-const weekAccessibleDateFormatter = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", weekday: "long", year: "numeric", timeZone: "Europe/Istanbul" });
-const weekRangeFormatter = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: "Europe/Istanbul" });
+import { TIME_ZONE } from "@/domain/rules/calendar";
+const dateFormatter = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", weekday: "long", timeZone: TIME_ZONE });
+const weekAccessibleDateFormatter = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "long", weekday: "long", year: "numeric", timeZone: TIME_ZONE });
+const weekRangeFormatter = new Intl.DateTimeFormat("tr-TR", { day: "numeric", month: "short", timeZone: TIME_ZONE });
 function mealDateValue(date: string) {
-  return new Date(`${date.slice(0, 10)}T12:00:00+03:00`);
+  return new Date(`${date.slice(0, 10)}T12:00:00Z`);
 }
 
 function mealDate(date: string) {
@@ -27,7 +28,7 @@ function mealWeekRange(weekDates: string[]) {
   return `${weekRangeFormatter.format(firstDate)}–${weekRangeFormatter.format(lastDate)}`;
 }
 
-const calendarMonthFormatter = new Intl.DateTimeFormat("tr-TR", { month: "long", year: "numeric", timeZone: "Europe/Istanbul" });
+const calendarMonthFormatter = new Intl.DateTimeFormat("tr-TR", { month: "long", year: "numeric", timeZone: TIME_ZONE });
 const calendarWeekdays = ui.weekdays.map(day => day.short);
 
 export function MealDatePicker({ value, today, minDate, maxDate, onChange }: {

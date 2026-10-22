@@ -1,10 +1,10 @@
 # Pofis masaüstü altyapısı
 
-Pofis, Next.js standalone uygulamasını Electron'un dahili Node.js runtime'ıyla ayrı bir UtilityProcess içinde çalıştırır. Geliştirme, test ve derleme Bun kullanır. Windows x64, macOS Apple Silicon/Intel ve Ubuntu x64 aynı kabuk, sunucu ve manifest sahiplerini kullanır. Windows ve macOS sürümleri aktif kullanımdadır; Ubuntu hedefinin gerçek cihaz kabulü [görev listesinde](../tasks/todo.md) açıktır.
+Pofis, Next.js standalone uygulamasını Electron'un dahili Node.js runtime'ıyla ayrı bir UtilityProcess içinde çalıştırır. Geliştirme, test ve derleme Bun kullanır. Windows x64, macOS Apple Silicon/Intel ve Ubuntu x64 aynı kabuk, sunucu ve manifest sahiplerini kullanır. Platformların [kabul durumu](verification.md#kabul-durumu) doğrulama rehberindedir.
 
 ## Motor ve macOS alt sınırı
 
-Masaüstü hedefleri kilitli `43.8.1` Electron sürümünü kullanır. [Electron 44](https://www.electronjs.org/blog/electron-44-0) macOS alt sınırını 13'e yükseltir; 43 ile hedef alt sınır macOS Monterey 12'dir. İki mimaride Monterey açılış, imza/Gatekeeper ve native kabulü tamamlanmadan bu sürüm için macOS 12 desteği doğrulanmış sayılmaz. Açık kabuller [görev listesinde](../tasks/todo.md) izlenir.
+Masaüstü hedefleri kilitli `43.8.1` Electron sürümünü kullanır. [Electron 44](https://www.electronjs.org/blog/electron-44-0) macOS alt sınırını 13'e yükseltir; 43 ile hedef alt sınır macOS Monterey 12'dir. Motor değişikliklerinde açılış, imza/Gatekeeper ve profil geçişi aşağıdaki [motor geçişi kabulüyle](#motor-geçişi-kabulü) doğrulanır.
 
 Geçişte Chromium 152'den 150'ye, V8 15.2'den 15.0'a iner; Node 24.22.0 korunur. Electron yerel eklenti ABI'si 149'dan 148'e değişir. Masaüstü sunucusu JavaScript ve statik dosyalardan oluşur. Görseller doğrudan sunulur (`images.unoptimized`); kullanılmayan sharp/libvips bağımlılıkları masaüstü çıktısına alınmaz. Paket kabulü gerçek görsel baytlarını ve Geist fontunun yüklenmesini doğrular.
 
@@ -55,7 +55,7 @@ Oturum JSON'ları çalışma anında kullanıcı profilinde oluşur. [Depolama a
 
 ## Ubuntu 24.04 LTS x64 ve ortak Unix kurulumu
 
-Linux hedefi Windows/macOS ile aynı Electron kabuğunu, sunucuyu, oturumu, ekranları, mesai kurallarını ve bildirim sahiplerini kullanır. Destek hedefi Ubuntu 24.04 LTS x64, varsayılan GNOME oturumu, etkin Ubuntu AppIndicator desteği ve açık GNOME anahtarlığıdır. Gerçek Ubuntu cihaz kabulü tamamlanana kadar bu hedefin doğrulaması açık kalır; [görev listesi](../tasks/todo.md).
+Linux hedefi Windows/macOS ile aynı Electron kabuğunu, sunucuyu, oturumu, ekranları, mesai kurallarını ve bildirim sahiplerini kullanır. Destek ortamı Ubuntu 24.04 LTS x64, varsayılan GNOME oturumu, etkin Ubuntu AppIndicator desteği ve açık GNOME anahtarlığıdır.
 
 macOS ve Linux aynı komutu kullanır:
 
@@ -298,7 +298,7 @@ Güncelleme/veri koruma ile başlangıç hatası/onarım zincirleri ayrı kurulu
 
 `--site` seçeneği landing içeriğindeki Windows komutunu ve public installer kopyasını okur. Public kopyanın canonical installer ile yalnız BOM farkı taşıdığını doğrular. Komutun adresi loopback test sunucusuna çevrilir; indirilen betikte yalnız beş parametrenin varsayılanı izole manifest/kurulum/kısayol/profil yollarıyla değiştirilir. Installer iş akışı ve gerçek ZIP korunur. İlk kurulum ve aynı sürümün tekrar açılışı `Restricted` politikası altında çalıştırılır. `--startup-only` bu iki akışı, port çakışması/ikinci açılış, kurulum kilidi, kapanış ve kaldırmayı sınar; tam sürüm yükseltme kabulü normal komuttadır. Canlı GitHub/HTTPS indirmesi ayrıca doğrulanır.
 
-Yeni sürümlerde etkilenen yollar aynı kabul yöntemiyle kontrol edilir. Bekleyen cihaz ve PDKS senaryoları [görev listesinde](../tasks/todo.md) izlenir.
+Yeni sürümlerde etkilenen yollar aynı kabul yöntemiyle kontrol edilir.
 
 ### Motor geçişi kabulü
 

@@ -81,7 +81,7 @@ Paket üretimini ve kabul sürelerini ölçmek için **Paketler doğrulandıktan
 gh workflow run desktop-release.yml --repo mertcreates/Pofis --ref master -f publish=false
 ```
 
-Electron 43'e ilk geçişte workflow başlatılmadan [motor geçişi kabulünü](desktop.md#motor-geçişi-kabulü) ve ARM64 macOS 12 cihaz kabulünü tamamlayın. Intel gerçek cihaz kabulleri ayrı izlenir; kullanıcı kararıyla Intel yayını statik kontrollerle ilerler. Workflow testten sonra otomatik yayın ve landing push adımlarına ilerler. Dört hedef aynı tam Electron sürümünü kullanır; motor düşürülse de yeni paket daha yüksek Pofis sürümüyle yayımlanır. Açık platform kabulleri [görev listesinde](../tasks/todo.md) tutulur.
+Electron sürümü değiştiğinde workflow öncesinde [motor geçişi kabulünü](desktop.md#motor-geçişi-kabulü) hedef cihazlarda tamamlayın. Intel paketi CI'da statik olarak doğrulanır. Yayın seçeneği açık workflow, testten sonra otomatik yayın ve landing push adımlarına ilerler. Dört hedef aynı tam Electron sürümünü kullanır; motor düşürülse de yeni paket daha yüksek Pofis sürümüyle yayımlanır.
 
 | Hedef | Derleme ortamı | Dağıtım dosyası |
 | --- | --- | --- |
@@ -110,7 +110,7 @@ Intel paketi [statik kontrolden](../scripts/electron/macos-static-check.cjs) ge�
 
 `actions/cache` Bun paketlerini ve Electron indirmelerini runner'ın geçici dizininde saklar. Windows ile macOS indirmeleri ayrıdır; macOS indirme cache'i iki macOS mimarisi ve Linux x64 arşivlerini içerir. İndirme anahtarı Bun sürümü, hedef ve kilit dosyasına bağlıdır; aynı bağımlılıklarda commit başına yeniden yüklenmez. Kurtarma tüm hedefler için önce ana çalışma dizininde tamamlanır. Hiçbir hedef yeniden üretilmeyecekse indirme cache'i yüklenmez; Intel/Linux çalışma dizinleri yalnız ilgili hedef yeniden üretilecekse oluşturulur. Next cache'i yalnız native hedef yeniden derlenecekse yüklenir; mimari, Bun sürümü, kilit dosyası ve kaynak commit'iyle anahtarlanır. Next yalnız aynı kilit dosyasıyla önceki commit'ten geri yüklenir. `node_modules`, standalone çıktısı, profil ve dağıtım paketi cache'e eklenmez.
 
-Build betiği aşamaları duvar saatiyle ölçer; alt süreç çıktıları loga anında aktarılır. Electron kurulumu, masaüstü testleri, pano, Next, paketleme/imza, paket kabulü, arşiv/manifest ve installer kabulü ayrı görünür. Paket açılış/statik kontrol ile arşiv üretimi aynı mühürlenmiş paketi okuyarak birlikte ilerler; ikisi tamamlanınca installer kabulüne geçilir. Hatalar aşama süresiyle raporlanır ve aktarımı durdurur. `package` komutu installer kabulü öncesinde durur; `accept` hazır arşivin kurulum kabulünü çalıştırır; `build` ikisini tamamlar. Cache aktarımı, paket zinciri ve yayın sürelerini ayrı karşılaştır; hedefleri ve bekleyen ölçümleri [görev listesinde](../tasks/todo.md#sürüm-yayını-kabulü) tut.
+Build betiği aşamaları duvar saatiyle ölçer; alt süreç çıktıları loga anında aktarılır. Electron kurulumu, masaüstü testleri, pano, Next, paketleme/imza, paket kabulü, arşiv/manifest ve installer kabulü ayrı görünür. Paket açılış/statik kontrol ile arşiv üretimi aynı mühürlenmiş paketi okuyarak birlikte ilerler; ikisi tamamlanınca installer kabulüne geçilir. Hatalar aşama süresiyle raporlanır ve aktarımı durdurur. `package` komutu installer kabulü öncesinde durur; `accept` hazır arşivin kurulum kabulünü çalıştırır; `build` ikisini tamamlar. Cache aktarımı, paket zinciri ve yayın sürelerini aynı runner ve kabul kapsamıyla ayrı karşılaştırın.
 
 ## Yayın sırası ve hata davranışı
 
@@ -134,7 +134,7 @@ Final yayın tüm hedeflerin başarıyla tamamlanmasına bağlıdır. Release ya
 
 ## Kanıt sınırı
 
-Yerel birim testleri sürüm/manifest, public dosya sınırı, kaynak commit eşleşmesi ve bozuk indirme reddini doğrular. Native paketler CI'da, yayımlanan dosyalar anonim indirme ve Workers HTTPS adımlarında doğrulanır. Gerçek cihaz kabul durumu [masaüstü rehberinde](desktop.md), açık işler [görev listesinde](../tasks/todo.md) tutulur.
+Yerel birim testleri sürüm/manifest, public dosya sınırı, kaynak commit eşleşmesi ve bozuk indirme reddini doğrular. Native paketler CI'da, yayımlanan dosyalar anonim indirme ve Workers HTTPS adımlarında doğrulanır. Cihaz kapsamı [masaüstü rehberinde](desktop.md), [kabul durumu](verification.md#kabul-durumu) doğrulama rehberindedir.
 
 ## Kaynaklar
 

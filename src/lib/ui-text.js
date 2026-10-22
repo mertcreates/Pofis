@@ -80,7 +80,7 @@ export const ui = {
     custom: "Özel",
     customLeadLabel: "Özel hatırlatma süresi",
     customLeadQuestion: "Kaç dakika önce?",
-    leadValidation: "1–120 dakika arasında bir süre seç.",
+    leadValidation: (min, max) => `${min}–${max} dakika arasında bir süre seç.`,
     saving: "Kaydediliyor…",
     save: "Tercihleri kaydet",
     unsaved: "Kaydedilmemiş değişiklikler",
@@ -111,7 +111,7 @@ export const ui = {
     telegramTestBody: "Mesai hatırlatmaların bu sohbete gelecek."
   },
   notificationErrors: {
-    invalidPreferences: "Bildirim tercihlerini kontrol et. Hatırlatma süresi 1–120 dakika olmalı.",
+    invalidPreferences: (min, max) => `Bildirim tercihlerini kontrol et. Hatırlatma süresi ${min}–${max} dakika olmalı.`,
     invalidSession: "Bildirim oturumu doğrulanamadı.",
     loginRequired: "Bildirim ayarları için PDKS hesabına giriş yap.",
     accountChanged: "Hesap değişti. Bildirim ayarlarını yeniden aç.",
@@ -237,7 +237,7 @@ export const ui = {
     completedDay: "Tamamlanan gün değiştirilemez.",
     defaultPlan: "Geçersiz varsayılan plan.",
     planDay: "Geçersiz plan günü.",
-    dayDuration: "Günlük süre 0–16 saat arasında olmalı.",
+    dayDuration: maxHours => `Günlük süre 0–${maxHours} saat arasında olmalı.`,
     reportDate: "Rapor hazırlığı güncel İstanbul tarihiyle yenilenmeli."
   },
   planStorageErrors: {
@@ -615,7 +615,7 @@ export const ui = {
     unknownDuration: "Süre belirsiz",
     selectedDayDuration: "Seçili günün süresi",
     duration: "çalışma süresi",
-    durationError: "0–16 saat arasında bir süre gir (ör. 8 sa 13 dk).",
+    durationError: maxHours => `0–${maxHours} saat arasında bir süre gir (ör. 8 sa 13 dk).`,
     defaultLabel: "Varsayılan:",
     total: "Haftalık plan",
     projectedTotal: "Beklenen toplam",
@@ -809,7 +809,7 @@ export const ui = {
     sessionRequired: "Önce PDKS’ye bağlan.",
     credentialsRequired: "Kullanıcı adı ve şifreyi gir.",
     invalidDateRange: "Geçerli bir başlangıç ve bitiş tarihi seç.",
-    dateRangeTooLong: "Bir sorguda en fazla 93 günlük aralık seç.",
+    dateRangeTooLong: maxDays => `Bir sorguda en fazla ${maxDays} günlük aralık seç.`,
     jsonRequired: "JSON biçiminde bir istek gönder.",
     emptyRequest: "İstek boş.",
     requestTooLarge: "İstek çok büyük.",

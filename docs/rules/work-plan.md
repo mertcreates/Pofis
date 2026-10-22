@@ -180,4 +180,4 @@ Yan menüdeki Mesai planı güncel haftanın, geçmiş hafta başlığındaki d�
 
 ## Doğrulama
 
-Bu belgedeki senaryoların test dosyaları ve kabul yöntemi [doğrulama rehberinde](../verification.md#plan-doğrulaması), bekleyen gerçek PDKS ve arayüz kabulü [görev listesinde](../../tasks/todo.md) tutulur.
+Bu belgedeki senaryoların test dosyaları ve kabul yöntemi [doğrulama rehberindedir](../verification.md#plan-doğrulaması).

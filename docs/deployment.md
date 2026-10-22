@@ -56,7 +56,7 @@ Giriş kabulünde `mert.ercan` ve `mert.ercan@trt.net.tr` biçimlerinin aynı ku
 - İki ayrı tarayıcı/hesapla kimlik ve rapor ayrımını, pod yeniden başlatmasında oturum devamlılığını kontrol edin.
 - Kurum ağı/DNS/CA ile gerçek PDKS erişimini ve kurumun kabul ettiği iş yükünü ölçün. `/api/health` yalnız uygulamanın çalıştığını gösterir.
 
-Bekleyen dağıtım kabulünü [görev listesinde](../tasks/todo.md) yönetin. Yerel kontrol yöntemi [doğrulama rehberindedir](verification.md).
+Dağıtım ortamı değiştiğinde bu kabulü tekrarlayın. Yerel kontrol yöntemi [doğrulama rehberindedir](verification.md).
 
 Next.js çalışma zamanı kaynakları: kurulu sürümün `node_modules/next/dist/docs/01-app/02-guides/self-hosting.md` ve `03-api-reference/05-config/01-next-config-js/output.md` belgeleri. [Resmî self-hosting rehberi](https://nextjs.org/docs/app/guides/self-hosting).
 

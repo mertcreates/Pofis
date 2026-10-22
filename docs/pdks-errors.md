@@ -59,6 +59,6 @@ Rapor hazırlığı veya saat izdüşümündeki beklenmeyen istisnalar [Dashboar
 
 [Hata ve HTTP okuma testleri](../src/lib/pdks-failure.test.ts), [durum geçişleri](../src/data/pdks-state.test.ts), [sunucu serileştirme](../src/server/http.test.js) ve [route/oturum testleri](../src/server/routes.test.js) sözleşmeyi korur.
 
-Arayüzdeki hata ve bildirim metinlerini [demo](demo.md) üzerinden kontrol edin: hata ekranı → girişe dönüş, yeniden deneme, rapor/çıkış hataları ve yerel depolama bildirimleri. Demo arayüzdeki mesaj ve eylem sunumunu doğrular. Gerçek giriş → rapor → yenileme → çıkış ve oturum bitişi kabulünü [görev listesine](../tasks/todo.md) göre kurum ortamında yapın.
+Arayüzdeki hata ve bildirim metinlerini [demo](demo.md) üzerinden kontrol edin: hata ekranı → girişe dönüş, yeniden deneme, rapor/çıkış hataları ve yerel depolama bildirimleri. Demo arayüzdeki mesaj ve eylem sunumunu doğrular. Gerçek giriş → rapor → yenileme → çıkış ve oturum bitişini kurum ortamında [doğrulama rehberine](verification.md#tarayıcı-ve-gerçek-kaynak) göre kontrol edin.
 
 [Oturum yanıtı testleri](../src/lib/session-response.test.ts), [heartbeat testleri](../src/lib/session-heartbeat.test.js) ve [rapor sınırı testleri](../src/data/report-response.test.ts) bozuk başarılı yanıtları da kapsar. Rapor yönü doğrulaması yalnız `in` veya `out` metnini kabul eder; diğer türler geçersiz yanıt hatası üretir.
