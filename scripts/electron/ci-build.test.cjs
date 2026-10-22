@@ -97,7 +97,9 @@ test("gerçek CI build'i kontrol veya Next hatasında paketleme başlatmaz", asy
         if (step === "package.cjs") throw new Error("Paketleme erken başladı.");
       },
     })).rejects.toBe(failure);
-    if (failedStep !== "build.cjs" && process.platform !== "win32") expect(commands).not.toContain("build.cjs");
+    if (failedStep !== "build.cjs" && !(process.platform === "win32" && failedStep === "clipboard-smoke.cjs")) {
+      expect(commands).not.toContain("build.cjs");
+    }
     expect(commands).not.toContain("package.cjs");
     expect(commands).toContain(failedStep);
   }
@@ -132,7 +134,7 @@ test("derleme iki test grubunu bekler; test hatası panoyu ve paketlemeyi durdur
     await Promise.resolve();
     expect(settled).toBe(false);
     expect(calls.some(args => /clipboard-smoke|package\.cjs/.test(args[0]))).toBe(false);
-    expect(calls.some(args => basename(args[0]) === "build.cjs")).toBe(process.platform === "win32");
+    expect(calls.some(args => basename(args[0]) === "build.cjs")).toBe(false);
     finishDesktop();
     await expect(pending).rejects.toBe(failApplication ? failure : stop);
     expect(calls.some(args => basename(args[0]) === "clipboard-smoke.cjs")).toBe(!failApplication);
@@ -151,7 +153,7 @@ test.skipIf(process.platform !== "win32")("Windows testleri bitse de Next tamaml
       if (basename(args[0]) === "clipboard-smoke.cjs") throw stop;
     },
   });
-  await until(() => calls.some(args => args[0] === "test" && args.includes("./electron")));
+  await until(() => calls.some(args => basename(args[0]) === "build.cjs"));
   expect(calls.some(args => /clipboard-smoke|package\.cjs/.test(args[0]))).toBe(false);
   finishNext();
   await expect(pending).rejects.toBe(stop);

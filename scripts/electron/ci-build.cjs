@@ -155,25 +155,17 @@ async function build(version, siteDirectory, { execute = run, summary = process.
   const stage = (label, task) => timed(label, task, summary);
   if (summary) await appendFile(summary,
     `\n## ${target.id} aşama süreleri\n\n| Aşama | Sonuç | Saniye |\n| --- | --- | --- |\n`);
-  if (target.platform === "win32" && !process.env.POFIS_SHARED_STANDALONE) {
-    const checks = await Promise.allSettled([
-      preflight(target, acceptance, execute, summary, false),
-      stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")])),
-    ]);
-    const failures = checks.filter(result => result.status === "rejected").map(result => result.reason);
-    if (failures.length === 1) throw failures[0];
-    if (failures.length) throw new AggregateError(failures, "Testleri ve Next derlemesini kontrol et.");
-    // Clipboard acceptance writes the standalone preload; wait for Next's output first.
-    await stage("Pano kabulü", () => execute(process.execPath, [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]));
+  const windows = target.platform === "win32";
+  // Next and native process tests saturate small Windows runners when overlapped.
+  await preflight(target, acceptance, execute, summary, !windows);
+  if (process.env.POFIS_SHARED_STANDALONE) {
+    if (target.id !== "darwin-x64" && !crossLinux) throw new Error("Ortak standalone çıktısı Intel macOS ve çapraz Linux paketleri içindir.");
+    console.log(`${target.id} paketi ARM64 kabulüyle aynı Next çıktısını kullanıyor.`);
   } else {
-    await preflight(target, acceptance, execute, summary);
-    if (process.env.POFIS_SHARED_STANDALONE) {
-      if (target.id !== "darwin-x64" && !crossLinux) throw new Error("Ortak standalone çıktısı Intel macOS ve çapraz Linux paketleri içindir.");
-      console.log(`${target.id} paketi ARM64 kabulüyle aynı Next çıktısını kullanıyor.`);
-    } else {
-      await stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")]));
-    }
+    await stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")]));
   }
+  // Clipboard acceptance writes the standalone preload; wait for Next's output first.
+  if (windows) await stage("Pano kabulü", () => execute(process.execPath, [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]));
   await stage("Electron paketleme ve imza", () => execute(process.execPath, [join(__dirname, "package.cjs"), target.arch, ...(crossLinux ? [target.platform] : [])]));
   const packages = join(root, "dist", target.outputDirectory);
   const names = (await readdir(packages)).filter(name => name.startsWith(`Pofis-${target.id}-`));

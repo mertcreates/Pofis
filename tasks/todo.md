@@ -12,7 +12,7 @@ Yerel hazırlık yapıldı; gerçek Ubuntu kabulü ve yayın bekliyor. Destek ka
 
 ## Sürüm yayını kabulü
 
-- [ ] Aynı Windows runner ve kabul kapsamıyla paket zincirinin en az %50 hızlanmasını yetkili Actions çalıştırmasında ölç: yaklaşık 107 saniyelik referansa karşı hedef en fazla 54 saniye. Native ZIP, Windows sunucu ASAR'ı, eşzamanlı Next/test hazırlığı, Next içindeki tek tür kontrolü ve kabul tekrarlarının kaldırılması yerelde doğrulandı; toplam hedef henüz sağlanmadı.
+- [ ] Aynı Windows runner ve kabul kapsamıyla paket zincirinin en az %50 hızlanmasını yetkili Actions çalıştırmasında ölç: yaklaşık 107 saniyelik referansa karşı hedef en fazla 54 saniye. Native ZIP, Windows sunucu ASAR'ı, Next içindeki tek tür kontrolü ve kabul tekrarlarının kaldırılması yerelde doğrulandı; toplam hedef henüz sağlanmadı.
 - [ ] Güncel kaynakla Windows ve ARM64 paket açılış/kurulum/güncelleme kabulünü, Intel statik paket kontrollerini tamamla. macOS'ta onaylı güncelleme sonrasında pencerenin görünür açıldığını ve installer'ın hazır sonucunu aldığını doğrula. Açılıştaki senkron Keychain durum sorgusu kaldırıldı; gerçek Keychain ve güncelleme kabulü bekliyor. Native macOS'ta başarısız/iptal edilen kabulün test ana/yardımcı süreçlerini kapattığını ve ilk hedef hatasının kardeş üretimleri durdurduğunu da doğrula. Genel kabul betikleri GA4 trafiğini engeller. Yayın workflow'u hedef sürüme yönelik kullanıcı yetkisiyle başlatılır; [yayın sözleşmesi](../docs/release.md).
 - [ ] GA4 `G-MV4MG71CDB` akışında Geliştirilmiş ölçümü kapat; Raporlama kimliğini User-ID içeren Gözlemlenen veya Harmanlanmış olarak ayarla ve `app_release` olay boyutunu tanımla. Yayın sonrasında Anlık rapor/Kullanıcı keşfinde web/masaüstü kimliklerini doğrula; [ölçüm sözleşmesi](../docs/analytics.md).
 

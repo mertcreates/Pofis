@@ -59,6 +59,20 @@ windowsTest.each(["native", "dotnet"])("%s ZIP partial uzantısıyla açılır; 
     expect(await readFile(join(extracted, "resources/app/boşluk ve Türkçe.txt"), "utf8")).toBe(payload);
     expect(await readFile(join(extracted, ".hidden"), "utf8")).toBe("hidden");
     expect(await readdir(join(extracted, "empty directory"))).toEqual([]);
+    // The native writer must be portable across Windows code pages, not just round-trip locally.
+    const bytes = await readFile(archive);
+    const name = Buffer.from("resources/app/boşluk ve Türkçe.txt", "utf8");
+    let unicodeEntry = false;
+    for (let offset = bytes.indexOf(Buffer.from([0x50, 0x4b, 0x01, 0x02])); offset !== -1;
+      offset = bytes.indexOf(Buffer.from([0x50, 0x4b, 0x01, 0x02]), offset + 4)) {
+      const length = bytes.readUInt16LE(offset + 28);
+      const entry = bytes.subarray(offset + 46, offset + 46 + length);
+      if (entry.equals(name) || entry.equals(Buffer.from(name.toString().replaceAll("/", "\\")))) {
+        expect(bytes.readUInt16LE(offset + 8) & 0x800).toBe(0x800);
+        unicodeEntry = true;
+      }
+    }
+    expect(unicodeEntry).toBe(true);
     const results = stdout.trim().split(/\r?\n/).map(line => JSON.parse(line));
     expect(results).toHaveLength(3);
     for (const result of results) {

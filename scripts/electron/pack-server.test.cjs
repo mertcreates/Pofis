@@ -22,6 +22,7 @@ test.skipIf(process.platform !== "win32")("ASAR sunucusu gerçek Electron utilit
   try {
     await writeFile(join(server, "server.js"), `const path = require('node:path');
       process.chdir(__dirname);
+      process.parentPort.on('message', () => process.exit(0));
       process.parentPort.postMessage({ cwd: process.cwd(), dependency: require('next'),
         asset: require('node:fs').readFileSync(path.join(__dirname, 'asset.txt'), 'utf8') });`);
     await packServer(server);
@@ -33,8 +34,13 @@ test.skipIf(process.platform !== "win32")("ASAR sunucusu gerçek Electron utilit
       app.setPath('userData', ${JSON.stringify(join(root, "profile"))});
       app.whenReady().then(() => {
         const child=utilityProcess.fork(${JSON.stringify(join(root, "worker.cjs"))},[],{cwd:${JSON.stringify(server)}});
-        child.on('message', result => { require('node:fs').writeFileSync(${JSON.stringify(result)}, JSON.stringify(result)); app.quit(); });
-        child.on('exit', code => { if(code) app.exit(code); });
+        let received;
+        child.on('message', result => { received = result; child.postMessage('shutdown'); });
+        child.on('exit', code => {
+          if (code || !received) { app.exit(code || 1); return; }
+          require('node:fs').writeFileSync(${JSON.stringify(result)}, JSON.stringify(received));
+          app.quit();
+        });
       });`);
     const env = { ...process.env };
     delete env.ELECTRON_RUN_AS_NODE;
