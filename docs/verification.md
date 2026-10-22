@@ -18,6 +18,8 @@ Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron
 
 macOS CI iptal testinde süreç durumu `ps` ile okunur: `Z` durumundaki zombie süreç çalışmasını bitirmiştir; çalışan, uyuyan veya duraklatılmış alt süreç testi başarısız yapar. Darwin'de `kill(pid, 0)` zombie süreç için de başarılı dönebildiğinden tek başına çalışma kanıtı sayılmaz; [Apple çekirdek uygulaması](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_sig.c).
 
+CI süreç tablosu testleri, PID ile eşleşen grup oluşmadığında alt süreçlerin kapanmasını, lideri çıkmış/reparent edilmiş süreçleri, zombie durumunu, zorla kapanışı ve dış süreç korumasını sınar. Bu adaptör kanıtını native macOS kabulünden ayrı değerlendirin.
+
 | Değişiklik | Kontrol |
 | --- | --- |
 | Ürün kuralı | [Kural belgesindeki](rules/README.md) somut senaryolar ve bağımlı davranış testleri |

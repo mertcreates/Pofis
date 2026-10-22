@@ -35,8 +35,9 @@ async function run(command, args, cwd = root, env = process.env, { timeoutMs = 6
   // Nested CI commands inherit their owner's group. Otherwise each detached
   // Bun invocation would escape cancellation of the outer command.
   const processGroup = process.platform !== "win32" && !inheritedProcessGroup;
-  const stop = () => stopping ||= require("../../electron/server.cjs").stopProcessTree(pending.child,
-    { processGroup, timeoutMs: 15000 });
+  const stop = () => stopping ||= process.platform === "win32"
+    ? require("../../electron/server.cjs").stopProcessTree(pending.child)
+    : require("./ci-processes.cjs").stopCIProcesses(pending.child, { processGroup });
   let done;
   const completion = new Promise(resolve => { done = resolve; });
   running.add(completion);
