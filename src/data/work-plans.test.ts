@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { workPlanStorage } from "./work-plans";
-import { emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, changeWeekPlan, changeDefaultPlan, readDayPlan, readWeekPlan, resolveWeekPlan } from "@/domain/rules/work-plan";
+import { emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveWeekTimes, changeWeekTime, changeWeekPlan, changeDefaultPlan, readDayPlan, readWeekPlan, resolveWeekPlan } from "@/domain/rules/work-plan";
 import { loadPlans, savePlans, PLAN_STORAGE_KEY } from "@/lib/plan-storage.js";
 
 function storage(initial: Record<string, string> = {}) {
@@ -13,6 +13,42 @@ function storage(initial: Record<string, string> = {}) {
     values,
   };
 }
+
+test("plan saatleri gün, hafta ve demo kapsamları arasında ayrılır; şablon ve süre düzenlemesi seçimi korur", () => {
+  const week = "2026-10-12", other = "2026-10-19";
+  const store = storage();
+  let plans = changeWeekTime(emptyWorkPlans(), week, 3, { anchor: "entry", minute: 540 });
+  plans = changeWeekTime(plans, week, 4, { anchor: "exit", minute: 1080 });
+  plans = changeWeekTime(plans, other, 3, { anchor: "entry", minute: 480 });
+  savePlans(workPlanStorage(store, "demo"), plans);
+  expect(loadPlans(workPlanStorage(store, "live"))).toEqual(emptyWorkPlans());
+  const loaded = loadPlans(workPlanStorage(store, "demo"));
+  expect(resolveWeekTimes(loaded, week)).toEqual({ 3: { anchor: "entry", minute: 540 }, 4: { anchor: "exit", minute: 1080 } });
+  expect(resolveWeekTimes(loaded, other)).toEqual({ 3: { anchor: "entry", minute: 480 } });
+  expect(resolveWeekTimes(loaded, "2026-10-05")).toEqual({});
+  const edited = changeWeekPlan(loaded, week, [480,480,480,420,480,0,0]);
+  const updated = changeDefaultPlan(edited, [540,540,540,540,540,0,0], week);
+  savePlans(workPlanStorage(store, "demo"), updated);
+  expect(resolveWeekTimes(loadPlans(workPlanStorage(store, "demo")), week)).toEqual(resolveWeekTimes(loaded, week));
+  const reset = changeWeekPlan(updated, week, null, [null,null,null,28800]);
+  expect(resolveWeekTimes(reset, week)).toEqual({ 3: { anchor: "entry", minute: 540 } });
+  expect(resolveWeekTimes(reset, other)).toEqual(resolveWeekTimes(loaded, other));
+  expect(changeWeekTime(changeWeekTime(emptyWorkPlans(), week, 4, { anchor: "entry", minute: 0 }), week, 4, null)).toEqual(emptyWorkPlans());
+});
+
+test("geçersiz plan saatleri reddedilir ve özgün depolama korunur", () => {
+  const week = "2026-10-12";
+  for (const weekTimes of [null, [], { [week]: null }, { [week]: [] }, { [week]: { 5: { anchor: "entry", minute: 540 } } },
+    ...[-1, 1440, 0.5, "540", null].map(minute => ({ [week]: { 0: { anchor: "entry", minute } } })),
+    { [week]: { 0: { anchor: "other", minute: 540 } } }, { "2026-10-13": { 0: { anchor: "entry", minute: 540 } } }]) {
+    const raw = JSON.stringify({ ...emptyWorkPlans(), weekTimes });
+    const store = storage({ [PLAN_STORAGE_KEY]: raw });
+    expect(() => loadPlans(store)).toThrow("plan saatleri");
+    expect(store.getItem(PLAN_STORAGE_KEY)).toBe(raw);
+  }
+  expect(() => changeWeekTime(emptyWorkPlans(), week, 5, null)).toThrow();
+  expect(() => changeWeekTime(emptyWorkPlans(), "2026-10-13", 0, { anchor: "entry", minute: 0 })).toThrow();
+});
 
 test("sıfır süreli açık günler doğrulanır; izinle çelişki reddedilir, gereksiz işaretler temizlenir", () => {
   const week = "2026-10-12";

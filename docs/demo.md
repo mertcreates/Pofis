@@ -19,6 +19,12 @@ Gün senaryoları: Hedefin altında → 15 Ekim; Tekrarlanan geçiş → 7 Ekim;
 
 [Demo kontrolleri](../src/demo/controls.tsx) sekmeleri ve sıfırlamayı sunar; durum [demo istemcisinde](../src/demo/dashboard.tsx) tutulur. Ortak DashboardView içeriği standart `children` ile alır.
 
+## Haftalık planlayıcı
+
+Mesai planı → Bu hafta → düzenlenebilir gün → Planlayıcı, canlı ekranla aynı [PlanTimePlanner](../src/components/plan-time-planner.tsx) bileşenini açar. Saat girişi, girersem/çıkmak için seçimi, karşı saat ve gün adı, temizleme ve klavyeyle düzenleme burada denenir. Etkileşim ve kayıt sözleşmesi [mesai planı sahibindedir](rules/work-plan.md#haftalık-girişçıkış-saati).
+
+Seçilen saat, yalnız seçili hafta/gün için demo plan deposuna kaydedilir; canlı planları değiştirmez. Yerel hata senaryoları aynı bileşeni bellek içi durumla kullanır.
+
 ## Mesai bildirimi ayarları
 
 Yan menüdeki Bildirimler, Electron ile aynı [NotificationSettings](../src/components/notifications/settings.tsx) ekranını açar. Kontroller, açık kaydetme eylemi ve Telegram kurulumu aynı bileşenden gelir.

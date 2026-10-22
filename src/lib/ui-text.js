@@ -237,6 +237,7 @@ export const ui = {
     completedDay: "Tamamlanan gün değiştirilemez.",
     defaultPlan: "Geçersiz varsayılan plan.",
     planDay: "Geçersiz plan günü.",
+    planTime: "Geçersiz plan saati.",
     dayDuration: maxHours => `Günlük süre 0–${maxHours} saat arasında olmalı.`,
     reportDate: "Rapor hazırlığı güncel İstanbul tarihiyle yenilenmeli."
   },
@@ -246,7 +247,8 @@ export const ui = {
     target: "Kayıtlı haftalık hedef geçersiz. Kayıt korunuyor.",
     leave: "Kayıtlı izin günleri geçersiz. Kayıt korunuyor.",
     openDays: "Kayıtlı açık günler geçersiz. Kayıt korunuyor.",
-    lockedDays: "Kayıtlı kilitli günler geçersiz. Kayıt korunuyor."
+    lockedDays: "Kayıtlı kilitli günler geçersiz. Kayıt korunuyor.",
+    times: "Kayıtlı plan saatleri geçersiz. Kayıt korunuyor."
   },
   demoMessages: {
     person: "Örnek kullanıcı",
@@ -601,7 +603,7 @@ export const ui = {
   exitAwaitingHint: "Giriş kaydıyla hesaplanacak.",
   workPlan: "Mesai planı",
   planner: {
-    defaultPlan: "Varsayılan plan",
+    defaultPlan: "Çalışma düzeni",
     selectedWeek: "Seçili hafta",
     scope: "Plan kapsamı",
     customWeek: "Özel hafta planı",
@@ -609,20 +611,40 @@ export const ui = {
     locked: "Kayıtlı süre, değiştirilemez",
     userLocked: "Kullanıcı kilidi",
     lock: "Kilitle",
+    lockDuration: "Süreyi kilitle",
+    lockedDay: "Kilitli",
     unlock: "Kilidi aç",
     lockDay: day => `${day} gününü kilitle`,
     unlockDay: day => `${day} gününün kilidini aç`,
     unknownDuration: "Süre belirsiz",
     selectedDayDuration: "Seçili günün süresi",
+    timePlanner: "Planlayıcı",
+    timeError: "00:00–23:59 arasında bir saat gir.",
+    timeChoice: "Planlanacak saat",
+    ifEntry: "girersem",
+    toExit: "çıkmak için",
+    willExit: "çıkarım",
+    shouldEnter: "girmeliyim",
+    clockAt: clock => {
+      const [hour, minute] = clock.split(":").map(Number);
+      const spokenNumber = minute || hour;
+      const unit = spokenNumber % 10;
+      const suffixes = ["da", "de", "de", "te", "te", "te", "da", "de", "de", "da"];
+      const suffix = unit ? suffixes[unit] : spokenNumber === 20 || spokenNumber === 50 ? "de" : spokenNumber === 40 ? "ta" : "da";
+      return `${clock}’${suffix}`;
+    },
+    hour: "Saat",
+    minute: "Dakika",
+    clearTime: "Plan saatini temizle",
     duration: "çalışma süresi",
     durationError: maxHours => `0–${maxHours} saat arasında bir süre gir (ör. 8 sa 13 dk).`,
     defaultLabel: "Varsayılan:",
-    total: "Haftalık plan",
     projectedTotal: "Beklenen toplam",
-    surplus: (duration) => ({ before: "Beklenen toplam, haftalık hedefin ", emphasis: `${duration} üzerinde`, after: ". Kalan günlerin planı korunuyor." }),
+    weeklyDuration: "Haftalık süre",
+    referenceTarget: "Haftalık hedef",
     plannedLabel: "Planlanan:",
     recordedLabel: "Gerçekleşen:",
-    unallocated: (duration, shortfall) => `${duration} ${shortfall ? "eksik" : "fazla"} süre kaldı. Açık günleri ve sürelerini kontrol et.`,
+    unallocated: (duration, shortfall) => `${shortfall ? "Plana eklenemeyen" : "Plandan azaltılamayan"} · ${duration}`,
     closed: "Kapalı",
     onLeave: "İzinli",
     leaveDay: "İzin",
@@ -635,12 +657,12 @@ export const ui = {
     applyToOpen: "Açık günlere uygula",
     applyDurationToOpen: duration => `Açık günlere uygula: ${duration}`,
     reset: "Planı sıfırla",
-    capacity: "Bu hedefe kalan günlerle ulaşılamıyor.",
-    capacityLocked: "Tamamlamak için bir günün kilidini aç.",
-    complete: hours => `${hours} saate tamamla`,
+    capacity: "Kalan günlerde yeterli süre yok.",
+    capacityLocked: "Bir günün kilidini aç.",
+    complete: (hours, adjust = false) => `${hours} saate ${adjust ? "ayarla" : "tamamla"}`,
     distributeEqual: "Günlere eşit dağıt",
     distributeLast: "Son mesai gününe dağıt",
-    difference: (target, duration, less) => less ? `${target} hedefine kalan: ${duration}` : `${target} hedefinin üzerinde: ${duration}`,
+    difference: less => less ? "Hedefe kalan" : "Hedefi aşan",
     workingDayCount: count => `${count} çalışma günü`,
   },
   days: "gün",

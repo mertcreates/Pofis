@@ -5,6 +5,8 @@ import type { DayState } from "./record-status";
 // Calendar-aligned minutes; Saturday and Sunday are always holidays.
 export type WorkPlan = readonly [number, number, number, number, number, 0, 0];
 export const WORKING_DAY_COUNT = 5;
+export type PlanTime = { anchor: "entry" | "exit"; minute: number };
+export type WeekTimes = Readonly<Partial<Record<number, PlanTime>>>;
 export type WorkPlans = {
   defaultPlan: WorkPlan;
   weekOverrides: Record<string, WorkPlan>;
@@ -14,11 +16,42 @@ export type WorkPlans = {
   // A computed zero duration keeps its open-day intent when materialized and saved.
   weekZeroOpenDays?: Record<string, readonly number[]>;
   weekLockedDays?: Record<string, readonly number[]>;
+  weekTimes?: Record<string, WeekTimes>;
 };
 export const PLAN_LIMITS = Object.freeze({ stepMinutes: 30, maxDailyMinutes: 960 });
 export const WORK_PLAN_POLICY = Object.freeze({ autoReduceSurplus: false });
 export const DEFAULT_WORK_PLAN: WorkPlan = Object.freeze([480, 480, 480, 480, 480, 0, 0]);
 const NO_PLAN_DAYS: readonly number[] = Object.freeze([]);
+const NO_WEEK_TIMES: WeekTimes = Object.freeze({});
+
+export function readWeekTimes(value: unknown): WeekTimes | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const times: Partial<Record<number, PlanTime>> = {};
+  for (const [day, time] of Object.entries(value)) {
+    if (!/^[0-4]$/.test(day) || !time || typeof time !== "object" ||
+      (time.anchor !== "entry" && time.anchor !== "exit") ||
+      !Number.isInteger(time.minute) || time.minute < 0 || time.minute >= 24 * 60) return null;
+    times[Number(day)] = { anchor: time.anchor, minute: time.minute };
+  }
+  return times;
+}
+
+export function resolveWeekTimes(plans: WorkPlans, week: string): WeekTimes {
+  return plans.weekTimes?.[week] ?? NO_WEEK_TIMES;
+}
+
+export function changeWeekTime(plans: WorkPlans, week: string, day: number, time: PlanTime | null): WorkPlans {
+  if (!isPlanWeek(week) || !Number.isInteger(day) || day < 0 || day >= WORKING_DAY_COUNT ||
+    (time !== null && !readWeekTimes({ [day]: time }))) throw new Error(ui.validationErrors.planTime);
+  const times = { ...resolveWeekTimes(plans, week) };
+  if (time === null) delete times[day];
+  else times[day] = { ...time };
+  const weekTimes = { ...plans.weekTimes };
+  if (Object.keys(times).length) weekTimes[week] = times;
+  else delete weekTimes[week];
+  const { weekTimes: _, ...rest } = plans;
+  return { ...rest, ...(Object.keys(weekTimes).length ? { weekTimes } : {}) };
+}
 
 export function emptyWorkPlans(): WorkPlans {
   return { defaultPlan: DEFAULT_WORK_PLAN, weekOverrides: {} };
@@ -139,11 +172,18 @@ export function changeWeekPlan(plans: WorkPlans, week: string, plan: WorkPlan | 
   else delete weekZeroOpenDays[week];
   const weekLockedDays = { ...plans.weekLockedDays };
   if (reset) delete weekLockedDays[week];
-  const { weekTargets: _, weekLeaves: __, weekZeroOpenDays: ___, weekLockedDays: ____, ...rest } = plans;
+  const weekTimes = { ...plans.weekTimes };
+  if (reset) {
+    const preserved = Object.fromEntries(Object.entries(resolveWeekTimes(plans, week)).filter(([day]) => completed[Number(day)] != null));
+    if (Object.keys(preserved).length) weekTimes[week] = preserved;
+    else delete weekTimes[week];
+  }
+  const { weekTargets: _, weekLeaves: __, weekZeroOpenDays: ___, weekLockedDays: ____, weekTimes: _____, ...rest } = plans;
   return { ...rest, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
     ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}),
     ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}),
-    ...(Object.keys(weekLockedDays).length ? { weekLockedDays } : {}) };
+    ...(Object.keys(weekLockedDays).length ? { weekLockedDays } : {}),
+    ...(Object.keys(weekTimes).length ? { weekTimes } : {}) };
 }
 
 export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?: string, completed: readonly (number | null)[] = []): WorkPlans {
@@ -187,6 +227,7 @@ export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?
     ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
     ...(plans.weekLeaves ? { weekLeaves: plans.weekLeaves } : {}),
     ...(plans.weekLockedDays ? { weekLockedDays: plans.weekLockedDays } : {}),
+    ...(plans.weekTimes ? { weekTimes: plans.weekTimes } : {}),
     ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}),
   };
 }

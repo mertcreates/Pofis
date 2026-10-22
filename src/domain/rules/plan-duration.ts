@@ -1,4 +1,25 @@
-import { PLAN_LIMITS } from "./work-plan";
+import { PLAN_LIMITS, type PlanTime } from "./work-plan";
+
+// Accept the colon format and four digits for numeric phone keyboards.
+export function parsePlanClock(input: string): number | null {
+  const match = /^(\d{1,2}):(\d{2})$|^(\d{2})(\d{2})$/.exec(input.trim());
+  if (!match) return null;
+  const hour = Number(match[1] ?? match[3]);
+  const minute = Number(match[2] ?? match[4]);
+  return hour < 24 && minute < 60 ? hour * 60 + minute : null;
+}
+
+export function planClockTimes(time: PlanTime | undefined, requiredSeconds: number) {
+  if (!time) return null;
+  const duration = planDisplayMinutes(requiredSeconds, "required");
+  const entry = time.anchor === "entry" ? time.minute : time.minute - duration;
+  const exit = time.anchor === "exit" ? time.minute : time.minute + duration;
+  function clock(minutes: number) {
+    const minute = ((minutes % 1440) + 1440) % 1440;
+    return { value: `${String(Math.floor(minute / 60)).padStart(2, "0")}:${String(minute % 60).padStart(2, "0")}`, dayOffset: Math.floor(minutes / 1440) };
+  }
+  return { entry: clock(entry), exit: clock(exit) };
+}
 
 export function planDisplayMinutes(seconds: number, kind: "required" | "recorded"): number {
   return kind === "required" ? Math.ceil(seconds / 60) : Math.floor(seconds / 60);

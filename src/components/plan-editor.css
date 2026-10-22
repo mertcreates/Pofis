@@ -16,7 +16,6 @@
 }
 .work-planner { font-variant-numeric: tabular-nums; }
 .work-planner > .inline-notice { margin: 16px 0 0; }
-.work-plan-surplus-emphasis { font-weight: 600; }
 .work-plan-tabs {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -74,6 +73,10 @@
   color: var(--ink);
 }
 .work-plan-total-label { font-size: 12px; font-weight: 400; color: var(--secondary); }
+.work-plan-summary { display: grid; gap: 4px; margin: 16px 0 0; padding: 0 0 12px; border-bottom: 1px solid var(--line); }
+.work-plan-summary > div { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 0; line-height: 1.5; }
+.work-plan-summary dt { font-size: 12px; font-weight: 400; color: var(--secondary); }
+.work-plan-summary dd { margin: 0; text-align: right; font-size: 14px; font-weight: 600; color: var(--ink); }
 .work-plan-days { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
 .work-plan-day {
   position: relative;
@@ -104,11 +107,14 @@
   color: var(--ink);
 }
 .work-plan-day[data-locked="true"] {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-  color: var(--accent-text);
+  background: var(--surface-subtle);
+  border-color: var(--line);
+  color: var(--ink);
 }
+.work-plan-day[data-locked="true"]:not([aria-pressed="true"]) :is(.work-plan-day-time, svg) { color: var(--secondary); }
 .work-plan-day:hover:not(:disabled) { border-color: var(--accent); }
+.work-plan-day:not([aria-pressed="true"]):focus:not(:disabled) { background: var(--paper); color: var(--ink); }
+.work-plan-day[data-locked="true"]:not([aria-pressed="true"]):focus:not(:disabled) { background: var(--surface-subtle); }
 .work-plan-day[aria-pressed="true"],
 .work-plan-day[aria-pressed="true"][data-locked="true"],
 .work-plan-day[aria-pressed="true"]:is(:hover, :focus):not(:disabled) {
@@ -136,14 +142,53 @@
 .work-plan-day-title { display: flex; flex-direction: column; gap: 4px; }
 .work-plan-day-title strong { font-size: 14px; font-weight: 600; }
 .work-plan-day-title span { color: var(--muted); font-size: 12px; }
-.work-plan-editable .work-plan-editor-top { width: 100%; }
-.work-plan-editable .work-plan-day-title { flex-direction: row; align-items: center; gap: 8px; flex-wrap: wrap; }
-.work-plan-lock { display: inline-flex; align-items: center; gap: 4px; padding: 0 7px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--paper); color: var(--secondary); font-size: 12px; }
-.work-plan-lock[aria-pressed="true"] { color: var(--accent-text); border-color: var(--accent); background: var(--accent-soft); }
-.work-plan-day-action { min-width: 56px; flex-shrink: 0; padding: 0 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--paper); color: var(--secondary); font-size: 12px; font-weight: 500; white-space: nowrap; }
-.work-plan-closed-status { display: inline-flex; align-items: center; min-height: calc(var(--plan-control-size) + 8px); color: var(--secondary); font-size: 14px; }
-.work-plan-modal :is(.work-plan-lock, .work-plan-day-action) { min-height: var(--control-sm); }
-.work-plan-duration-control { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; min-width: calc(2 * var(--icon-button-sm) + 72px); margin-left: auto; }
+.work-plan-editable .work-plan-editor-top { display: grid; grid-template-columns: minmax(0, 1fr) max-content; width: 100%; align-items: center; column-gap: 12px; row-gap: 4px; }
+.work-plan-editable .work-plan-day-title { flex-direction: row; align-items: center; gap: 16px; flex-wrap: wrap; min-height: max(var(--control-height), var(--plan-control-size)); }
+.work-plan-day-options > button { display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 0 8px; border: 1px solid transparent; border-radius: var(--radius-control); background: transparent; color: var(--secondary); font-size: 12px; font-weight: 500; white-space: nowrap; }
+.work-plan-day-options > button:is([aria-pressed="true"], [aria-expanded="true"]) { color: var(--accent-text); background: var(--accent-soft); }
+.work-plan-day-options > button:hover:not(:disabled) { color: var(--accent-text); background: var(--accent-soft); }
+.work-plan-day-options > button:focus-visible { border-color: var(--accent-text); }
+.work-plan-day-options > .work-plan-lock { flex-shrink: 0; width: var(--plan-control-size); padding: 0; }
+.work-plan-locked-time { display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px; min-height: max(var(--control-height), var(--plan-control-size)); color: var(--ink); font-size: var(--field-font-size); font-weight: 600; }
+.work-plan-locked-time svg { color: var(--secondary); flex-shrink: 0; }
+.work-plan-closed-status { display: inline-flex; align-items: center; min-height: max(var(--control-height), var(--plan-control-size)); color: var(--secondary); font-size: 14px; }
+.work-plan-day-options { display: inline-flex; align-items: center; gap: 4px; }
+.work-plan-modal :is(.work-plan-lock, .work-plan-day-action, .work-plan-clock-toggle) { min-height: var(--control-sm); }
+.work-plan-clock { min-width: 0; }
+.work-plan-clock-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
+.work-plan-clock-panel { margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.work-plan-time-result { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 0; color: var(--secondary); font-size: 13px; text-align: right; }
+.work-plan-time-conclusion { display: flex; align-items: center; min-height: var(--plan-control-size); }
+.work-plan-time-result strong { display: flex; align-items: center; min-height: var(--plan-control-size); color: var(--accent-text); font-size: 22px; font-weight: 600; }
+.work-plan-clock-editor { display: grid; grid-template-columns: max-content minmax(0, 1fr) max-content; align-items: start; column-gap: 16px; row-gap: 8px; }
+.work-plan-clock-result { justify-self: end; }
+.work-plan-clock-operation { display: flex; align-self: center; align-items: center; justify-content: center; min-width: 16px; min-height: var(--plan-control-size); color: var(--secondary); }
+.work-plan-clock-operation svg { flex-shrink: 0; }
+.work-plan-clock-controls { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.work-plan-clock-prompt { display: flex; align-items: center; gap: 8px; }
+.work-plan-clock-prompt > span { color: var(--secondary); font-size: 13px; line-height: 20px; }
+.work-plan-time-choice { display: inline-flex; align-items: center; flex-shrink: 0; gap: 4px; color: var(--secondary); }
+.work-plan-time-choice button { padding: 0 8px; border: 0; border-radius: 0; background: transparent; color: var(--secondary); font-size: 12px; }
+.work-plan-time-choice button[aria-pressed="true"] { background: transparent; color: var(--accent-text); font-weight: 600; text-decoration: underline !important; text-underline-offset: 6px; text-decoration-thickness: 2px; }
+.work-plan-time-choice button:hover:not(:disabled) { background: transparent; color: var(--accent-text); }
+.work-plan-time-field { display: flex; align-items: center; flex: 0 0 auto; gap: 2px; border-bottom: 1px solid var(--control); }
+.work-plan-time-field:focus-within { border-bottom-color: var(--accent-text); }
+.work-plan-time-field:has(input[aria-invalid="true"]) { border-bottom-color: var(--error); }
+.work-plan-time-input { display: flex; align-items: center; min-height: var(--plan-control-size); cursor: text; }
+.work-plan-time-part { display: flex; align-items: center; }
+.work-plan-time-field input { width: 2.6ch; min-width: 36px; min-height: calc(var(--plan-control-size) - 2px); margin: 0; padding: 0 4px; border: 0; border-radius: 3px; background: transparent; color: var(--ink); caret-color: var(--accent-text); font-family: inherit; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; }
+.work-plan-time-field input:focus { background: var(--accent-soft); }
+.work-plan-time-field input[aria-invalid="true"] { background: var(--error-soft); }
+.work-plan-time-field input::selection { background: var(--accent); color: var(--accent-content); }
+.work-plan-time-separator { color: var(--secondary); }
+.work-plan-time-suffix { color: var(--secondary); font-size: 13px; }
+.work-plan-modal .work-plan-time-clear { display: inline-grid; place-items: center; flex-shrink: 0; width: var(--plan-control-size); min-height: var(--plan-control-size); padding: 0; border: 1px solid transparent; border-radius: var(--radius-control); background: transparent; color: var(--secondary); }
+.work-plan-time-field .work-plan-time-clear { width: 32px; }
+.work-plan-time-clear:hover:not(:disabled) { background: var(--accent-soft); color: var(--accent-text); }
+.work-plan-clock :is(button, input):focus-visible:not(:disabled) { border-color: var(--accent-text); }
+.work-plan-clock button:focus-visible:not(:disabled) { text-decoration: underline !important; text-underline-offset: 3px; background: var(--accent-soft); }
+.work-plan-clock-error { grid-column: 1 / -1; color: var(--error); font-size: 12px; }
+.work-plan-duration-control { display: inline-flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: calc(2 * var(--icon-button-sm) + 72px); min-height: max(var(--control-height), var(--plan-control-size)); margin-left: auto; }
 .work-plan-stepper {
   position: relative;
   display: inline-flex;
@@ -162,20 +207,13 @@
   color: var(--ink);
   font-size: 18px;
 }
-.work-plan-duration-input { width: 96px; min-width: 0; padding: 4px 4px; border: 1px solid var(--control); border-radius: 8px; color: var(--ink); text-align: center; font-family: inherit; font-size: var(--field-font-size); font-weight: 600; }
+.work-plan-duration-input { width: 96px; min-width: 0; min-height: max(var(--control-height), var(--plan-control-size)); margin: 0; padding: 4px 4px; border: 1px solid var(--control); border-radius: 8px; color: var(--ink); text-align: center; font-family: inherit; font-size: var(--field-font-size); font-weight: 600; }
 .work-plan-duration-input[aria-invalid="true"] { border-color: var(--error); }
 .work-plan-input-help { position: absolute; z-index: 1; top: calc(100% + 4px); right: 0; width: max-content; max-width: 220px; padding: 4px 8px; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--paper); color: var(--secondary); font-size: 12px; }
-.work-plan-apply {
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--paper);
-  font-size: 14px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.work-plan-apply { min-width: 0; max-width: 100%; white-space: normal; text-align: right; border-color: transparent; background: transparent; color: var(--accent-text); }
-.work-plan-apply:hover:not(:disabled) { background: var(--accent-soft); border-color: transparent; }
+.work-plan-modal .work-plan-apply { grid-column: 2; justify-self: end; min-height: var(--control-sm); max-width: 100%; padding: 0 4px; border: 1px solid transparent; border-radius: var(--radius-control); background: transparent; color: var(--secondary); font-size: 12px; font-weight: 400; text-align: right; }
+.work-plan-modal .work-plan-apply:is(:hover, :focus):not(:disabled) { background: transparent; border-color: transparent; color: var(--secondary); }
+.work-plan-modal .work-plan-apply:is(:hover, :focus-visible):not(:disabled) { color: var(--accent-text); text-decoration: underline !important; text-underline-offset: 3px; }
+.work-plan-modal .work-plan-apply:focus-visible:not(:disabled) { border-color: var(--accent-text); }
 .work-plan-actions {
   display: flex;
   align-items: center;
@@ -183,10 +221,8 @@
   flex-wrap: wrap;
   gap: 12px;
   margin-top: 8px;
-  padding: 8px 12px;
-  border-radius: var(--radius-control);
-  background: var(--accent-soft);
-  color: var(--accent-text);
+  padding: 4px 0 0;
+  color: var(--ink);
   font-size: 14px;
   font-weight: 400;
 }
@@ -194,15 +230,15 @@
 .work-plan-actions button {
   padding: 0 12px;
   min-height: var(--control-compact);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--line);
   border-radius: var(--radius-control);
   background: var(--paper);
-  color: var(--accent-text);
+  color: var(--secondary);
   font-size: 12px;
   font-weight: 500;
   white-space: nowrap;
 }
-.work-plan-actions .work-plan-complete { background: var(--accent); color: var(--accent-content); border-color: var(--accent); }
+.work-plan-actions .work-plan-complete { background: var(--accent); color: var(--accent-content); border-color: var(--accent); font-size: 14px; }
 .work-plan-actions .work-plan-complete:is(:hover, :focus):not(:disabled) { background: var(--accent-hover); color: var(--accent-content); border-color: var(--accent-hover); }
 .work-plan-completion { position: relative; display: inline-flex; align-items: center; }
 .work-plan-completion > .work-plan-complete { display: inline-flex; align-items: center; gap: 8px; }
@@ -218,6 +254,8 @@
 @media (pointer: coarse) {
   .work-plan-modal { --plan-control-size: 44px; }
   .work-plan-actions button { min-height: 44px; }
+  .work-plan-time-field input { min-width: 44px; min-height: 44px; }
+  .work-plan-time-field .work-plan-time-clear { width: 40px; }
 }
 @media (min-width: 700px) {
   .work-plan-modal { width: min(640px, calc(100% - 48px)); }
@@ -225,6 +263,11 @@
   .work-plan-modal .app-modal-body { padding: 24px; }
 }
 @media (max-width: 480px) {
+  .work-plan-editable .work-plan-editor-top { grid-template-columns: minmax(0, 1fr); }
+  .work-plan-modal .work-plan-apply { grid-column: 1; }
+  .work-plan-clock-editor { column-gap: 8px; }
+  .work-plan-clock-prompt { flex-direction: column; align-items: flex-start; gap: 4px; }
+  .work-plan-clock-result { padding-top: 24px; }
   .work-plan-editor-top { flex-wrap: wrap; }
   .work-plan-duration-control { width: 100%; }
   .work-plan-stepper { margin-left: auto; }
@@ -234,7 +277,9 @@
   .work-plan-tabs button { font-size: 12px; }
 }
 @media (max-width: 359px) {
-  .work-plan-total > span:first-of-type > .work-plan-total-label { display: none; }
+  .work-plan-clock-editor { grid-template-columns: minmax(0, 1fr) max-content; }
+  .work-plan-clock-controls { grid-column: 1 / -1; }
+  .work-plan-clock-result { padding-top: 0; }
   .work-plan-day-title strong { font-size: 14px; }
   .work-plan-duration-input { width: 80px; }
 }

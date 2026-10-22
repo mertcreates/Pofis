@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { emptyWorkPlans, changeWeekPlan, changeDefaultPlan, changeWeekLockedDays, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, resolveUserLockedDays } from "@/domain/rules/work-plan";
+import { emptyWorkPlans, changeWeekPlan, changeDefaultPlan, changeWeekLockedDays, changeWeekTime, resolveWeekTimes, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, resolveUserLockedDays } from "@/domain/rules/work-plan";
 import { defaultNotebookDate, pofiNotebookDates } from "@/domain/rules/notebook-calendar";
 import { weekStart } from "@/domain/rules/calendar";
 import type { Report } from "@/domain/report";
@@ -39,12 +39,18 @@ export function DemoLocalPreview({ scenario, today, notes }: {
         leaveDays={resolveLeaveDays(plans, week)}
         zeroOpenDays={resolveZeroOpenDays(plans, week)}
         userLockedDays={resolveUserLockedDays(plans, week)}
+        times={resolveWeekTimes(plans, week)}
+        onSetTime={(day, time) => {
+          if (scenario === "plan-storage") return false;
+          setPlans(current => changeWeekTime(current, week, day, time));
+          return true;
+        }}
         onSetLockedDays={(days, plan) => {
           if (scenario === "plan-storage") return false;
           setPlans(current => changeWeekLockedDays(current, week, days, plan));
           return true;
         }}
-        special={Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length || plans.weekZeroOpenDays?.[week]?.length || plans.weekLockedDays?.[week]?.length)} ready
+        special={Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length || plans.weekZeroOpenDays?.[week]?.length || plans.weekLockedDays?.[week]?.length || plans.weekTimes?.[week])} ready
         error={scenario === "plan-storage" ? ui.storageWriteError : ""}
         onClose={() => setOpen(false)} onSave={(next, targetSeconds, leaveDays) => {
           if (scenario === "plan-storage") return false;

@@ -198,6 +198,8 @@ export function DashboardView({
             zeroOpenDays={workPlans.zeroOpenDays}
             userLockedDays={workPlans.userLockedDays}
             onSetLockedDays={workPlans.setLockedDays}
+            times={workPlans.times}
+            onSetTime={workPlans.setTime}
             special={workPlans.special}
             ready={workPlans.ready && source?.from === week}
             error={workPlans.error}

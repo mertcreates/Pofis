@@ -30,3 +30,11 @@ Tamamla hesabı ve kaydedilen hafta planı saniye hassasiyetini korur. Örneğin
 Süre alanına yalnız odaklanıp çıkmak, yuvarlanmış gösterimi plana kaydetmez. Artı/eksi görünür dakikayı baz alır; gereken 7 sa 59 dk 59 sn ekranda 8 sa görünür ve artı 8 sa 30 dk'ya gider. Kilitleme ve açık günlere uygulama görünür gereken dakikayı kullanır. Elle yeni süre seçilmesi normal düzenleme akışıyla haftalık hedefi seçilen değişim kadar günceller.
 
 [Davranış testleri](../../src/domain/rules/plan-duration.test.ts) giriş biçimlerini, geçersiz değerleri ve adım sınırlarını doğrular.
+
+## Planlanan saat hesabı
+
+Saat/dakika bölümlerinin yazma, silme, odak, ok tuşları ve yapıştırma davranışı [PlanTimeInput](../../src/components/plan-time-input.tsx) bileşenindedir. Etkileşim sözleşmesi [haftalık saat seçimi](work-plan.md#haftalık-girişçıkış-saati) bölümünde tanımlıdır; bu kural sahibi yalnız tamamlanmış saati ayrıştırır ve karşı saati hesaplar.
+
+`parsePlanClock`, `H:mm`, `HH:mm` ve dört rakamlı `HHmm` girişini 0–1439 arasında tam dakikaya çevirir. Başta ve sonda boşluklar temizlenir. `9:00`, `09:00` ve `0900`, 540 dakikadır; geçerli aralık `00:00`–`23:59` olur. Boş, eksik, tanınmayan veya sınır dışı giriş `null` döndürür. `9:0`, `900`, `24:00` ve `2360` geçersizdir. Boş taslağın seçimi temizlemesi, geçersiz taslağın korunması ve kaydetme anı [haftalık saat seçimi sözleşmesinde](work-plan.md#haftalık-girişçıkış-saati) yönetilir.
+
+`planClockTimes`, haftanın seçili giriş veya çıkış saatini görünür gereken dakikayla birleştirir; karşı saati `HH:mm` ve gün farkıyla döndürür. Seçim yoksa sonuç `null` olur. Gece yarısı sonrası çıkış ertesi güne, gece yarısından geriye düşen giriş önceki güne aittir. Etkileşim ve kalıcılık [haftalık saat seçimi sözleşmesindedir](work-plan.md#haftalık-girişçıkış-saati).

@@ -1,5 +1,34 @@
 import { expect, test } from "bun:test";
-import { parsePlanDuration, planDisplayMinutes, stepPlanDuration } from "./plan-duration";
+import { parsePlanClock, parsePlanDuration, planDisplayMinutes, stepPlanDuration, planClockTimes } from "./plan-duration";
+
+test("plan saati iki noktayla veya sayısal klavyeden dört rakamla girilir", () => {
+  for (const input of ["09:00", "9:00", "0900", " 09:00 "]) expect(parsePlanClock(input)).toBe(540);
+  expect(parsePlanClock("0000")).toBe(0);
+  expect(parsePlanClock("23:59")).toBe(1439);
+  expect(parsePlanClock("2359")).toBe(1439);
+  for (const input of ["", "9", "09:", "9:0", "900", "24:00", "2360", "12:99", "-1:00", "hello", "09:00:00"])
+    expect(parsePlanClock(input)).toBeNull();
+});
+
+test("giriş veya çıkış sabit kalırken gereken süre karşı saati belirler", () => {
+  expect(planClockTimes(undefined, 28800)).toBeNull();
+  expect(planClockTimes({ anchor: "entry", minute: 540 }, 28800)).toEqual({
+    entry: { value: "09:00", dayOffset: 0 }, exit: { value: "17:00", dayOffset: 0 },
+  });
+  expect(planClockTimes({ anchor: "exit", minute: 1080 }, 28800)).toEqual({
+    entry: { value: "10:00", dayOffset: 0 }, exit: { value: "18:00", dayOffset: 0 },
+  });
+  expect(planClockTimes({ anchor: "entry", minute: 540 }, 24643)?.exit.value).toBe("15:51");
+  expect(planClockTimes({ anchor: "exit", minute: 1080 }, 24643)?.entry.value).toBe("11:09");
+  expect(planClockTimes({ anchor: "entry", minute: 0 }, 0)?.exit.value).toBe("00:00");
+});
+
+test("gece yarısı aşımı yönüyle gösterilir; tam gece yarısı ertesi gündür", () => {
+  expect(planClockTimes({ anchor: "entry", minute: 1200 }, 28800)?.exit).toEqual({ value: "04:00", dayOffset: 1 });
+  expect(planClockTimes({ anchor: "exit", minute: 240 }, 28800)?.entry).toEqual({ value: "20:00", dayOffset: -1 });
+  expect(planClockTimes({ anchor: "entry", minute: 960 }, 28800)?.exit).toEqual({ value: "00:00", dayOffset: 1 });
+  expect(planClockTimes({ anchor: "exit", minute: 960 }, 57600)?.entry).toEqual({ value: "00:00", dayOffset: 0 });
+});
 
 test("dakika gösterimi gereken süreyi eksiltmez, gerçekleşeni artırmaz", () => {
   for (const seconds of [0, 1, 59, 60, 61, 1799, 1800, 1801, 28799, 28800, 28801, 57599, 57600]) {

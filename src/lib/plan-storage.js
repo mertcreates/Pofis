@@ -1,6 +1,6 @@
 import { ui } from "./ui-text.js";
 import {
-  readDayPlan, readWeekPlan, readLeaveDays, isPlanWeek, emptyWorkPlans, samePlan,
+  readDayPlan, readWeekPlan, readLeaveDays, readWeekTimes, isPlanWeek, emptyWorkPlans, samePlan,
 } from "../domain/rules/work-plan";
 
 export const PLAN_STORAGE_KEY = "pofis:work-plans:v1";
@@ -74,10 +74,19 @@ export function readStoredPlans(raw) {
       weekOverrides[week] = lockedPlan;
     }
   }
+  if (stored.weekTimes !== undefined && (!stored.weekTimes || typeof stored.weekTimes !== "object" || Array.isArray(stored.weekTimes)))
+    throw new Error(ui.planStorageErrors.times);
+  const weekTimes = {};
+  for (const [week, value] of Object.entries(stored.weekTimes ?? {})) {
+    const times = readWeekTimes(value);
+    if (!isPlanWeek(week) || !times) throw new Error(ui.planStorageErrors.times);
+    if (Object.keys(times).length) weekTimes[week] = times;
+  }
   return { defaultPlan, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
     ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}),
     ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}),
-    ...(Object.keys(weekLockedDays).length ? { weekLockedDays } : {}) };
+    ...(Object.keys(weekLockedDays).length ? { weekLockedDays } : {}),
+    ...(Object.keys(weekTimes).length ? { weekTimes } : {}) };
 }
 
 /** @param {import('../domain/rules/work-plan').WorkPlans} plans */
