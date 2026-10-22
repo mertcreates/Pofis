@@ -1,4 +1,13 @@
 const { ui } = require("./ui-text.cjs");
+
+function showWindow({ app, window, platform }) {
+  // macOS can hide the application independently of its BrowserWindow.
+  if (platform === "darwin") app.show();
+  if (window.isMinimized()) window.restore();
+  window.show();
+  window.focus();
+}
+
 function installBackground({ app, window, Tray, Menu, nativeImage, icon, platform, showWindow, isQuitting }) {
   const image = nativeImage.createFromPath(icon).resize({ width: platform === "darwin" ? 18 : 24 });
   if (platform === "darwin") image.setTemplateImage(true);
@@ -20,4 +29,4 @@ function installBackground({ app, window, Tray, Menu, nativeImage, icon, platfor
   return { stop: () => tray.destroy() };
 }
 
-module.exports = { installBackground };
+module.exports = { installBackground, showWindow };

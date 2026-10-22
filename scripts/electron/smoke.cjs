@@ -1,4 +1,4 @@
-// Run against the generated Windows folder; no Playwright or installed Node is needed.
+// Run against a native package folder; no Playwright or installed Node is needed.
 const { spawn, execFile } = require("node:child_process");
 const { promisify } = require("node:util");
 const { mkdtemp, rm, writeFile, mkdir, readdir, readFile } = require("node:fs/promises");
@@ -12,14 +12,14 @@ const { readStoredPlans } = require("../../src/lib/plan-storage.js");
 const { createSessionStorage } = require("../../src/server/session-storage.js");
 const { CookieJar } = require("tough-cookie");
 
-async function until(check, timeout = 30000) {
+async function until(check, timeout = 30000, message = "Pofis açılış testi zaman aşımına uğradı.") {
   const end = Date.now() + timeout;
   while (Date.now() < end) {
     const result = await check();
     if (result) return result;
     await Bun.sleep(100);
   }
-  throw new Error("Pofis açılış testi zaman aşımına uğradı.");
+  throw new Error(message);
 }
 
 async function run() {
@@ -52,7 +52,7 @@ async function run() {
     const id = randomBytes(16).toString("hex");
     child = spawn(packageFolder === folder ? executable : join(packageFolder, target.executable),
       [...appArgs, `--user-data-dir=${profile}`, `--startup-id=${id}`, "--remote-debugging-port=0", "--inspect=127.0.0.1:0"],
-      { env, cwd: packageFolder, windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
+      { env, cwd: packageFolder, windowsHide: false, stdio: ["ignore", "ignore", "pipe"] });
     child.stderr.on("data", chunk => { output += chunk; });
     child.on("error", error => { output += error.message; });
     const address = await until(() => output.match(/DevTools listening on (ws:\/\/[^\s]+)/)?.[1]);
@@ -74,6 +74,20 @@ async function run() {
     const receipt = await until(() => readFile(join(profile, "launch-results", `${id}.json`), "utf8").then(JSON.parse, () => false));
     assert.equal(receipt.status, "ready");
     serverOrigin = receipt.origin;
+    const mainDebugger = await connect(mainDebugUrl);
+    try {
+      await until(async () => {
+        const state = await mainDebugger.send("Runtime.evaluate", {
+          expression: `(() => {
+            const { app, BrowserWindow } = process.mainModule.require('electron');
+            const window = BrowserWindow.getAllWindows()[0];
+            return !!window && window.isVisible() && !window.isMinimized() && (process.platform !== 'darwin' || !app.isHidden());
+          })()`, returnByValue: true,
+        });
+        assert.equal(state.exceptionDetails, undefined);
+        return state.result.value === true;
+      }, 30000, "Pofis açılışında pencere gizli veya küçültülmüş kaldı.");
+    } finally { mainDebugger.close(); }
   };
   const evaluate = async expression => {
     const result = await cdp.send("Runtime.evaluate", { expression, returnByValue: true, awaitPromise: true });
@@ -85,12 +99,31 @@ async function run() {
     // Use the test-only main inspector to exercise the title-bar close path.
     const mainDebugger = await connect(mainDebugUrl);
     try {
-      const result = await mainDebugger.send("Runtime.evaluate", {
-        expression: "process.mainModule.require('electron').BrowserWindow.getAllWindows()[0].close()",
-      });
-      assert.equal(result.exceptionDetails, undefined);
+      const evaluateMain = async expression => {
+        const result = await mainDebugger.send("Runtime.evaluate", { expression, returnByValue: true });
+        assert.equal(result.exceptionDetails, undefined);
+        return result.result.value;
+      };
+      const windowId = await evaluateMain(`(() => {
+          const windows = process.mainModule.require('electron').BrowserWindow.getAllWindows();
+          if (windows.length !== 1) throw new Error('Kapatılacak tek Pofis penceresi gerekli.');
+          const window = windows[0];
+          window.show();
+          return window.id;
+        })()`);
+      await until(async () => (await evaluateMain(
+        `process.mainModule.require('electron').BrowserWindow.fromId(${windowId}).isVisible()`)) === true,
+      30000, "Pofis native penceresi kapatma kabulü öncesinde gösterilemedi.");
+      await evaluateMain(`process.mainModule.require('electron').BrowserWindow.fromId(${windowId}).close()`);
+      // Native visibility is the close-to-background contract; renderer visibility
+      // also depends on Chromium occlusion and background painting policies.
+      await until(async () => (await evaluateMain(`(() => {
+            const window = process.mainModule.require('electron').BrowserWindow.fromId(${windowId});
+            if (!window || window.isDestroyed()) throw new Error('Pofis penceresi gizlenmek yerine yok edildi.');
+            if (window.webContents.isDestroyed()) throw new Error('Pofis renderer süreci kapandı.');
+            return !window.isVisible();
+          })()`)) === true, 30000, "Pofis native penceresi kapatma sonrasında gizlenmedi.");
     } finally { mainDebugger.close(); }
-    await until(() => evaluate("document.visibilityState === 'hidden'"));
     assert.equal(child.exitCode, null, "Pencere kapatması uygulamayı sonlandırmamalı.");
     const health = await fetch(`${serverOrigin}/api/health`, { signal: AbortSignal.timeout(1000) });
     assert.equal(health.ok, true);

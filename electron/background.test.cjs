@@ -1,6 +1,22 @@
 const { expect, test } = require("bun:test");
 const { EventEmitter } = require("node:events");
-const { installBackground } = require("./background.cjs");
+const { installBackground, showWindow } = require("./background.cjs");
+
+test.each(["win32", "darwin", "linux"])("%s açılış isteği gizli/küçültülmüş pencereyi gösterir ve odaklar", platform => {
+  let appHidden = platform === "darwin", minimized = true, visible = false, focused = false;
+  const window = {
+    isMinimized: () => minimized,
+    restore() { minimized = false; },
+    show() { visible = !appHidden && !minimized; },
+    focus() { focused = visible; },
+  };
+  const app = { show() { appHidden = false; } };
+  showWindow({ app, window, platform });
+  expect({ appHidden, minimized, visible, focused }).toEqual({ appHidden: false, minimized: false, visible: true, focused: true });
+  visible = false; focused = false;
+  showWindow({ app, window, platform });
+  expect({ visible, focused }).toEqual({ visible: true, focused: true });
+});
 
 test.each(["win32", "darwin", "linux"])("%s pencere kapatması gizler; açık çıkış ve sistem kapanışı gerçek çıkıştır", platform => {
   const window = new EventEmitter(); let hidden = 0, prevented = 0, quit = 0, shown = 0, destroyed = 0, quitting = false;

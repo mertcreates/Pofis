@@ -12,7 +12,7 @@ Yerel hazırlık yapıldı; gerçek Ubuntu kabulü ve yayın bekliyor. Destek ka
 
 ## 0.5.0 yayın kabulü
 
-- [ ] Güncel kaynakla Windows ve ARM64 paket açılış/kurulum/güncelleme kabulünü, Intel statik paket kontrollerini tamamla. Genel kabul betikleri GA4 trafiğini engeller. Yayın workflow'u hedef sürüme yönelik kullanıcı yetkisiyle başlatılır; [yayın sözleşmesi](../docs/release.md).
+- [ ] Güncel kaynakla Windows ve ARM64 paket açılış/kurulum/güncelleme kabulünü, Intel statik paket kontrollerini tamamla. macOS'ta onaylı güncelleme sonrasında pencerenin görünür açıldığını ve installer'ın hazır sonucunu aldığını doğrula; açılışın `ready-to-show` bağımlılığı yerelde kaldırıldı, native güncelleme kabulü bekliyor. Genel kabul betikleri GA4 trafiğini engeller. Yayın workflow'u hedef sürüme yönelik kullanıcı yetkisiyle başlatılır; [yayın sözleşmesi](../docs/release.md).
 - [ ] GA4 `G-MV4MG71CDB` akışında Geliştirilmiş ölçümü kapat; Raporlama kimliğini User-ID içeren Gözlemlenen veya Harmanlanmış olarak ayarla ve `app_release` olay boyutunu tanımla. Yayın sonrasında Anlık rapor/Kullanıcı keşfinde web/masaüstü kimliklerini doğrula; [ölçüm sözleşmesi](../docs/analytics.md).
 
 ## Gerçek cihaz ve PDKS kabulü

@@ -9,7 +9,7 @@ const { installUpdateBridge } = require("./update-bridge.cjs");
 const { createWindowOpenHandler } = require("./external-links.cjs");
 const { installPermissions } = require("./permissions.cjs");
 const { isolateAcceptanceAnalytics } = require("./acceptance-network.cjs");
-const { installBackground } = require("./background.cjs");
+const { installBackground, showWindow: showNativeWindow } = require("./background.cjs");
 const { createDesktopTransport } = require("./transport.cjs");
 const target = platformTarget();
 
@@ -48,9 +48,7 @@ async function focusAndReport() {
     await report("error", ui.desktop.notReady);
     return;
   }
-  if (window.isMinimized()) window.restore();
-  window.show();
-  window.focus();
+  showNativeWindow({ app, window, platform: target.platform });
   await report("ready");
 }
 
@@ -144,8 +142,7 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     });
     const showWindow = () => {
       if (quitting || reportingFailure || !window || window.isDestroyed()) return;
-      if (window.isMinimized()) window.restore();
-      window.show(); window.focus();
+      showNativeWindow({ app, window, platform: target.platform });
     };
     background = installBackground({ app, window, Tray, Menu, nativeImage, icon,
       platform: target.platform, showWindow, isQuitting: () => quitting });
@@ -172,9 +169,8 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     window.webContents.on("will-redirect", restrictNavigation);
     window.webContents.on("will-attach-webview", (event) => event.preventDefault());
     window.webContents.on("render-process-gone", () => fail(new Error(ui.desktop.rendererClosed)));
-    const painted = new Promise(resolve => window.once("ready-to-show", resolve));
     await window.loadURL(ORIGIN);
-    await painted;
+    // Show the loaded page without waiting for a paint from an initially hidden window.
     ready = true;
     await focusAndReport();
     if (app.isPackaged) {
