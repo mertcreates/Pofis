@@ -990,6 +990,10 @@ body {
 .daily-report-table td {
   vertical-align: middle;
 }
+.daily-report-table tbody > tr:focus-visible {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+}
 .report-day {
   display: flex;
   align-items: center;

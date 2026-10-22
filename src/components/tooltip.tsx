@@ -5,16 +5,17 @@ import { createPortal } from "react-dom";
 import { tooltipPosition } from "./tooltip-position";
 import "./tooltip.css";
 
-export function Tooltip({ children, content, className, label, anchorSelector }: {
+export function Tooltip({ children, content, className, label, anchorSelector, onActivate }: {
   children: ReactNode;
   content: ReactNode;
   className?: string;
   label?: string;
   // A chart can keep the whole column interactive while positioning at its bar.
   anchorSelector?: string;
+  onActivate?: () => void;
 }) {
   const id = useId();
-  const anchor = useRef<HTMLDivElement>(null);
+  const anchor = useRef<HTMLElement>(null);
   const tip = useRef<HTMLDivElement>(null);
   const updatePosition = useRef<(() => void) | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -94,15 +95,22 @@ export function Tooltip({ children, content, className, label, anchorSelector }:
     };
   }, [open, id]);
 
+  const Trigger = onActivate ? "button" : "div";
   return <>
-    <div ref={anchor} className={`tooltip-trigger${className ? ` ${className}` : ""}`} tabIndex={enabled ? 0 : undefined} aria-label={label} aria-describedby={open && enabled ? id : undefined}
+    <Trigger ref={(node: HTMLButtonElement | HTMLDivElement | null) => { anchor.current = node; }} type={onActivate ? "button" : undefined}
+      className={`tooltip-trigger${className ? ` ${className}` : ""}`} tabIndex={!onActivate && enabled ? 0 : undefined} aria-label={label} aria-describedby={open && enabled ? id : undefined}
+      onClick={onActivate ? event => {
+        event.currentTarget.focus({ preventScroll: true });
+        close();
+        onActivate();
+      } : undefined}
       onPointerEnter={event => { if (event.pointerType !== "touch") { hovered.current = true; show(180); } }}
       onPointerLeave={event => { if (event.pointerType !== "touch") { hovered.current = false; leave(); } }}
       onFocus={() => { focused.current = true; show(); }}
       onBlur={() => { focused.current = false; if (!hovered.current) close(); }}
-      onPointerDown={event => { if (event.pointerType === "touch" && enabled) { event.preventDefault(); if (open) close(); else show(); } }}>
+      onPointerDown={event => { if (!onActivate && event.pointerType === "touch" && enabled) { event.preventDefault(); if (open) close(); else show(); } }}>
       {children}
-    </div>
+    </Trigger>
     {open && enabled && createPortal(<div ref={tip} id={id} role="tooltip" className="pofis-tooltip" data-side={position?.side}
       style={{ left: position?.left ?? 0, top: position?.top ?? 0, visibility: position ? "visible" : "hidden" }}
       onPointerEnter={clearTimer} onPointerLeave={leave}>

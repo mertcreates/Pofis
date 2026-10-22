@@ -31,6 +31,7 @@ type Source =
       capturedDate: string;
       notifications: NotificationSettingsSource;
     };
+type DashboardDialog = { kind: "plan"; initialDate?: string } | { kind: "room" | "meals" } | null;
 export function DashboardView({
   now,
   week,
@@ -47,7 +48,7 @@ export function DashboardView({
   children?: ReactNode;
 }) {
   const appearance = useAppearance();
-  const [dialog, setDialog] = useState<"plan" | "room" | "meals" | null>(
+  const [dialog, setDialog] = useState<DashboardDialog>(
     null,
   );
   const today = dateKey(now);
@@ -105,20 +106,20 @@ export function DashboardView({
         busy={busy}
         appearance={appearance}
         notifications={data.kind === "demo" ? data.notifications : { ...notifications, mode: notifications.available ? "desktop" : "web" }}
-        settingsOpen={dialog === "plan"}
-        mealsOpen={dialog === "meals"}
+        settingsOpen={dialog?.kind === "plan"}
+        mealsOpen={dialog?.kind === "meals"}
         showMeals={data.kind === "pdks"}
         onSection={(section: string) => {
           if (section === "meals") {
-            setDialog("meals");
+            setDialog({ kind: "meals" });
             return;
           }
           selectWeek(currentWeek);
-          if (section === "settings") setDialog("plan");
+          if (section === "settings") setDialog({ kind: "plan" });
         }}
         onDisconnect={pdks ? () => void pdks.disconnect() : undefined}
       >
-        {workPlans.error && dialog !== "plan" && (
+        {workPlans.error && dialog?.kind !== "plan" && (
           <InlineNotice tone="warning">{workPlans.error}</InlineNotice>
         )}
         {pdks?.failure && connected === true && (
@@ -153,7 +154,7 @@ export function DashboardView({
               firstWeek={firstWeek}
               onSelect={selectWeek}
               onRefresh={() => void refresh()}
-              onEditPlan={!isCurrent ? () => setDialog("plan") : undefined}
+              onEditPlan={!isCurrent ? () => setDialog({ kind: "plan" }) : undefined}
             />
             <div className="report-area" aria-busy={busy}>
               {stale && (
@@ -173,7 +174,8 @@ export function DashboardView({
                   owner={source.person.name}
                   targetSeconds={workPlans.targetSeconds}
                   leaveDays={workPlans.leaveDays}
-                  onOpenRoom={() => setDialog("room")}
+                  onOpenRoom={() => setDialog({ kind: "room" })}
+                  onEditPlan={date => setDialog({ kind: "plan", initialDate: date })}
                 />
               ) : pdks?.failure ? null : busy ? (
                 <LoadingState label={ui.loadingSelf} />
@@ -186,10 +188,12 @@ export function DashboardView({
             </div>
           </>
         )}
-        {connected && dialog === "plan" && (
+        {connected && dialog?.kind === "plan" && (
           <PlanEditor
+            key={week}
             week={week}
             today={today}
+            initialDate={dialog.initialDate}
             plan={workPlans.plan}
             targetSeconds={workPlans.targetSeconds}
             days={days}
@@ -209,14 +213,14 @@ export function DashboardView({
             onClose={() => setDialog(null)}
           />
         )}
-        {connected && dialog === "room" && (
+        {connected && dialog?.kind === "room" && (
           <PofiRoom
             today={today}
             notes={source?.pofiNotes}
             onClose={() => setDialog(null)}
           />
         )}
-        {connected && dialog === "meals" && (
+        {connected && dialog?.kind === "meals" && (
           <MealMenuModal today={today} onClose={() => setDialog(null)} />
         )}
       </AppShell>

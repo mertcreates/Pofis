@@ -4,6 +4,13 @@ import { load } from "cheerio";
 import { PlanEditor } from "./plan-editor";
 import { completeWeekPlan, DEFAULT_WORK_PLAN, readDayPlan, readWeekPlan, resolveWeekPlan, type PlanDay, type WorkPlan } from "@/domain/rules/work-plan";
 
+test("cetvelden gelen gün bugünden farklıysa o gün seçili açılır", () => {
+  const $ = load(renderToStaticMarkup(<PlanEditor plan={DEFAULT_WORK_PLAN} defaultPlan={DEFAULT_WORK_PLAN}
+    days={[]} special={false} ready week="2026-10-12" today="2026-10-15" initialDate="2026-10-16" error=""
+    onSave={() => true} onSaveDefault={() => true} onReset={() => true} onClose={() => {}} />));
+  expect($(".work-plan-day[aria-pressed=true] strong").text()).toBe("Cum");
+});
+
 function render(completedHours: number[], today = "2026-10-15", targetSeconds = 144000, plan: WorkPlan = DEFAULT_WORK_PLAN) {
   const days: PlanDay[] = Array.from({ length: 7 }, (_, day) => ({
     date: `2026-10-${12 + day}`,

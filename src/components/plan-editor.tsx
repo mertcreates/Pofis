@@ -37,7 +37,7 @@ function DurationInput({ value, label, disabled, onCommit }: { value: number; la
 }
 
 export function PlanEditor({
-  plan, defaultPlan, days, special, ready, week, today, error, leaveDays = [], zeroOpenDays = [], userLockedDays = [], times = {}, targetSeconds = weeklyTarget(plan), onSave, onSaveDefault, onReset, onSetLockedDays, onSetTime, onClose,
+  plan, defaultPlan, days, special, ready, week, today, initialDate, error, leaveDays = [], zeroOpenDays = [], userLockedDays = [], times = {}, targetSeconds = weeklyTarget(plan), onSave, onSaveDefault, onReset, onSetLockedDays, onSetTime, onClose,
 }: {
   plan: WorkPlan;
   defaultPlan: WorkPlan;
@@ -46,6 +46,7 @@ export function PlanEditor({
   ready: boolean;
   week: string;
   today: string;
+  initialDate?: string;
   error: string;
   leaveDays?: readonly number[];
   zeroOpenDays?: readonly number[];
@@ -65,9 +66,11 @@ export function PlanEditor({
   const plannerButtonRef = useRef<HTMLButtonElement>(null);
   const completionRef = useRef<HTMLSpanElement>(null);
   const completionButtonRef = useRef<HTMLButtonElement>(null);
-  const [selectedDay, setSelectedDay] = useState(() =>
-    isOpenPlanDay(plan, weekday(today), zeroOpenDays) ? weekday(today)
-      : Math.max(0, plan.findLastIndex((_, day) => isOpenPlanDay(plan, day, zeroOpenDays))));
+  const [selectedDay, setSelectedDay] = useState(() => {
+    if (initialDate && weekStart(initialDate) === week && weekday(initialDate) < WORKING_DAY_COUNT) return weekday(initialDate);
+    return isOpenPlanDay(plan, weekday(today), zeroOpenDays) ? weekday(today)
+      : Math.max(0, plan.findLastIndex((_, day) => isOpenPlanDay(plan, day, zeroOpenDays)));
+  });
   const id = useId();
   const plannerKey = `${week}-${selectedDay}`;
   const plannerOpen = plannerDay === plannerKey;

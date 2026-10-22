@@ -60,7 +60,17 @@ Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut se
 | [Depolama](../src/data/work-plans.test.ts) | Doğrulama, kalıcılık, yazı hatası ve canlı/demo ayrımı |
 | [Rapor](../src/domain/report.test.ts) | Ortak gereken süre, kayıt durumu, Pofi ve hedef çıkış |
 | [Kural mimarisi](../src/domain/rules/rules.test.ts) | Belge/kod sahipliği ve bağımlılık sınırları |
-| [Haftalık toplam](../src/components/dashboard/weekly-total.test.tsx) | İzinli günün cetveldeki sırası ve dolgusuz durumu, normal kapalı günlerin gizlenmesi, izinli çalışma süresinin görünürlüğü ve toplamda korunması; geçmiş hafta cetvelinin kapalı kalması |
+| [Haftalık toplam](../src/components/dashboard/weekly-total.test.tsx) | İzinli günün cetveldeki sırası ve dolgusuz durumu, normal kapalı günlerin gizlenmesi, izinli çalışma süresinin görünürlüğü ve toplamda korunması; geçmiş hafta cetvelinin kapalı kalması; bugünün ayrışması ve gelecek günün planlanan süre etiketi; Çalışılan/Hedef ayrımı, kayıtsız ve belirsiz günün uyarısı, bilinen belirsiz sürenin korunması |
+
+### Haftalık cetvelden güne geçiş
+
+[Plan düzenleyici testi](../src/components/plan-editor.test.tsx), cetvelden gelen gün bugünden farklıysa o günün seçildiğini doğrular. Geçiş, kaydırma, dokunma ve odak dönüşü aşağıdaki tarayıcı kabulünde kontrol edilir.
+
+Tarayıcı kabulü:
+
+1. Güncel haftanın geçmiş bir gününü cetvelden seçin → giriş–çıkış raporundaki aynı gün açılır, odaklanır ve görünür alana kayar. Günü kapatıp tekrar seçin; yeniden açılmalıdır. Kayıtsız ve belirsiz geçmiş günlerde de kendi kayıt durumu görünmelidir.
+2. Bugünü veya gelecek bir günü seçin → Mesai planı o gün seçili açılır. Bugünün çıkış kaydı varsa da plana gidilmelidir. İzinli gelecek günü seçin; izin durumu korunmalıdır. Modalı kapatın → odak cetveldeki kaynak güne dönmelidir.
+3. Tab ile günler arasında ilerleyin → tek odak durağı ve bilgi tooltip'i görünür. Enter/Space doğru geçişi yapmalıdır. Dokunmatik cihazda ilk dokunuş geçişi yapmalı; ikinci dokunuş gerekmemelidir. Raporu kapalı bırakıp saatin ilerlemesini bekleyin → gün yeniden açılmamalı ve sayfa kaymamalıdır. Azaltılmış hareket tercihinde kaydırma anlık olmalıdır.
 
 ### Planlayıcı etkileşim kabulü
 

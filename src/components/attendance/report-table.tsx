@@ -1,5 +1,5 @@
 "use client";
-import { memo, useState } from "react";
+import { memo, useImperativeHandle, useRef, useState, type Ref } from "react";
 import Icon from "../ui-icon.js";
 import { ui } from "@/lib/ui-text.js";
 import type { DayReport } from "@/domain/attendance";
@@ -12,6 +12,9 @@ import {
 import { stateLabel } from "./labels";
 import { RawPassages } from "./records";
 
+export type ReportTableHandle = { openDay: (date: string) => void };
+type DayRowHandle = { open: () => void };
+
 const DayRow = memo(function DayRow({
   day,
   target,
@@ -19,6 +22,7 @@ const DayRow = memo(function DayRow({
   today,
   compact,
   onLeave,
+  ref,
 }: {
   day: DayReport;
   target: number | null;
@@ -26,9 +30,22 @@ const DayRow = memo(function DayRow({
   today: string;
   compact: boolean;
   onLeave: boolean;
+  ref: Ref<DayRowHandle>;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [detailsLoaded, setDetailsLoaded] = useState(false);
+  const row = useRef<HTMLElement>(null);
+  useImperativeHandle(ref, () => ({
+    open() {
+      if (day.date >= today || !row.current) return;
+      setExpanded(true);
+      setDetailsLoaded(true);
+      if (row.current instanceof HTMLDetailsElement) row.current.open = true;
+      const target = row.current.querySelector<HTMLElement>("summary, .report-day-toggle") ?? row.current;
+      target.focus({ preventScroll: true });
+      row.current.scrollIntoView({ block: "center", behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth" });
+    },
+  }), [day.date, today]);
   const id = `day-passages-${day.date}`;
   const label = formatDate(day.date);
   if (day.date > today) {
@@ -58,7 +75,7 @@ const DayRow = memo(function DayRow({
     const live = day.liveSeconds !== null;
     const seconds = live ? day.source.total : day.recordedSeconds;
     return (
-      <details className={`report-accordion-day${day.date === today ? " is-today" : ""}`}
+      <details ref={node => { row.current = node; }} className={`report-accordion-day${day.date === today ? " is-today" : ""}`}
         onToggle={event => { if (event.currentTarget.open) setDetailsLoaded(true); }}>
         <summary>
           <span className="report-accordion-heading">
@@ -85,6 +102,7 @@ const DayRow = memo(function DayRow({
   return (
     <>
       <tr
+        ref={node => { row.current = node; }} tabIndex={-1}
         className={day.date === today ? "today-row" : ""}
       >
         <th scope="row">
@@ -151,12 +169,21 @@ export const ReportTable = memo(function ReportTable({
   today,
   compact = false,
   leaveDays,
+  ref,
 }: {
   days: DayReport[];
   today: string;
   compact?: boolean;
   leaveDays: readonly number[];
+  ref?: Ref<ReportTableHandle>;
 }) {
+  const rows = useRef(new Map<string, DayRowHandle>());
+  useImperativeHandle(ref, () => ({ openDay: date => rows.current.get(date)?.open() }), []);
+  const dayRows = days.filter(day => weekday(day.date) < 5 || day.records.length > 0 || day.recordedSeconds !== null || day.liveSeconds !== null).map(day => (
+    <DayRow key={day.date} day={day} today={today} compact={compact}
+      ref={handle => { if (handle) rows.current.set(day.date, handle); else rows.current.delete(day.date); }}
+      onLeave={leaveDays.includes(weekday(day.date))} working={day.source.workingDay} target={day.source.dailyGoalSeconds} />
+  ));
   return (
     <section
       className={`records${compact ? " records-compact" : ""}`}
@@ -167,9 +194,7 @@ export const ReportTable = memo(function ReportTable({
         <h2 id="records-title">{ui.entryExitReport}</h2>
       </div>
       {compact ? <div className="report-accordion">
-        {days.filter(day => weekday(day.date) < 5 || day.records.length > 0 || day.recordedSeconds !== null || day.liveSeconds !== null).map(day => (
-          <DayRow key={day.date} day={day} today={today} compact onLeave={leaveDays.includes(weekday(day.date))} working={day.source.workingDay} target={day.source.dailyGoalSeconds} />
-        ))}
+        {dayRows}
       </div> : <table className="daily-report-table" aria-labelledby="records-title">
         <thead>
           <tr>
@@ -188,17 +213,7 @@ export const ReportTable = memo(function ReportTable({
           </tr>
         </thead>
         <tbody>
-          {days.filter(day => weekday(day.date) < 5 || day.records.length > 0 || day.recordedSeconds !== null || day.liveSeconds !== null).map(day => (
-            <DayRow
-              key={day.date}
-              day={day}
-              today={today}
-              compact={compact}
-              onLeave={leaveDays.includes(weekday(day.date))}
-              working={day.source.workingDay}
-              target={day.source.dailyGoalSeconds}
-            />
-          ))}
+          {dayRows}
         </tbody>
       </table>}
     </section>
