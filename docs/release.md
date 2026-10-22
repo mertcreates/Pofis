@@ -40,6 +40,24 @@ Public `latest.json` dosyaları ve footer'daki uygulama sürümü yayımlanmış
 
 Installer sürüm düşürmez. Daha yüksek sürümlü bir geliştirme paketinden düşük sürüme geçiş gerekiyorsa önce normal kaldırma yolu kullanılır; kullanıcı profili korunur.
 
+### Otomatik sürüm notları
+
+Sürüm taslağı oluşturulurken [not üreticisi](../scripts/electron/release-notes.cjs), public depoda en son yayımlanan kararlı sürümün `Kaynak commit` değeri ile çalıştırılan `GITHUB_SHA` arasındaki Git geçmişini okur. Begin işi bu karşılaştırma için tam kaynak geçmişini alır; diğer işler mevcut checkout kapsamını korur. İlk yayında mevcut geçmiş kullanılır. Önceki sürümün kaynak kimliği yoksa, commit erişilemiyorsa veya yeni commit'in atası değilse yayın hazırlığı açıklayıcı hatayla durur.
+
+Notlar **Yenilikler**, **Düzeltmeler**, **Performans ve bakım** başlıklarında toplanır; boş bölümler gösterilmez. Ayrıştırıcı mevcut geçmişteki `feat(pofi): …`, `fix: …`, `perf: …`, `refactor: …` biçimlerini ve `Add …`, `Support …`, `Fix …`, `Refine …`, `Improve …` gibi serbest başlıkları tanır. Conventional önekleri kaldırılır; `!` uyumluluk değişikliği olarak belirtilir. Tekrarlar bölüm içinde tekilleştirilir. CI, test, dokümantasyon, sürüm artırma ve iç paketleme/runtime başlıkları elenir; tanınmayan başlıklar otomatik aktarılmaz. Başlıklar çevrilmez veya anlamları yeniden yazılmaz; commit gövdeleri public notlara eklenmez.
+
+Bir commit için Türkçe, kullanıcıya yönelik metin vermek veya otomatik sınıflandırmayı değiştirmek için commit gövdesine şu satırları ekle. Bu satırlar o commit'in başlığının yerini alır; birden fazla not eklenebilir. `chore` notları performans ve bakım bölümüne gider.
+
+```text
+Release-note: feat: Masaüstü ve Telegram için isteğe bağlı mesai hatırlatıcıları eklendi.
+Release-note: fix: Haftalık plan toplamları düzeltildi.
+Release-note: perf: Uygulamanın açılışı hızlandırıldı.
+```
+
+Bir başlığı sürüm notlarından çıkarmak için tek satır `Release-note: skip` kullan. Hatalı `Release-note:` biçimi hazırlığı durdurur. Metin düz Markdown metni olarak kaçışlanır. Uygun not yoksa ilk yayında başlangıç metni, sonraki sürümlerde ayrıca not eklenmediğini söyleyen kısa metin kullanılır.
+
+Notlar taslakta bir kez üretilir. Aynı sürüm ve kaynak commit ile tekrar çalıştırmak mevcut notları korur. Kaynak doğrulaması sürüm etiketi ve otomasyonun kaynak commit alt bilgisi üzerinden yapılır; açıklamanın kullanıcıya yönelik kısmı düzenlenebilir. Alt bilgiyi koru. Not üretimi yerel Git kullanır; ek servis veya token gerektirmez.
+
 ## Yayın sonrası HTTPS kabulü
 
 1. `https://pofis.app/` sayfasını, macOS / Ubuntu ve Windows PowerShell sekmelerini, iki komutu ve kopyalama düğmesini kontrol et. macOS/Ubuntu ortak komutu: `curl -fsSL https://pofis.app/install.sh | bash`.
@@ -72,7 +90,7 @@ Electron 43'e ilk geçişte workflow başlatılmadan [motor geçişi kabulünü]
 | macOS Intel | Aynı `macos-15` runner, ARM64 Bun ve x64 Electron | `Pofis-<sürüm>-darwin-x64.zip` |
 | Ubuntu x64 | Aynı `macos-15` runner, ARM64 Bun ve Linux x64 Electron; statik kabul | `Pofis-<sürüm>-linux-x64.tar.gz` |
 
-Dört hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Windows'ta Electron kurulumu ve testlerden sonra tür kontrollü Next derlemesi çalışır. Uygulama ve masaüstü testleri eşzamanlıdır; masaüstü test dosyaları dört Bun worker’ında çalışır. Windows'ta testler ve Next tamamlanınca pano kabulü, ardından paketleme başlar. ARM64'te testler ve pano kabulünden sonra Next derlenir. Intel ve Linux paketleri aşağıdaki statik kontrollerden geçer. Windows ve ARM64 için izole runner masaüstünde pano kabulü, gerçek paket üzerinde görsel/font ve ortak pencere/süreç kabulü çalışır. Windows ayrıca gerçek ZIP ve landing komutuyla izole PowerShell kurulum, güncelleme, hata, temizlik ve kaldırma kabulünü çalıştırır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
+Dört hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Windows ve ARM64'te Electron kurulumu ve testlerden sonra tür kontrollü Next derlemesi, pano kabulü ve paketleme sırasıyla çalışır. Uygulama ve masaüstü testleri eşzamanlıdır; masaüstü test dosyaları dört Bun worker’ında çalışır. Paketleyici ürettiği klasörün tam yolunu stdout üzerinden koordinatöre verir; sonraki aşamalar bu paketi kullanır. Intel ve Linux paketleri aşağıdaki statik kontrollerden geçer. Windows ve ARM64 için izole runner masaüstünde pano kabulü, gerçek paket üzerinde görsel/font ve ortak pencere/süreç kabulü çalışır. Windows ayrıca gerçek ZIP ve landing komutuyla izole PowerShell kurulum, güncelleme, hata, temizlik ve kaldırma kabulünü çalıştırır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
 
 Paket içeriği, macOS imzalama ve installer davranışı [masaüstü rehberinde](desktop.md#ortak-platform-sözleşmesi) yönetilir. ARM64 installer kabulü gerçek ZIP ile çalışır; Gatekeeper temiz hedef cihazda doğrulanır.
 
@@ -80,7 +98,9 @@ Paket içeriği, macOS imzalama ve installer davranışı [masaüstü rehberinde
 
 Windows ZIP üretimi sistem `tar.exe` aracını deflate seviye 1 ile kullanır; araç yoksa .NET `Fastest` yolu çalışır. Arşiv biçimi `.zip.partial` geçici uzantısında da açıkça ZIP seçilir; dosya adları `zip:hdrcharset=UTF-8` ile runner'ın kod sayfasından bağımsız yazılır. Kabul fixture'ları native ZIP'in `/` ve önceki .NET ZIP'lerinin `\` yollarını okuyabilir. Güncelleme grubu, 3210 başka uygulamaya aitken aynı sürümün indirilmeden yeniden açılmasını doğrular; onarım grubu bu kontrolü tekrarlamadan başarısız sürümden onarımı ve diğer sürecin korunmasını sınar. Kilit kabulünde ilk installer'ın manifest yanıtı, ikinci installer kilit nedeniyle reddedilene kadar tutulur; sabit süre beklenmez.
 
-Uygulama testleri ve masaüstü testleri eşzamanlı çalışır; ön kontrol süresini en geç tamamlanan kontrol belirler. Masaüstü testleri `--parallel=4` ile en fazla dört test dosyasını birlikte çalıştırır. Windows'ta Next testlerden sonra derlenir; testlerle örtüşmesi küçük runner'larda CPU baskısı ve süreç zaman aşımı ürettiği için bu aşamalar sıralıdır. Bütün kontroller ve Next tamamlanmadan pano kabulü veya paketleme başlamaz. Pano kabulü standalone preload dosyasını yazdığı için Next çıktısını bekler. Her kontrolün hatası paketlemeyi durdurur. Next derlemesi aynı `tsconfig.json` kapsamındaki kaynak ve testlerin tür kontrolünü yapar; CI aynı kontrol için ayrıca `tsc` başlatmaz. Tür hatası Next derlemesini durdurur ve paketleme başlamaz. Yerel `bun run typecheck` komutu korunur.
+Uygulama testleri ve masaüstü testleri eşzamanlı çalışır; ön kontrol süresini en geç tamamlanan kontrol belirler. Masaüstü testleri `--parallel=4` ile en fazla dört test dosyasını birlikte çalıştırır. Windows'ta Next testlerden sonra derlenir; testlerle örtüşmesi küçük runner'larda CPU baskısı ve süreç zaman aşımı ürettiği için bu aşamalar sıralıdır. Bütün kontroller ve Next tamamlanmadan pano kabulü veya paketleme başlamaz. Bildirim ve preload dosyaları standalone derlemesinde bir kez üretilir; pano kabulü ve paketleme hazır çıktıyı kullanır. Her kontrolün hatası paketlemeyi durdurur. Next derlemesi aynı `tsconfig.json` kapsamındaki kaynak ve testlerin tür kontrolünü yapar; CI aynı kontrol için ayrıca `tsc` başlatmaz. Tür hatası Next derlemesini durdurur ve paketleme başlamaz. Yerel `bun run typecheck` komutu korunur.
+
+Paket aktarımı arşiv boyutunu, SHA-256 değerini ve manifesti doğrular; landing dosyalarını yeniden üretmez. Ortak site hazırlığı, hedeflerin aktarımı tamamlandıktan sonra installer ve public manifestleri yazar.
 
 Windows sunucusu [ASAR paketine](desktop.md#ortak-platform-sözleşmesi) alınır; küçük dosyaların ZIP'ten açılması ve sürüm temizliği azalır. Onarılmış uygulama kurulum kilidi ve açıkken kaldırma reddi için çalışır bırakılır; arada kapatılıp yeniden açılmaz. Son kapanışta 3210'daki diğer uygulamanın korunduğu doğrulanır.
 

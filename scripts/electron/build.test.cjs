@@ -38,6 +38,8 @@ test("standalone build aynı Bun mimarisini korur ve eski çıktıyı temizleyer
       .toEqual({ arch: process.arch, bun: process.versions.bun });
     expect(await readFile(join(root, ".next/standalone/public/asset.txt"), "utf8")).toBe("public asset");
     expect((await import(join(root, ".next/standalone/pofis-notifications.cjs"))).installDesktopNotifications()).toBe("fixture-notifications");
+    expect(require(join(root, ".next/standalone/preload.cjs"))).toBe("fixture-copy");
+    expect(require(join(root, ".next/standalone/ui-text.cjs")).ui.title).toBe("fixture-copy");
     expect(await readFile(join(root, ".next/standalone/.next/static/chunk.js"), "utf8")).toBe("static asset");
     expect(await readdir(join(root, ".next/standalone"))).not.toContain("stale.txt");
   } finally {

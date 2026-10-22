@@ -74,11 +74,11 @@ Paketleme, süreç ve installer kabulünün ayrıntılı kapsamı [masaüstü re
 | macOS installer | Native ARM64 ortamında `bun scripts/electron/macos-distribution-test.cjs --site ../pofis-landing`; Intel statik kontrolü [yayın rehberinde](release.md#cache-ve-süre-ölçümü) |
 | Installer kapanışı | `bun test ./scripts/electron/install-close.test.cjs ./scripts/electron/install-macos.test.cjs`; Windows'ta `POFIS_TEST_BASH` Git Bash yolunu gösterir |
 | Windows arşiv sınırları | `bun test ./scripts/electron/install-archive.test.cjs`; sistem aracı ve .NET açıcı |
-| Windows ZIP üretimi | `bun test ./scripts/electron/archive.test.cjs`; native/.NET yazıcı, UTF-8 dosya adı/bayrağı, `.zip.partial`, installer ile açma, iki yol biçimiyle sürüm fixture'ları ve SHA-256 |
-| Windows sunucu ASAR'ı | `bun test ./scripts/electron/pack-server.test.cjs`; gerçek Electron utility sürecinde bağımlılık/dosya okuma ve gerçek çalışma dizini; utility çıkışı tamamlanınca fixture temizliği; ardından paket açılışı ve eski açık paketten ASAR paketine güncelleme kabulü |
+| Windows ZIP üretimi | `bun test ./scripts/electron/archive.test.cjs`; native/.NET yazıcı, bağımsız okuyucuyla Unicode dosya adı/içerik, `.zip.partial` ve mevcut hedefin korunması. Installer açıcıları arşiv sınırları testinde, sürüm fixture'ları ve hash'ler dağıtım kabulünde doğrulanır. |
+| Windows sunucu ASAR'ı | `bun test ./scripts/electron/pack-server.test.cjs`; beklenmeyen Next girişinde kaynağı koruyarak durma. Sunucunun bağımlılık/statik dosyalarıyla çalışması ve kapanması gerçek paket açılış kabulünde; eski paketten güncelleme dağıtım kabulünde doğrulanır. |
 | Güncelleme arayüzü | Güncel standalone sonrasında `bun scripts/electron/update-demo.cjs --verify`; [senaryolar](desktop.md#güncelleme-bildirimini-deneme) |
 | Bildirim arayüzü ve IPC | Güncel standalone sonrasında `bun scripts/electron/notification-demo.cjs --verify`; sağlayıcılar fixture'dır |
-| Sistem panosu | `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`; panoyu değiştirdiği için yalnız izole CI/VM masaüstünde |
+| Sistem panosu | Önce `bun run desktop:prepare`, ardından `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`; panoyu değiştirdiği için yalnız izole CI/VM masaüstünde |
 | Electron motor geçişi | Gerçek önceki/yeni paketlerle [motor geçişi kabulü](desktop.md#motor-geçişi-kabulü) |
 
 Genel paket/kurulum kabulleri `POFIS_TEST_BLOCK_ANALYTICS=1` ile Google trafiğini engeller; loopback erişimi sürer. GA4 alanları ve hesap kimliği [ölçüm testlerinde](analytics.md#doğrulama) sahte `window.dataLayer` ile doğrulanır.

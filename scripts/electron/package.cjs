@@ -85,7 +85,6 @@ async function prepare(arch = process.arch, platform = process.platform) {
   await cp(standalone, join(payload, "server"), { recursive: true, dereference: true,
     filter: path => !/^\.env(?:\.|$)/.test(basename(path)) });
   if (process.env.POFIS_SHARED_STANDALONE) await assertPortableStandalone(join(payload, "server"));
-  await require("./build-notifications.cjs").buildNotifications(join(payload, "server"));
   if (target.platform === "win32") await require("./pack-server.cjs").packServer(join(payload, "server"));
   await mkdir(join(payload, "public", "pofi"), { recursive: true });
   await copyFile(join(root, "public", "pofi", "pofi-mark-256.png"), join(payload, "public", "pofi", "pofi-mark-256.png"));
@@ -98,7 +97,9 @@ async function prepare(arch = process.arch, platform = process.platform) {
   if (target.platform === "darwin") {
     await signMacBundle(join(output, "Pofis.app"));
   }
-  console.log(`Pofis paketi (${target.id}): ${output}\n${target.executable} dosyasını aç.`);
+  console.error(`Pofis paketi (${target.id}): ${output}\n${target.executable} dosyasını aç.`);
+  // CI consumes stdout as the exact output path; diagnostics stay on stderr.
+  console.log(output);
 }
 
 if (require.main === module) prepare(process.argv[2], process.argv[3]).catch((error) => { console.error(error.message); process.exitCode = 1; });

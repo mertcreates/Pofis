@@ -68,7 +68,6 @@ if (process.versions.electron) {
   const { mkdtemp, rm } = require("node:fs/promises");
   const { tmpdir } = require("node:os");
   (async () => {
-    await require("./build-notifications.cjs").buildNotifications();
     const temporaryRoot = resolve(tmpdir());
     const profile = await mkdtemp(join(temporaryRoot, "pofis-clipboard-smoke-"));
     try {

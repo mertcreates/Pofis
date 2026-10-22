@@ -6,7 +6,7 @@ import { ReportTable } from "../attendance/report-table";
 import { DashboardMetrics } from "./metrics";
 import { PofiPanel } from "./pofi-panel";
 
-export function ReportContent({ prepared, initialNow, today, isCurrent, liveClock, week, owner, targetSeconds, onOpenRoom }: {
+export function ReportContent({ prepared, initialNow, today, isCurrent, liveClock, week, owner, targetSeconds, leaveDays, onOpenRoom }: {
   prepared: ReturnType<typeof prepareReport>;
   initialNow: number;
   today: string;
@@ -15,6 +15,7 @@ export function ReportContent({ prepared, initialNow, today, isCurrent, liveCloc
   week: string;
   owner: string;
   targetSeconds: number;
+  leaveDays: readonly number[];
   onOpenRoom: () => void;
 }) {
   const clock = useClock(initialNow, liveClock && isCurrent ? "second" : false);
@@ -25,10 +26,10 @@ export function ReportContent({ prepared, initialNow, today, isCurrent, liveCloc
   return <section className="dashboard" aria-label={ui.personRecords(owner)}>
     <DashboardMetrics targetSeconds={targetSeconds} days={days} today={today} isCurrent={isCurrent} week={week} />
     {isCurrent && todayReport && <div className="middle-grid">
-      <ReportTable days={days} today={today} compact />
+      <ReportTable days={days} today={today} compact leaveDays={leaveDays} />
       <PofiPanel key={today} day={todayReport} now={now} onOpen={onOpenRoom} />
     </div>}
-    {!isCurrent && <ReportTable days={days} today={today} compact />}
-    {isCurrent && !todayReport && <ReportTable days={days} today={today} />}
+    {!isCurrent && <ReportTable days={days} today={today} compact leaveDays={leaveDays} />}
+    {isCurrent && !todayReport && <ReportTable days={days} today={today} leaveDays={leaveDays} />}
   </section>;
 }

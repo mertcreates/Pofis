@@ -1,11 +1,13 @@
 const { test, expect } = require("bun:test");
+const { execFile } = require("node:child_process");
+const { promisify } = require("node:util");
 const { createHash } = require("node:crypto");
 const { mkdtemp, mkdir, writeFile, rm } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
 const { join } = require("node:path");
 const { assertVersion } = require("./ci-build.cjs");
 const { assertManifest, assertPublicChanges, assertNoDowngrade, verifyDownload, targetFor,
-  readAsset, recover, releaseBody, assertRelease, cleanupDraft, verifyLiveOnce } = require("./publish.cjs");
+  readAsset, recover, releaseBody, assertRelease, cleanupDraft, verifyLiveOnce, beginRelease } = require("./publish.cjs");
 
 test("yayın sürümü kaynak sürümüyle tam eşleşir", () => {
   expect(() => assertVersion("1.2.3", "1.2.3")).not.toThrow();
@@ -93,12 +95,61 @@ test("aynı sürüm farklı kaynak commit'iyle devam ettirilemez", () => {
   const previous = process.env.GITHUB_SHA;
   try {
     process.env.GITHUB_SHA = "a".repeat(40);
-    const release = { body: releaseBody("1.2.3") };
+    const release = { tag_name: "v1.2.3", body: releaseBody("1.2.3") };
     expect(() => assertRelease(release, "1.2.3")).not.toThrow();
+    release.body = release.body.replace("Bu sürüm için ayrıca bir değişiklik notu eklenmedi.", "Elle düzeltilmiş sürüm notları.");
+    expect(() => assertRelease(release, "1.2.3")).not.toThrow();
+    expect(() => assertRelease({ ...release, tag_name: "v1.2.4" }, "1.2.3")).toThrow("kaynak commit");
+    expect(() => assertRelease({ ...release, body: "metadata yok" }, "1.2.3")).toThrow("kaynak commit");
     process.env.GITHUB_SHA = "b".repeat(40);
     expect(() => assertRelease(release, "1.2.3")).toThrow();
   } finally {
     if (previous === undefined) delete process.env.GITHUB_SHA; else process.env.GITHUB_SHA = previous;
+  }
+});
+
+test("yeni taslak en son yayımlanan kararlı sürümü baz alır; tekrar çalıştırmada notlar korunur", async () => {
+  const previousFetch = globalThis.fetch;
+  const token = process.env.GH_TOKEN;
+  const sha = process.env.GITHUB_SHA;
+  const { stdout } = await promisify(execFile)("git", ["rev-parse", "HEAD"], { cwd: join(__dirname, "../.."), windowsHide: true });
+  process.env.GH_TOKEN = "isolated-test-token";
+  process.env.GITHUB_SHA = stdout.trim();
+  const valid = { tag_name: "v1.0.0", draft: false, prerelease: false,
+    published_at: "2026-10-20T00:00:00Z", body: releaseBody("1.0.0") };
+  let releases = [
+    ...Array.from({ length: 100 }, () => ({ ...valid, published_at: "2026-10-19T00:00:00Z", body: "older release without source" })),
+    { ...valid, draft: true, published_at: "2026-10-21T00:00:00Z", body: "draft is not a base" },
+    { ...valid, prerelease: true, published_at: "2026-10-21T00:00:00Z", body: "preview is not a base" }, valid,
+  ];
+  const calls = [];
+  try {
+    globalThis.fetch = async (url, options) => {
+      calls.push([url, options.method]);
+      if (options.method === "POST") {
+        const draft = JSON.parse(options.body);
+        expect(draft.tag_name).toBe("v1.2.3");
+        expect(draft.draft).toBe(true);
+        expect(draft.body).toContain("Bu sürüm için ayrıca bir değişiklik notu eklenmedi.");
+        expect(draft.body).toContain(`Kaynak commit: ${process.env.GITHUB_SHA}`);
+        releases = [{ ...draft, body: draft.body.replace("Bu sürüm için ayrıca bir değişiklik notu eklenmedi.", "İncelenmiş notlar.") }];
+        return Response.json(draft);
+      }
+      const page = Number(new URL(url).searchParams.get("page"));
+      return Response.json(releases.slice((page - 1) * 100, page * 100));
+    };
+    await beginRelease("1.2.3");
+    await beginRelease("1.2.3");
+    expect(calls.some(([url]) => url.endsWith("page=2"))).toBe(true);
+    expect(releases[0].body).toContain("İncelenmiş notlar.");
+    expect(calls.filter(([, method]) => method === "POST")).toHaveLength(1);
+    process.env.GITHUB_SHA = "f".repeat(40);
+    await expect(beginRelease("1.2.3")).rejects.toThrow("kaynak commit");
+    expect(calls.filter(([, method]) => method !== "GET")).toHaveLength(1);
+  } finally {
+    globalThis.fetch = previousFetch;
+    if (token === undefined) delete process.env.GH_TOKEN; else process.env.GH_TOKEN = token;
+    if (sha === undefined) delete process.env.GITHUB_SHA; else process.env.GITHUB_SHA = sha;
   }
 });
 

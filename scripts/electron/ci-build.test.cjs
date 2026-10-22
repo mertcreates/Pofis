@@ -97,7 +97,7 @@ test("gerçek CI build'i kontrol veya Next hatasında paketleme başlatmaz", asy
         if (step === "package.cjs") throw new Error("Paketleme erken başladı.");
       },
     })).rejects.toBe(failure);
-    if (failedStep !== "build.cjs" && !(process.platform === "win32" && failedStep === "clipboard-smoke.cjs")) {
+    if (failedStep !== "build.cjs" && failedStep !== "clipboard-smoke.cjs") {
       expect(commands).not.toContain("build.cjs");
     }
     expect(commands).not.toContain("package.cjs");
@@ -306,7 +306,7 @@ test.each(["darwin-x64", "linux-x64"])("%s ARM çıktısını yeniden derlemeden
   const platform = linux ? "linux" : "darwin";
   const directory = await realpath(await mkdtemp(join(tmpdir(), "pofis-intel-ci-")));
   try {
-    for (const path of ["scripts/electron", "electron", `dist/${linux ? "linux" : "macos"}/Pofis-${targetId}-fixture`]) {
+    for (const path of ["scripts/electron", "electron", ...["old-a", "old-b"].map(name => `dist/${linux ? "linux" : "macos"}/Pofis-${targetId}-${name}`)]) {
       await mkdir(join(directory, path), { recursive: true });
     }
     await copyFile(join(__dirname, "ci-build.cjs"), join(directory, "scripts/electron/ci-build.cjs"));
@@ -324,7 +324,10 @@ test.each(["darwin-x64", "linux-x64"])("%s ARM çıktısını yeniden derlemeden
       const { build } = require('./scripts/electron/ci-build.cjs');
       const calls = [];
       await build(${JSON.stringify(version)}, 'site', { summary: null,
-        execute: async (command, args) => { calls.push({ command, args }); }
+        execute: async (command, args) => {
+          calls.push({ command, args });
+          if (args[0].endsWith('package.cjs')) return require('node:path').resolve('new package');
+        }
       });
       await Bun.write('calls.json', JSON.stringify(calls));
     `], { cwd: directory, env: { ...process.env, RELEASE_TARGET: targetId, POFIS_SHARED_STANDALONE: "arm-standalone" }, windowsHide: true });
@@ -334,6 +337,8 @@ test.each(["darwin-x64", "linux-x64"])("%s ARM çıktısını yeniden derlemeden
     expect(scriptCall("package.cjs")).toEqual({ command: process.execPath, args: [join(directory, "scripts/electron/package.cjs"), "x64", ...(linux ? ["linux"] : [])] });
     expect(scriptCall(linux ? "linux-static-check.cjs" : "macos-static-check.cjs").command).toBe(process.execPath);
     expect(scriptCall("release.cjs").command).toBe(process.execPath);
+    expect(scriptCall("release.cjs").args[2]).toBe(join(directory, "new package"));
+    expect(scriptCall(linux ? "linux-static-check.cjs" : "macos-static-check.cjs").args[1]).toBe(join(directory, "new package"));
     expect(scriptCall("release.cjs").args.slice(3)).toEqual(["-Arch", "x64", ...(linux ? ["-Platform", "linux"] : [])]);
     expect(calls.some(call => call.command === (linux ? "/usr/bin/tar" : "/usr/bin/unzip"))).toBe(true);
     expect(calls.some(call => call.args.some(arg => /clipboard|distribution|test:desktop:smoke/.test(arg)))).toBe(false);

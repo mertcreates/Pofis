@@ -2,27 +2,25 @@ const { createHash } = require("node:crypto");
 const { readFile, writeFile, appendFile, mkdir, open, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
-const { prepareSite, normalizeInstaller } = require("./prepare-site.cjs");
+const { prepareSite, verifyRelease, normalizeInstaller } = require("./prepare-site.cjs");
 const { checkVersion, run } = require("./ci-build.cjs");
 const { assertSiteCommands, readSiteContent } = require("./install-command.cjs");
 const { unixInstaller } = require("./unix-installer.cjs");
+const { sourceCommit, readReleaseNotes, releaseBody } = require("./release-notes.cjs");
 
 const REPOSITORY = "mertcreates/pofis-landing";
 const TARGETS = ["win32-x64", "darwin-arm64", "darwin-x64", "linux-x64"];
-const RELEASE_MARKER = "Pofis ortak sürüm otomasyonu.";
 const PUBLIC_FILES = ["public/install.ps1", "public/install.sh", "public/releases/windows/latest.json",
   "public/releases/macos/arm64/latest.json", "public/releases/macos/x64/latest.json", "public/releases/linux/x64/latest.json"];
 const root = resolve(__dirname, "../..");
 const delay = ms => new Promise(done => setTimeout(done, ms));
 
-function releaseBody(version) {
-  if (!/^[a-f0-9]{40}$/.test(process.env.GITHUB_SHA || "")) throw new Error("Kaynak commit kimliği geçersiz.");
-  return `Pofis ${version}\n\n- Windows x64, macOS Apple Silicon/Intel ve Ubuntu 24.04 LTS x64.\n- Node.js veya Bun kurmadan, uygulama simgesinden açılış.\n- Tek komutla kurulum ve güncelleme.\n- Güncellemelerde korunan ayarlar ve oturum bilgileri.\n\nKurulum: https://pofis.app\n\n${RELEASE_MARKER}\nKaynak commit: ${process.env.GITHUB_SHA}`;
-}
-
 function assertRelease(release, version) {
   if (!release) throw new Error(`Pofis ${version} sürüm taslağı bulunamadı. Önce begin adımı tamamlanmalı.`);
-  if (release.body !== releaseBody(version)) throw new Error("Sürüm bu kaynak commit ile üretilmemiş. Yeni bir sürüm numarası kullan.");
+  if (release.tag_name !== `v${version}` || !/^[a-f0-9]{40}$/.test(process.env.GITHUB_SHA || "") ||
+      sourceCommit(release) !== process.env.GITHUB_SHA) {
+    throw new Error("Sürüm bu kaynak commit ile üretilmemiş. Yeni bir sürüm numarası kullan.");
+  }
 }
 
 function targetFor(id) {
@@ -88,6 +86,29 @@ async function getRelease(version) {
     if (release) return release;
     if (releases.length < 100) return null;
   }
+}
+async function previousRelease() {
+  let previous;
+  for (let page = 1; ; page++) {
+    const releases = await api(`releases?per_page=100&page=${page}`);
+    for (const release of releases) {
+      if (!release.draft && !release.prerelease &&
+          (!previous || Date.parse(release.published_at) > Date.parse(previous.published_at))) previous = release;
+    }
+    if (releases.length < 100) return previous;
+  }
+}
+
+async function beginRelease(version) {
+  const release = await getRelease(version);
+  if (release) {
+    assertRelease(release, version);
+    return;
+  }
+  const previous = await previousRelease();
+  const notes = await readReleaseNotes(previous, process.env.GITHUB_SHA);
+  await api("releases", { method: "POST", body: { tag_name: `v${version}`,
+    target_commitish: "main", name: `Pofis ${version}`, body: releaseBody(version, notes), draft: true } });
 }
 function manifestName(id) { return `manifest-${id}.json`; }
 
@@ -199,8 +220,8 @@ async function stage(version, id) {
   assertRelease(release, version);
   if (!release.draft) throw new Error("Yayımlanmış sürüme dosya eklenemez.");
   const directory = releaseDirectory(id);
-  const { manifest, archive } = await prepareSite({ siteDirectory: process.env.SITE_DIRECTORY,
-    releaseDirectory: directory, installerPath: join(directory, installerFile(id)) });
+  const { manifest, archive } = await verifyRelease({ siteDirectory: process.env.SITE_DIRECTORY,
+    releaseDirectory: directory });
   assertManifest(manifest, version, id);
   const manifestPath = join(directory, manifestName(id));
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
@@ -305,10 +326,7 @@ async function main() {
     await assertSite(site, version);
     const repo = await api("");
     if (repo.private || repo.default_branch !== "main") throw new Error("Hedef herkese açık bir depo ve main dalı olmalı.");
-    const release = await getRelease(version);
-    if (!release) await api("releases", { method: "POST", body: { tag_name: `v${version}`,
-      target_commitish: "main", name: `Pofis ${version}`, body: releaseBody(version), draft: true } });
-    else assertRelease(release, version);
+    await beginRelease(version);
   } else if (action === "recover") {
     const release = await getRelease(version);
     assertRelease(release, version);
@@ -326,4 +344,4 @@ async function main() {
 
 if (require.main === module) main().catch(error => { console.error(error.message); process.exitCode = 1; });
 module.exports = { assertManifest, assertPublicChanges, assertNoDowngrade, verifyDownload, targetFor,
-  readAsset, recover, releaseBody, assertRelease, cleanupDraft, verifyLiveOnce };
+  readAsset, recover, releaseBody, assertRelease, cleanupDraft, verifyLiveOnce, beginRelease };

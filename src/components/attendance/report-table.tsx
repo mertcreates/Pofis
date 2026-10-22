@@ -18,12 +18,14 @@ const DayRow = memo(function DayRow({
   working,
   today,
   compact,
+  onLeave,
 }: {
   day: DayReport;
   target: number | null;
   working: boolean;
   today: string;
   compact: boolean;
+  onLeave: boolean;
 }) {
   const [expanded, setExpanded] = useState(false);
   const [detailsLoaded, setDetailsLoaded] = useState(false);
@@ -32,7 +34,7 @@ const DayRow = memo(function DayRow({
   if (day.date > today) {
     const content = <div className="report-future-day">
       <span className="report-accordion-date">{label} <small>{formatDate(day.date, { weekday: "long" })}</small></span>
-      <span className="report-status">{ui.reportFutureDay}</span>
+      <span className="report-status">{onLeave ? ui.planner.onLeave : ui.reportFutureDay}</span>
     </div>;
     return compact
       ? <div className="report-accordion-day future-row">{content}</div>
@@ -148,10 +150,12 @@ export const ReportTable = memo(function ReportTable({
   days,
   today,
   compact = false,
+  leaveDays,
 }: {
   days: DayReport[];
   today: string;
   compact?: boolean;
+  leaveDays: readonly number[];
 }) {
   return (
     <section
@@ -164,7 +168,7 @@ export const ReportTable = memo(function ReportTable({
       </div>
       {compact ? <div className="report-accordion">
         {days.filter(day => weekday(day.date) < 5 || day.records.length > 0 || day.recordedSeconds !== null || day.liveSeconds !== null).map(day => (
-          <DayRow key={day.date} day={day} today={today} compact working={day.source.workingDay} target={day.source.dailyGoalSeconds} />
+          <DayRow key={day.date} day={day} today={today} compact onLeave={leaveDays.includes(weekday(day.date))} working={day.source.workingDay} target={day.source.dailyGoalSeconds} />
         ))}
       </div> : <table className="daily-report-table" aria-labelledby="records-title">
         <thead>
@@ -190,6 +194,7 @@ export const ReportTable = memo(function ReportTable({
               day={day}
               today={today}
               compact={compact}
+              onLeave={leaveDays.includes(weekday(day.date))}
               working={day.source.workingDay}
               target={day.source.dailyGoalSeconds}
             />

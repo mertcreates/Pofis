@@ -1,9 +1,9 @@
 const { test, expect } = require("bun:test");
-const { mkdtemp, mkdir, writeFile, readFile, rm } = require("node:fs/promises");
+const { mkdtemp, mkdir, writeFile, readFile, rm, access } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
 const { join } = require("node:path");
 const { createHash } = require("node:crypto");
-const { prepareSite } = require("./prepare-site.cjs");
+const { prepareSite, verifyRelease } = require("./prepare-site.cjs");
 
 test("yalnız doğrulanmış paketin public manifestini ve installer'ını aktarır", async () => {
   const root = await mkdtemp(join(tmpdir(), "pofis-site-"));
@@ -24,6 +24,10 @@ test("yalnız doğrulanmış paketin public manifestini ve installer'ını aktar
     await writeFile(join(releaseDirectory, "latest.json"), JSON.stringify(manifest));
     await writeFile(installerPath, "\uFEFFinstaller kaynağı\r\nikinci satır\r\n");
     const options = { siteDirectory, releaseDirectory, installerPath };
+    const verified = await verifyRelease(options);
+    expect(verified.archive).toBe(archive);
+    expect(verified.manifest.sha256).toBe(manifest.sha256);
+    await expect(access(join(siteDirectory, "public"))).rejects.toHaveProperty("code", "ENOENT");
     await prepareSite(options);
     const publishedPath = join(siteDirectory, "public/releases/windows/latest.json");
     const published = await readFile(publishedPath, "utf8");

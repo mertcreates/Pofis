@@ -9,7 +9,7 @@ function normalizeInstaller(text) {
   return text.replace(/^\uFEFF/, "").replaceAll("\r\n", "\n");
 }
 
-async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
+async function verifyRelease({ siteDirectory, releaseDirectory }) {
   const site = resolve(siteDirectory);
   const packageJson = JSON.parse(await readFile(join(site, "package.json"), "utf8"));
   if (packageJson.name !== "pofis-landing") throw new Error("Hedef bağımsız pofis-landing projesi olmalı.");
@@ -29,24 +29,30 @@ async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
   const hash = createHash("sha256");
   for await (const chunk of createReadStream(archive)) hash.update(chunk);
   if (hash.digest("hex") !== manifest.sha256) throw new Error("Paket SHA-256 değeri manifestle eşleşmiyor.");
-  // HTTP supplies charset=utf-8; omit the file BOM so irm | iex receives plain PowerShell.
-  const installerName = target.platform === "win32" ? target.installer : "install.sh";
-  const payload = normalizeInstaller(await readFile(installerPath || join(__dirname, target.installer), "utf8"));
-  const installer = target.platform === "win32" ? payload : await unixInstaller({ [target.platform]: payload });
   const publicManifest = {
     schemaVersion: 1, platform: target.platform, arch: target.arch, version: manifest.version,
     size: manifest.size, sha256: manifest.sha256,
     url: `https://github.com/${repository}/releases/download/v${manifest.version}/${name}`,
   };
+  return { manifest: publicManifest, archive };
+}
+
+async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
+  const { manifest, archive } = await verifyRelease({ siteDirectory, releaseDirectory });
+  const target = platformTarget(manifest.platform, manifest.arch);
+  const site = resolve(siteDirectory);
+  // HTTP supplies charset=utf-8; omit the file BOM so irm | iex receives plain PowerShell.
+  const installerName = target.platform === "win32" ? target.installer : "install.sh";
+  const payload = normalizeInstaller(await readFile(installerPath || join(__dirname, target.installer), "utf8"));
+  const installer = target.platform === "win32" ? payload : await unixInstaller({ [target.platform]: payload });
   const destination = join(site, "public", "releases", target.releaseDirectory);
   await mkdir(destination, { recursive: true });
   await writeFile(join(site, "public", installerName), installer);
-  await writeFile(join(destination, "latest.json"), JSON.stringify(publicManifest, null, 2) + "\n");
+  await writeFile(join(destination, "latest.json"), JSON.stringify(manifest, null, 2) + "\n");
   console.log(`Site dağıtım dosyaları hazır: ${destination}`);
-  console.log(`GitHub hedefi: ${repository}, etiket: v${manifest.version}`);
   console.log(`Yüklenecek dosya: ${archive}`);
   console.log("Önce GitHub paketini yayımla; ardından site değişikliklerini yayımla.");
-  return { manifest: publicManifest, archive };
+  return { manifest, archive };
 }
 
 if (require.main === module) {
@@ -64,4 +70,4 @@ if (require.main === module) {
     }).catch(error => { console.error(error.message); process.exitCode = 1; });
   }
 }
-module.exports = { prepareSite, normalizeInstaller };
+module.exports = { prepareSite, verifyRelease, normalizeInstaller };

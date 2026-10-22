@@ -172,6 +172,7 @@ export function DashboardView({
                   week={week}
                   owner={source.person.name}
                   targetSeconds={workPlans.targetSeconds}
+                  leaveDays={workPlans.leaveDays}
                   onOpenRoom={() => setDialog("room")}
                 />
               ) : pdks?.failure ? null : busy ? (

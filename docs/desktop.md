@@ -51,7 +51,7 @@ Masaüstü standalone derlemesinde `experimental.isrFlushToDisk: false` kullanı
 
 ### Masaüstünde ortak metin kaynağı
 
-[Bildirim derlemesi](../scripts/electron/build-notifications.cjs) standalone dizinine `pofis-notifications.cjs`, `ui-text.cjs` ve `preload.cjs` üretir. Ana süreç ve utility process ortak metinleri `ui-text.cjs` üzerinden okur. Sandbox preload yerel modül yükleyemediği için kullandığı metinler kendi derlemesine dahil edilir; metinlerin tek kaynağı [ui-text.js](../src/lib/ui-text.js) olarak kalır. BrowserWindow bu derlenmiş preload dosyasını açar.
+[Bildirim derlemesi](../scripts/electron/build-notifications.cjs), standalone derlemesinin sonunda bir kez `pofis-notifications.cjs`, `ui-text.cjs` ve `preload.cjs` üretir. Paketleme bu çıktıları kopyalar; pano kabulü hazır preload'u kullanır. Bağımsız bildirim ve güncelleme demoları kendi hazırlıklarında bu dosyaları yeniden üretebilir. Ana süreç ve utility process ortak metinleri `ui-text.cjs` üzerinden okur. Sandbox preload yerel modül yükleyemediği için kullandığı metinler kendi derlemesine dahil edilir; metinlerin tek kaynağı [ui-text.js](../src/lib/ui-text.js) olarak kalır. BrowserWindow bu derlenmiş preload dosyasını açar.
 
 ## Ubuntu 24.04 LTS x64 ve ortak Unix kurulumu
 
@@ -89,7 +89,7 @@ Linux statik kontrolü, hedef Ubuntu kabul komutları ve kanıtın sınırları 
 
 [İzin işleyicisi](../electron/permissions.cjs), yalnız ana Pofis penceresinin `http://127.0.0.1:3210` adresindeki ana çerçevesine `clipboard-sanitized-write` izni verir. Böylece hata ekranındaki **Teknik ayrıntıları kopyala** işlemi tarayıcının pano API'siyle çalışır. Pano okuma, alt çerçeveler, diğer pencereler/adresler ve diğer izinler reddedilir. Hem izin kontrolü hem izin isteği aynı sınırı uygular. Güncelleme komutu aşağıdaki sınırlı IPC köprüsünden kopyalanır; renderer'a Node.js erişimi verilmez.
 
-`bun run test:desktop` izin sınırlarını sınar. `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`, geçici profilde gerçek Electron ve örnek metinle eski ret politikasındaki hatayı, izinli yazmayı, güncelleme komutunun panoya kopyalanmasını ve pano okuma reddini kontrol eder. Sistem panosu profiller arasında ortaktır; bu komut panoyu temizler ve yalnız geçici CI/VM masaüstünde çalıştırılır. Ortak CI build'i Windows ve ARM64 hedeflerinde bu kontrolü paketlemeden önce çağırır; Intel ve macOS üzerinde üretilen Linux paketleri statik kontrollerle doğrulanır. Hedef pakette ayrıca hata ekranı → **Teknik ayrıntıları kopyala** → metin alanına yapıştır zincirini doğrulayın.
+`bun run test:desktop` izin sınırlarını sınar. Önce `bun run desktop:prepare` ile standalone çıktısını hazırla. `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`, hazır preload'u kullanarak geçici profilde gerçek Electron ve örnek metinle eski ret politikasındaki hatayı, izinli yazmayı, güncelleme komutunun panoya kopyalanmasını ve pano okuma reddini kontrol eder. Sistem panosu profiller arasında ortaktır; bu komut panoyu temizler ve yalnız geçici CI/VM masaüstünde çalıştırılır. Ortak CI build'i Windows ve ARM64 hedeflerinde bu kontrolü Next derlemesinden sonra ve paketlemeden önce çağırır; Intel ve macOS üzerinde üretilen Linux paketleri statik kontrollerle doğrulanır. Hedef pakette ayrıca hata ekranı → **Teknik ayrıntıları kopyala** → metin alanına yapıştır zincirini doğrulayın.
 
 ## Dış bağlantılar
 
