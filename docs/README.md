@@ -32,6 +32,6 @@ Public `pofis-landing` README'si ürün tanıtımı ve site bağlantısı içeri
 
 ## Karakter kaynakları
 
-- [Marka kiti](../extras/pofis-brand-kit/README.md): özgün karakter dosyaları ve bağımsız prototipin kullanımı.
+- [Marka kiti](../extras/pofis-brand-kit/README.md): özgün karakter dosyaları, referanslar ve karakter kontrol sayfası.
 - [Karakter kuralları](../extras/pofis-brand-kit/docs/CHARACTER_BIBLE.md) ve [üretim promptu](../extras/pofis-brand-kit/docs/MASTER_PROMPT.md): yeni görsellerin kimlik ve inceleme ölçütleri.
 - [Pofi görsel setleri](brand/pofi-review-2026-10-15/README.md): mevcut aday dosyaları ve uygulamaya alma sınırı.

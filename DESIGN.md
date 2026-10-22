@@ -141,17 +141,15 @@ components:
 
 ## Overview
 
-Pofis'in görsel karakteri sakin, güvenilir, özenli ve hafif oyuncudur. Lavanta/mor, markayı ve seçili etkileşimleri temsil eder; tüm arayüzü boyamak için kullanılmaz. Nötr, hafif kırık beyaz yüzeyler ve koyu metinler arayüzün omurgasıdır.
+Pofis'in görsel karakteri sakin, özenli ve hafif oyuncudur. Nötr, hafif kırık beyaz yüzeyler ve koyu metinler arayüzün omurgasıdır. Renkler tutarlı rollerle kullanılır:
 
-Renklerin duyguya etkisi bağlama göre değişir; bu nedenle "mor güven verir" gibi evrensel bir iddia yerine, tutarlı kullanım hedeflenir:
+- **Mor/lavanta:** Marka kimliği, seçili durum, odak ve birincil eylem.
+- **Nötr tonlar:** İçerik, raporlar, formlar ve boşluklar.
+- **Yeşil:** Başarılı işlem veya bağlı durum.
+- **Turuncu:** Dikkat gerektiren durum.
+- **Kırmızı:** Hata veya başarısız işlem. Mesai farkları süreye ait nötr/marka rollerini kullanır.
 
-- **Mor/lavanta:** Marka kimliği, seçili durum, odak ve birincil eylem. Sürekli dikkat çekmek için değil, kullanıcıya yön göstermek için.
-- **Nötr tonlar:** İçerik, raporlar, formlar ve sakin boşluk. Saf beyaz yüzeyleri gereksiz yere çoğaltma.
-- **Yeşil:** Gerçekten başarılı sonuç veya bağlı/başarılı durum. Mesai hedefinin aşılması otomatik olarak başarı mesajı gerektirmez.
-- **Turuncu:** Gerçekten dikkat gerektiren durum.
-- **Kırmızı:** Hata veya başarısız işlem. Eksik mesai, hedefe kalan süre ya da fazla çalışma kendiliğinden hata değildir.
-
-Renk mesajın tek taşıyıcısı olamaz. Durumlar metin, simge veya doku ile de anlaşılmalıdır.
+Durumlar renk yanında metin, simge veya dokuyla da anlaşılır.
 
 ## Colors
 
@@ -165,7 +163,7 @@ Renk mesajın tek taşıyıcısı olamaz. Durumlar metin, simge veya doku ile de
 | `control-border` / `dark-control-border` | Boş metin/sayı alanının veya seçicinin varlığını tanımlayan gerekli sınır. |
 | `text` / `dark-text` | Ana içerik, süre, yemek adı, hesap sonucu. |
 | `secondary` / `dark-secondary` | Etiketler, destekleyici simgeler ve ikincil ancak önemli açıklamalar; hafif mor alt tonlu nötr gri. |
-| `muted` / `dark-muted` | Yardımcı metin, tarih, birim ve düşük öncelikli bilgi; gerekli metni okunmaz hâle getirme. |
+| `muted` / `dark-muted` | Okunur kontrastı koruyan yardımcı metin, tarih, birim ve düşük öncelikli bilgi. |
 | `primary` / `dark-primary` | Birincil buton, seçili kontrol, vurgu. |
 | `primary-content` / `dark-primary-content` | Dolgulu birincil butonun **üzerindeki metin/simge**. |
 | `soft` / `dark-soft` | Seçili satır, hafif mor etkileşim zemini, Pofi'ye ait küçük ayrıntılar. |
@@ -174,7 +172,7 @@ Renk mesajın tek taşıyıcısı olamaz. Durumlar metin, simge veya doku ile de
 
 Metin hiyerarşisi `text → secondary → muted` sırasını izler. `secondary`, açık temada `#595565`, koyu temada `#b8b3c6` olarak ortak token üzerinden uygulanır. Marka vurgusu `primary` ve `accent-text`, süre çubuğunun tahmin dolgusu ise `duration-estimated` rolündedir.
 
-**Tema kuralı:** Light tokenlar temel görsel yönü tanımlar. Koyu tokenlar varsa aynı anlamsal rolleri sürdürür; sırf bu belgede bulundukları için yeni tema özelliği eklenmez. Koyu temada açık mor dolgulu butonların metni de açık renk olamaz: `dark-primary-content` kullanılır.
+**Tema kuralı:** Açık ve koyu tokenlar aynı anlamsal rolleri sürdürür. Koyu temada açık mor dolgulu butonların metin/simgesi `dark-primary-content` kullanır.
 
 Kontrol sınırı bileşenin rolüne göre seçilir:
 
@@ -185,7 +183,7 @@ Kontrol sınırı bileşenin rolüne göre seçilir:
 | Metinli ikincil buton, +/−, kapatma | Metin/simge kontrolü tanımlar; hafif `border`, sade yüzey veya çerçevesiz görünüm. |
 | Boş input/select | `control-border`; sınırın komşu zemine kontrastı en az 3:1. |
 | Seçilebilir gün | Nötr sınır; seçimde `soft`, `accent-text`, gerektiğinde `primary`; seçimi erişilebilir durum ve işaret de bildirir. |
-| Klavye odağı | Kontrolün sınır rengi, zemini, metin rengi veya alt çizgisiyle görünür olur; ayrı odak halkası oluşturulmaz. |
+| Klavye odağı | Kontrolün sınır rengi, zemini, metin rengi veya alt çizgisiyle görünür olur. |
 
 Mevcut `muted` ve koyu tema paleti korunur. Sınır kuralları ve hedef boyutları [WCAG 1.4.11](https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html) ve [WCAG 2.5.8](https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html) ayrımını izler.
 
@@ -200,7 +198,7 @@ Açık temada `control-border`, `surface` üzerinde 3,15:1 ve `page` üzerinde 3
 - Koyu temada `dark-duration-recorded` ve `dark-duration-estimated` kullanılır.
 - Süre çubuklarında kayıtlı ve tahmini bölümleri bitişik, kesintisiz iki düz tonla göster. Günün akışında lejant `Kayıtlı / Tahmini` etiketlerini gösterir. Toplam süre ana okumada yer alır; günlük süre ve hedef fare, klavye ve dokunmayla açılan tooltip'te sunulur.
 - Zemin ile anlamlı grafik bölümleri arasında en az **3:1** kontrast hedefle. Dolgu anlamları lejant etiketleriyle açıklanır.
-- Yüzdeler %100'ü aşabilir, fakat ilerleme çubuğu genişliği en fazla %100 olabilir. Fazla mesaiyi hata kırmızısıyla gösterme.
+- Yüzdeler %100'ü aşabilir; ilerleme çubuğunun genişliği en fazla %100'dür. Hedef üzerindeki süre aynı süre paletini kullanır.
 - Hesaplarda saniye hassasiyetini koru. Büyük sayıda saat/dakika baskın, saniye ve birimler ikincil kalsın.
 
 Renk değerleri frontmatter'da, uygulama karşılıkları ortak süre tokenlarındadır.
@@ -210,7 +208,7 @@ Renk değerleri frontmatter'da, uygulama karşılıkları ortak süre tokenları
 - **Sayfa başlığı:** `page-title`; sayfa başına bir ana başlık.
 - **Bölüm başlığı:** `section-title`; gerektiğinde semantik hiyerarşi korunarak daha küçük kart başlığı kullanılabilir.
 - **Modal başlığı:** `modal-title` (20 px/600, 1.3); bölüm başlığından ayrı basamaktır.
-- **Ana metin:** `body` (14 px). Önemli içeriği yalnızca 12 px yardımcı metinle verme.
+- **Ana metin:** `body` (14 px).
 - **Etiket/kontrol metni:** `label`.
 - **Yardımcı metin:** `helper` (12 px), yalnızca gerçekten ikincil bilgi.
 - **Metrikler:** `metric`; sayıların arasında genişlik atlamaması için `tabular-nums`.
@@ -218,7 +216,7 @@ Renk değerleri frontmatter'da, uygulama karşılıkları ortak süre tokenları
 - Yazı ağırlıkları: gövde ve menü seçenekleri **400**, etiket ve düğmeler **500**, bölüm/modal başlıkları ve kısa vurgular **600**, sayfa başlıkları ve ana metrikler **700**. Marka yazısı kendi çizimini korur. `card-title` iç içe kart başlıkları ve ikincil metriklerde, `compact` kısa destek bilgisinde kullanılır. `character-title` Pofi odasının karşılama başlığına, `identity-name` kimlik kartındaki ada aittir; ana ürün başlıklarının yerine geçmez.
 - Form metni masaüstünde `body` ölçüsünü kullanır. Dokunmatik kullanımda düzenlenebilir alanlar 16 px'e çıkar; bu, küçük yazılı alanlarda otomatik odak yakınlaşması yapan mobil tarayıcılar için ürün tercihidir. WCAG'nin genel bir asgari yazı boyutu değildir. Tarayıcı yakınlaştırması açık kalır.
 
-Dil kısa ve anlaşılır olmalı. Pofis'in sistem metinleri açık konuşur, Pofi'nin mizahı ise kendi küçük alanında kalır. Yalnızca bir tasarım boşluğunu doldurmak için açıklama ekleme.
+Metin, kullanıcının mevcut bilgiyi anlamasına veya sonraki eylemi seçmesine yardım eder. Sistem ve Pofi sesleri [ton rehberinde](docs/brand/pofi-tone-guide.md) yönetilir.
 
 ## Layout
 
@@ -226,11 +224,11 @@ Dil kısa ve anlaşılır olmalı. Pofis'in sistem metinleri açık konuşur, Po
 - Kart iç boşluğu varsayılan `spacing.panel` (24 px); büyük modal veya geniş alanlarda gerekirse 32 px.
 - Başlık ile açıklama arasında çoğunlukla 4–8 px; açıklama ile ilgili kontrol arasında 12–16 px.
 - Aynı kontrol grubunda 8–12 px; ayrı içerik gruplarında 24–32 px.
-- Input ve ana kontrol için varsayılan minimum yükseklik 40 px, kompakt kontrol için 36 px, küçük metinli kontrol için 28 px'tir. İkon butonu varsayılan 40 px; modal kapatma/geri ve kompakt +/- için küçük basamak 32 px'tir. Yemek modalının kapatması tarih kontrolleriyle hizalanmak için standart 40 px basamağını kullanır. Metin büyüdüğünde kontroller içerikle uzayabilir; metni sabit yüksekliğe sıkıştırma. Görsel boyut ile tıklama hedefi ayrı değerlendirilir: WCAG 2.5.8 hedefi en az 24×24 CSS px veya geçerli istisnadır. Pofis dokunmatik kullanımda 44 px hedefi tercih eder; bu ürün tercihi WCAG AA eşiğiyle karıştırılmaz.
-- Kartlar içerik kadar uzar. Yalnızca simetri için kısa kartları uzun kartlarla eşit yüksekliğe zorlama.
+- Input ve ana kontrol için varsayılan minimum yükseklik 40 px, kompakt kontrol için 36 px, küçük metinli kontrol için 28 px'tir. İkon butonu varsayılan 40 px; modal kapatma/geri ve kompakt +/- için küçük basamak 32 px'tir. Yemek modalının kapatması tarih kontrolleriyle hizalanmak için standart 40 px basamağını kullanır. Metin büyüdüğünde kontroller içerikle uzar. Görsel boyut ile tıklama hedefi ayrı değerlendirilir: WCAG 2.5.8 hedefi en az 24×24 CSS px veya geçerli istisnadır. Pofis'in dokunmatik kullanım tercihi 44 px hedeftir.
+- Kartlar içerik kadar uzar.
 - Kart, modal ve kontrol radius'ları kendi rollerinde tutarlı kalır. Rozetler/pill'ler yalnızca anlamlı bir seçili durum için kullanılabilir.
-- Sayfa genişliğini doldurmak zorunda değilsin; çok dar tek kolon ile geniş ve boş iki kolon arasında görev odaklı denge kur.
-- Yedi sütunlu tarih seçiminde dar ekranın genişliğini koru: hücreler en az 24 px genişlik ve standart kontrol yüksekliğini sağlar. Dokunmatikte 44 px yükseklik korunur; yedi hücrenin genişliği ekrana sığacak şekilde paylaşılır. Takvim içinde yatay kaydırma oluşturma.
+- Sütun sayısını ve içerik genişliğini göreve ve okunabilirliğe göre seç.
+- Yedi sütunlu tarih seçiminde hücreler en az 24 px genişlik ve standart kontrol yüksekliğini sağlar. Dokunmatikte 44 px yükseklik korunur; yedi hücre yatay kaydırma gerektirmeden ekrana sığar.
 
 ## Elevation & Depth
 
@@ -245,14 +243,14 @@ Kontroller `rounded.control`, paneller `rounded.panel`, modallar `rounded.modal`
 ### Etkileşim ve formlar
 
 - **Eylem hiyerarşisi:** Birincil eylem mor dolgulu; ikincil eylem hafif çerçeveli veya sade metin; tehlikeli eylem kırmızı ancak gerçekten tehlikeliyse.
-- **Seçili durum:** `soft` yüzey + `accent-text` ve gerektiğinde birincil kontur. Yalnızca renkle seçim bildirme.
+- **Seçili durum:** `soft` yüzey + `accent-text` ve gerektiğinde birincil kontur; erişilebilir seçim durumu ve görünür işaret.
 - **Hover:** Hafif yüzey veya `primary-hover`; kontrolün konumu ve boyutu değişmez.
-- **Focus-visible:** Klavyeyle erişilebilen kontrollerde mevcut sınır rengi, zemin, metin rengi veya alt çizgi değişerek odağı belirginleştirir. Odak göstergesi olarak `box-shadow` kullanma.
+- **Focus-visible:** Klavyeyle erişilebilen kontrollerde mevcut sınır rengi, zemin, metin rengi veya alt çizgi değişerek odağı belirginleştirir. Gölge yüzey derinliği için kullanılır.
 - **Input:** `surface` zemini, `control-border` sınırı, tutarlı etiket ve yardımcı metin. Metin, sayı ve seçim alanları hem fare hem klavye odağında mevcut sınırı `accent-text`, zemini `soft` yapar; boyut ve sınır kalınlığı değişmez. Birimli alanlarda odak görünümünü dış kontrol taşır, iç input saydam kalır. Hatalı alanın odağı kırmızı sınır ve `error-soft` zeminle gösterilir. Tarayıcının varsayılan spinner'ı gibi tasarımdan kopuk görünümler gösterilmez. Erişilebilir form davranışı korunur.
-- **Segmented control:** Hazır seçenekleri tek grupta göster. `Özel` gibi ek değer girişleri gerekiyorsa kontrolle ilişkili popover kullan; aynı ayar için iki eşzamanlı seçici gösterme.
-- **Checkbox / switch:** Checkbox çoklu seçime, switch anlık aç/kapat durumuna uygun olduğunda kullanılır; ikisini görsel butonmuş gibi rastgele karıştırma.
+- **Segmented control:** Hazır seçenekleri tek grupta göster. `Özel` gibi ek değer girişlerini aynı gruba bağlı popover'da sun.
+- **Checkbox / switch:** Checkbox çoklu seçimi, switch açık/kapalı tercihi gösterir. Tercihin uygulanma anını ilgili kaydetme akışı belirler.
 - **Popover / modal:** Yerel, kısa seçim popover'da; çok adımlı bağlantı/kurulum akışı modaldadır. Kapatma, Escape, klavye odağı ve dar ekran davranışı net olmalıdır.
-- **Durum geri bildirimi:** `Kaydedildi`, `Bağlandı`, `Hata` gibi ifadeler gerçek işlem sonucunu yansıtmalı; gereksiz kalıcı rozetlere dönüşmemeli.
+- **Durum geri bildirimi:** `Kaydedildi`, `Bağlandı`, `Hata` gibi ifadeleri gerçek işlem sonucuyla ilgili eylemin yanında göster.
 
 ### Görsel yön ve sahipler
 
@@ -341,24 +339,21 @@ Hata sınıfları, form odağı, eski rapor, kopyalama ve yeniden deneme davran�
 
 Bildirim ekranı masaüstü, web ve demoda ortak `NotificationSettings` bileşenini kullanır. Demo aynı kontrolleri ve akışları bellekte çalışan örnek bağlantı/kayıt işlemleriyle sunar. Geniş ekranda Hatırlatmalar ve Bildirim kanalları 65/35 oranlı iki sütunda, dar ekranda tek sütunda görünür. Her hatırlatmanın altında Masaüstü ve Telegram switch’leri bulunur. Telegram bağlantısı yalnız Bildirim kanalları bölümünden açılır. Bağlı olmayan Telegram, hatırlatmalar altında pasif kanal seçeneği olarak görünür; kayıtlı tercihler korunur. Hatırlatma öncesi tek segmented control içinde 5 / 10 / 15 / 30 dakika ve Özel seçenekleri bulunur; Özel, tetikleyiciye bağlı küçük giriş popover’ı açar. Hatırlatma süreleri ve kanal tercihleri mevcut açık kaydetme eylemini kullanır. Telegram kurulumu masaüstünde en fazla 480 px genişliğindeki ortak modalda kademeli açılır: önce token ve Sohbeti bul, ardından sohbet seçimi ve Bağla. Elle sohbet kimliği girişi gerektiğinde açılır; hatalar ilgili formda kalır. [Davranış sahibi](docs/rules/notifications.md).
 
-## Do's and Don'ts
+## Bileşen kabulü
 
 ### Bileşen kalitesi ve tutarlılık
 
-1. Yeni arayüz oluşturmadan önce mevcut Pofis kart, input, buton, navigasyon ve overlay bileşenlerini incele; varsa yeniden kullan.
-2. Etkileşimli olmayan yemek, durum ve bilgi satırlarını buton veya seçilebilir kutu gibi gösterme.
-3. Bir bölümün önemini çerçeve kalınlığıyla değil, sıralama, tipografi ve boşlukla anlat.
-4. Pofi illüstrasyonu kullanıcının asıl işini gölgelememeli; yardımcı not olarak sıcaklık katmalıdır.
-5. Masaüstü ve mobil düzen aynı bilgi hiyerarşisini taşımalı. Dar ekranda taşma ve iç içe gereksiz scroll yaratma.
-6. Anahtar adı, palet veya bileşen değiştirmeden önce mevcut kullanımları kontrol et; aynı role ait yeni eşanlamlı token oluşturma.
+1. Mevcut kart, input, buton, navigasyon ve overlay bileşenlerini kullan; yeni ihtiyaçta ilgili sahibini genişlet.
+2. Yemek, durum ve bilgi satırlarında içerik görünümünü; işlem yapılan yerde kontrol görünümünü kullan.
+3. Bölümlerin önemini sıralama, tipografi ve boşlukla anlat. Pofi ana mesai bilgisini destekleyen alanda kalır.
+4. Masaüstü ve mobilde aynı bilgi hiyerarşisini koru; dar ekranda içeriği yeniden akıt.
+5. Ortak roller için mevcut tokenları kullan; değişiklikten önce kullanan bileşenleri kontrol et.
 
 ### Kabul kriterleri
 
 - Normal metin için en az **4.5:1**, büyük metin için en az **3:1** kontrast; anlamlı kontroller/grafik işaretleri için en az **3:1** hedeflenir.
 - İnce dekoratif kart border'ı tek başına bilgi taşımıyorsa 3:1 olmak zorunda değildir; input sınırı veya kritik durum işareti bununla karıştırılmaz.
-- Light ve varsa dark temada gerçek bileşenler kontrol edilir; token çiftlerinin kontrastını ölçmek tek başına bütün ekranın erişilebilir olduğunu kanıtlamaz.
-- Yalnızca mor tonuna, yeşil renge veya kırmızıya bakılarak anlam çıkarmak gerekmemelidir.
+- Açık ve koyu temada gerçek bileşenlerin metin, kontrol ve durum kontrastını ölç; durumları metin/simgeyle de doğrula.
 - Hızlı taranabilirlik korunur: önce içerik/mesai bilgisi, sonra ayarlar ve yardımcı açıklamalar.
-- Yeni bağımlılık, yeni tema, yeni kart veya yeni bileşen yalnızca görsel boşluk doldurmak için eklenmez.
 - %200 metin büyütmede içerik ve eylemler korunur. 320 CSS px genişlikte (1280 px pencerenin %400 yakınlaştırılmasına eşdeğer yeniden akış genişliği) sayfa iki yönde kaydırma gerektirmez; anlamı için iki boyut isteyen içerik ayrı değerlendirilir. [Metin büyütme](https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html) ve [yeniden akış](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) kabulde ayrı kontrol edilir.
 - Klavye ile menü, form, modal ve tooltip'e ulaşılır; odak görünür kalır ve kapatmada anlamlı yere döner. Grafik bilgisi lejant ve metinlerle açıklanır. `prefers-reduced-motion` altında açılma/kapanma sonucu animasyona bağlı değildir.

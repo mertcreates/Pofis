@@ -25,9 +25,9 @@ Menü altındaki [yemek yorumları](rules/meal-menu.md#pofi-yemek-yorumları), a
 
 Başarılı PDKS girişinde `SHA-256(JSON.stringify(["pofis:pofi-account:v1", kurumOrigin, kullanıcıAdı.trim()]))` hesaplanır. Saklanan sonuç, sunucu oturumuna özel `self.pofiKey` alanıdır. API yalnız seçilen notları döndürür. Bu anahtar not seçimi içindir; rapor erişim yetkisini kaynak oturumu belirler.
 
-Aynı origin ve aynı kullanıcı adı farklı cihaz/oturumlarda aynı anahtarı üretir. Dış boşluklar temizlenir; harf büyüklüğü ve giriş adı takma adları ayrı anahtar üretir. Kullanıcı adı değişirse seçim değişebilir; aynı adlı farklı hesaplar ayrı anahtar alır. Farklı anahtarlar aynı normal notu seçebilir. Anahtarın görevi deterministik not seçimidir.
+Anahtar, [oturum yöneticisinin normalize ettiği kullanıcı adından](rules/session-policy.md#güvenceler) üretilir. Aynı origin ve aynı kullanıcı adı farklı cihaz/oturumlarda aynı anahtarı verir. Harf büyüklüğü ve farklı giriş takma adları ayrı anahtar üretir; görünen ad-soyad hesaba katılmaz. Farklı anahtarlar aynı normal notu seçebilir.
 
-Kişi ID’sinden hesap anahtarına geçiş mevcut ve geçmiş tarihlerin not seçimlerini değiştirebilir; tüm tarihlerde notlar güncel havuzdan hesaplanır. Yeni anahtarı olmayan oturumlar yeniden giriş ister.
+Tüm tarihlerde notlar güncel havuzdan hesaplanır. Hesap anahtarı olmayan oturumlar yeniden giriş ister.
 
 ## Tek havuz
 
@@ -37,7 +37,7 @@ Katalog giriş × gelişme × kapanış kombinasyonlarından havuz sırasını b
 
 İçerik eklemek ya da düzenlemek mevcut tek havuzu günceller ve geçmiş tarihler dahil her tarihteki seçimi etkileyebilir. Özel tarihler yalnız `special-days.ts` içinde tanımlanır; varyantlar `specials.js` kataloğundan alınır. 8 Aralık `little-star:v1` herkes için ortaktır.
 
-Tema ve metin değişikliklerini Git diff'i ve [önizleme](#yerel-komutlar) üzerinden inceleyin. Tema sırası ve havuz sırası seçim sonucunu etkiler; bunları değiştirirken temsilî tarih ve kişi anahtarlarıyla sonuçları kontrol edin. [Davranış testleri](../src/lib/pofi-notes/notebook.test.ts) deterministik seçim, haftalık tekrar, boş havuz ve özel gün sözleşmelerini doğrular. Başlangıç kaynağının ZIP hash'i [varlık rehberinde](brand/assets.md) korunur.
+Tema ve metin değişikliklerini Git diff'i ve [önizleme](#yerel-komutlar) üzerinden inceleyin. Tema sırası ve havuz sırası seçim sonucunu etkiler; değişiklikte temsilî tarih ve kişi anahtarlarıyla sonuçları kontrol edin.
 
 ## Tema veya metin eklemek
 
@@ -71,4 +71,4 @@ bun scripts/pofi-notes.ts validate
 bun run typecheck
 ```
 
-[Davranış testleri](../src/lib/pofi-notes/notebook.test.ts) içerik fixture'larını, tek havuz sırasını ve 2026–2028 deterministik seçimlerini kapsar. [CLI testi](../src/lib/pofi-notes/cli.test.ts) listeleme, doğrulama ve önizlemeyi çalıştırır; kaldırılan yayın hazırlama komutunun kabul edilmediğini denetler.
+[Davranış testleri](../src/lib/pofi-notes/notebook.test.ts) deterministik haftalık seçimi, tekrar kontrolünü, boş havuzu, özel gün varyantlarını, bozuk girdiyi ve kurulu kataloğun sonradan değiştirilememesini sınar. 8 Aralık'ın ortak metni hafta içi ve hafta sonu için somut beklentiyle korunur. [CLI testi](../src/lib/pofi-notes/cli.test.ts) listeleme, doğrulama, önizleme ve desteklenmeyen komutun reddini kontrol eder.

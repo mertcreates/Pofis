@@ -10,14 +10,14 @@ Arayüz: `POFI_ASSETS`, `pofiNote`.
 
 ## Sözleşme
 
-İlerleme duration sahibinden alınır. Yedi durumun görselleri 1.0.0 Docker kaynak arşivinden gelir. Başlıklar ve mesajlar [ui-text.js](../../src/lib/ui-text.js) sahibinde [ton rehberine](../brand/pofi-tone-guide.md) göre yönetilir: başlık kayıt/hedef durumunu belirtir; Pofi'nin kısa mesajı kendi küçük gözlemini veya davranışını anlatır. Belirsizlikte açık kontrol yönlendirmesi kullanılır.
+İlerleme [süre sahibinden](duration.md), etkin görseller [görsel kaynaklardan](../brand/assets.md) alınır. Başlıklar ve mesajlar [ui-text.js](../../src/lib/ui-text.js) sahibinde [ton rehberine](../brand/pofi-tone-guide.md) göre yönetilir: başlık kayıt/hedef durumunu belirtir; Pofi'nin kısa mesajı kendi küçük gözlemini veya davranışını anlatır. Belirsizlikte açık kontrol yönlendirmesi kullanılır.
 
 Günlük hedef [plan sahibinin](work-plan.md) etkin hedefidir; son açık gündeki devir Pofi'ye de yansır. Devirle hedef sıfırsa geçerli süre %100 kabul edilir: açık girişte `working`, tamamlanmış kayıtta `completed`. Belirsizlik yoksa plan dışı gün `idle` kalır.
 
 | Koşul | Durum |
 | --- | --- |
 | Belirsiz özet, güvenilir güncel açık girişle ayrıştırılamayan geçiş sorunu veya geçmiş günde açık giriş | `error` |
-| Seçili olmayan çalışma günü veya giriş kaydı yok | `idle` |
+| Plan dışı gün veya giriş kaydı yok | `idle` |
 | Bugün son hareket çıkış, kayıtlı hedef henüz tamamlanmamış | `break` |
 | Hedef öncesinde ilerleme `%80` altında | `working` |
 | Hedef öncesinde ilerleme `%80` ve üzerinde | `tired` |
@@ -25,7 +25,7 @@ Günlük hedef [plan sahibinin](work-plan.md) etkin hedefidir; son açık günde
 | Kayıtlı hedef tamamlanmış, gösterilen ilerleme `%115` altında | `completed` |
 | Canlı veya kayıtlı hedef tamamlanmış, gösterilen ilerleme `%115` ve üzerinde | `overworked` |
 
-Belirsizlik ve seçili gün kontrolleri ilerleme durumlarından önce gelir. Tahmini hedefe ulaşma çalışmayı tamamlamaz. `overworked`, kaynak görseliyle birlikte kendi başlık ve mesajını gösterir; canlı hedefteki bekleme mesajıyla örtülmez. Yüzde yuvarlaması [ilerleme sahibinden](progress.md) gelir. Dışarıda kalınan süre hesaplanıp düşülmez.
+Belirsizlik ve plan kapsamı kontrolleri ilerleme durumlarından önce gelir. Canlı hedefe ulaşınca Pofi açık giriş durumunda kalır. `overworked` kendi görselini, başlık ve mesajını kullanır. Yüzde yuvarlaması [ilerleme sahibinden](progress.md), molalar dahil süre hesabı [süre sahibinden](duration.md) gelir.
 
 Bugün yön tekrarlarından sonra güvenilir açık giriş varsa geçiş sahibi bunu ayrıca bildirir; Pofi süre sahibinin canlı/kayıtlı ilerlemesini kullanır. Tekrar uyarıları raporda korunur. Okunamayan hareket veya güvenilir açık girişle ayrıştırılamayan gerçek eşleşme sorunu varsa `error` sürer.
 

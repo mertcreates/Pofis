@@ -14,7 +14,7 @@ Next.js + React + Bun. [Oturum mimarisi](docs/architecture/multi-user-sessions.m
 
 ## Users
 
-Kendi PDKS hesabıyla günlük ve haftalık mesaisini takip eden kullanıcılar. Tek uygulama vardır; her kişi yalnız kendi raporunu görür.
+Kendi PDKS hesabıyla günlük ve haftalık mesaisini takip eden kullanıcılar.
 
 ## Product Purpose
 

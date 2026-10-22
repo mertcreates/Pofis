@@ -1,6 +1,6 @@
 # Pofis masaüstü altyapısı
 
-Pofis, mevcut Next.js standalone uygulamasını Electron'un dahili Node.js runtime'ıyla ayrı bir UtilityProcess içinde çalıştırır. Geliştirme, test ve build Bun kullanır. Windows x64 ve macOS Apple Silicon/Intel aynı Electron, sunucu, paketleme ve manifest kodunu kullanır. Windows kurulumu kullanıcı yetkileriyle, kullanıcı başına yapılır. Windows ve macOS sürümleri aktif kullanımdadır. Yayımlanmış 0.4.0 sürümünün gerçek cihaz ve canlı güncelleme kabulleri kullanıcının 20 Ekim 2026 tarihli teyidiyle tamamlanmıştır.
+Pofis, Next.js standalone uygulamasını Electron'un dahili Node.js runtime'ıyla ayrı bir UtilityProcess içinde çalıştırır. Geliştirme, test ve derleme Bun kullanır. Windows x64, macOS Apple Silicon/Intel ve Ubuntu x64 aynı kabuk, sunucu ve manifest sahiplerini kullanır. Windows ve macOS sürümleri aktif kullanımdadır; Ubuntu hedefinin gerçek cihaz kabulü [görev listesinde](../tasks/todo.md) açıktır.
 
 ## Motor ve macOS alt sınırı
 
@@ -8,13 +8,13 @@ Masaüstü hedefleri kilitli `43.8.1` Electron sürümünü kullanır. [Electron
 
 Geçişte Chromium 152'den 150'ye, V8 15.2'den 15.0'a iner; Node 24.22.0 korunur. Electron yerel eklenti ABI'si 149'dan 148'e değişir. Masaüstü sunucusu JavaScript ve statik dosyalardan oluşur. Görseller doğrudan sunulur (`images.unoptimized`); kullanılmayan sharp/libvips bağımlılıkları masaüstü çıktısına alınmaz. Paket kabulü gerçek görsel baytlarını ve Geist fontunun yüklenmesini doğrular.
 
-Tek dağıtım kanalı kullanılır; Linux x64 için dördüncü manifest yolu eklenir. Profil yolu, `app.pofis.client` bundle kimliği, sabit `http://127.0.0.1:3210` origin'i ve veri şemaları korunur. Motor düşerken uygulama sürümü yükselir; installer uygulama sürümünü karşılaştırır. Yeni motordaki özellik gereksinimi ve somut hata/backport durumu değerlendirilir; bakım takvimi tek başına platform kapsamını değiştirmez.
+Tek dağıtım kanalı ve hedef başına manifest kullanılır. Profil yolu, `app.pofis.client` uygulama kimliği, sabit `http://127.0.0.1:3210` origin'i ve veri şemaları korunur. Motor değişiminde installer uygulama sürümünü karşılaştırır; yeni paket daha yüksek Pofis sürümü taşır. Motor seçimi hedef işletim sistemi, gerekli özellikler ve somut hata/backport durumuyla değerlendirilir.
 
 ## Ortak platform sözleşmesi
 
 Üretim ölçümü ve ağ sınırları [GA4 sözleşmesindedir](analytics.md).
 
-[Platform tanımı](../electron/platform.cjs) desteklenen işletim sistemi/mimariyi, executable adlarını, kaynak yollarını, çıktı dizinini ve `metadataFile` meta veri yolunu tek yerde belirler. Windows, macOS ve Linux hedefleri ortak uygulama girişini ve iş mantığını kullanır. Her paket hedef işletim sisteminde hazırlanır. macOS'ta ARM64 Bun tek Next çıktısını iki hedefle paylaşır; Electron her hedefin kendi mimarisindedir. Hazırlama, Electron'un platform/mimarisini seçilen paket hedefiyle ve motor sürümünü kök bağımlılıktaki tam sürümle karşılaştırır; farklı hedef veya motor bulunursa paket kopyalanmadan durur. Intel runtime doğrulaması `PlistBuddy` ve `lipo -verify_arch x86_64` ile statik sözleşmeyle yapılır; diğer hedeflerde yerel dinamik sorgu kullanılır. `release.json` meta veri yolu platform tanımındaki `metadataFile` üzerinden ortak yönetilir.
+[Platform tanımı](../electron/platform.cjs) desteklenen işletim sistemi/mimariyi, executable adlarını, kaynak yollarını, çıktı dizinini ve `metadataFile` meta veri yolunu belirler. CI Windows paketini Windows'ta; iki macOS paketini ve Linux x64 paketini ARM64 macOS runner'ında hazırlar. Üç Unix hedefi tek taşınabilir Next çıktısını paylaşır; her pakette hedefe özgü Electron bulunur. Hazırlama, Electron platform/mimarisini ve sürümünü doğrular; uyuşmazlıkta kopyalamadan durur. Intel runtime `PlistBuddy` ve `lipo -verify_arch x86_64`, Linux runtime ELF/sürüm kontrolleriyle statik doğrulanır. Windows ve ARM64 macOS'ta yerel dinamik sorgu kullanılır. `release.json` yolu `metadataFile` üzerinden yönetilir.
 
 | Hedef | Uygulama | Paket çıktısı | Dağıtım manifesti |
 | --- | --- | --- | --- |
@@ -23,7 +23,7 @@ Tek dağıtım kanalı kullanılır; Linux x64 için dördüncü manifest yolu e
 | macOS Intel | `Pofis.app` | `dist/macos/Pofis-darwin-x64-<zaman>/` | `dist/releases/macos/x64/latest.json` |
 | Ubuntu 24.04 LTS x64 | `pofis` | `dist/linux/Pofis-linux-x64-<zaman>/` | `dist/releases/linux/x64/latest.json` |
 
-[Ortak sunucu kontrolü](../scripts/electron/standalone.cjs), Next çıktısında native eklenti/kitaplık uzantılarını ve uzantısız Mach-O/PE/ELF dosyalarını reddeder; Next bağlantılarını da takip eder. Bu kontrol yalnız ortak çıktıyı kullanan Intel paketleyicisinde, sunucu dosyaları kopyalandıktan sonra uygulanır. Yeni bir native sunucu bağımlılığı eklenirse hedef mimariye göre paketleme tasarımı gerekir. [Intel statik kontrolü](../scripts/electron/macos-static-check.cjs), Electron ve helper'lar dahil tüm Mach-O dosyalarında x86_64 mimarisini ve derin imzayı doğrular.
+[Ortak sunucu kontrolü](../scripts/electron/standalone.cjs), `POFIS_SHARED_STANDALONE` kullanan her pakette sunucu kopyalandıktan sonra çalışır. Native eklenti/kitaplık uzantılarını ve uzantısız Mach-O/PE/ELF dosyalarını reddeder; Next bağlantılarını da takip eder. Yeni native sunucu bağımlılığı hedef mimariye göre paketleme gerektirir. [Intel statik kontrolü](../scripts/electron/macos-static-check.cjs), Electron ve helper'lar dahil tüm Mach-O dosyalarında x86_64 mimarisini ve derin imzayı doğrular.
 
 Her hedefte aynı geliştirici komutları kullanılır:
 
@@ -47,7 +47,7 @@ Oturum JSON'ları çalışma anında kullanıcı profilinde oluşur. [Depolama a
 
 İmzalanacak yollar önce toplanır ve en derindeki bileşenden dışa doğru sıralanır. Framework içindeki `Helpers` ve `Libraries`, framework ana dosyasından önce imzalanır. Uygulama ve helper ana çalıştırılabilir dosyaları ayrıca imzalanmaz; iç bileşenler tamamlandıktan sonra kapsayıcı `.app` ile birlikte imzalanır. Paketleyicide uygulama klasörü ile ana çalıştırılabilir dosya aynı adı taşır.
 
-Masaüstü standalone derlemesinde `experimental.isrFlushToDisk: false` kullanılır. Next.js çalışma zamanı önbelleği bellekte tutulur; imzalı uygulamanın dosyaları korunur. Paket açılış testi macOS'ta uygulama kapandıktan sonra imzayı yeniden doğrular. Web derlemesinin önbellek ayarı değişmez.
+`POFIS_STANDALONE=1` ile yapılan masaüstü ve Docker derlemelerinde `experimental.isrFlushToDisk: false` kullanılır. Next.js çalışma zamanı önbelleği bellekte tutulur; imzalı uygulamanın dosyaları korunur. Paket açılış testi macOS'ta uygulama kapandıktan sonra imzayı yeniden doğrular. Standart `next start` derlemesi varsayılan önbellek ayarını kullanır.
 
 ### Masaüstünde ortak metin kaynağı
 
@@ -101,12 +101,12 @@ Alt bilgideki “mertcreates.” bağlantısı [Electron ana sürecinden](../ele
 
 [Electron ana süreci](../electron/main.cjs), paketli uygulamanın penceresi hazır olduktan 3 saniye sonra [güncelleme denetleyicisini](../electron/updates.cjs) bir kez çalıştırır. Geliştirme açılışı kontrol başlatmaz; ikinci örneğin mevcut pencereyi öne getirmesi yeni kontrol oluşturmaz. Kapanış bekleyen zamanlayıcıyı temizler; devam eden isteğin sonucu kapanan veya hata durumundaki uygulamada bildirim açmaz.
 
-Denetleyici platform tanımından `https://pofis.app/releases/windows/latest.json`, `…/macos/arm64/latest.json` veya `…/macos/x64/latest.json` adresini seçer. Ana sürecin Node `fetch` çağrısı önbelleksiz, kimlik bilgisi göndermeden, yönlendirmeyi reddederek ve 5 saniye zaman aşımıyla çalışır. Mevcut sürüm, kullanıcı kimliği veya PDKS bilgisi isteğe eklenmez.
+Denetleyici platform tanımından `https://pofis.app/releases/` altındaki `windows/latest.json`, `macos/arm64/latest.json`, `macos/x64/latest.json` veya `linux/x64/latest.json` adresini seçer. Ana sürecin Node `fetch` çağrısı önbelleksiz, kimlik bilgisi göndermeden, yönlendirmeyi reddederek ve 5 saniye zaman aşımıyla çalışır. Mevcut sürüm, kullanıcı kimliği veya PDKS bilgisi isteğe eklenmez.
 
 Manifestin şeması, hedefi, `x.y.z` sürümü, boyutu, SHA-256 biçimi ve beklenen public GitHub paket adresi doğrulanır. Sürüm bileşenleri sayısal karşılaştırılır. Daha yeni sürümde giriş ekranında sürüm numarasının yanında, oturum açıkken menünün alt bölümünde **Yeni sürüm var** düğmesi görünür. Düğme ortak [güncelleme modalını](../src/components/shell/desktop-update.tsx) açar:
 
 - **Pofis'in yeni sürümü hazır** — kurulu ve yeni sürüm ile kurulum komutunu yeniden çalıştırma açıklaması.
-- **Komutu kopyala** platformun sabit komutunu panoya yazar; başarıda **Kopyalandı** görünür. Sonuç, başlangıçtan beri DOM'da bulunan durum alanından ekran okuyucuya bildirilir. Modal Windows için PowerShell, macOS için Terminal yönlendirmesi sunar. Kopyalama başarısızsa görünen komut elle seçilebilir. Komut manifestten alınmaz; çalıştırmayı kullanıcı başlatır.
+- **Komutu kopyala** platformun sabit komutunu panoya yazar; başarıda **Kopyalandı** görünür. Sonuç, başlangıçtan beri DOM'da bulunan durum alanından ekran okuyucuya bildirilir. Modal Windows için PowerShell, macOS/Linux için Terminal yönlendirmesi sunar. Kopyalama başarısızsa görünen komut elle seçilebilir. Komut manifestten alınmaz; çalıştırmayı kullanıcı başlatır.
 - **Daha sonra**, Escape ve kapatma düğmesi modalı kapatır; güncelleme düğmesi erişilebilir kalır. Açılışta modal kendiliğinden açılmaz.
 
 [Preload](../electron/preload.cjs), yalnız sürüm bilgisini okuma, değişikliği dinleme ve sabit komutu kopyalama işlemlerini açar. [IPC sahibi](../electron/update-bridge.cjs), her istekte paketli uygulamayı, pencereyi, ana çerçeveyi ve uygulama origin'ini doğrular. Güncelleme bilgisi ana süreçte saklanır; sayfa yenilenince tekrar okunur. Web ve normal geliştirme açılışında köprü yüklenmez. `contextIsolation`, sandbox ve kapalı Node entegrasyonu korunur.
@@ -191,8 +191,10 @@ Yerel hazırlık dosyaları üretir. Canlı paket, anonim indirme ve HTTPS kabul
 | `scripts/electron/` | Hazırlama, paketleme, kurulum ve tekrar kullanılabilir kabul betikleri |
 | `dist/windows/` | Açılmış Windows paketleri |
 | `dist/macos/` | Apple Silicon/Intel `.app` paketleri; CI iki mimariyi tek Apple Silicon runner'da ayrı ortamlarda üretir |
+| `dist/linux/` | Ubuntu x64 paketleri; CI ortak sunucuyla macOS'ta üretip statik doğrular |
 | `dist/releases/windows/` | Dağıtılacak `install.ps1`, `latest.json`, sürüm klasörlerinde ZIP ve `manifest.json` |
 | `dist/releases/macos/<mimari>/` | Aynı şemadaki manifestler ve `.app` ZIP arşivleri |
+| `dist/releases/linux/x64/` | Aynı şemadaki manifestler ve tar.gz arşivleri |
 | `dist/electron/` | Üretilmiş ICO/ICNS ve geçici kabul çıktıları |
 
 `dist/` Git/Docker bağlamı dışındadır. `.next/` mevcut yerinde kalır. Geliştirmede `bun run desktop:prepare` ardından [Pofis.vbs](../scripts/electron/Pofis.vbs) terminal açmadan kaynak kabuğu başlatır; `bun run desktop` da kullanılabilir.

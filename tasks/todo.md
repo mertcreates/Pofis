@@ -12,7 +12,7 @@ Yerel hazırlık yapıldı; gerçek Ubuntu kabulü ve yayın bekliyor. Destek ka
 
 ## Sürüm yayını kabulü
 
-- [ ] Aynı Windows runner ve kabul kapsamıyla paket zincirinin en az %50 hızlanmasını yetkili Actions çalıştırmasında ölç: yaklaşık 107 saniyelik referansa karşı hedef en fazla 54 saniye. Native ZIP, Windows sunucu ASAR'ı, Next içindeki tek tür kontrolü ve kabul tekrarlarının kaldırılması yerelde doğrulandı; toplam hedef henüz sağlanmadı.
+- [ ] Aynı Windows runner ve kabul kapsamıyla paket zincirinin en az %50 hızlanmasını yetkili Actions çalıştırmasında ölç: yaklaşık 107 saniyelik aşama toplamına karşı hedef en fazla 54 saniye; Windows işinin toplam hedefi 120 saniyenin altıdır. Checkout/cache/yayın sürelerini aşama karşılaştırmasından ayrı tut. [20 Ekim ölçümünde](https://github.com/mertcreates/Pofis/actions/runs/39448234242) Windows işinin toplamı 139 s, iki mimarili macOS işi 84 s idi; iki macOS mimarisi için 90 saniye hedefi sağlandı. Linux eklenen üç hedefli macOS işini yeniden ölç. [Ölçüm yöntemi](../docs/release.md#cache-ve-süre-ölçümü).
 - [ ] Güncel kaynakla Windows ve ARM64 paket açılış/kurulum/güncelleme kabulünü, Intel statik paket kontrollerini tamamla. macOS'ta onaylı güncelleme sonrasında pencerenin görünür açıldığını ve installer'ın hazır sonucunu aldığını doğrula. Açılıştaki senkron Keychain durum sorgusu kaldırıldı; gerçek Keychain ve güncelleme kabulü bekliyor. Native macOS'ta başarısız/iptal edilen kabulün test ana/yardımcı süreçlerini kapattığını ve ilk hedef hatasının kardeş üretimleri durdurduğunu da doğrula. Genel kabul betikleri GA4 trafiğini engeller. Yayın workflow'u hedef sürüme yönelik kullanıcı yetkisiyle başlatılır; [yayın sözleşmesi](../docs/release.md).
 - [ ] GA4 `G-MV4MG71CDB` akışında Geliştirilmiş ölçümü kapat; Raporlama kimliğini User-ID içeren Gözlemlenen veya Harmanlanmış olarak ayarla ve `app_release` olay boyutunu tanımla. Yayın sonrasında Anlık rapor/Kullanıcı keşfinde web/masaüstü kimliklerini doğrula; [ölçüm sözleşmesi](../docs/analytics.md).
 
@@ -33,7 +33,7 @@ Yerel hazırlık yapıldı; gerçek Ubuntu kabulü ve yayın bekliyor. Destek ka
 
 ## Arayüz kabulü
 
-- [ ] Tasarım ölçeğinde kalan yerel istisnaları sahiplerinde değerlendir: `globals.css` 1 px radius, `pofis.css` 5 px radius ve 23 px yazı, `pofi/room.css` 24 px radius, `notification-lab.css` 2 px radius. Anlamlı rolleri [DESIGN](../DESIGN.md) içinde belgele veya ortak basamakla eşleştir. Güncel günün tablo işareti görsel bağlamıyla değerlendirilsin.
+- [ ] Tasarım ölçeğinde kalan yerel istisnaları sahiplerinde değerlendir: `src/app/pofis.css` 5 px radius ve 23 px yazı, `src/components/pofi/room.css` 24 px radius. Anlamlı rolleri [DESIGN](../DESIGN.md) içinde belgele veya ortak basamakla eşleştir. Güncel günün tablo işaretini görsel bağlamıyla değerlendir.
 - [ ] Kullanıcı, [yemek menüsünü](../docs/rules/meal-menu.md) masaüstü/mobilde kontrol etsin: menüyü aç → gün değiştir → yeniden aç; gün ve not eşleşmesini, skeleton'ı, korunan modal yüksekliğini, kapatma butonunu ve banner taşmasını doğrulasın. Kısa menü, boş gün ve hata durumlarını da incelesin. Görsel kabul kullanıcıda.
 - [ ] Kullanıcı mesai planında serbest süre girişini ve +/- çizgilerini, manuel kilitli günden açık günlere uygulamayı, Sıfırla ile manuel kilidin kaldırılmasını ve tamamlanmış günlerin kayıt görünümünü doğrulasın. İki Tamamla seçeneğinin açılırken yerleşimi kaydırmadığını, eylem sırasını ve dar ekran yerleşimini kontrol etsin. Görsel kabul kullanıcıda.
 - [ ] Kullanıcı giriş–çıkış raporunda kapalı gün satırında turnike uyarısı görünmediğini, günün ayrıntısını açınca neden/saat ve ham hareketlerin bulunduğunu doğrulasın. Görsel kabul kullanıcıda.
@@ -45,7 +45,6 @@ Yerel hazırlık yapıldı; gerçek Ubuntu kabulü ve yayın bekliyor. Destek ka
 
 ## Sonraki işler
 
-- [ ] Windows paket işini 120 saniyenin altına indir. Son yayın kapalı ölçümde Windows 139 s, iki mimarili macOS 84 s; macOS 90 s hedefi tamamlandı. Aşama sürelerini [yayın rehberinden](../docs/release.md#cache-ve-süre-ölçümü) izle.
 - [ ] [Mevcut Pofi görsel setlerinin](../docs/brand/pofi-review-2026-10-15/README.md) uygulamaya alınacak dosyalarını kullanıcıyla belirle; yeni üretim ihtiyacını bu seçime göre netleştir.
 
 Kurum sunucusunda dağıtım gündeme geldiğinde Docker, HTTPS/ingress, kalıcı oturum, disk izinleri ve kapasite kontrollerini [dağıtım rehberinden](../docs/deployment.md#dağıtım-kabulü) aç. [Tek süreç sınırları](../docs/architecture/multi-user-sessions.md) bu dağıtımın sözleşmesidir.

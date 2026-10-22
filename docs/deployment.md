@@ -6,7 +6,7 @@ Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Kubernetes'te
 
 ## Çalışma zamanı ayarları
 
-Üretim arayüzünde [GA4 kullanım ölçümü](analytics.md) otomatik çalışır. Aktif kendi raporu, Pofi anahtarından türetilen ayrı hesap kimliğini de taşır; ek kalıcı depo veya ortam sırrı gerekmez. İstemcinin Google etiketine ve ölçüm uçlarına HTTPS erişimi gerekir; kurum ağında bu erişim kapalıysa uygulama çalışır, kullanım ölçümü ulaşmaz.
+Üretim arayüzünde [GA4 kullanım ölçümü](analytics.md) çalışır; ek ortam sırrı gerekmez. İstemcinin Google etiketine ve ölçüm uçlarına HTTPS erişimi ölçüm için gereklidir. Kurum ağı bu erişimi kapattığında uygulama çalışmayı sürdürür.
 
 | Ayar                  | Değer / görev                                                                                                                                                                |
 | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |

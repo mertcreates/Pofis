@@ -37,9 +37,7 @@ Somut koşullar:
 
 Seçim önceliği eşleşen yemek birliktelikleri, ana yemek/vejetaryen alternatif için tekil notlar, diğer yemekler, içecek ve son olarak sofra sahneleridir. İlk dolu öncelik grubundan seçim yapılır; eşleşen bir ana yemek varken içecek veya genel sofra notu seçilmez. Rol koşulu belirtilmeyen tekil notlar da yemek ana seçeneklerde veya vejetaryen alternatifte eşleşiyorsa ana yemek grubuna alınır. Senaryo sırası kararlı kimliklerin hesap/tarih hash'iyle, varyant ise hesap/senaryo başlangıcı ve gün sayısıyla seçilir. Aynı hesap, tarih, menü ve katalog aynı sonucu verir. Aynı senaryo ardışık günlerde seçilirse varyant ilerler. Senaryoların dosyadaki sırası seçimi etkilemez; yeni içerik veya eşleştirme değişikliği geçmiş tarihlerin sonucunu da etkileyebilir. Kullanıcıların aynı notu seçmesi mümkündür.
 
-Yeni içerikte önce gerçek menüdeki ad/rol koşulunu belirle, gerekiyorsa `foods.ts` içine incelenmiş tam adını ekle, ilgili içerik dosyasına kararlı kimlik ve 2–3 bütün varyant yaz. Giriş/kapanış parçaları rastgele birleştirilmez. Tüm varyantları ton rehberiyle birlikte oku; otomatik kontroller metnin doğallığını ispatlamaz.
-
-Editoryal kontrolde gözlem ile tepki arasındaki somut bağı birlikte oku. Kaşık hazırlama, not alma ve kâğıt katlama gibi eylemler farklı senaryolarda aynı sahneyi tekrar ediyorsa varyantları yeniden değerlendir. Aynı senaryoda iki ayrı not yeterliyse havuzda ikisini tut; üçüncü varyant kendi gözlemini veya sahnesini taşısın. Metinde adı geçen her menü öğesini senaryonun eşleşme koşullarıyla karşılaştır; örneğin yalnız tatlı gerektiren bir not çorbanın da bulunduğunu varsayamaz.
+Yeni içerikte gerçek menüdeki ad/rol koşulunu belirle, gerekiyorsa `foods.ts` içine incelenmiş tam adı ekle. İlgili içerik dosyasına kararlı kimlik ve her biri bağımsız bütün metin olan 2–3 varyant yaz. Metinde adı geçen her yemeği senaryonun eşleşme koşullarıyla karşılaştır. Varyantların kendi sahnesini taşımasını ve havuzdaki eylem çeşitliliğini [ton rehberindeki editoryal ölçütlerle](../brand/pofi-tone-guide.md#birleşmiş-notu-okuma) incele.
 
 ```powershell
 bun scripts/meal-commentary.ts validate

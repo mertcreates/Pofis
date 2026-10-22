@@ -176,7 +176,7 @@ Saklanan `WorkPlans` durumu `{ defaultPlan, weekOverrides, weekTargets?, weekLea
 
 [plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulamayı, [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamını, [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonraki durum güncellemesini yönetir. Güncel şema tek `pofis:work-plans:v1` anahtarında saklanır; demo aynı şemayı `demo:pofis:work-plans:v1` anahtarında tutar. Yalnız bu anahtar okunur; kayıt yoksa varsayılan plan açılır. Depolama sözleşmesi güncel v1 şemasıdır. Güncel anahtardaki geçersiz veri görünür hata üretir ve düzenleme kilitlenir. Yazı hatasında son başarılı kayıt korunur.
 
-Ana Ayarlar mevcut haftanın planını, geçmiş hafta başlığındaki düzenleme eylemi ilgili haftanın planını açar. Düzenleme için kaynak rapor ve yerel planın yüklenmesi gerekir. Modal açıkken hatalar modalda, kapalıyken rapor üzerinde gösterilir.
+Yan menüdeki Mesai planı güncel haftanın, geçmiş hafta başlığındaki düzenleme eylemi ilgili haftanın planını açar. Düzenleme için kaynak rapor ve yerel planın yüklenmesi gerekir. Modal açıkken hatalar modalda, kapalıyken rapor üzerinde gösterilir.
 
 ## Doğrulama
 

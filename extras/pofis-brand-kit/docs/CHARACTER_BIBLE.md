@@ -37,7 +37,7 @@ Bu belge görsel kimliği, oranları ve sahne yerleşimini tanımlar. Pofi'nin s
 
 Yeni sahnelerde kanonik referans ve aşağıdaki poz kuralları birlikte kullanılır. Etkin dosyalar [görsel kaynaklar](../../../docs/brand/assets.md) belgesindedir.
 
-Yeni bir sahne gerektiğinde ana referans görsel ve `docs/MASTER_PROMPT.md` birlikte kullanılır. Referans görsel kimliği, prompt pozu ve nesne yerleşimini taşır. Yeni çıktı uygulamaya alınmadan önce kullanıcı tarafından seçilir. Yüz, kulak, kıvrım, gövde/pati oranı, poz ve kart eşleşmesi karşılaştırılarak ayrıca onaylanır.
+Yeni sahnede ana referans görsel ve [üretim promptunu](MASTER_PROMPT.md) birlikte kullan. Referans görsel kimliği, prompt pozu ve nesne yerleşimini taşır. Çıktıyı yüz, kulak, kıvrım, gövde/pati oranı, poz ve kart açısından referansla karşılaştır; kullanıcı seçimi ve onayından sonra uygulamaya al.
 
 ## Poz ve nesne yerleşimi
 

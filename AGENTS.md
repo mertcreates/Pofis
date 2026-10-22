@@ -2,15 +2,12 @@
 
 ## Ürün kurallarıyla çalışma
 
-- Ürün davranışını etkileyen değişikliklerde [kural haritasından](docs/rules/README.md) ilgili kuralın belgesini, kod sahibini ve kullanan yerleri bul. Terimleri [GLOSSARY.md](GLOSSARY.md) ile eşleştir.
-- Kural değişikliğini mevcut sahibinde uygula; bağlı hesaplar, sunucu adaptörleri ve görünümler aynı sahibin sonucunu kullansın. Yeni bir kural için tek sahip belirleyip haritaya ekle.
-- Davranış değiştiğinde sözleşme belgesini ve bağımlı davranış testlerini birlikte güncelle. Beklenen sonucu ürün sözleşmesinden alınmış somut senaryoyla doğrula.
-- Pofi günlüklerinde [içerik yönetim rehberini](docs/pofi-notes.md) izle. Tema/metin düzenlemelerini katalogda, seçim davranışını seçim motorunda ve özel günleri tek listede yönet. Tüm tarihlerde tek güncel not havuzunu kullan.
-- Ürün kapsamı için [PRODUCT.md](PRODUCT.md), arayüz kararları için [DESIGN.md](DESIGN.md), Pofi metinleri için [ton rehberini](docs/brand/pofi-tone-guide.md) ilgili değişiklik kapsamında kullan.
-- Belge sahiplerini [belge haritasından](docs/README.md) bul; her konunun ayrıntısını kendi belgesinde yönet, diğer belgelerden bağlantı ver.
-- Doğrulamayı [doğrulama rehberine](docs/verification.md) göre seç: kural testleri, tür kontrolü ve görünür akış değiştiğinde tarayıcı kabulü. Sonucu ve kanıtın sınırlarını kullanıcıya bildir.
-- Oturum, kaynak erişimi veya dağıtım sözleşmesi değiştiğinde ilgili kural belgesiyle birlikte [çok kullanıcılı yapıyı](docs/architecture/multi-user-sessions.md), [dağıtım rehberini](docs/deployment.md) ve etkilenen README/PRODUCT/uygulama planı bölümlerini kodla eşleştir. Açık kabul işlerini [görev kaydına](tasks/todo.md) işle.
-- Tamamlanan doğrulamaların audit raporlarını, ekran görüntülerini ve ölçüm çıktılarını temizle. Geçerli kararları ilgili sözleşmeye, çözülmemiş bulguları görev listesine taşı. Testleri, tekrar kullanılabilir kabul betiklerini ve kullanıcı kaynaklarını koru. Doküman değişikliğinde yerel bağlantıları ve kodla tutarlılığı doğrula.
+- [Belge haritasından](docs/README.md) konunun sahibini bul. Ayrıntıyı sahibi belgede güncelle; diğer belgelerden bağlantı ver. Terimleri [GLOSSARY.md](GLOSSARY.md) ile eşleştir.
+- Davranış değişikliğinde [kural haritasından](docs/rules/README.md) kod sahibini ve kullanan yerleri izle. Değişikliği mevcut sahibinde uygula; bağlı hesaplar, adaptörler ve görünümler aynı sonucu kullansın. Yeni kuralın sahibini haritaya ekle.
+- Kodla birlikte ilgili sözleşmeyi ve bağımlı davranış testlerini güncelle. Oturum, kaynak erişimi veya dağıtım değişikliğinde bağlı mimari ve işletim belgelerini de eşleştir.
+- Ürün kapsamı için [PRODUCT.md](PRODUCT.md), arayüz kararları için [DESIGN.md](DESIGN.md), Pofi metinleri için [ton rehberini](docs/brand/pofi-tone-guide.md) kullan. Günlük içerik ve seçim değişikliklerinde [Pofi notları rehberindeki](docs/pofi-notes.md) sahipleri izle.
+- [Doğrulama rehberinden](docs/verification.md) değişikliğe uygun kontrolleri seç. Beklenen sonucu sözleşmedeki somut senaryodan al; sonucu ve kanıtın sınırlarını bildir. Belge değişikliğinde yerel bağlantıları ve kodla tutarlılığı kontrol et.
+- Açık işleri [görev listesinde](tasks/todo.md) tut. Tamamlanan doğrulamaların geçici çıktılarını [sonuçların yönetimine](docs/verification.md#sonuçların-yönetimi) göre temizle; geçerli kararları sahibi belgede koru.
 
 ## Talimat ve iletişim dili
 

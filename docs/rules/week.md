@@ -10,13 +10,13 @@ Arayüz: `summarizeWeek`.
 
 ## Sözleşme
 
-Toplam bugüne kadar olan günleri kapsar. Turnikeden türetilen günlük kayıtlı süreler toplanır ve duration sahibinin ürettiği ek tahmin bir kez eklenir. Günlük durum `missing` veya `uncertain` ise hafta eksiktir. Bugünkü güvenilir son açık girişten önceki eşleşmeyen çıkış günlük durumda uyarı olarak kalır ve haftayı eksik yapmaz; açık giriş olmadan kalan eşleşmeyen çıkış, geçmiş açık giriş ve okunamayan hareket belirsizliği korur. Giriş ya da çıkışı bulunan gün kayıtlı gün sayılır.
+Toplam bugüne kadar olan günleri kapsar. Günlük kayıtlı sürelere [süre sahibinin](duration.md) ürettiği ek tahmin bir kez eklenir. [Günlük durum](record-status.md) `missing` veya `uncertain` ise hafta eksiktir; `recordIssues` uyarıları tek başına bu kararı değiştirmez. Giriş ya da çıkışı bulunan gün kayıtlı gün sayılır.
 
 ```text
 Görünen gerçekleşen toplam = kayıtlı süreler toplamı + canlı ek tahmin
 ```
 
-[Plan sahibi](work-plan.md), haftalık hedef ve geçmişte tamamlanmış günlerin plan/gerçekleşen farklarıyla gereken süreleri belirler. Çıkış hedefi ilk giriş + bugünün gereken süresidir. Bu belgedeki görünen gerçekleşen toplam, haftalık plan hedefi ve plandaki beklenen toplam ayrı değerlerdir; terimler [sözlükte](../../GLOSSARY.md) tanımlıdır.
+Haftalık hedef, gereken süreler ve çıkış hedefi [plan sahibinden](work-plan.md) gelir. Görünen gerçekleşen toplam ile plandaki beklenen toplam [sözlükte](../../GLOSSARY.md) ayrı tanımlıdır.
 
 ## Bağımlılıklar
 

@@ -53,7 +53,7 @@ flowchart TD
   T --> V
 ```
 
-Oklar bir kuralın sonucunun nerede kullanıldığını gösterir. Rapor uyarlaması DTO'yu görünüme çevirir; tahmin formülünü veya plan dengelemesini yeniden yazmaz. UI renkleri ve yerleşimi [DESIGN](../../DESIGN.md) belgesinde, bileşen sorumlulukları [arayüz sahiplerinde](../architecture/ui-components.md) yönetilir.
+Oklar kural sonuçlarının kullanıldığı yerleri gösterir. Rapor uyarlaması hesapları sahiplerinden alıp DTO'yu ekran modeline çevirir. UI renkleri ve yerleşimi [DESIGN](../../DESIGN.md) belgesinde, bileşen sorumlulukları [arayüz sahiplerinde](../architecture/ui-components.md) yönetilir.
 
 ## Diğer tek sahipler
 
@@ -74,9 +74,4 @@ Oklar bir kuralın sonucunun nerede kullanıldığını gösterir. Rapor uyarlam
 
 ## Kural değiştirirken
 
-1. İlgili sayfadan tek kod sahibine ve kullanan yerlere git.
-2. Sahibi değiştir; bağımlı kuralı yeniden hesaplayan ikinci yol ekleme.
-3. Beklenen davranışı bağımsız sabit senaryoyla test et. Mevcut kontrat değişiyorsa ilgili sayfayı da güncelle.
-4. [Doğrulama rehberinden](../verification.md) değişen davranışa uygun kontrolleri seç; sonucu ve kalan kabul işlerini bildir.
-
-[Kurallar testi](../../src/domain/rules/rules.test.ts) her kural modülünün belgesini ve belgelerdeki dosya bağlantılarını denetler; kural modüllerinden UI/sunucu orkestrasyonuna çalışma zamanı bağımlılığını engeller. Sayısal sözleşmeler davranış testlerinde sabit beklentilerle korunur. Serbest metin dokümanlarının anlamı otomatik ispatlanamaz; değişiklik incelemesinin parçasıdır.
+İlgili belgeden kod sahibine ve kullanan yerlere git; değişikliği o sahibinde uygula. Sözleşmeyi ve somut beklentili davranış testlerini birlikte güncelle. Belge/kod sahipliği kontrolü ve diğer kanıtlar [doğrulama rehberinde](../verification.md) açıklanır.

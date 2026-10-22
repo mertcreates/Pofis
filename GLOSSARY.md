@@ -1,8 +1,8 @@
-# Pofis
+# Ortak terimler
 
 Kişisel PDKS mesaisini takip ederken kullanılan ortak terimler.
 
-## Language
+## Mesai ve plan
 
 **Kayıtlı süre**:
 Turnike hareketlerinden türetilen günlük ilk giriş ile son çıkış arasındaki süre.
@@ -43,19 +43,15 @@ Tamamlanan günlerin gerçekleşen süreleri ile tamamlanmamış günlerin günc
 
 **Açık giriş**:
 Ardından güvenilir bir çıkış bulunmayan son turnike girişi.
-_Kapsam_: Son hareketin giriş olması ve kayıt güvenilirliği
 
 **Belirsiz kayıt**:
 Tutarlı bir giriş/çıkış yorumu yapılamayan hareket bilgisi veya türetilmiş günlük kayıt.
-_Gösterim_: Kayıt bütünlüğüne ait belirsizlik
 
 **Kayıt durumu**:
 Günlük geçiş bütünlüğü, raporun İstanbul tarihi, açık giriş ve çalışma planı bağlamından seçilen durum. Hedefin altında veya üzerinde kalmak ayrı bir süre karşılaştırmasıdır.
-_Kapsam_: Turnike kaydının bütünlüğü
 
 **Eski rapor**:
 Kaynak yenilemesi başarısız olduğu için güncelliği doğrulanamayan son rapor.
-_Gösterim_: Son alınan rapor ve güncellik uyarısı
 
 **Açık çalışma günü**:
 Mesai planına dahil olan hafta günü. Gereken süresi sıfır olsa da çalışma planında açıktır.
@@ -69,18 +65,16 @@ Plan düzenleyicisinde ayrıntıları ve süre kontrolleri gösterilen gün.
 **Manuel gün kilidi**:
 Kullanıcının haftalık planda günün gereken süresini korumak için koyduğu kilit. Otomatik devir ve toplu düzenlemeler o günü korur; Planı sıfırla kilidi kaldırır. Tamamlanmış günün PDKS kaydı nedeniyle oluşan kilidi kayıt sahibine bağlıdır.
 
+## Pofi içeriği
+
 **Pofi notu**:
 Mesai kaydından bağımsız, belirli bir tarih ve kişi anahtarı için seçilen günlük metni.
-_Kapsam_: Pofi'nin günlük metni
 
 **Yemek yorumu**:
 Seçilen menüdeki yemek ve rol koşullarına uyan bütün metinler arasından hesap anahtarı ve tarih için seçilen kısa Pofi metni.
-_Kapsam_: Yemek menüsünün altındaki Pofi notu
 
 **Not teması**:
 Giriş, gelişme ve kapanış metin parçalarını bir araya getiren içerik ailesi.
-_Kapsam_: Notun konusu ve anlatı parçaları
 
 **Not havuzu**:
 Tüm tarihlerde günlük seçim için kullanılan güncel normal Pofi notlarının bütünü.
-_Kapsam_: Geçmiş ve güncel tarihler için tek güncel katalog

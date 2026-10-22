@@ -4,7 +4,7 @@ Paylaşılan yüzeylerde demo ve canlı ekran aynı bileşenleri kullanır. Gör
 
 | Alan | Kod sahibi ve sorumluluk |
 | --- | --- |
-| Metinler | [ui-text.js](../../src/lib/ui-text.js): arayüz etiketleri, erişilebilir adlar, bildirim başlık/gövdeleri, işlem sonuçları ve hata metinleri. Bildirim metinleri `notifications`, `notificationMessages`, `notificationErrors`, `telegramSetup`, `telegramErrors` kategorilerindedir. Pofi günlükleri kendi [tema/özel not dosyalarında](../pofi-notes.md), yemek yorumları kendi [senaryo dosyalarında](../rules/meal-menu.md) kalır; konsol easter egg metni yerinde korunur |
+| Metinler | [ui-text.js](../../src/lib/ui-text.js): arayüz etiketleri, erişilebilir adlar, bildirim metinleri, işlem sonuçları ve hatalar. Pofi günlükleri [tema/özel not dosyalarında](../pofi-notes.md), yemek yorumları [senaryo dosyalarında](../rules/meal-menu.md), konsol easter egg metni kök yerleşimde yönetilir |
 | Uygulama çerçevesi | [AppShell](../../src/components/shell/app-shell.js), [başlık](../../src/components/shell/app-header.js), [alt bilgi](../../src/components/shell/app-footer.js): menü, ayarlar ve sürüm bilgisi |
 | Tema | [ThemeSwitch](../../src/components/shell/theme-switch.js), [useAppearance](../../src/data/use-appearance.ts): tercih ve işletim sistemi teması |
 | Masaüstü güncellemesi | [useDesktopUpdate / DesktopUpdateModal](../../src/components/shell/desktop-update.tsx): köprüden sürüm bilgisini alma, platform yönlendirmesi ve komut kopyalama; [masaüstü sözleşmesi](../desktop.md#açılışta-sürüm-denetimi) |

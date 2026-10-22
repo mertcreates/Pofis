@@ -2,9 +2,9 @@
 
 ## 1. Ürün kimliği
 
-**Ürün:** Pofis  
-**Slogan:** "Mesaiye biraz Pofi"\
-**Maskot:** Pofi
+- **Ürün:** Pofis
+- **Slogan:** "Mesaiye biraz Pofi"
+- **Maskot:** Pofi
 
 Pofis, mesai saatlerini ve PDKS kayıtlarını takip etmek için geliştirilmiş, gayriresmî fakat özenli bir üründür.
 
@@ -134,12 +134,12 @@ Metni girişten kapanışa tek bir an olarak oku. Nesnenin nerede olduğunu, Pof
 - Her gelişmenin bıraktığı durum, her kapanışın başlangıcına uygun olsun. “Yine”, “bu kez”, “geri” gibi sözcükler önceki parçada gerçekten yaşanan bir olaya dayansın.
 - Bir nesneyle yapılan hareketi gözde canlandır: defteri kapatmadan önce kalemi arasına koy; ödünç kalem geri verildiyse sonraki hareketin hangi kalemle yapıldığını açık tut.
 - Kapanış sahnedeki ayrıntıyı sürdürsün. Bir eşyanın yerini değiştirmek veya işe dönmek, anlatılan olayla ilişkisi olduğunda yeterlidir.
-- Cümle uzunluğunu anlatırken verilecek doğal duraklara göre seç. Her hareketi ayrı kısa cümleye bölmek yerine birbiriyle ilişkili hareketleri birlikte anlat.
-- Küçük bir gözlem veya sıradan bir sonuç da notu tamamlayabilir. Mizah kullanıldığında Pofi'nin tepkisi sahneden anlaşılır olsun; sonuna açıklayıcı bir espri eklemek gerekmez.
+- Cümle uzunluğunu anlatırken verilecek doğal duraklara göre seç; birbiriyle ilişkili hareketleri birlikte anlat.
+- Küçük bir gözlem veya sıradan bir sonuç da notu tamamlayabilir. Mizahı Pofi'nin sahnedeki tepkisiyle hissettir.
 
 Örneğin kraker paketini açan, krakeri ikiye bölerken kırıntı döken Pofi, sonraki krakeri paketin üstünde yiyebilir. Kapanış önceki olaya cevap verir. Aynı kapanış, kırıntıların döküldüğü diğer gelişmelerle de birlikte okunur.
 
-Yemek yorumları bütün metin olarak değerlendirilir. Aynı senaryonun varyantları farklı küçük anlar taşısın. Havuz boyunca not alma, çizim yapma, kaşık hazırlama ve arkadaşına menüyü gösterme gibi hareketlerin sıklığını da kontrol et. Menüdeki ad ve rol koşulları, metinde adı geçen yemekleri desteklesin; Pofi'nin kurgusal sofra anını kaynağın bildirmediği tat, porsiyon veya içerik bilgisine dönüştürme.
+Yemek yorumları bütün metin olarak değerlendirilir. Aynı senaryonun varyantları farklı küçük anlar taşısın. Havuz boyunca not alma, çizim yapma, kaşık hazırlama ve arkadaşına menüyü gösterme gibi hareketlerin sıklığını da kontrol et. Yemekle ilgili somut bilgiyi menüdeki ad ve rol koşullarıyla sınırla; Pofi'nin kurgusal sofra anını kendi davranışıyla kur.
 
 ## 8. Gizli oda ve easter egg dili
 

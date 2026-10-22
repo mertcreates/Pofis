@@ -14,11 +14,7 @@ bun run build
 
 Önce etkilenen test dosyalarını çalıştırın. Hesap ve ortak politika değişikliklerinde ilgili bağımlı davranışları da kontrol edin. Üretim derlemesi, derleme veya çalışma zamanı etkisi olan değişikliklerin son kontrolüdür; görsel iterasyon `bun run dev` ile yapılır.
 
-Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron ./src/desktop` kullanılır. Bekleyen HTTP/gövde kontrolünün iptali, iç içe CI komutlarının alt süreç temizliği, ilk hedef hatasında kardeş üretimin iptali, landing'in veri olarak okunması ve incelenmiş kaynak sınırı davranış testleridir. macOS test süreçlerinin normal/zorunlu kapanışı ve başka kurulumların korunması süreç tablosu adaptörüyle sınanır; bu sonuç native süreç kanıtı değildir. Keychain durum sorgusunun açılışta çalışmaması ve şifreleme reddinde token kaydedilmemesi yerelde sınanır; gerçek macOS sürüm güncellemesi ayrıca native kabul gerektirir.
-
-macOS CI iptal testinde süreç durumu `ps` ile okunur: `Z` durumundaki zombie süreç çalışmasını bitirmiştir; çalışan, uyuyan veya duraklatılmış alt süreç testi başarısız yapar. Darwin'de `kill(pid, 0)` zombie süreç için de başarılı dönebildiğinden tek başına çalışma kanıtı sayılmaz; [Apple çekirdek uygulaması](https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_sig.c).
-
-CI süreç tablosu testleri, PID ile eşleşen grup oluşmadığında alt süreçlerin kapanmasını, lideri çıkmış/reparent edilmiş süreçleri, zombie durumunu, zorla kapanışı ve dış süreç korumasını sınar. Bu adaptör kanıtını native macOS kabulünden ayrı değerlendirin.
+Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron ./src/desktop` kullanılır. İptal/alt süreç temizliği, yayın kaynağı ve paket sınırları izole testlerle; macOS süreç seçimi ve Keychain reddi adaptörlerle sınanır. Süreç sözleşmesi [yayın rehberinde](release.md#yayın-sırası-ve-hata-davranışı), gerçek cihazda tamamlanacak kabul [görev listesindedir](../tasks/todo.md).
 
 | Değişiklik | Kontrol |
 | --- | --- |
@@ -33,7 +29,7 @@ CI süreç tablosu testleri, PID ile eşleşen grup oluşmadığında alt süre�
 
 Kapsam yüzdesini testlerin yüklediği modüllerle birlikte değerlendirin. Taşıma ve reducer testleri kendi modüllerinin davranışını doğrular. `usePdks` içindeki React effect ve istek sahipliği için bekleyen çıkış, hafta değişimi ve geciken rapor yanıtı zincirini tarayıcıda doğrulayın.
 
-UI metinlerini, DOM davranışını ve yerleşimi demoda kontrol edin. Otomatik testler hesap, takvim, veri doğrulama ve oturum izolasyonu gibi davranış sözleşmelerini korur. Her test somut bir davranış farkını yakalamalı; kendi örnek listesini doğrulayan veya aynı beklentiyi yineleyen kontroller eklenmemelidir. İçerik testleri seçim, tarih, tekrar ve özel gün davranışını sınar; metnin doğallığı editoryal inceleme gerektirir.
+UI metinlerini, DOM davranışını ve yerleşimi demoda kontrol edin. Otomatik testlerde hesap, takvim, veri doğrulama ve oturum izolasyonu gibi somut davranış farklarını sınayın. İçerik testleri seçim, tarih, tekrar ve özel gün davranışını korur; metnin doğallığını editoryal incelemeyle değerlendirin.
 
 ## Plan doğrulaması
 
