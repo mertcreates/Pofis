@@ -18,7 +18,7 @@ async function until(check) {
 }
 
 async function main() {
-  assert.equal(process.platform, "linux", "Gerçek Linux runner'ı gerekli.");
+  assert.equal(process.platform, "linux", "Gerçek Linux çalışma ortamı gerekli.");
   const commonInstaller = await unixInstaller();
   const siteIndex = process.argv.indexOf("--site");
   if (siteIndex !== -1) {

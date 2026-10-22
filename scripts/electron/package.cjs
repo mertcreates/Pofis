@@ -1,4 +1,4 @@
-const { cp, mkdir, copyFile, rename, writeFile, readFile, access } = require("node:fs/promises");
+const { cp, mkdir, copyFile, rename, writeFile, readFile, access, chmod } = require("node:fs/promises");
 const { join, resolve, basename } = require("node:path");
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
@@ -11,6 +11,10 @@ async function verifyRuntime(electronDist, target, version, run = promisify(exec
   const electronExecutable = join(electronDist, target.electronExecutable);
   await access(electronExecutable);
   let installed;
+  if (target.platform === "linux") {
+    await require("./linux-static-check.cjs").verifyLinuxRuntime(electronDist, version);
+    return;
+  }
   if (target.id === "darwin-x64") {
     // Intel packaging verifies runtime metadata and Mach-O architecture statically.
     const framework = join(electronDist, "Electron.app/Contents/Frameworks/Electron Framework.framework/Versions/A");
@@ -42,9 +46,9 @@ async function verifyRuntime(electronDist, target, version, run = promisify(exec
   }
 }
 
-async function prepare(arch = process.arch) {
+async function prepare(arch = process.arch, platform = process.platform) {
   if (!process.versions.bun) throw new Error("Paketleyiciyi Bun ile çalıştır.");
-  const target = platformTarget(process.platform, arch);
+  const target = platformTarget(platform, arch);
   const root = resolve(__dirname, "../..");
   const icons = await prepareIcons(join(root, "public", "pofi", "pofi-mark-256.png"), join(root, "dist", "electron", "icons"));
   const manifest = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
@@ -64,6 +68,7 @@ async function prepare(arch = process.arch) {
     await cp(electronDist, output, { recursive: true, dereference: true });
     await rename(join(output, "electron"), join(output, target.executable));
     await copyFile(join(__dirname, "uninstall-linux.sh"), join(output, "uninstall.sh"));
+    for (const name of [target.executable, "chrome-sandbox", "chrome_crashpad_handler", "uninstall.sh"]) await chmod(join(output, name), 0o755);
   } else {
     await cp(electronDist, output, { recursive: true });
     await rename(join(output, "electron.exe"), join(output, target.executable));
@@ -95,5 +100,5 @@ async function prepare(arch = process.arch) {
   console.log(`Pofis paketi (${target.id}): ${output}\n${target.executable} dosyasını aç.`);
 }
 
-if (require.main === module) prepare(process.argv[2]).catch((error) => { console.error(error.message); process.exitCode = 1; });
+if (require.main === module) prepare(process.argv[2], process.argv[3]).catch((error) => { console.error(error.message); process.exitCode = 1; });
 module.exports = { verifyRuntime };

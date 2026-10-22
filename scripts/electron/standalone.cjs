@@ -4,7 +4,7 @@ const { join, relative } = require("node:path");
 const nativeMagic = new Set([0xfeedface, 0xcefaedfe, 0xfeedfacf, 0xcffaedfe,
   0xcafebabe, 0xbebafeca, 0xcafebabf, 0xbfbafeca, 0x7f454c46]);
 
-// The desktop server is shared by both macOS architectures. Follow Next's junctions too.
+// The desktop server is shared by macOS and Linux targets. Follow Next's junctions too.
 async function assertPortableStandalone(directory) {
   await readFile(join(directory, "server.js"));
   const visited = new Set();

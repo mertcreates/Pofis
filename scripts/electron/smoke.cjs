@@ -44,17 +44,19 @@ async function run() {
   let child;
   let cdp;
   let debugOrigin;
+  let mainDebugUrl;
   let serverOrigin;
   let occupied;
   const launch = async (packageFolder = folder) => {
     let output = "";
     const id = randomBytes(16).toString("hex");
     child = spawn(packageFolder === folder ? executable : join(packageFolder, target.executable),
-      [...appArgs, `--user-data-dir=${profile}`, `--startup-id=${id}`, "--remote-debugging-port=0"],
+      [...appArgs, `--user-data-dir=${profile}`, `--startup-id=${id}`, "--remote-debugging-port=0", "--inspect=127.0.0.1:0"],
       { env, cwd: packageFolder, windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
     child.stderr.on("data", chunk => { output += chunk; });
     child.on("error", error => { output += error.message; });
     const address = await until(() => output.match(/DevTools listening on (ws:\/\/[^\s]+)/)?.[1]);
+    mainDebugUrl = await until(() => output.match(/Debugger listening on (ws:\/\/[^\s]+)/)?.[1]);
     debugOrigin = address.replace(/^ws:/, "http:").split("/devtools/")[0];
     const pageTarget = await until(async () => {
       const targets = await (await fetch(`${debugOrigin}/json/list`)).json();
@@ -79,9 +81,21 @@ async function run() {
     return result.result.value;
   };
   const close = async () => {
-    await evaluate("window.close(); true");
+    // Renderer window.close() destroys WebContents without the native close event.
+    // Use the test-only main inspector to exercise the title-bar close path.
+    const mainDebugger = await connect(mainDebugUrl);
+    try {
+      const result = await mainDebugger.send("Runtime.evaluate", {
+        expression: "process.mainModule.require('electron').BrowserWindow.getAllWindows()[0].close()",
+      });
+      assert.equal(result.exceptionDetails, undefined);
+    } finally { mainDebugger.close(); }
+    await until(() => evaluate("document.visibilityState === 'hidden'"));
     assert.equal(child.exitCode, null, "Pencere kapatması uygulamayı sonlandırmamalı.");
-    assert.equal(await fetch(`${serverOrigin}/api/health`).then(response => response.ok), true);
+    const health = await fetch(`${serverOrigin}/api/health`, { signal: AbortSignal.timeout(1000) });
+    assert.equal(health.ok, true);
+    assert.equal((await health.json()).status, "ok");
+    assert.equal(child.signalCode, null, "Pencere kapatması uygulamaya çıkış sinyali göndermemeli.");
     const quit = spawn(executable, [...appArgs, `--user-data-dir=${profile}`, "--pofis-quit"],
       { env, cwd: folder, windowsHide: true, stdio: "ignore" });
     await until(() => quit.exitCode !== null || quit.signalCode !== null, 15000);

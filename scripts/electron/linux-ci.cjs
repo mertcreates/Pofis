@@ -5,12 +5,12 @@ const { tmpdir } = require("node:os");
 const { resolve, join } = require("node:path");
 
 async function main() {
-  if (process.platform !== "linux" || process.env.GITHUB_ACTIONS !== "true" || process.argv[2] !== "sandbox") {
-    throw new Error("Bu hazırlık yalnız izole Linux GitHub Actions runner'ında çalışır.");
+  if (process.platform !== "linux" || !process.argv.includes("--isolated-desktop") || process.argv[2] !== "sandbox") {
+    throw new Error("Bu hazırlığı yalnız izole Ubuntu cihazı/VM üzerinde sandbox --isolated-desktop ile çalıştır.");
   }
   const root = resolve(__dirname, "../..");
-  // Confine userns permission to this checkout's test executables, not the entire runner.
-  if (!/^\/[a-zA-Z0-9_./-]+$/.test(root)) throw new Error("CI çalışma yolu AppArmor için uygun değil.");
+  // Confine userns permission to this checkout's test executables, not the entire machine.
+  if (!/^\/[a-zA-Z0-9_./-]+$/.test(root)) throw new Error("Kabul çalışma yolu AppArmor için uygun değil.");
   const folder = await mkdtemp(join(tmpdir(), "pofis-ci-apparmor-"));
   const source = join(folder, "pofis-ci");
   try {

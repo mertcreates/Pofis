@@ -89,25 +89,30 @@ async function preflight(target, acceptance, execute = run, summary = process.en
 
 async function build(version, siteDirectory, { execute = run, summary = process.env.GITHUB_STEP_SUMMARY, distribution = true } = {}) {
   await checkVersion(version);
-  const target = platformTarget(process.platform,
-    process.platform === "darwin" && process.env.RELEASE_TARGET === "darwin-x64" ? "x64" : process.arch);
-  if (process.env.RELEASE_TARGET && process.env.RELEASE_TARGET !== target.id) {
-    throw new Error("Derleme ortamının mimarisi seçilen yayın hedefiyle eşleşmiyor.");
+  const [platform, arch] = process.env.RELEASE_TARGET?.split("-") || [process.platform, process.arch];
+  const target = platformTarget(platform, arch);
+  const crossLinux = process.platform === "darwin" && target.id === "linux-x64";
+  const crossIntel = process.platform === "darwin" && process.arch === "arm64" && target.id === "darwin-x64";
+  const nativeTarget = target.platform === process.platform && target.arch === process.arch;
+  if ((process.env.RELEASE_TARGET && process.env.RELEASE_TARGET !== target.id) ||
+      (!nativeTarget && !crossLinux && !crossIntel)) {
+    throw new Error("Derleme ortamı seçilen yayın hedefini desteklemiyor.");
   }
+  if (crossLinux && !process.env.POFIS_SHARED_STANDALONE) throw new Error("Linux çapraz paketi için doğrulanmış ortak standalone çıktısı gerekli.");
   if (!siteDirectory) throw new Error("CI kurulum testi için tanıtım sitesinin klasörü gerekli.");
-  // Intel CI deliberately keeps static package checks only; all other targets retain full acceptance.
-  const acceptance = target.id !== "darwin-x64";
+  // Foreign runtimes are inspected statically; native targets retain full acceptance.
+  const acceptance = target.id !== "darwin-x64" && !crossLinux;
   const stage = (label, task) => timed(label, task, summary);
   if (summary) await appendFile(summary,
     `\n## ${target.id} aşama süreleri\n\n| Aşama | Sonuç | Saniye |\n| --- | --- | --- |\n`);
   await preflight(target, acceptance, execute, summary);
   if (process.env.POFIS_SHARED_STANDALONE) {
-    if (target.id !== "darwin-x64") throw new Error("Ortak standalone çıktısını Intel macOS paketinde kullan.");
-    console.log("Intel paketi ARM64 kabulüyle aynı Next çıktısını kullanıyor.");
+    if (target.id !== "darwin-x64" && !crossLinux) throw new Error("Ortak standalone çıktısı Intel macOS ve çapraz Linux paketleri içindir.");
+    console.log(`${target.id} paketi ARM64 kabulüyle aynı Next çıktısını kullanıyor.`);
   } else {
     await stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")]));
   }
-  await stage("Electron paketleme ve imza", () => execute(process.execPath, [join(__dirname, "package.cjs"), target.arch]));
+  await stage("Electron paketleme ve imza", () => execute(process.execPath, [join(__dirname, "package.cjs"), target.arch, ...(crossLinux ? [target.platform] : [])]));
   const packages = join(root, "dist", target.outputDirectory);
   const names = (await readdir(packages)).filter(name => name.startsWith(`Pofis-${target.id}-`));
   if (names.length !== 1) throw new Error("CI temiz çalışma alanında tam bir yeni paket üretmeli.");
@@ -116,12 +121,14 @@ async function build(version, siteDirectory, { execute = run, summary = process.
   const checks = await Promise.allSettled([
     acceptance
       ? stage("Paket açılış ve süreç kabulü", () => execute(process.execPath, ["run", "test:desktop:smoke", directory]))
-      : stage("Intel statik paket kontrolü", () => execute(process.execPath, [join(__dirname, "macos-static-check.cjs"), directory])),
-    stage("Dağıtım ZIP ve manifest", () => execute(process.execPath, [join(__dirname, "release.cjs"), "-PackageDirectory", directory, "-Arch", target.arch])),
+      : stage(crossLinux ? "Linux statik paket kontrolü" : "Intel statik paket kontrolü", () => execute(process.execPath, [join(__dirname, crossLinux ? "linux-static-check.cjs" : "macos-static-check.cjs"), directory])),
+    stage("Dağıtım arşivi ve manifest", () => execute(process.execPath, [join(__dirname, "release.cjs"), "-PackageDirectory", directory, "-Arch", target.arch, ...(crossLinux ? ["-Platform", target.platform] : [])])),
   ]);
   const failures = checks.filter(result => result.status === "rejected").map(result => result.reason);
   if (failures.length) throw new AggregateError(failures, failures.map(error => error.message).join("\n"));
-  if (!acceptance) await stage("Intel ZIP bütünlüğü", () => execute("/usr/bin/unzip", ["-tq",
+  if (crossLinux) await stage("Linux tar.gz bütünlüğü", () => execute("/usr/bin/tar", ["-tzf",
+    join(root, "dist/releases", target.releaseDirectory, version, `Pofis-${version}-${target.id}.tar.gz`)]));
+  else if (!acceptance) await stage("Intel ZIP bütünlüğü", () => execute("/usr/bin/unzip", ["-tq",
     join(root, "dist/releases", target.releaseDirectory, version, `Pofis-${version}-${target.id}.zip`)]));
   const { prepareSite } = require("./prepare-site.cjs");
   await stage("Dağıtım dosyalarını doğrula ve siteyi hazırla", () => prepareSite({ siteDirectory, releaseDirectory: join(root, "dist/releases", target.releaseDirectory),

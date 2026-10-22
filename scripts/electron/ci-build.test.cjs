@@ -103,7 +103,7 @@ test("macOS Intel hazırlığını paketlemeyle örtüştürür; hazırlık hata
   let nativeStarted;
   const nativeReady = new Promise(done => { nativeStarted = done; });
   let settled = false;
-  const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", summary: null,
+  const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", reuseLinux: true, summary: null,
     execute: async (command, args, cwd, env) => {
       calls.push({ command, args, cwd, env });
       if (args.at(-1) === "package") return new Promise(done => { finishPackage = done; });
@@ -138,7 +138,7 @@ test("macOS Intel hazırlığını paketlemeyle örtüştürür; hazırlık hata
 test("macOS kurtarılan hedefin kabulünü veya üretimini tekrarlamaz", async () => {
   for (const [reuseNative, reuseIntel, expected] of [[true, false, ["install", "extract", "build"]], [false, true, ["package", "accept"]], [true, true, []]]) {
     const calls = [];
-    await finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel",
+    await finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", reuseLinux: true,
       reuseNative, reuseIntel, summary: null, execute: async (command, args, _cwd, env) => {
         calls.push(command === "/usr/bin/ditto" ? "extract" : args[0] === "install" ? "install" : args.at(-1));
         if (command === "/usr/bin/ditto") {
@@ -155,7 +155,7 @@ test("macOS kurtarılan hedefin kabulünü veya üretimini tekrarlamaz", async (
   let finishPreparation;
   let settled = false;
   const calls = [];
-  const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel",
+  const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", reuseLinux: true,
     reuseNative: true, summary: null, execute: async (command, args) => {
       calls.push(args);
       if (args[0] === "install") return new Promise(done => { finishPreparation = done; });
@@ -178,7 +178,7 @@ test("Intel derlemesi ARM paketini bekler; paket veya Intel hatası yayın önce
     const packageGate = new Promise((done, fail) => { finishPackage = done; rejectPackage = fail; });
     const intelStarted = new Promise(done => { startedIntel = done; });
     let settled = false;
-    const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", summary: null,
+    const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", reuseLinux: true, summary: null,
       execute: async (command, args, _cwd, env) => {
         const step = args[0] === "install" ? "prepare" : args.at(-1);
         calls.push(step);
@@ -207,18 +207,20 @@ test("Intel derlemesi ARM paketini bekler; paket veya Intel hatası yayın önce
   }
 });
 
-test("Intel ARM çıktısını yeniden derlemeden paketler; bütün araçlar native Bun kullanır", async () => {
+test.each(["darwin-x64", "linux-x64"])("%s ARM çıktısını yeniden derlemeden paketler; araçlar native Bun kullanır", async targetId => {
+  const linux = targetId === "linux-x64";
+  const platform = linux ? "linux" : "darwin";
   const directory = await realpath(await mkdtemp(join(tmpdir(), "pofis-intel-ci-")));
   try {
-    for (const path of ["scripts/electron", "electron", "dist/macos/Pofis-darwin-x64-fixture"]) {
+    for (const path of ["scripts/electron", "electron", `dist/${linux ? "linux" : "macos"}/Pofis-${targetId}-fixture`]) {
       await mkdir(join(directory, path), { recursive: true });
     }
     await copyFile(join(__dirname, "ci-build.cjs"), join(directory, "scripts/electron/ci-build.cjs"));
     await writeFile(join(directory, "package.json"), JSON.stringify({ version }));
     await writeFile(join(directory, "electron/platform.cjs"), `module.exports.platformTarget = (platform, arch) => {
-      if (platform !== 'darwin' || arch !== 'x64') throw Error('Intel target was not selected from native ARM host');
+      if (platform !== '${platform}' || arch !== 'x64') throw Error('Intel target was not selected from native ARM host');
       return {
-      id: 'darwin-x64', platform: 'darwin', arch: 'x64', outputDirectory: 'macos', releaseDirectory: 'macos/x64', installer: 'install-macos.sh',
+      id: '${targetId}', platform: '${platform}', arch: 'x64', outputDirectory: '${linux ? 'linux' : 'macos'}', releaseDirectory: '${linux ? 'linux/x64' : 'macos/x64'}', installer: '${linux ? 'install-linux.sh' : 'install-macos.sh'}',
       electronExecutable: 'Electron.app/Contents/MacOS/Electron'
     }; };`);
     await writeFile(join(directory, "scripts/electron/prepare-site.cjs"), "module.exports.prepareSite = async () => {};");
@@ -231,14 +233,15 @@ test("Intel ARM çıktısını yeniden derlemeden paketler; bütün araçlar nat
         execute: async (command, args) => { calls.push({ command, args }); }
       });
       await Bun.write('calls.json', JSON.stringify(calls));
-    `], { cwd: directory, env: { ...process.env, RELEASE_TARGET: "darwin-x64", POFIS_SHARED_STANDALONE: "arm-standalone" }, windowsHide: true });
+    `], { cwd: directory, env: { ...process.env, RELEASE_TARGET: targetId, POFIS_SHARED_STANDALONE: "arm-standalone" }, windowsHide: true });
     const calls = JSON.parse(await readFile(join(directory, "calls.json"), "utf8"));
     const scriptCall = name => calls.find(call => basename(call.args[0]) === name);
     expect(scriptCall("build.cjs")).toBeUndefined();
-    expect(scriptCall("package.cjs")).toEqual({ command: process.execPath, args: [join(directory, "scripts/electron/package.cjs"), "x64"] });
-    expect(scriptCall("macos-static-check.cjs").command).toBe(process.execPath);
+    expect(scriptCall("package.cjs")).toEqual({ command: process.execPath, args: [join(directory, "scripts/electron/package.cjs"), "x64", ...(linux ? ["linux"] : [])] });
+    expect(scriptCall(linux ? "linux-static-check.cjs" : "macos-static-check.cjs").command).toBe(process.execPath);
     expect(scriptCall("release.cjs").command).toBe(process.execPath);
-    expect(scriptCall("release.cjs").args.slice(-2)).toEqual(["-Arch", "x64"]);
+    expect(scriptCall("release.cjs").args.slice(3)).toEqual(["-Arch", "x64", ...(linux ? ["-Platform", "linux"] : [])]);
+    expect(calls.some(call => call.command === (linux ? "/usr/bin/tar" : "/usr/bin/unzip"))).toBe(true);
     expect(calls.some(call => call.args.some(arg => /clipboard|distribution|test:desktop:smoke/.test(arg)))).toBe(false);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });
@@ -248,9 +251,9 @@ test("yayınsız workflow ölçümü sürümü doğrulayıp paketleri üretir; y
   expect(workflow.on.workflow_dispatch.inputs.publish).toMatchObject({ type: "boolean", default: true });
   const active = (expression, publish, os) => !expression || Function("inputs", "runner", "steps", "needs", "github", "always",
     `return (${expression.replace(/^\$\{\{\s*|\s*\}\}$/g, "")})`)(
-    { publish }, { os }, { recover: { outputs: {} }, recover_intel: { outputs: {} } },
+    { publish }, { os }, { recover: { outputs: {} }, recover_intel: { outputs: {} }, recover_linux: { outputs: {} } },
     { begin: { result: "success" }, build: { result: "failure" } }, { ref: "refs/heads/master" }, () => true);
-  for (const os of ["Windows", "macOS", "Linux"]) {
+  for (const os of ["Windows", "macOS"]) {
     const commands = [];
     for (const job of Object.values(workflow.jobs)) {
       if (!active(job.if, false, os)) continue;
@@ -261,6 +264,9 @@ test("yayınsız workflow ölçümü sürümü doğrulayıp paketleri üretir; y
     expect(commands.some(command => command.includes("ci-build.cjs check"))).toBe(true);
     expect(commands.some(command => command.includes(os === "macOS" ? "macos-ci.cjs" : "ci-build.cjs build"))).toBe(true);
   }
+  expect(workflow.jobs.build.strategy.matrix.include).toEqual([
+    { target: "win32-x64", runner: "windows-2022" }, { target: "darwin-arm64", runner: "macos-15" },
+  ]);
   const steps = workflow.jobs.build.steps;
   expect(steps.some(step => step.with?.path?.includes("pofis-intel/.next/cache"))).toBe(false);
   const finish = steps.findIndex(step => step.run?.includes("macos-ci.cjs"));
@@ -274,19 +280,60 @@ test("macOS paket aktarımı hedeflerin ayrı dosyalarını paralel işler; kurt
   const calls = [];
   let release;
   const gate = new Promise(done => { release = done; });
-  const pending = stageMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", execute: async (command, args, cwd, env) => {
+  const pending = stageMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", linuxDirectory: "linux", execute: async (command, args, cwd, env) => {
     calls.push({ command, args, cwd, target: env.RELEASE_TARGET, site: env.SITE_DIRECTORY });
     await gate;
   } });
   try {
-    expect(calls.map(call => call.target)).toEqual(["darwin-arm64", "darwin-x64"]);
+    expect(calls.map(call => call.target)).toEqual(["darwin-arm64", "darwin-x64", "linux-x64"]);
     expect(calls.every(call => call.command === process.execPath && call.args.at(-1) === "stage")).toBe(true);
     expect(calls[1]).toMatchObject({ cwd: "intel", site: "site-intel" });
   } finally { release(); }
   await pending;
   calls.length = 0;
-  await stageMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", reuseNative: true,
+  await stageMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", linuxDirectory: "linux", reuseNative: true,
     execute: async (_command, _args, _cwd, env) => { calls.push(env.RELEASE_TARGET); },
   });
-  expect(calls).toEqual(["darwin-x64"]);
+  expect(calls).toEqual(["darwin-x64", "linux-x64"]);
+});
+
+test("macOS üç hedefi yönetir; Linux hatasında diğer zincirleri bekler ve kurtarılan ARM çıktısını bir kez açar", async () => {
+  for (const reuseNative of [false, true]) {
+    const calls = [];
+    let finishIntel, intelStarted;
+    const intelReady = new Promise(done => { intelStarted = done; });
+    let settled = false;
+    const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", linuxDirectory: "linux",
+      reuseNative, summary: null, execute: async (command, args, cwd, env) => {
+        calls.push({ command, args, cwd, env });
+        if (args.at(-1) === "build" && cwd === "linux") {
+          expect(env).toMatchObject({ RELEASE_TARGET: "linux-x64", SITE_DIRECTORY: "site-linux",
+            ELECTRON_INSTALL_PLATFORM: "linux", ELECTRON_INSTALL_ARCH: "x64" });
+          throw new Error("Linux paketi geçersiz");
+        }
+        if (args.at(-1) === "build" && cwd === "intel") {
+          intelStarted();
+          return new Promise(done => { finishIntel = done; });
+        }
+      },
+    }).finally(() => { settled = true; });
+    await intelReady;
+    await Promise.resolve();
+    expect(settled).toBe(false);
+    expect(calls.filter(call => call.args[0] === "install").map(call => call.cwd)).toEqual(["intel", "linux"]);
+    expect(calls.filter(call => call.command === "/usr/bin/ditto")).toHaveLength(reuseNative ? 1 : 0);
+    expect(calls.filter(call => call.args.at(-1) === "package")).toHaveLength(reuseNative ? 0 : 1);
+    finishIntel();
+    await expect(pending).rejects.toThrow("Linux paketi geçersiz");
+  }
+  const calls = [];
+  await finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", linuxDirectory: "linux",
+    reuseNative: true, reuseIntel: true, reuseLinux: true, summary: null,
+    execute: async (...args) => { calls.push(args); },
+  });
+  await stageMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", linuxDirectory: "linux",
+    reuseNative: true, reuseIntel: true, reuseLinux: true,
+    execute: async (...args) => { calls.push(args); },
+  });
+  expect(calls).toEqual([]);
 });

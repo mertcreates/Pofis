@@ -60,8 +60,6 @@ jobs:
             runner: windows-2022
           - target: darwin-arm64
             runner: macos-15
-          - target: linux-x64
-            runner: ubuntu-24.04
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
     env:
@@ -112,38 +110,21 @@ jobs:
       - name: Windows paketini üret ve gerçek uygulamayı sına
         if: runner.os == 'Windows' && steps.recover.outputs.reuse != 'true'
         run: bun scripts/electron/ci-build.cjs build
-      - name: Ubuntu masaüstü kabul ortamını hazırla
-        if: runner.os == 'Linux' && steps.recover.outputs.reuse != 'true'
-        shell: bash
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y xvfb dbus-x11 gnome-keyring libsecret-1-0 libnss3 libatk-bridge2.0-0 libgtk-3-0t64 libgbm1 libasound2t64 libayatana-appindicator3-1 python3
-          bun scripts/electron/linux-ci.cjs sandbox
-      - name: Linux paketini üret ve gerçek uygulamayı sına
-        if: runner.os == 'Linux' && steps.recover.outputs.reuse != 'true'
-        shell: bash
-        env:
-          XDG_CURRENT_DESKTOP: GNOME
-          DESKTOP_SESSION: ubuntu
-        run: |
-          xvfb-run -a dbus-run-session -- bash -euo pipefail -c 'printf "pofis-ci-keyring" | gnome-keyring-daemon --unlock --components=secrets; bun scripts/electron/ci-build.cjs build; bun scripts/electron/notification-demo.cjs --verify | tee "$RUNNER_TEMP/pofis-linux-notifications.log"; grep -Fq "Bildirim kabulü geçti:" "$RUNNER_TEMP/pofis-linux-notifications.log"'
-      - name: Doğrulanmış Linux paketini sürüm taslağına aktar
-        if: inputs.publish && runner.os == 'Linux' && steps.recover.outputs.reuse != 'true'
-        env:
-          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
-        run: bun scripts/electron/publish.cjs stage
       - name: Doğrulanmış Windows paketini sürüm taslağına aktar
         if: inputs.publish && runner.os == 'Windows' && steps.recover.outputs.reuse != 'true'
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs stage
-      - name: Intel kaynaklarını ayrı çalışma dizinine al
+      - name: Intel ve Linux kaynaklarını ayrı çalışma dizinlerine al
         if: runner.os == 'macOS'
         shell: bash
         run: |
           git clone --no-hardlinks "$GITHUB_WORKSPACE" "$RUNNER_TEMP/pofis-intel"
           git -C "$RUNNER_TEMP/pofis-intel" checkout --detach "$GITHUB_SHA"
           git clone --no-hardlinks "$SITE_DIRECTORY" "${SITE_DIRECTORY}-intel"
+          git clone --no-hardlinks "$GITHUB_WORKSPACE" "$RUNNER_TEMP/pofis-linux"
+          git -C "$RUNNER_TEMP/pofis-linux" checkout --detach "$GITHUB_SHA"
+          git clone --no-hardlinks "$SITE_DIRECTORY" "${SITE_DIRECTORY}-linux"
       - name: Tamamlanmış Intel paketinden devam et
         if: inputs.publish && runner.os == 'macOS'
         id: recover_intel
@@ -152,18 +133,28 @@ jobs:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
           RELEASE_TARGET: darwin-x64
         run: bun scripts/electron/publish.cjs recover
-      - name: ARM64 üretimi, Intel hazırlığı ve iki hedefin kabulünü tamamla
+      - name: Tamamlanmış Linux paketinden devam et
+        if: inputs.publish && runner.os == 'macOS'
+        id: recover_linux
+        working-directory: ${{ runner.temp }}/pofis-linux
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+          RELEASE_TARGET: linux-x64
+        run: bun scripts/electron/publish.cjs recover
+      - name: ARM64 kabulünü, Intel ve Linux statik paketlerini tamamla
         if: runner.os == 'macOS'
         env:
           REUSE_NATIVE: ${{ steps.recover.outputs.reuse }}
           REUSE_INTEL: ${{ steps.recover_intel.outputs.reuse }}
+          REUSE_LINUX: ${{ steps.recover_linux.outputs.reuse }}
         run: bun scripts/electron/macos-ci.cjs
-      - name: Doğrulanmış macOS paketlerini sürüm taslağına aktar
+      - name: Doğrulanmış macOS ve Linux paketlerini sürüm taslağına aktar
         if: inputs.publish && runner.os == 'macOS'
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
           REUSE_NATIVE: ${{ steps.recover.outputs.reuse }}
           REUSE_INTEL: ${{ steps.recover_intel.outputs.reuse }}
+          REUSE_LINUX: ${{ steps.recover_linux.outputs.reuse }}
         run: bun scripts/electron/macos-ci.cjs stage
   cleanup:
     needs: [begin, build]

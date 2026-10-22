@@ -13,8 +13,8 @@ function releaseManifest(target, version, size, sha256) {
     url: `${version}/Pofis-${version}-${target.id}.${target.archiveExtension}` };
 }
 
-async function release(packageDirectory, arch = process.arch) {
-  const target = platformTarget(process.platform, arch);
+async function release(packageDirectory, arch = process.arch, platform = process.platform) {
+  const target = platformTarget(platform, arch);
   const root = resolve(__dirname, "../..");
   const directory = resolve(packageDirectory);
   const app = JSON.parse(await readFile(join(directory, target.resources, "app", "package.json"), "utf8"));
@@ -74,7 +74,9 @@ if (require.main === module) {
   if (!directory) { console.error("Kullanım: bun scripts/electron/release.cjs -PackageDirectory <paket-klasörü>"); process.exitCode = 1; }
   else {
     const archIndex = process.argv.indexOf("-Arch");
-    release(directory, archIndex === -1 ? process.arch : process.argv[archIndex + 1])
+    const platformIndex = process.argv.indexOf("-Platform");
+    release(directory, archIndex === -1 ? process.arch : process.argv[archIndex + 1],
+      platformIndex === -1 ? process.platform : process.argv[platformIndex + 1])
       .catch(error => { console.error(error.message); process.exitCode = 1; });
   }
 }

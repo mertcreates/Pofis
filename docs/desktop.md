@@ -81,13 +81,13 @@ bash ~/.local/share/pofis/app/uninstall.sh
 
 Kaldırıcı kurulum kaydından profil ve menü yolunu okur; uygulamayı onaylı kapatır, yönetilen uygulama ve menü girdisini kaldırır, profili korur. Özel veri dizininde komutta o dizin kullanılır. AppArmor izni yeniden kurulum için sistemde kalır; yalnız kurulumun gösterdiği executable yoluna uygulanır.
 
-Linux CI ortamı, kabul komutları ve kanıtın sınırları [doğrulama rehberinde](verification.md#linux-ve-ortak-unix-installer-kabulü) yönetilir.
+Linux statik kontrolü, hedef Ubuntu kabul komutları ve kanıtın sınırları [doğrulama rehberinde](verification.md#linux-ve-ortak-unix-installer-kabulü) yönetilir.
 
 ## Pano izinleri
 
 [İzin işleyicisi](../electron/permissions.cjs), yalnız ana Pofis penceresinin `http://127.0.0.1:3210` adresindeki ana çerçevesine `clipboard-sanitized-write` izni verir. Böylece hata ekranındaki **Teknik ayrıntıları kopyala** işlemi tarayıcının pano API'siyle çalışır. Pano okuma, alt çerçeveler, diğer pencereler/adresler ve diğer izinler reddedilir. Hem izin kontrolü hem izin isteği aynı sınırı uygular. Güncelleme komutu aşağıdaki sınırlı IPC köprüsünden kopyalanır; renderer'a Node.js erişimi verilmez.
 
-`bun run test:desktop` izin sınırlarını sınar. `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`, geçici profilde gerçek Electron ve örnek metinle eski ret politikasındaki hatayı, izinli yazmayı, güncelleme komutunun panoya kopyalanmasını ve pano okuma reddini kontrol eder. Sistem panosu profiller arasında ortaktır; bu komut panoyu temizler ve yalnız geçici CI/VM masaüstünde çalıştırılır. Ortak CI build'i Windows, ARM64 ve Linux hedeflerinde bu kontrolü paketlemeden önce çağırır; Intel CI statik paket kontrolleriyle sınırlıdır. Hedef pakette ayrıca hata ekranı → **Teknik ayrıntıları kopyala** → metin alanına yapıştır zincirini doğrulayın.
+`bun run test:desktop` izin sınırlarını sınar. `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`, geçici profilde gerçek Electron ve örnek metinle eski ret politikasındaki hatayı, izinli yazmayı, güncelleme komutunun panoya kopyalanmasını ve pano okuma reddini kontrol eder. Sistem panosu profiller arasında ortaktır; bu komut panoyu temizler ve yalnız geçici CI/VM masaüstünde çalıştırılır. Ortak CI build'i Windows ve ARM64 hedeflerinde bu kontrolü paketlemeden önce çağırır; Intel ve macOS üzerinde üretilen Linux paketleri statik kontrollerle doğrulanır. Hedef pakette ayrıca hata ekranı → **Teknik ayrıntıları kopyala** → metin alanına yapıştır zincirini doğrulayın.
 
 ## Dış bağlantılar
 
@@ -280,7 +280,7 @@ bun run test:desktop:distribution
 bun run test:desktop:distribution --startup-only --site ../pofis-landing
 ```
 
-[Süreç testleri](../electron/server.test.cjs) izole fixture süreçleriyle timeout/kimlik/port/iptal/temizleme yollarını sınar. [Paket kabulü](../scripts/electron/smoke.cjs) gerçek Electron/Next standalone üzerinde görsel baytları ve font yüklenmesi, giriş formu, oturum API'si, demo, tek örnek, gezinme sınırı ve profil kalıcılığını kontrol eder; `--source` kaynak kabuğunu açar.
+[Süreç testleri](../electron/server.test.cjs) izole fixture süreçleriyle timeout/kimlik/port/iptal/temizleme yollarını sınar. [Paket kabulü](../scripts/electron/smoke.cjs) gerçek Electron/Next standalone üzerinde görsel baytları ve font yüklenmesi, giriş formu, oturum API'si, demo, tek örnek, gezinme sınırı ve profil kalıcılığını kontrol eder; `--source` kaynak kabuğunu açar. Pencere kapatma kabulü, geçici loopback ana süreç debugger bağlantısıyla `BrowserWindow.close()` çağırır; pencerenin gizlendiğini ve sunucunun çalıştığını, ardından açık çıkışla sürecin ve portun kapandığını doğrular. Renderer `window.close()` native kapatma olayını atladığı için bu kabulde kullanılmaz.
 
 [Platform testleri](../electron/platform.test.cjs) dört hedefin yollarını/manifestlerini ve POSIX süreç grubuna gönderilecek sinyal/hata politikasını kontrol eder. macOS sistem araçları, `.app` ve Dock davranışı aynı paket kabul betiğiyle native macOS ortamında doğrulanır.
 
