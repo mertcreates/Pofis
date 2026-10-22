@@ -78,7 +78,7 @@ test("çalışan sunucunun beklenmedik kapanışını bildirir", () => fixture("
 
 test("eksik standalone sunucu için uygulanabilir hata verir", () => fixture("ok", async ({ options }) => {
   await rm(join(options.root, "server.js"));
-  await expect(createDesktopServer(options).start()).rejects.toThrow("desktop:prepare");
+  await expect(createDesktopServer(options).start()).rejects.toThrow("Pofis sunucu dosyaları bulunamadı");
 }));
 
 test("kapanış mesajını ve SIGTERM'i yok sayan sunucuyu zorla kapatır", () => fixture("stubborn", async ({ server }) => {

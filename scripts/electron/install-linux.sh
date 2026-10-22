@@ -133,7 +133,7 @@ def assert_bundle(app, version):
     for name in ("pofis", "chrome-sandbox", "uninstall.sh", "release.json", "resources/app/package.json",
                  "resources/app/electron/main.cjs", "resources/app/electron/server.cjs",
                  "resources/app/electron/server-entry.cjs", "resources/app/electron/startup.cjs",
-                 "resources/app/electron/platform.cjs", "resources/app/electron/preload.cjs",
+                 "resources/app/electron/platform.cjs", "resources/app/server/preload.cjs",
                  "resources/app/electron/transport.cjs",
                  "resources/app/electron/update-bridge.cjs", "resources/app/server/server.js",
                  "resources/app/server/pofis-notifications.cjs", "resources/app/server/.next/BUILD_ID",

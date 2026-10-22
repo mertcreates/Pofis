@@ -30,7 +30,7 @@ if (process.versions.electron) {
     let copyFails = false;
     const window = new BrowserWindow({ show: !verify, width: 1280, height: 900,
       webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, backgroundThrottling: !verify,
-        preload: resolve(__dirname, "../../electron/preload.cjs") } });
+        preload: resolve(__dirname, "../../.next/standalone/preload.cjs") } });
     const publish = installUpdateBridge({ ipcMain, getWindow: () => window, isPackaged: true,
       platform: target.platform, writeClipboard: text => {
         if (copyFails) throw new Error("Test pano hatası");
@@ -117,6 +117,7 @@ if (process.versions.electron) {
   const { tmpdir } = require("node:os");
   (async () => {
     if (!process.versions.bun) throw new Error("Demoyu bun scripts/electron/update-demo.cjs ile aç.");
+    await require("./build-notifications.cjs").buildNotifications();
     const temporaryRoot = resolve(tmpdir());
     const profile = await mkdtemp(join(temporaryRoot, "pofis-update-demo-"));
     try {

@@ -37,6 +37,7 @@ test("Pofi CLI inspects and previews the current single pool without writing it"
         join(root, "src/domain/rules", name),
         join(fixture, "src/domain/rules", name),
       );
+    cpSync(join(root, "src/lib/ui-text.js"), join(fixture, "src/lib/ui-text.js"));
     cpSync(
       join(root, "scripts/pofi-notes.ts"),
       join(fixture, "scripts/pofi-notes.ts"),

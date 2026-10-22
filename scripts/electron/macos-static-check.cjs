@@ -16,7 +16,7 @@ async function checkIntelPackage(directory, execute = promisify(execFile)) {
   }
   for (const file of [target.executable, join(target.resources, "app/electron/main.cjs"),
     join(target.resources, "app/electron/transport.cjs"),
-    join(target.resources, "app/electron/preload.cjs"), join(target.resources, "app/electron/update-bridge.cjs"),
+    join(target.resources, "app/server/preload.cjs"), join(target.resources, "app/electron/update-bridge.cjs"),
     join(target.resources, "app/server/server.js")]) {
     await access(join(directory, file));
   }

@@ -15,6 +15,7 @@ if (process.versions.electron) {
   app.setAppPath(resolve(__dirname, "../.."));
   let notifications, window, background, quitting = false;
   app.on("before-quit", () => { quitting = true; notifications?.stop(); background?.stop(); });
+  app.on("window-all-closed", () => {}); // The acceptance owns shutdown after its final assertion.
   app.whenReady().then(async () => {
     require("../../electron/acceptance-network.cjs").isolateAcceptanceAnalytics(session.defaultSession, true);
     const now = Date.now();
@@ -47,7 +48,7 @@ if (process.versions.electron) {
     });
     window = new BrowserWindow({ show: !process.argv.includes("--verify"), width: 1280, height: 950,
       webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true, backgroundThrottling: false,
-        preload: resolve(__dirname, "../../electron/preload.cjs") } });
+        preload: resolve(__dirname, "../../.next/standalone/preload.cjs") } });
     window.webContents.on("console-message", event => {
       if (event.level === "error") console.error("Fixture renderer:", event.message);
     });
@@ -89,7 +90,7 @@ if (process.versions.electron) {
     await evaluate(`(() => { const button = Array.from(document.querySelectorAll('.sidebar-nav button')).find(button => button.textContent === 'Bildirimler'); button.focus(); button.click(); })()`);
     await until(`document.querySelector('.notification-reminders .notification-channel-switch input:not(:disabled)')`, "Ayarlar yüklenemedi");
     assert.equal(await evaluate(`document.querySelectorAll('.notification-channel-switch input:checked').length`), 0);
-    assert.equal(await evaluate(`document.querySelectorAll('.notification-target-connect').length`), 2);
+    assert.equal(await evaluate(`!!document.querySelector('.notification-setup-toggle')`), true);
     await click(`input[aria-label='Hedef çıkışa yaklaşınca · Masaüstü']`);
     await click(`.notification-settings form button[type=submit]`);
     await until(`document.querySelector('#notification-save-feedback')?.textContent.includes('kaydedildi')`, "Tercihler kaydedilmedi");
@@ -111,6 +112,7 @@ if (process.versions.electron) {
     await preview.writeFile(resolve(__dirname, '../../work/notification-preview/setup-390.png'), (await window.webContents.capturePage()).toPNG());
     await evaluate(`document.querySelector('#telegram-token').scrollIntoView({block:'center'})`);
     await preview.writeFile(resolve(__dirname, '../../work/notification-preview/setup-fields-390.png'), (await window.webContents.capturePage()).toPNG());
+    await click('#telegram-setup .notification-setup-cancel');
     await click('.mobile-menu-toggle');
     await click('.sidebar-nav button');
     assert.equal(await evaluate(`document.querySelector('.header-menu').dataset.open`), 'false');
@@ -120,6 +122,7 @@ if (process.versions.electron) {
     assert.equal(await evaluate(`document.querySelector('#notifications-title').getBoundingClientRect().top >= 0`), true);
     assert.equal(await evaluate(`document.querySelector('.header-menu').dataset.open`), 'false');
     window.setSize(1280, 1000);
+    await click('.notification-setup-toggle');
     const token = "123456:abcdefghijklmnopqrstuvwxyzABCDEF";
     await evaluate(`(() => { const input = document.querySelector('#telegram-token');
       Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value').set.call(input, ${JSON.stringify(token)});
@@ -139,11 +142,11 @@ if (process.versions.electron) {
     await until(`document.querySelector('#notification-telegram-feedback')?.textContent.includes('doğrulanamadı')`, "Gönderim hatası gösterilmedi");
     failTelegram = false;
     await evaluate(`Array.from(document.querySelectorAll('button')).find(button => button.textContent === 'Telegram’da dene').click()`);
-    await until(`document.querySelector('#notification-telegram-feedback')?.textContent.includes('Telegram’a iletildi')`, "Telegram tekrar denemesi tamamlanmadı");
+    await until(`document.querySelector('#notification-telegram-feedback')?.textContent.includes('Telegram’a gönderildi')`, "Telegram tekrar denemesi tamamlanmadı");
     assert.equal(telegramMessages.length, 1);
     assert.equal(await evaluate(`window.pofisNotifications.save({leadMinutes: 0}).then(() => false, () => true)`), true);
     assert.equal((await evaluate(`window.pofisNotifications.get()`)).preferences.leadMinutes, 10);
-    const evil = new BrowserWindow({ show: false, webPreferences: { contextIsolation: true, sandbox: true, preload: resolve(__dirname, "../../electron/preload.cjs") } });
+    const evil = new BrowserWindow({ show: false, webPreferences: { contextIsolation: true, sandbox: true, preload: resolve(__dirname, "../../.next/standalone/preload.cjs") } });
     await evil.loadURL(`${ORIGIN}/demo`);
     assert.equal(await evil.webContents.executeJavaScript(`window.pofisNotifications.get().then(() => false, () => true)`), true);
     evil.destroy();
@@ -178,7 +181,7 @@ if (process.versions.electron) {
     })`);
     const openSettings = `Array.from(document.querySelectorAll('.sidebar-nav button')).find(button => button.textContent === 'Bildirimler').click()`;
     await browserEvaluate(openSettings);
-    assert.equal(await browserEvaluate(`document.querySelector('.notification-context').textContent.includes('masaüstünü')`), true);
+    assert.equal(await browserEvaluate(`document.querySelector('.notification-context').textContent.includes('masaüstü uygulamasını aç')`), true);
     assert.equal(await browserEvaluate(`Array.from(document.querySelectorAll('.notification-settings input, .notification-settings button')).every(element => element.matches(':disabled'))`), true);
     await browserOnly.loadURL(`${ORIGIN}/demo`);
     await browserEvaluate(`new Promise(resolve => { const check = () => document.querySelector('.sidebar-nav button') ? resolve() : setTimeout(check, 50); check(); })`);
@@ -189,6 +192,7 @@ if (process.versions.electron) {
     await new Promise(resolve => { window.once("show", resolve); nativeNotifications[0].emit("click"); });
     assert.equal(window.isVisible(), true);
     console.log("Bildirim kabulü geçti: opt-in, kalıcılık/şifreleme, native/Telegram, hata/tekrar, IPC, açık/koyu/dar görünüm, web/demo izolasyonu, arka plan.");
+    process.send?.({ type: "notification-acceptance-complete" });
     app.quit();
   }).catch(async error => {
     console.error(error.stack);
@@ -212,15 +216,21 @@ if (process.versions.electron) {
       { env: { ...env, PORT: String(port), HOSTNAME: "127.0.0.1" }, stdio: "ignore", windowsHide: true });
     let child;
     let timer;
+    let completed = false;
     try {
       const deadline = Date.now() + 30_000;
       while (!await fetch(`${upstream}/api/health`, { signal: AbortSignal.timeout(1000) }).then(response => response.ok, () => false)) {
         if (Date.now() >= deadline || server.exitCode !== null) throw new Error("Önce bun run desktop:prepare ile standalone çıktısını hazırla.");
         await Bun.sleep(100);
       }
-      child = spawn(require("electron"), [__filename, `--user-data-dir=${profile}`, `--fixture-origin=${upstream}`, ...process.argv.slice(2)], { env, stdio: "inherit", windowsHide: true });
+      child = spawn(require("electron"), [__filename, `--user-data-dir=${profile}`, `--fixture-origin=${upstream}`, ...process.argv.slice(2)], { env, stdio: ["ignore", "inherit", "inherit", "ipc"], windowsHide: true });
+      child.on("message", message => { if (message?.type === "notification-acceptance-complete") completed = true; });
       timer = process.argv.includes("--verify") ? setTimeout(() => { console.error("Bildirim kabulü zaman aşımı"); child.kill(); }, 90_000) : null;
-      process.exitCode = await new Promise((resolve, reject) => { child.on("exit", code => resolve(code === 0 ? 0 : 1)); child.on("error", reject); });
+      process.exitCode = await new Promise((resolve, reject) => { child.on("exit", code => {
+        const success = code === 0 && (!process.argv.includes("--verify") || completed);
+        if (code === 0 && !success) console.error("Bildirim kabulü tamamlanmadan kapandı");
+        resolve(success ? 0 : 1);
+      }); child.on("error", reject); });
     }
     finally {
       if (timer) clearTimeout(timer);

@@ -6,8 +6,7 @@ Bu liste yerelde çalışan kurum içi Pofis uygulamasının açık işlerini tu
 
 Yerel hazırlık yapıldı; gerçek Ubuntu kabulü ve yayın bekliyor. Destek kapsamı ve kurulum sözleşmesi [masaüstü rehberinde](../docs/desktop.md#ubuntu-2404-lts-x64-ve-ortak-unix-kurulumu), test komutları [doğrulama rehberindedir](../docs/verification.md#linux-ve-ortak-unix-installer-kabulü).
 
-- [ ] Linux commit’inin bildirim/tepsi önkoşullarını tamamla: installer’ın gerektirdiği `pofis-notifications.cjs` üretimi ve uygulama entegrasyonu henüz HEAD’de yok. Linux stage kapsamı bu önkoşullardan ayrı tutuluyor.
-- [ ] Ubuntu CI’da paket açılışı, ortak installer, tek örnek, açıkken onaylı güncelleme, geri alma ve profil koruyan kaldırmayı çalıştır. Bildirim kabulü hem sıfır çıkış kodunu hem tamamlanma mesajını gerektirir; erken çıkışın nedenini çöz. Mevcut Windows ortamında Linux/WSL bulunmadığı için native kabul çalıştırılmadı.
+- [ ] Ubuntu CI’da paket açılışı, ortak installer, tek örnek, açıkken onaylı güncelleme, geri alma ve profil koruyan kaldırmayı çalıştır. Bildirim kabulü hem sıfır çıkış kodunu hem tamamlanma mesajını gerektirir. Mevcut Windows ortamında Linux/WSL bulunmadığı için native kabul çalıştırılmadı.
 - [ ] Gerçek Ubuntu GNOME masaüstünde AppArmor ilk kurulumu, menü kısayolu, tepsi/arka plan, yerel bildirim, anahtarlık/Telegram, uyku dönüşü ve PDKS giriş/rapor kabulünü tamamla. Xvfb bu kabulün yerine geçmez.
 
 ## 0.5.0 yayın kabulü

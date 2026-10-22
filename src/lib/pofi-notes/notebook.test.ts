@@ -127,7 +127,7 @@ test("bozuk içerik ve geçersiz tarih başarı gibi sunulmaz", () => {
         specials: {},
       }),
     ),
-  ).toThrow("at least five");
+  ).toThrow("en az beş");
   expect(() =>
     createPofiNotebook(smallCatalogue(), { "2-08": { note: "star" } }),
   ).toThrow("Invalid special day");

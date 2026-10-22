@@ -25,7 +25,7 @@ if (process.versions.electron) {
       isolated.setPermissionRequestHandler((_contents, _permission, callback) => callback(false));
       window = new BrowserWindow({ show: false,
         webPreferences: { session: isolated, nodeIntegration: false, contextIsolation: true, sandbox: true,
-          preload: join(__dirname, "../../electron/preload.cjs") } });
+          preload: join(__dirname, "../../.next/standalone/preload.cjs") } });
       const publishUpdate = installUpdateBridge({ ipcMain, getWindow: () => window, isPackaged: true,
         platform: process.platform, writeClipboard: text => clipboard.writeText(text) });
       await window.loadURL(ORIGIN);
@@ -68,6 +68,7 @@ if (process.versions.electron) {
   const { mkdtemp, rm } = require("node:fs/promises");
   const { tmpdir } = require("node:os");
   (async () => {
+    await require("./build-notifications.cjs").buildNotifications();
     const temporaryRoot = resolve(tmpdir());
     const profile = await mkdtemp(join(temporaryRoot, "pofis-clipboard-smoke-"));
     try {

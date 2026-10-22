@@ -39,7 +39,7 @@ def bundle(version, machine=b"\x3e\0", omit=()):
     names = ["chrome-sandbox", "uninstall.sh", "resources/app/electron/main.cjs",
              "resources/app/electron/server.cjs", "resources/app/electron/server-entry.cjs",
              "resources/app/electron/startup.cjs", "resources/app/electron/platform.cjs",
-             "resources/app/electron/preload.cjs", "resources/app/electron/update-bridge.cjs", "resources/app/electron/transport.cjs",
+             "resources/app/server/preload.cjs", "resources/app/electron/update-bridge.cjs", "resources/app/electron/transport.cjs",
              "resources/app/server/server.js", "resources/app/server/pofis-notifications.cjs",
              "resources/app/server/.next/BUILD_ID", "resources/app/public/pofi/pofi-mark-256.png"]
     entries = [(name, b"fixture", tarfile.REGTYPE) for name in names]
@@ -260,6 +260,7 @@ class InstallerTests(unittest.TestCase):
         for data, error in (
                 (archive_bytes([("readme", b"partial", tarfile.REGTYPE)]), "pofis"),
                 (bundle("1.0.1", omit={"resources/app/server/pofis-notifications.cjs"}), "resources/app/server/pofis-notifications"),
+                (bundle("1.0.1", omit={"resources/app/server/preload.cjs"}), "resources/app/server/preload"),
                 (bundle("1.0.1", b"\xb7\0"), "x64")):
             self.version, self.bytes = "1.0.1", data
             with self.assertRaisesRegex(RuntimeError, error):
