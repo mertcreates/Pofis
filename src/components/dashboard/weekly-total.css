@@ -6,6 +6,8 @@
 .weekly-ruler-day { min-width: 0; text-align: center; color: var(--secondary); font-size: 12px; }
 .weekly-ruler-day:focus-visible { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
 .weekly-ruler-tick { position: relative; display: block; height: 22px; margin-bottom: 8px; border-radius: 4px; background: linear-gradient(to right, var(--duration-recorded) 0 var(--ruler-recorded), var(--duration-estimated) var(--ruler-recorded) var(--ruler-filled), var(--track) var(--ruler-filled) 100%); }
+.weekly-ruler-leave { display: flex; align-items: center; justify-content: center; border: 1px dashed var(--control); background: var(--surface-subtle); color: var(--secondary); }
+.weekly-ruler-leave-duration { display: block; margin-top: 4px; color: var(--ink); }
 .weekly-total-difference small { font-size: inherit; }
 .weekly-total-difference { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin: auto 0 0; padding-top: 16px; font-size: 12px; }
 .weekly-total-difference dt { color: var(--secondary); }

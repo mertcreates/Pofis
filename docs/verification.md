@@ -60,6 +60,7 @@ Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut se
 | [Depolama](../src/data/work-plans.test.ts) | Doğrulama, kalıcılık, yazı hatası ve canlı/demo ayrımı |
 | [Rapor](../src/domain/report.test.ts) | Ortak gereken süre, kayıt durumu, Pofi ve hedef çıkış |
 | [Kural mimarisi](../src/domain/rules/rules.test.ts) | Belge/kod sahipliği ve bağımlılık sınırları |
+| [Haftalık toplam](../src/components/dashboard/weekly-total.test.tsx) | İzinli günün cetveldeki sırası ve dolgusuz durumu, normal kapalı günlerin gizlenmesi, izinli çalışma süresinin görünürlüğü ve toplamda korunması; geçmiş hafta cetvelinin kapalı kalması |
 
 ### Planlayıcı etkileşim kabulü
 

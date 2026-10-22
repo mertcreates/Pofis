@@ -24,7 +24,7 @@ export function ReportContent({ prepared, initialNow, today, isCurrent, liveCloc
   const { days } = prepared(now);
   const todayReport = days.find(day => day.date === today);
   return <section className="dashboard" aria-label={ui.personRecords(owner)}>
-    <DashboardMetrics targetSeconds={targetSeconds} days={days} today={today} isCurrent={isCurrent} week={week} />
+    <DashboardMetrics targetSeconds={targetSeconds} days={days} today={today} isCurrent={isCurrent} week={week} leaveDays={leaveDays} />
     {isCurrent && todayReport && <div className="middle-grid">
       <ReportTable days={days} today={today} compact leaveDays={leaveDays} />
       <PofiPanel key={today} day={todayReport} now={now} onOpen={onOpenRoom} />

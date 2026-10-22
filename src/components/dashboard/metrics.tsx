@@ -10,12 +10,14 @@ export function DashboardMetrics({
   isCurrent,
   targetSeconds: target,
   week,
+  leaveDays,
 }: {
   days: DayReport[];
   today: string;
   isCurrent: boolean;
   targetSeconds: number;
   week: string;
+  leaveDays: readonly number[];
 }) {
   const summary = summarizeWeek(days, today);
   const day = days.find((day) => day.date === today);
@@ -25,7 +27,7 @@ export function DashboardMetrics({
       {isCurrent && day && (
         <DayFlow day={day} target={exitGoal} />
       )}
-      <WeeklyTotal days={days} target={target} summary={summary} isCurrent={isCurrent} />
+      <WeeklyTotal days={days} target={target} summary={summary} isCurrent={isCurrent} leaveDays={leaveDays} />
       {!isCurrent && <WeekChart days={days} today={today} start={week} current={false} />}
     </div>
   );

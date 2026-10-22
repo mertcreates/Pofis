@@ -10,14 +10,15 @@ import { Tooltip } from "../tooltip";
 import { weeklyRuler } from "./weekly-ruler";
 import "./weekly-total.css";
 
-export function WeeklyTotal({ days, target, summary, isCurrent }: {
+export function WeeklyTotal({ days, target, summary, isCurrent, leaveDays }: {
   days: DayReport[];
   target: number;
   summary: ReturnType<typeof summarizeWeek>;
   isCurrent: boolean;
+  leaveDays: readonly number[];
 }) {
   const percent = target > 0 ? percentage(summary.totalSeconds, target) : null;
-  const segments = isCurrent ? weeklyRuler(days) : [];
+  const segments = isCurrent ? weeklyRuler(days, leaveDays) : [];
   const difference = summary.totalSeconds - target;
   const differenceLabel = difference === 0 ? ui.equalTargetLabel
     : difference > 0 ? ui.excessLabel
@@ -34,16 +35,20 @@ export function WeeklyTotal({ days, target, summary, isCurrent }: {
     {segments.length > 0 && <>
       <div className="weekly-ruler" style={{ gridTemplateColumns: `repeat(${segments.length}, minmax(0, 1fr))` }}>
         {segments.map(segment => {
-          const { day } = segment;
+          const { day, onLeave } = segment;
           const name = ui.weekdays[weekday(day.date)];
           const known = day.recordedSeconds !== null || day.liveSeconds !== null;
           const actual = known ? `${day.state === "uncertain" ? "≈ " : ""}${durationText(day.source.total)}` : ui.noRecordedDuration;
-          return <Tooltip key={day.date} className="weekly-ruler-day" label={name.long} content={<>
+          return <Tooltip key={day.date} className="weekly-ruler-day"
+            label={onLeave ? `${name.long}, ${ui.planner.onLeave}${known ? `, ${actual}` : ""}` : name.long} content={<>
             <span className="pofis-tooltip-heading">{name.long}</span>
-            <span>{actual} / {durationText(day.source.dailyGoalSeconds)}</span>
+            <span>{onLeave ? ui.planner.onLeave : `${actual} / ${durationText(day.source.dailyGoalSeconds)}`}</span>
+            {onLeave && known && <span>{actual}</span>}
           </>}>
-            <span className="weekly-ruler-tick" aria-hidden="true" style={{ "--ruler-recorded": `${segment.recorded * 100}%`, "--ruler-filled": `${segment.filled * 100}%` } as CSSProperties} />
+            {onLeave ? <span className="weekly-ruler-tick weekly-ruler-leave" aria-hidden="true">{ui.planner.onLeave}</span>
+              : <span className="weekly-ruler-tick" aria-hidden="true" style={{ "--ruler-recorded": `${segment.recorded * 100}%`, "--ruler-filled": `${segment.filled * 100}%` } as CSSProperties} />}
             <span aria-hidden="true">{name.short}</span>
+            {onLeave && known && day.source.total > 0 && <span className="weekly-ruler-leave-duration" aria-hidden="true">{actual}</span>}
           </Tooltip>;
         })}
       </div>
