@@ -7,26 +7,43 @@ const { join, basename } = require("node:path");
 const { timed, build, accept, run } = require("./ci-build.cjs");
 const { finishMacBuild, stageMacBuild } = require("./macos-ci.cjs");
 const { version } = require("../../package.json");
+const { until } = require("./acceptance-wait.cjs");
 const intel = process.platform === "darwin" && process.arch === "x64";
 
-test("süresi dolan CI komutu sahip olduğu alt süreçleri de kapatır", async () => {
+test("iptal edilen CI komutu hazır alt süreçlerini de kapatır", async () => {
   const directory = await mkdtemp(join(tmpdir(), "pofis-ci-timeout-"));
   const script = join(directory, "hang.cjs");
   const record = join(directory, "pids.json");
   let pids = [];
+  const controller = new AbortController();
+  let pending;
   try {
-    await writeFile(script, `const { spawn } = require('node:child_process');
+    const nested = `const { spawn } = require('node:child_process');
       const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' });
-      require('node:fs').writeFileSync(process.argv[2], JSON.stringify([process.pid, child.pid]));
-      setInterval(() => {}, 1000);`);
-    await expect(run(process.execPath, [script, record], directory, process.env, { timeoutMs: 500 }))
-      .rejects.toThrow("tamamlanmadı");
+      require('node:fs').writeFileSync(${JSON.stringify(record)}, JSON.stringify([process.ppid, process.pid, child.pid]));
+      setInterval(() => {}, 1000);`;
+    await writeFile(script, `const { run, handleCancellation } = require(${JSON.stringify(join(__dirname, "ci-build.cjs"))});
+      handleCancellation();
+      run(process.execPath, ['-e', ${JSON.stringify(nested)}]).catch(() => { process.exitCode = 1; });`);
+    pending = run(process.execPath, [script, record], directory, process.env, { signal: controller.signal });
+    pending.catch(() => {}); // Observe rejection even if fixture startup fails first.
+    await until(async () => Bun.file(record).exists(), 5000);
     pids = JSON.parse(await readFile(record, "utf8"));
+    const reason = new Error("kardeş hedef başarısız");
+    controller.abort(reason);
+    await expect(pending).rejects.toBe(reason);
     for (const pid of pids) expect(() => process.kill(pid, 0)).toThrow();
   } finally {
+    controller.abort();
+    await pending?.catch(() => {});
     for (const pid of pids) { try { process.kill(pid, "SIGKILL"); } catch {} }
     await rm(directory, { recursive: true, force: true });
   }
+});
+
+test("CI komutunun zaman sınırı bekleyen komutu sonlandırır", async () => {
+  await expect(run(process.execPath, ["-e", "setInterval(() => {}, 1000)"], undefined, undefined,
+    { timeoutMs: 50 })).rejects.toThrow("tamamlanmadı");
 });
 
 test("gerçek CI build'i erken kontroldeki hatada derleme ve paketleme başlatmaz", async () => {
@@ -85,20 +102,12 @@ test("süre özeti başarılı ve hatalı aşamayı kaydeder; hata korunur", asy
   const directory = await mkdtemp(join(tmpdir(), "pofis-ci-timing-"));
   const summary = join(directory, "summary.md");
   const failure = new Error("özgün hata");
+  const clock = spyOn(Date, "now").mockReturnValueOnce(1000).mockReturnValueOnce(58310)
+    .mockReturnValueOnce(60000).mockReturnValueOnce(60500);
   try {
     expect(await timed("build", async () => "çıktı", summary)).toBe("çıktı");
     await expect(timed("kabul", async () => { throw failure; }, summary)).rejects.toBe(failure);
-    expect(await readFile(summary, "utf8")).toMatch(/^\| build \| başarılı \| \d+\.\d{2} \|\n\| kabul \| başarısız \| \d+\.\d{2} \|\n$/);
-  } finally { await rm(directory, { recursive: true, force: true }); }
-});
-
-test("süre özeti duvar saatindeki geçen süreyi raporlar", async () => {
-  const directory = await mkdtemp(join(tmpdir(), "pofis-wall-time-"));
-  const summary = join(directory, "summary.md");
-  const clock = spyOn(Date, "now").mockReturnValueOnce(1000).mockReturnValueOnce(58310);
-  try {
-    await timed("Next", async () => {}, summary);
-    expect(await readFile(summary, "utf8")).toBe("| Next | başarılı | 57.31 |\n");
+    expect(await readFile(summary, "utf8")).toBe("| build | başarılı | 57.31 |\n| kabul | başarısız | 0.50 |\n");
   } finally { clock.mockRestore(); await rm(directory, { recursive: true, force: true }); }
 });
 
@@ -115,16 +124,18 @@ test("ayrı kurulum kabulü üretimi tekrarlamaz ve kabul hatasını korur", asy
     : [join(__dirname, process.platform === "linux" ? "linux-distribution-test.cjs" : "macos-distribution-test.cjs"), "--site", "site"]]);
 });
 
-test("macOS Intel hazırlığını paketlemeyle örtüştürür; hazırlık hatasında ARM kabulünü bekler", async () => {
+test("hazırlık hatası ARM kabulünü iptal eder; temizlik bitmeden dönmez veya yeni aşama başlatmaz", async () => {
   const calls = [];
   let finishPackage;
   let finishPreparation;
   let finishNative;
   let nativeStarted;
   const nativeReady = new Promise(done => { nativeStarted = done; });
+  let notifyCancellation;
+  const cancelled = new Promise(done => { notifyCancellation = done; });
   let settled = false;
   const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", reuseLinux: true, summary: null,
-    execute: async (command, args, cwd, env) => {
+    execute: async (command, args, cwd, env, { signal } = {}) => {
       calls.push({ command, args, cwd, env });
       if (args.at(-1) === "package") return new Promise(done => { finishPackage = done; });
       if (args[0] === "install") {
@@ -132,6 +143,7 @@ test("macOS Intel hazırlığını paketlemeyle örtüştürür; hazırlık hata
         throw new Error("Intel hazırlığı başarısız");
       }
       nativeStarted();
+      signal?.addEventListener("abort", notifyCancellation, { once: true });
       return new Promise(done => { finishNative = done; });
     },
   }).finally(() => { settled = true; });
@@ -148,7 +160,7 @@ test("macOS Intel hazırlığını paketlemeyle örtüştürür; hazırlık hata
   await nativeReady;
   expect(calls[2].args.at(-1)).toBe("accept");
   finishPreparation();
-  await Promise.resolve();
+  await cancelled;
   expect(settled).toBe(false);
   finishNative();
   await expect(pending).rejects.toThrow("Intel hazırlığı başarısız");
@@ -339,14 +351,16 @@ test("macOS paket aktarımı hedeflerin ayrı dosyalarını paralel işler; kurt
   expect(calls).toEqual(["darwin-x64", "linux-x64"]);
 });
 
-test("macOS üç hedefi yönetir; Linux hatasında diğer zincirleri bekler ve kurtarılan ARM çıktısını bir kez açar", async () => {
+test("Linux hatası kardeş üretimi iptal eder; kurtarılan ARM çıktısı bir kez açılır", async () => {
   for (const reuseNative of [false, true]) {
     const calls = [];
     let finishIntel, intelStarted;
     const intelReady = new Promise(done => { intelStarted = done; });
+    let notifyCancellation;
+    const cancelled = new Promise(done => { notifyCancellation = done; });
     let settled = false;
     const pending = finishMacBuild({ version, siteDirectory: "site", intelDirectory: "intel", linuxDirectory: "linux",
-      reuseNative, summary: null, execute: async (command, args, cwd, env) => {
+      reuseNative, summary: null, execute: async (command, args, cwd, env, { signal } = {}) => {
         calls.push({ command, args, cwd, env });
         if (args.at(-1) === "build" && cwd === "linux") {
           expect(env).toMatchObject({ RELEASE_TARGET: "linux-x64", SITE_DIRECTORY: "site-linux",
@@ -354,13 +368,14 @@ test("macOS üç hedefi yönetir; Linux hatasında diğer zincirleri bekler ve k
           throw new Error("Linux paketi geçersiz");
         }
         if (args.at(-1) === "build" && cwd === "intel") {
+          signal?.addEventListener("abort", notifyCancellation, { once: true });
           intelStarted();
           return new Promise(done => { finishIntel = done; });
         }
       },
     }).finally(() => { settled = true; });
     await intelReady;
-    await Promise.resolve();
+    await cancelled;
     expect(settled).toBe(false);
     expect(calls.filter(call => call.args[0] === "install").map(call => call.cwd)).toEqual(["intel", "linux"]);
     expect(calls.filter(call => call.command === "/usr/bin/ditto")).toHaveLength(reuseNative ? 1 : 0);

@@ -13,27 +13,65 @@ function assertVersion(version, actual) {
   }
 }
 
-async function run(command, args, cwd = root, env = process.env, { timeoutMs = 600000 } = {}) {
-  let timer, stopping, expired = false;
+const cancellation = new AbortController();
+const running = new Set();
+let inheritedProcessGroup = false;
+
+function handleCancellation() {
+  inheritedProcessGroup = process.env.POFIS_CI_PROCESS_GROUP === "1";
+  const stop = async () => {
+    cancellation.abort(new Error("CI çalışması iptal edildi."));
+    await Promise.allSettled([...running]);
+    process.exitCode = 1;
+  };
+  process.once("SIGTERM", stop);
+  process.once("SIGINT", stop);
+}
+
+async function run(command, args, cwd = root, env = process.env, { timeoutMs = 600000, signal = cancellation.signal } = {}) {
+  signal = AbortSignal.any([signal, cancellation.signal]);
+  signal.throwIfAborted();
+  let timer, stopping, expired = false, pending, abort;
+  // Nested CI commands inherit their owner's group. Otherwise each detached
+  // Bun invocation would escape cancellation of the outer command.
+  const processGroup = process.platform !== "win32" && !inheritedProcessGroup;
+  const stop = () => stopping ||= require("../../electron/server.cjs").stopProcessTree(pending.child,
+    { processGroup, timeoutMs: 15000 });
+  let done;
+  const completion = new Promise(resolve => { done = resolve; });
+  running.add(completion);
   try {
-    const pending = execute(command, args, { cwd, env, windowsHide: true,
-      detached: process.platform !== "win32", maxBuffer: 16 * 1024 * 1024 });
+    pending = execute(command, args, { cwd, env: { ...env,
+      ...(process.platform !== "win32" ? { POFIS_CI_PROCESS_GROUP: "1" } : {}) }, windowsHide: true,
+      detached: processGroup, maxBuffer: 16 * 1024 * 1024 });
     pending.child.stdout.on("data", chunk => process.stdout.write(chunk));
     pending.child.stderr.on("data", chunk => process.stderr.write(chunk));
     const deadline = new Promise((_, reject) => {
+      abort = () => reject(signal.reason);
+      signal.addEventListener("abort", abort, { once: true });
+      if (signal.aborted) abort();
       timer = setTimeout(() => {
         expired = true;
-        stopping = require("../../electron/server.cjs").stopProcessTree(pending.child, { processGroup: process.platform !== "win32" });
-        stopping.then(() => reject(new Error("timeout")), reject);
+        reject(new Error("timeout"));
       }, timeoutMs);
     });
     const result = await Promise.race([pending, deadline]);
+    signal.throwIfAborted();
+    if (expired) throw new Error("timeout");
     return result.stdout.trim();
   } catch (error) {
-    if (stopping) await stopping;
+    // Also reclaim descendants when the command failed after its leader exited.
+    if (pending) {
+      try { await stop(); }
+      catch (cleanup) { throw new AggregateError([error, cleanup], `${error.message}\nTemizlik: ${cleanup.message}`); }
+    }
+    if (signal.aborted && !expired) throw signal.reason;
     throw new Error(`${command.split(/[\\/]/).at(-1)} ${expired ? `${timeoutMs / 1000} saniyede tamamlanmadı` : `başarısız (${error.code})`}.`);
   } finally {
     clearTimeout(timer);
+    if (abort) signal.removeEventListener("abort", abort);
+    running.delete(completion);
+    done();
   }
 }
 
@@ -165,6 +203,7 @@ async function accept(version, siteDirectory, { execute = run, summary = process
 }
 
 if (require.main === module) {
+  handleCancellation();
   const action = process.argv[2];
   const version = process.env.RELEASE_VERSION;
   (action === "check" ? checkVersion(version) : action === "accept" ? accept(version, process.env.SITE_DIRECTORY)
@@ -172,4 +211,4 @@ if (require.main === module) {
     : Promise.reject(new Error("Kullanım: RELEASE_VERSION=x.y.z bun scripts/electron/ci-build.cjs check|build|package|accept")))
     .catch(error => { console.error(error.message); process.exitCode = 1; });
 }
-module.exports = { assertVersion, run, checkVersion, timed, build, accept };
+module.exports = { assertVersion, run, checkVersion, timed, build, accept, handleCancellation };

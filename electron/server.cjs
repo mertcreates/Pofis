@@ -28,7 +28,8 @@ async function selectPort(port) {
 
 async function stopProcessTree(child, { platform = process.platform, processGroup = false,
   kill = process.kill, timeoutMs = 2500 } = {}) {
-  if (!child || child.exitCode !== null || child.signalCode !== null) return Promise.resolve();
+  // A detached leader can exit while descendants still occupy its process group.
+  if (!child || (!processGroup && (child.exitCode !== null || child.signalCode !== null))) return;
   if (platform !== "win32") {
     const pid = processGroup ? -child.pid : child.pid;
     const signal = (value) => {

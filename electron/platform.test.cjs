@@ -38,7 +38,7 @@ test("Linux x64 kullanıcı kurulumu ve tar.gz dağıtımı için kendi yolları
   expect(releaseManifest(target, "1.2.3", 42, "hash").url).toBe("1.2.3/Pofis-1.2.3-linux-x64.tar.gz");
 });
 
-test.each([false, true])("macOS süreç grubunu kapatır; dirençli alt süreçte SIGKILL: %s", async stubborn => {
+test.each([false, true])("lideri çıkmış macOS grubunu kapatır; dirençli alt süreçte SIGKILL: %s", async stubborn => {
   const signals = [];
   let alive = true;
   const kill = (pid, signal) => {
@@ -47,7 +47,7 @@ test.each([false, true])("macOS süreç grubunu kapatır; dirençli alt süreçt
     if (signal !== 0) signals.push(signal);
     if (signal === "SIGKILL" || (!stubborn && signal === "SIGTERM")) alive = false;
   };
-  await stopProcessTree({ pid: 12345, exitCode: null, signalCode: null },
+  await stopProcessTree({ pid: 12345, exitCode: 0, signalCode: null },
     { platform: "darwin", processGroup: true, kill, timeoutMs: 1 });
   expect(signals).toEqual(stubborn ? ["SIGTERM", "SIGKILL"] : ["SIGTERM"]);
   expect(alive).toBe(false);

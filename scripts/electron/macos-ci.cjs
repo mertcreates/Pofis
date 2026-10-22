@@ -1,16 +1,27 @@
 const { appendFile, readFile } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
-const { run } = require("./ci-build.cjs");
+const { run, handleCancellation } = require("./ci-build.cjs");
 const root = resolve(__dirname, "../..");
 
 async function finishMacBuild({ version, siteDirectory, intelDirectory, linuxDirectory,
   reuseNative = false, reuseIntel = false, reuseLinux = false, execute = run, summary = process.env.GITHUB_STEP_SUMMARY }) {
+  const controller = new AbortController();
+  let failure;
+  const command = async (...args) => {
+    controller.signal.throwIfAborted();
+    try { return await execute(...args, { signal: controller.signal }); }
+    catch (error) {
+      if (!controller.signal.aborted) { failure = error; controller.abort(error); }
+      else if (error !== failure) console.error(`Paralel komut kapanışı: ${error.message}`);
+      throw error;
+    }
+  };
   const nativePackage = reuseNative ? Promise.resolve()
-    : execute(process.execPath, [join(__dirname, "ci-build.cjs"), "package"], root, {
+    : command(process.execPath, [join(__dirname, "ci-build.cjs"), "package"], root, {
       ...process.env, RELEASE_VERSION: version, RELEASE_TARGET: "darwin-arm64", SITE_DIRECTORY: siteDirectory,
     });
   const tasks = [];
-  if (!reuseNative) tasks.push(nativePackage.then(() => execute(process.execPath, [join(__dirname, "ci-build.cjs"), "accept"], root, {
+  if (!reuseNative) tasks.push(nativePackage.then(() => command(process.execPath, [join(__dirname, "ci-build.cjs"), "accept"], root, {
     ...process.env, RELEASE_VERSION: version, RELEASE_TARGET: "darwin-arm64", SITE_DIRECTORY: siteDirectory,
   })));
   let source;
@@ -33,22 +44,28 @@ async function finishMacBuild({ version, siteDirectory, intelDirectory, linuxDir
         ELECTRON_INSTALL_ARCH: "x64", ELECTRON_INSTALL_PLATFORM: platform,
       };
       // Bun/tools stay native to the host; only Electron's download targets the foreign runtime.
-      const preparation = execute(process.execPath, ["install", "--frozen-lockfile"], directory, env);
-      source ||= reuseNative ? execute("/usr/bin/ditto", ["-x", "-k",
+      const preparation = command(process.execPath, ["install", "--frozen-lockfile"], directory, env);
+      source ||= reuseNative ? command("/usr/bin/ditto", ["-x", "-k",
         join(root, "dist/releases/macos/arm64", version, `Pofis-${version}-darwin-arm64.zip`),
-        join(root, ".next/recovered-arm64")], root) : nativePackage;
+        join(root, ".next/recovered-arm64")], root, process.env) : nativePackage;
       const prepared = await Promise.allSettled([preparation, source]);
       const failures = prepared.filter(result => result.status === "rejected").map(result => result.reason);
       if (failures.length) throw new AggregateError(failures, failures.map(error => error.message).join("\n"));
-      await execute(process.execPath, [join(directory, "scripts/electron/ci-build.cjs"), "build"], directory, env);
+      await command(process.execPath, [join(directory, "scripts/electron/ci-build.cjs"), "build"], directory, env);
     })());
   }
-  // All chains finish before staging. A failure in any target rejects the job.
+  // First failure cancels siblings; all shutdowns finish before returning.
   const results = await Promise.allSettled(tasks);
   if (summary) for (const targetSummary of summaries) {
     try { await appendFile(summary, await readFile(targetSummary, "utf8")); }
-    catch (error) { if (error.code !== "ENOENT") throw error; }
+    catch (error) {
+      if (error.code !== "ENOENT") {
+        if (!failure) throw error;
+        console.error(`Süre özeti yazılamadı: ${error.message}`);
+      }
+    }
   }
+  if (failure) throw failure;
   const failures = results.filter(result => result.status === "rejected").map(result => result.reason);
   if (failures.length) throw new AggregateError(failures, failures.map(error => error.message).join("\n"));
 }
@@ -70,6 +87,7 @@ async function stageMacBuild({ version, siteDirectory, intelDirectory, linuxDire
 }
 
 if (require.main === module) {
+  handleCancellation();
   if (process.platform !== "darwin" || process.arch !== "arm64") throw new Error("macOS CI koordinasyonu ARM64 Bun ile çalışır.");
   const action = process.argv[2];
   if (action && action !== "stage") throw new Error("Kullanım: bun macos-ci.cjs [stage]");

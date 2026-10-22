@@ -14,7 +14,7 @@ bun run build
 
 Önce etkilenen test dosyalarını çalıştırın. Hesap ve ortak politika değişikliklerinde ilgili bağımlı davranışları da kontrol edin. Üretim derlemesi, derleme veya çalışma zamanı etkisi olan değişikliklerin son kontrolüdür; görsel iterasyon `bun run dev` ile yapılır.
 
-Release değişikliklerinde `bun test --parallel=2 ./scripts/electron ./electron ./src/desktop` kullanılır. Bekleyen HTTP/gövde kontrolünün iptali, süresi dolan komutun alt süreç temizliği, landing'in veri olarak okunması ve incelenmiş kaynak sınırı davranış testleridir. macOS Keychain durum sorgusunun açılışta çalışmaması ve şifreleme reddinde token kaydedilmemesi yerelde sınanır; gerçek macOS sürüm güncellemesi ayrıca native kabul gerektirir.
+Release değişikliklerinde `bun test --parallel=2 ./scripts/electron ./electron ./src/desktop` kullanılır. Bekleyen HTTP/gövde kontrolünün iptali, iç içe CI komutlarının alt süreç temizliği, ilk hedef hatasında kardeş üretimin iptali, landing'in veri olarak okunması ve incelenmiş kaynak sınırı davranış testleridir. macOS test süreçlerinin normal/zorunlu kapanışı ve başka kurulumların korunması süreç tablosu adaptörüyle sınanır; bu sonuç native süreç kanıtı değildir. Keychain durum sorgusunun açılışta çalışmaması ve şifreleme reddinde token kaydedilmemesi yerelde sınanır; gerçek macOS sürüm güncellemesi ayrıca native kabul gerektirir.
 
 | Değişiklik | Kontrol |
 | --- | --- |

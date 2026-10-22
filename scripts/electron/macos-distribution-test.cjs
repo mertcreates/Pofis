@@ -14,6 +14,7 @@ const { releaseManifest } = require("./release.cjs");
 const { UNIX_INSTALL_COMMAND, readSiteContent } = require("./install-command.cjs");
 const { unixInstaller } = require("./unix-installer.cjs");
 const { until, fetchLocal: fetch } = require("./acceptance-wait.cjs");
+const { fixtureProcesses } = require("./macos-test-processes.cjs");
 const executeFile = promisify(execFile);
 const execute = (command, args, options = {}) => executeFile(command, args, { timeout: 60000, ...options });
 const root = resolve(__dirname, "../..");
@@ -59,12 +60,8 @@ async function run() {
   const expectFailure = async pattern => {
     const result = await install(); assert.notEqual(result.code, 0, result.output); assert.match(result.output, pattern);
   };
-  const pids = async () => {
-    const { stdout } = await execute("/bin/ps", ["-ww", "-axo", "pid=,comm="]);
-    return stdout.split("\n").map(line => line.trim().match(/^(\d+)\s+(.*)$/)).filter(Boolean)
-      .filter(([, , path]) => path === appPath + "/Contents/MacOS/Pofis")
-      .map(([, pid]) => Number(pid));
-  };
+  const processes = fixtureProcesses({ appPath, profile, execute });
+  const pids = async () => (await processes.list()).filter(process => process.main).map(process => process.pid);
   const assertInstalled = async result => {
     if (result.code !== 0) {
       // Only this disposable fixture's exact executable is sampled. A blocked
@@ -81,11 +78,20 @@ async function run() {
     }
     assert.equal(result.code, 0, result.output);
   };
-  const close = async () => {
-    // TERM only this test's main process; Electron's shutdown owns its UtilityProcess.
-    for (const pid of await pids()) { try { process.kill(pid, "SIGTERM"); } catch (error) { if (error.code !== "ESRCH") throw error; } }
-    await until(async () => (await pids()).length === 0);
+  const close = () => processes.close();
+  let cleanupPromise;
+  const cleanup = () => cleanupPromise ||= (async () => {
+    try {
+      await processes.close({ force: true });
+      await fixturePreparation;
+      await rm(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
+    } finally { occupied?.stop(true); host?.stop(true); }
+  })();
+  const cancelled = () => {
+    cleanup().catch(error => console.error(error)).finally(() => process.exit(1));
   };
+  process.once("SIGTERM", cancelled);
+  process.once("SIGINT", cancelled);
   const marker = join(profile, "preserve-test.txt");
   const fixture = async (version, broken = false) => {
     const folder = join(directory, `fixture-${version}`);
@@ -116,6 +122,7 @@ async function run() {
     return manifest;
   };
   let base;
+  let failure;
   try {
     const releases = join(root, "dist/releases", target.releaseDirectory);
     const first = JSON.parse(await readFile(join(releases, "latest.json"), "utf8"));
@@ -202,8 +209,7 @@ async function run() {
     const [onePid] = await pids();
     assert.ok(onePid);
     process.kill(onePid, "SIGKILL");
-    await until(async () => (await pids()).length === 0);
-    await Bun.sleep(100);
+    await until(async () => (await processes.list()).length === 0);
     await expectInstall();
     await close();
     console.log(`PASS: ${target.id}; kurulum kilidi, beklenmedik kapanış, yeniden başlatma ve normal kapanış`);
@@ -218,11 +224,14 @@ async function run() {
     assert.equal(await readFile(marker, 'utf8'), 'settings/session-file boundary preserved');
     console.log('PASS: paket kaldırıldıktan sonra aynı komutla yeniden kurulum');
     console.log("Gerçek PDKS hesabı ve indirilen uygulamanın Gatekeeper kabulü ayrıca bekler.");
-  } finally {
-    await close().catch(() => {});
-    occupied?.stop(true); host?.stop(true);
-    await fixturePreparation;
-    await rm(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 300 });
+  } catch (error) { failure = error; throw error; }
+  finally {
+    try { await cleanup(); }
+    catch (error) { throw failure ? new AggregateError([failure, error], `${failure.message}\nTemizlik: ${error.message}`) : error; }
+    finally {
+      process.removeListener("SIGTERM", cancelled);
+      process.removeListener("SIGINT", cancelled);
+    }
   }
 }
 
