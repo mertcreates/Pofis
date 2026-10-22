@@ -4,10 +4,30 @@ const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
 const { tmpdir } = require("node:os");
 const { join, basename } = require("node:path");
-const { timed, build, accept } = require("./ci-build.cjs");
+const { timed, build, accept, run } = require("./ci-build.cjs");
 const { finishMacBuild, stageMacBuild } = require("./macos-ci.cjs");
 const { version } = require("../../package.json");
 const intel = process.platform === "darwin" && process.arch === "x64";
+
+test("süresi dolan CI komutu sahip olduğu alt süreçleri de kapatır", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-ci-timeout-"));
+  const script = join(directory, "hang.cjs");
+  const record = join(directory, "pids.json");
+  let pids = [];
+  try {
+    await writeFile(script, `const { spawn } = require('node:child_process');
+      const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' });
+      require('node:fs').writeFileSync(process.argv[2], JSON.stringify([process.pid, child.pid]));
+      setInterval(() => {}, 1000);`);
+    await expect(run(process.execPath, [script, record], directory, process.env, { timeoutMs: 500 }))
+      .rejects.toThrow("tamamlanmadı");
+    pids = JSON.parse(await readFile(record, "utf8"));
+    for (const pid of pids) expect(() => process.kill(pid, 0)).toThrow();
+  } finally {
+    for (const pid of pids) { try { process.kill(pid, "SIGKILL"); } catch {} }
+    await rm(directory, { recursive: true, force: true });
+  }
+});
 
 test("gerçek CI build'i erken kontroldeki hatada derleme ve paketleme başlatmaz", async () => {
   for (const failedStep of intel ? ["desktop:install"] : ["desktop:install", "typecheck", "application-tests", "desktop-tests", "clipboard-smoke.cjs"]) {
@@ -249,10 +269,10 @@ test.each(["darwin-x64", "linux-x64"])("%s ARM çıktısını yeniden derlemeden
 test("yayınsız workflow ölçümü sürümü doğrulayıp paketleri üretir; yayın komutlarını atlar", async () => {
   const workflow = Bun.YAML.parse(await readFile(join(__dirname, "../../.github/workflows/desktop-release.yml"), "utf8"));
   expect(workflow.on.workflow_dispatch.inputs.publish).toMatchObject({ type: "boolean", default: true });
-  const active = (expression, publish, os) => !expression || Function("inputs", "runner", "steps", "needs", "github", "always",
+  const active = (expression, publish, os, reuse = {}, buildResult = "failure") => !expression || Function("inputs", "runner", "steps", "needs", "github", "always",
     `return (${expression.replace(/^\$\{\{\s*|\s*\}\}$/g, "")})`)(
-    { publish }, { os }, { recover: { outputs: {} }, recover_intel: { outputs: {} }, recover_linux: { outputs: {} } },
-    { begin: { result: "success" }, build: { result: "failure" } }, { ref: "refs/heads/master" }, () => true);
+    { publish }, { os }, Object.fromEntries(["recover", "recover_intel", "recover_linux"].map(id => [id, { outputs: { reuse: reuse[id] ? "true" : "false" } }])),
+    { begin: { result: "success" }, build: { result: buildResult } }, { ref: "refs/heads/master" }, () => true);
   for (const os of ["Windows", "macOS"]) {
     const commands = [];
     for (const job of Object.values(workflow.jobs)) {
@@ -268,6 +288,28 @@ test("yayınsız workflow ölçümü sürümü doğrulayıp paketleri üretir; y
     { target: "win32-x64", runner: "windows-2022" }, { target: "darwin-arm64", runner: "macos-15" },
   ]);
   const steps = workflow.jobs.build.steps;
+  const cache = steps.find(step => step.with?.path?.includes("pofis-downloads"));
+  const nextCache = steps.find(step => step.with?.path === ".next/cache");
+  for (const os of ["Windows", "macOS"]) {
+    const recovered = { recover: true, recover_intel: true, recover_linux: true };
+    expect(active(cache.if, true, os, recovered)).toBe(false);
+    expect(active(nextCache.if, true, os, recovered)).toBe(false);
+    expect(active(cache.if, true, os, {})).toBe(true);
+    expect(active(nextCache.if, true, os, {})).toBe(true);
+    if (os === "macOS") {
+      recovered.recover_linux = false;
+      expect(active(cache.if, true, os, recovered)).toBe(true);
+      expect(active(nextCache.if, true, os, recovered)).toBe(false);
+    }
+  }
+  for (const result of ["success", "failure", "cancelled"]) {
+    expect(active(workflow.jobs.cleanup.if, true, "Windows", {}, result)).toBe(result !== "success");
+  }
+  const validation = workflow.jobs.validate_site;
+  expect(validation.steps.find(step => step.uses?.startsWith("actions/checkout@")).with.repository).toBe("mertcreates/pofis-landing");
+  expect(validation.steps.some(step => JSON.stringify(step).includes("secrets."))).toBe(false);
+  expect(workflow.jobs.publish.needs).toContain("validate_site");
+  expect(workflow.jobs.publish.steps.some(step => /bun (?:install|run build)/.test(step.run || ""))).toBe(false);
   expect(steps.some(step => step.with?.path?.includes("pofis-intel/.next/cache"))).toBe(false);
   const finish = steps.findIndex(step => step.run?.includes("macos-ci.cjs"));
   const macStages = steps.map((step, index) => ({ step, index }))

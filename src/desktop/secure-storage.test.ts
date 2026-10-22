@@ -15,3 +15,10 @@ test("Windows ve macOS anahtarlık backend'ini sorgulamaz", () => {
       getSelectedStorageBackend: () => { throw Error("Linux only"); } }, platform)).toBe(true);
   }
 });
+
+test("macOS durum okuması Keychain onayını bekleyip pencere açılışını kilitlemez", () => {
+  expect(secureStorageAvailable({
+    isEncryptionAvailable() { throw new Error("Senkron Keychain erişimi açılış yolunda çalışmamalı."); },
+    getSelectedStorageBackend() { throw new Error("Linux only"); },
+  }, "darwin")).toBe(true);
+});

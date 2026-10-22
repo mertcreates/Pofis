@@ -11,16 +11,12 @@ const { createReadStream } = require("node:fs");
 const { platformTarget } = require("../../electron/platform.cjs");
 const { signMacBundle } = require("./macos.cjs");
 const { releaseManifest } = require("./release.cjs");
-const { UNIX_INSTALL_COMMAND } = require("./install-command.cjs");
+const { UNIX_INSTALL_COMMAND, readSiteContent } = require("./install-command.cjs");
 const { unixInstaller } = require("./unix-installer.cjs");
-const execute = promisify(execFile);
+const { until, fetchLocal: fetch } = require("./acceptance-wait.cjs");
+const executeFile = promisify(execFile);
+const execute = (command, args, options = {}) => executeFile(command, args, { timeout: 60000, ...options });
 const root = resolve(__dirname, "../..");
-
-async function until(check, timeout = 20000) {
-  const end = Date.now() + timeout;
-  while (Date.now() < end) { if (await check()) return; await Bun.sleep(150); }
-  throw new Error("macOS kabul kontrolü zaman aşımı.");
-}
 
 async function run() {
   assert.equal(process.platform, "darwin", "Bu kabul gerçek macOS runner'ı gerektirir.");
@@ -35,7 +31,7 @@ async function run() {
   const command = UNIX_INSTALL_COMMAND;
   if (siteIndex !== -1) {
     const site = resolve(process.argv[siteIndex + 1]);
-    const { content } = require(join(site, "src/content.ts"));
+    const content = readSiteContent(await readFile(join(site, "src/content.ts"), "utf8"));
     assert.equal(content.install.platforms.find(item => item.id === "unix").command, command);
     assert.equal(await readFile(join(site, "public/install.sh"), "utf8"), installer);
   }
@@ -59,7 +55,7 @@ async function run() {
     child.stderr.on("data", data => output += data);
     return new Promise((done, fail) => { child.on("error", fail); child.on("close", code => done({ code, output })); });
   };
-  const expectInstall = async () => { const result = await install(); assert.equal(result.code, 0, result.output); };
+  const expectInstall = async () => { await assertInstalled(await install()); };
   const expectFailure = async pattern => {
     const result = await install(); assert.notEqual(result.code, 0, result.output); assert.match(result.output, pattern);
   };
@@ -68,6 +64,22 @@ async function run() {
     return stdout.split("\n").map(line => line.trim().match(/^(\d+)\s+(.*)$/)).filter(Boolean)
       .filter(([, , path]) => path === appPath + "/Contents/MacOS/Pofis")
       .map(([, pid]) => Number(pid));
+  };
+  const assertInstalled = async result => {
+    if (result.code !== 0) {
+      // Only this disposable fixture's exact executable is sampled. A blocked
+      // main thread cannot write a startup receipt or explain itself over IPC.
+      try {
+        for (const pid of await pids()) {
+          const samplePath = join(directory, `startup-${pid}.txt`);
+          await execute("/usr/bin/sample", [String(pid), "1", "-file", samplePath], { timeout: 8000 });
+          const sample = await readFile(samplePath, "utf8");
+          const start = sample.indexOf("Call graph:");
+          console.error(`Pofis startup PID ${pid}:\n${sample.slice(start < 0 ? 0 : start).split("\n").slice(0, 65).join("\n")}`);
+        }
+      } catch (error) { console.error(`Açılış süreç örneği alınamadı: ${error.message}`); }
+    }
+    assert.equal(result.code, 0, result.output);
   };
   const close = async () => {
     // TERM only this test's main process; Electron's shutdown owns its UtilityProcess.
@@ -162,7 +174,7 @@ async function run() {
     await expectFailure(/Pofis açık/);
     assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, first.version);
     const updated = await install(true);
-    assert.equal(updated.code, 0, updated.output);
+    await assertInstalled(updated);
     assert.equal(JSON.parse(await readFile(join(installRoot, 'installed.json'), 'utf8')).version, next.version);
     assert.deepEqual(await readdir(join(installRoot, 'versions')), []);
     assert.equal(await readFile(marker, "utf8"), "settings/session-file boundary preserved");
@@ -184,7 +196,7 @@ async function run() {
     await until(() => manifestRequests > before);
     await expectFailure(/Başka bir Pofis kurulumu/);
     const result = await one;
-    assert.equal(result.code, 0, result.output);
+    await assertInstalled(result);
     slow = false;
     // The lock winner is the repaired app; exercise its crash and recovery directly.
     const [onePid] = await pids();

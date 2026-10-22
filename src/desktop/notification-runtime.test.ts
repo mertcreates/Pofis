@@ -94,6 +94,17 @@ function fixture() {
     identity: (value: NotificationSession | null) => { identity = value; }, reports: () => reports };
 }
 
+test("Keychain şifrelemeyi reddederse Telegram bağlantısı veya açık token kaydedilmez", async () => {
+  const f = fixture(); await f.runtime.sync(plans);
+  f.deps.seal = () => { throw new Error("Keychain access denied"); };
+  await expect(f.runtime.connectTelegram({})).rejects.toThrow("Keychain access denied");
+  expect(f.runtime.status().telegram.connected).toBe(false);
+  expect(f.records.get("a".repeat(64))?.telegram).toBeUndefined();
+  f.deps.seal = () => "encrypted";
+  await f.runtime.connectTelegram({});
+  expect(f.records.get("a".repeat(64))?.telegram).toBe("encrypted");
+});
+
 test("son bilinen açık girişte yenileme hatası iki kanalın hedef bildirimini durdurmaz", async () => {
   const f = fixture(); await f.runtime.sync(plans); await f.runtime.connectTelegram({}); await f.enable();
   f.time("16:50:00"); await f.runtime.tick();

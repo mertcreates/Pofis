@@ -8,6 +8,9 @@ on:
         default: true
 permissions:
   contents: read
+env:
+  # Reviewed landing source; update this SHA together with its command contract.
+  SITE_REVIEWED_COMMIT: ba52b74c5e714aa099c66fe3c0543352734d9184
 concurrency:
   group: pofis-production-release
   cancel-in-progress: false
@@ -18,11 +21,12 @@ jobs:
     timeout-minutes: 10
     outputs:
       version: ${{ steps.version.outputs.version }}
+      site_commit: ${{ steps.site.outputs.site_commit }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.4.3
       - name: Sürümü package.json dosyasından al
@@ -38,11 +42,8 @@ jobs:
       - name: Sürümü kontrol et
         run: bun scripts/electron/ci-build.cjs check
       - name: Tanıtım sitesinin deposunu al
-        shell: pwsh
-        run: |
-          $siteDirectory = Join-Path $env:RUNNER_TEMP 'pofis-landing'
-          "SITE_DIRECTORY=$siteDirectory" >> $env:GITHUB_ENV
-          git clone --depth 1 --branch main https://github.com/mertcreates/pofis-landing.git "$siteDirectory"
+        id: site
+        run: bun scripts/electron/checkout-site.cjs
       - name: Ortak Unix ve Windows kurulum komutlarını doğrula
         run: bun scripts/electron/publish.cjs check-site
       - name: Sürüm taslağını hazırla
@@ -53,7 +54,7 @@ jobs:
   build:
     needs: begin
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - target: win32-x64
@@ -65,28 +66,40 @@ jobs:
     env:
       RELEASE_VERSION: ${{ needs.begin.outputs.version }}
       RELEASE_TARGET: ${{ matrix.target }}
+      SITE_COMMIT: ${{ needs.begin.outputs.site_commit }}
       CI: 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.4.3
       - name: Tanıtım sitesinin deposunu al
-        shell: pwsh
-        run: |
-          $siteDirectory = Join-Path $env:RUNNER_TEMP 'pofis-landing'
-          "SITE_DIRECTORY=$siteDirectory" >> $env:GITHUB_ENV
-          git clone --depth 1 --branch main https://github.com/mertcreates/pofis-landing.git "$siteDirectory"
+        run: bun scripts/electron/checkout-site.cjs
       - name: Tamamlanmış platform paketinden devam et
         if: inputs.publish
         id: recover
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs recover
+      - name: Tamamlanmış Intel paketinden devam et
+        if: inputs.publish && runner.os == 'macOS'
+        id: recover_intel
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+          RELEASE_TARGET: darwin-x64
+        run: bun scripts/electron/publish.cjs recover
+      - name: Tamamlanmış Linux paketinden devam et
+        if: inputs.publish && runner.os == 'macOS'
+        id: recover_linux
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+          RELEASE_TARGET: linux-x64
+        run: bun scripts/electron/publish.cjs recover
       - name: Bun ve Electron indirme cache'ini yükle
-        uses: actions/cache@v4
+        if: steps.recover.outputs.reuse != 'true' || (runner.os == 'macOS' && (steps.recover_intel.outputs.reuse != 'true' || steps.recover_linux.outputs.reuse != 'true'))
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: ${{ runner.temp }}/pofis-downloads
           key: downloads-v2-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}
@@ -98,7 +111,8 @@ jobs:
           "BUN_INSTALL_CACHE_DIR=$(Join-Path $env:RUNNER_TEMP 'pofis-downloads/bun')" >> $env:GITHUB_ENV
           "electron_config_cache=$(Join-Path $env:RUNNER_TEMP 'pofis-downloads/electron')" >> $env:GITHUB_ENV
       - name: Next derleme cache'ini yükle
-        uses: actions/cache@v4
+        if: steps.recover.outputs.reuse != 'true'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: .next/cache
           key: next-v1-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}-${{ github.sha }}
@@ -109,40 +123,30 @@ jobs:
         run: bun install --frozen-lockfile
       - name: Windows paketini üret ve gerçek uygulamayı sına
         if: runner.os == 'Windows' && steps.recover.outputs.reuse != 'true'
+        timeout-minutes: 12
         run: bun scripts/electron/ci-build.cjs build
       - name: Doğrulanmış Windows paketini sürüm taslağına aktar
         if: inputs.publish && runner.os == 'Windows' && steps.recover.outputs.reuse != 'true'
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs stage
-      - name: Intel ve Linux kaynaklarını ayrı çalışma dizinlerine al
-        if: runner.os == 'macOS'
+      - name: Intel kaynaklarını ayrı çalışma dizinine al
+        if: runner.os == 'macOS' && steps.recover_intel.outputs.reuse != 'true'
         shell: bash
         run: |
           git clone --no-hardlinks "$GITHUB_WORKSPACE" "$RUNNER_TEMP/pofis-intel"
           git -C "$RUNNER_TEMP/pofis-intel" checkout --detach "$GITHUB_SHA"
           git clone --no-hardlinks "$SITE_DIRECTORY" "${SITE_DIRECTORY}-intel"
+      - name: Linux kaynaklarını ayrı çalışma dizinine al
+        if: runner.os == 'macOS' && steps.recover_linux.outputs.reuse != 'true'
+        shell: bash
+        run: |
           git clone --no-hardlinks "$GITHUB_WORKSPACE" "$RUNNER_TEMP/pofis-linux"
           git -C "$RUNNER_TEMP/pofis-linux" checkout --detach "$GITHUB_SHA"
           git clone --no-hardlinks "$SITE_DIRECTORY" "${SITE_DIRECTORY}-linux"
-      - name: Tamamlanmış Intel paketinden devam et
-        if: inputs.publish && runner.os == 'macOS'
-        id: recover_intel
-        working-directory: ${{ runner.temp }}/pofis-intel
-        env:
-          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
-          RELEASE_TARGET: darwin-x64
-        run: bun scripts/electron/publish.cjs recover
-      - name: Tamamlanmış Linux paketinden devam et
-        if: inputs.publish && runner.os == 'macOS'
-        id: recover_linux
-        working-directory: ${{ runner.temp }}/pofis-linux
-        env:
-          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
-          RELEASE_TARGET: linux-x64
-        run: bun scripts/electron/publish.cjs recover
       - name: ARM64 kabulünü, Intel ve Linux statik paketlerini tamamla
         if: runner.os == 'macOS'
+        timeout-minutes: 12
         env:
           REUSE_NATIVE: ${{ steps.recover.outputs.reuse }}
           REUSE_INTEL: ${{ steps.recover_intel.outputs.reuse }}
@@ -158,16 +162,16 @@ jobs:
         run: bun scripts/electron/macos-ci.cjs stage
   cleanup:
     needs: [begin, build]
-    if: ${{ always() && inputs.publish && needs.begin.result == 'success' && needs.build.result == 'failure' }}
+    if: ${{ always() && inputs.publish && needs.begin.result == 'success' && (needs.build.result == 'failure' || needs.build.result == 'cancelled') }}
     runs-on: windows-2022
     timeout-minutes: 10
     env:
       RELEASE_VERSION: ${{ needs.begin.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.4.3
       - name: Başarısız derlemenin sürüm taslağını sil
@@ -178,31 +182,69 @@ jobs:
         shell: pwsh
         run: |
           "## Pofis $env:RELEASE_VERSION`nDerleme başarısız oldu. Taslak temizleme adımı tamamlandı.`n`nDüzeltmeden sonra Run workflow veya Re-run all jobs ile tüm akışı yeniden başlat." >> $env:GITHUB_STEP_SUMMARY
-  publish:
+  prepare:
     if: inputs.publish
     needs: [begin, build]
     runs-on: windows-2022
     timeout-minutes: 30
+    outputs:
+      site_artifact: ${{ steps.site_files.outputs.artifact-id }}
     env:
       RELEASE_VERSION: ${{ needs.begin.outputs.version }}
+      SITE_COMMIT: ${{ needs.begin.outputs.site_commit }}
       CI: 'true'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.4.3
       - name: Tanıtım sitesinin deposunu al
-        shell: pwsh
-        run: |
-          $siteDirectory = Join-Path $env:RUNNER_TEMP 'pofis-landing'
-          "SITE_DIRECTORY=$siteDirectory" >> $env:GITHUB_ENV
-          git clone --depth 1 --branch main https://github.com/mertcreates/pofis-landing.git "$siteDirectory"
+        run: bun scripts/electron/checkout-site.cjs
       - name: Dört paketi doğrula ve dağıtım dosyalarını hazırla
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs prepare
+      - name: Doğrulanacak altı public dosyayı mühürle
+        id: site_files
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: site-files-${{ github.run_attempt }}
+          retention-days: 1
+          if-no-files-found: error
+          compression-level: 0
+          path: |
+            ${{ env.SITE_DIRECTORY }}/public/install.ps1
+            ${{ env.SITE_DIRECTORY }}/public/install.sh
+            ${{ env.SITE_DIRECTORY }}/public/releases/windows/latest.json
+            ${{ env.SITE_DIRECTORY }}/public/releases/macos/arm64/latest.json
+            ${{ env.SITE_DIRECTORY }}/public/releases/macos/x64/latest.json
+            ${{ env.SITE_DIRECTORY }}/public/releases/linux/x64/latest.json
+  validate_site:
+    if: inputs.publish
+    needs: [begin, prepare]
+    permissions: {}
+    runs-on: windows-2022
+    timeout-minutes: 10
+    env:
+      SITE_DIRECTORY: ${{ github.workspace }}/site
+    # Landing dependencies and scripts never share a runner with the publishing token.
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: mertcreates/pofis-landing
+          ref: ${{ needs.begin.outputs.site_commit }}
+          path: site
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.3
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          artifact-ids: ${{ needs.prepare.outputs.site_artifact }}
+          merge-multiple: true
+          path: ${{ env.SITE_DIRECTORY }}/public
       - name: Site çıktısını doğrula
         working-directory: ${{ env.SITE_DIRECTORY }}
         run: |
@@ -211,6 +253,29 @@ jobs:
           bun run typecheck
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           bun run build
+  publish:
+    if: inputs.publish
+    needs: [begin, prepare, validate_site]
+    runs-on: windows-2022
+    timeout-minutes: 15
+    env:
+      RELEASE_VERSION: ${{ needs.begin.outputs.version }}
+      SITE_COMMIT: ${{ needs.begin.outputs.site_commit }}
+      CI: 'true'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.3
+      - name: İncelenmiş landing kaynaklarını al
+        run: bun scripts/electron/checkout-site.cjs
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          artifact-ids: ${{ needs.prepare.outputs.site_artifact }}
+          merge-multiple: true
+          path: ${{ env.SITE_DIRECTORY }}/public
       - name: Sürümü ve site değişikliğini yayımla
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}

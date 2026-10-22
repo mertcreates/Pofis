@@ -39,6 +39,8 @@ Ortak [TelegramSetup](../../src/components/notifications/telegram-setup.tsx) mod
 
 Bot tokenı ve sohbet bağlantısı Electron `safeStorage` ile şifrelenir; şifreli değer profilin `notifications/<hesap>.json` dosyasında saklanır. Güvenli saklama kullanılamıyorsa bağlantı kaydedilmez. Linux’ta basic_text ve unknown arka uçları da kullanılamayan güvenli saklama sayılır; Ubuntu GNOME anahtarlığı gerekir. Token durum yanıtına veya loglara eklenmez. Bağlantı kaldırılınca şifreli kayıt silinir. Tercihler ve kanal sonuçları aynı hesap dosyasındadır; bozuk kayıt korunur ve hata gösterilir. JSON yazıları sıralıdır; geçici dosya atomik yeniden adlandırılır. Elektrik kesintisine karşı fsync garantisi verilmez.
 
+macOS durum yanıtındaki güvenli saklama alanı Keychain desteğini belirtir; [güvenli saklama adaptörü](../../src/desktop/secure-storage.ts) açılış, gezinme ve duraklatma sırasında senkron Keychain sorgusu yapmaz. Keychain erişimi Telegram bağlantısını şifreleme veya mevcut bağlantıyı çözme sırasında yapılır; erişim reddedilirse açık token kaydedilmez. Bu davranış ad-hoc imzalama ve installer doğrulamasını değiştirmez.
+
 Gönderilen içerik bildirim başlığı ve hesaplanan çıkış saatini anlatan kısa metindir. Telegram'a PDKS kullanıcı adı, parola, kaynak çerezi veya raporun tamamı gönderilmez.
 
 ## Sunum ve uygulama kimliği

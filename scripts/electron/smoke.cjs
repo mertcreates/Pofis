@@ -11,16 +11,7 @@ const { connect } = require("./cdp.cjs");
 const { readStoredPlans } = require("../../src/lib/plan-storage.js");
 const { createSessionStorage } = require("../../src/server/session-storage.js");
 const { CookieJar } = require("tough-cookie");
-
-async function until(check, timeout = 30000, message = "Pofis açılış testi zaman aşımına uğradı.") {
-  const end = Date.now() + timeout;
-  while (Date.now() < end) {
-    const result = await check();
-    if (result) return result;
-    await Bun.sleep(100);
-  }
-  throw new Error(message);
-}
+const { until, fetchLocal: fetch } = require("./acceptance-wait.cjs");
 
 async function run() {
   const root = resolve(__dirname, "../..");
@@ -58,8 +49,8 @@ async function run() {
     const address = await until(() => output.match(/DevTools listening on (ws:\/\/[^\s]+)/)?.[1]);
     mainDebugUrl = await until(() => output.match(/Debugger listening on (ws:\/\/[^\s]+)/)?.[1]);
     debugOrigin = address.replace(/^ws:/, "http:").split("/devtools/")[0];
-    const pageTarget = await until(async () => {
-      const targets = await (await fetch(`${debugOrigin}/json/list`)).json();
+    const pageTarget = await until(async signal => {
+      const targets = await (await fetch(`${debugOrigin}/json/list`, { signal })).json();
       return targets.find(target => target.type === "page" && target.url.startsWith(ORIGIN));
     });
     cdp = await connect(pageTarget.webSocketDebuggerUrl);

@@ -6,16 +6,11 @@ const { promisify } = require("node:util");
 const { mkdtemp, mkdir, readFile, writeFile, rm, readdir, readlink } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { createHash } = require("node:crypto");
-const { UNIX_INSTALL_COMMAND } = require("./install-command.cjs");
+const { UNIX_INSTALL_COMMAND, readSiteContent } = require("./install-command.cjs");
 const { unixInstaller } = require("./unix-installer.cjs");
+const { until, fetchLocal: fetch } = require("./acceptance-wait.cjs");
 const execute = promisify(execFile);
 const root = resolve(__dirname, "../..");
-
-async function until(check) {
-  const end = Date.now() + 15000;
-  while (Date.now() < end) { if (await check()) return; await Bun.sleep(100); }
-  throw new Error("Linux kabulü zaman aşımına uğradı.");
-}
 
 async function main() {
   assert.equal(process.platform, "linux", "Gerçek Linux çalışma ortamı gerekli.");
@@ -23,7 +18,7 @@ async function main() {
   const siteIndex = process.argv.indexOf("--site");
   if (siteIndex !== -1) {
     const site = resolve(process.argv[siteIndex + 1]);
-    const { content } = require(join(site, "src/content.ts"));
+    const content = readSiteContent(await readFile(join(site, "src/content.ts"), "utf8"));
     assert.equal(content.install.platforms.find(item => item.id === "unix")?.command, UNIX_INSTALL_COMMAND);
     assert.equal(await readFile(join(site, "public/install.sh"), "utf8"), commonInstaller);
   }

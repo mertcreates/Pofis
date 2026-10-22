@@ -7,6 +7,8 @@ const { randomBytes } = require("node:crypto");
 const { connect } = require("./cdp.cjs");
 const { ORIGIN, stopProcessTree } = require("../../electron/server.cjs");
 const { readStoredPlans } = require("../../src/lib/plan-storage.js");
+const { readSiteContent } = require("./install-command.cjs");
+const { until, fetchLocal: fetch } = require("./acceptance-wait.cjs");
 
 const root = resolve(__dirname, "../..");
 if (process.platform !== "win32") {
@@ -18,11 +20,6 @@ env.POFIS_TEST_BLOCK_ANALYTICS = "1";
 env.PSModulePath = join(process.env.SystemRoot, "System32/WindowsPowerShell/v1.0/Modules");
 delete env.ELECTRON_RUN_AS_NODE;
 const quote = value => `'${String(value).replaceAll("'", "''")}'`;
-async function until(check, timeout = 20000) {
-  const end = Date.now() + timeout;
-  while (Date.now() < end) { const value = await check(); if (value) return value; await Bun.sleep(100); }
-  throw Error("Dağıtım kabul kontrolü zaman aşımı.");
-}
 function ps(code, policy = "Bypass") {
   const child = spawn(powershell, ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", policy, "-Command",
     "[Console]::OutputEncoding = [Text.UTF8Encoding]::new(); $ErrorActionPreference='Stop'; " + code],
@@ -55,7 +52,7 @@ async function run() {
   if (siteIndex !== -1) {
     assert.ok(process.argv[siteIndex + 1], "--site landing klasörünü gerektirir.");
     const site = resolve(process.argv[siteIndex + 1]);
-    const { content } = require(join(site, "src/content.ts"));
+    const content = readSiteContent(await readFile(join(site, "src/content.ts"), "utf8"));
     siteCommand = content.install.platforms.find(item => item.id === "windows")?.command;
     assert.equal(siteCommand, "irm https://pofis.app/install.ps1 | iex");
     siteInstaller = await readFile(join(site, "public/install.ps1"), "utf8");

@@ -13,15 +13,27 @@ function assertVersion(version, actual) {
   }
 }
 
-async function run(command, args, cwd = root, env = process.env) {
+async function run(command, args, cwd = root, env = process.env, { timeoutMs = 600000 } = {}) {
+  let timer, stopping, expired = false;
   try {
-    const pending = execute(command, args, { cwd, env, windowsHide: true, maxBuffer: 16 * 1024 * 1024 });
+    const pending = execute(command, args, { cwd, env, windowsHide: true,
+      detached: process.platform !== "win32", maxBuffer: 16 * 1024 * 1024 });
     pending.child.stdout.on("data", chunk => process.stdout.write(chunk));
     pending.child.stderr.on("data", chunk => process.stderr.write(chunk));
-    const result = await pending;
+    const deadline = new Promise((_, reject) => {
+      timer = setTimeout(() => {
+        expired = true;
+        stopping = require("../../electron/server.cjs").stopProcessTree(pending.child, { processGroup: process.platform !== "win32" });
+        stopping.then(() => reject(new Error("timeout")), reject);
+      }, timeoutMs);
+    });
+    const result = await Promise.race([pending, deadline]);
     return result.stdout.trim();
   } catch (error) {
-    throw new Error(`${command.split(/[\\/]/).at(-1)} başarısız (${error.code}).`);
+    if (stopping) await stopping;
+    throw new Error(`${command.split(/[\\/]/).at(-1)} ${expired ? `${timeoutMs / 1000} saniyede tamamlanmadı` : `başarısız (${error.code})`}.`);
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -120,7 +132,7 @@ async function build(version, siteDirectory, { execute = run, summary = process.
   // Both stages read the sealed bundle. Wait for both before installer acceptance or staging.
   const checks = await Promise.allSettled([
     acceptance
-      ? stage("Paket açılış ve süreç kabulü", () => execute(process.execPath, ["run", "test:desktop:smoke", directory]))
+      ? stage("Paket açılış ve süreç kabulü", () => execute(process.execPath, ["run", "test:desktop:smoke", directory], root, process.env, { timeoutMs: 120000 }))
       : stage(crossLinux ? "Linux statik paket kontrolü" : "Intel statik paket kontrolü", () => execute(process.execPath, [join(__dirname, crossLinux ? "linux-static-check.cjs" : "macos-static-check.cjs"), directory])),
     stage("Dağıtım arşivi ve manifest", () => execute(process.execPath, [join(__dirname, "release.cjs"), "-PackageDirectory", directory, "-Arch", target.arch, ...(crossLinux ? ["-Platform", target.platform] : [])])),
   ]);
@@ -143,11 +155,11 @@ async function accept(version, siteDirectory, { execute = run, summary = process
   if (target.id === "darwin-x64") throw new Error("Intel paketi statik kontrollerle doğrulanır.");
   await timed("Kurulum ve güncelleme kabulü", async () => {
     if (target.platform === "win32") {
-      await execute(process.execPath, ["run", "test:desktop:distribution", "--site", siteDirectory]);
+      await execute(process.execPath, ["run", "test:desktop:distribution", "--site", siteDirectory], root, process.env, { timeoutMs: 300000 });
     } else if (target.platform === "linux") {
-      await execute(process.execPath, [join(__dirname, "linux-distribution-test.cjs"), "--site", siteDirectory]);
+      await execute(process.execPath, [join(__dirname, "linux-distribution-test.cjs"), "--site", siteDirectory], root, process.env, { timeoutMs: 300000 });
     } else {
-      await execute(process.execPath, [join(__dirname, "macos-distribution-test.cjs"), "--site", siteDirectory]);
+      await execute(process.execPath, [join(__dirname, "macos-distribution-test.cjs"), "--site", siteDirectory], root, process.env, { timeoutMs: 300000 });
     }
   }, summary);
 }

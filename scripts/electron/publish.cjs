@@ -4,7 +4,8 @@ const { join, resolve } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
 const { prepareSite, normalizeInstaller } = require("./prepare-site.cjs");
 const { checkVersion, run } = require("./ci-build.cjs");
-const { assertSiteCommands } = require("./install-command.cjs");
+const { assertSiteCommands, readSiteContent } = require("./install-command.cjs");
+const { unixInstaller } = require("./unix-installer.cjs");
 
 const REPOSITORY = "mertcreates/pofis-landing";
 const TARGETS = ["win32-x64", "darwin-arm64", "darwin-x64", "linux-x64"];
@@ -154,10 +155,11 @@ async function recover(version, id, release, allowCleanup = true) {
 async function assertSite(site, version) {
   const pkg = JSON.parse(await readFile(join(site, "package.json"), "utf8"));
   if (pkg.name !== "pofis-landing" || pkg.repository?.url !== `https://github.com/${REPOSITORY}.git`) throw new Error("Tanıtım sitesinin deposu eşleşmiyor.");
-  assertSiteCommands(require(join(site, "src/content.ts")).content);
-  if ((await run("git", ["branch", "--show-current"], site)) !== "main" ||
+  assertSiteCommands(readSiteContent(await readFile(join(site, "src/content.ts"), "utf8")));
+  if (!/^[a-f0-9]{40}$/.test(process.env.SITE_COMMIT || "") ||
+      (await run("git", ["rev-parse", "HEAD"], site)) !== process.env.SITE_COMMIT ||
       (await run("git", ["remote", "get-url", "origin"], site)) !== `https://github.com/${REPOSITORY}.git`) {
-    throw new Error("Site deposunun main dalı ve origin adresi doğrulanamadı.");
+    throw new Error("Site deposunun incelenmiş commit'i ve origin adresi doğrulanamadı.");
   }
   let raw;
   try {
@@ -213,6 +215,12 @@ async function stage(version, id) {
 
 async function publish(site, version) {
   await assertSite(site, version);
+  for (const [name, expected] of [["install.ps1", await readFile(join(__dirname, "install.ps1"), "utf8")],
+    ["install.sh", await unixInstaller()]]) {
+    if (normalizeInstaller(await readFile(join(site, "public", name), "utf8")) !== normalizeInstaller(expected)) {
+      throw new Error(`Public kurulum betiği kaynak commit ile eşleşmiyor: ${name}`);
+    }
+  }
   const paths = await changedFiles(site);
   const release = await getRelease(version);
   assertRelease(release, version);
