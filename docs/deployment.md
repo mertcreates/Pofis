@@ -16,19 +16,19 @@ Uygulama tek Bun süreci ve kalıcı oturum diziniyle çalışır. Kubernetes'te
 | `PORT`                | Varsayılan `3000`                                                                                                                                                            |
 | `POFIS_SESSION_DIR`   | Docker'da `/var/lib/pofis/sessions`; uygulama kullanıcısının yazabildiği kalıcı volume                                                                                       |
 
-Ürün gün/hafta/saat hesapları [takvim sahibinde](../src/domain/rules/calendar.ts) açıkça İstanbul saat dilimini kullanır. Ürün hesaplarında bu açık saat dilimi tanımı esas alınır. `fetchedAt` ve tanı zamanları UTC ISO olarak taşınır; arayüz İstanbul saatine çevirir.
+Gün/hafta/saat hesapları [takvim sahibinin](rules/calendar.md) İstanbul saat dilimini kullanır; aktarım ve gösterim biçimleri aynı sözleşmede tanımlıdır.
 
 Kalıcı dizinin yazı hataları için [oturum politikasındaki](rules/session-policy.md) API ve yeniden deneme sözleşmesini doğrulayın; kaynak hatasıyla birlikte oluşan disk hatasının tanısı sunucu loglarında izlenir.
 
 ## Proxy / ingress
 
-TLS ingress üzerinde sonlanabilir; pod HTTP dinler. Secure çerezi doğrudan HTTPS bağlantısında veya `X-Forwarded-Proto` başlığının ilk değeri `https` olduğunda kullanılır. Ingress bu başlığı tarayıcının bağlantı protokolüne göre yeniden yazmalı, Host bilgisini doğru iletmeli ve pod'a erişim kurumun ingress ağıyla sınırlandırılmalıdır. Giriş, heartbeat ve çıkış uçları Origin/Sec-Fetch-Site değerlerinden bağımsız çalışır; bağlantı protokolü istekten belirlenir. Ingress erişim loglarını yöntem, yol, durum ve süre gibi operasyon alanlarıyla sınırlandırın; hassas gövde ve çerez alanlarını maskeleyin.
+TLS ingress üzerinde sonlanabilir; pod HTTP dinler. Ingress, `X-Forwarded-Proto` başlığını tarayıcının bağlantı protokolüne göre yeniden yazmalı ve Host bilgisini doğru iletmelidir. Pod erişimini kurumun ingress ağıyla sınırlandırın. Secure çerezinin koşulları [oturum politikasındadır](rules/session-policy.md). Erişim loglarında yöntem, yol, durum ve süre gibi operasyon alanlarını tutun; hassas gövde ve çerez alanlarını maskeleyin.
 
-Kişisel API yanıtlarındaki `Cache-Control: no-store` başlığı korunmalı; ingress/CDN bu yanıtları ortak önbelleğe almamalıdır. Uygulama içi önbellekler [kaynak](rules/source-policy.md) ve [yemek](rules/meal-menu.md) sözleşmelerine aittir.
+Ingress/CDN, kişisel API yanıtlarındaki `Cache-Control: no-store` başlığını uygulamalıdır. Uygulama içi önbellekler [kaynak](rules/source-policy.md) ve [yemek](rules/meal-menu.md) sözleşmelerine aittir.
 
 PDKS giriş/profil, turnike sorgusu ve sayfalama callback'leri kurum ağından erişilebilir olmalıdır.
 
-Kaynak erişim kabulünde bağlantı/DNS hatası (`CONNECTION_FAILED`) ile PDKS HTTP hata yanıtını (`SOURCE_ERROR`) ayrı doğrulayın. `ENOTFOUND` DNS çözümlemesinin başarısız olduğunu belirtir; tek başına VPN durumunu belirlemez. Kaynağın `403/429/5xx` hata sayfası oturumu düşürmemelidir. [Hata sözleşmesi](pdks-errors.md).
+Kaynak kabulünde DNS/bağlantı hatası, PDKS HTTP hatası ve oturum bitişini [hata sözleşmesindeki](pdks-errors.md) ayrı sonuçlarla doğrulayın.
 
 ## Docker
 
@@ -49,7 +49,7 @@ Yerel Docker denemesi HTTP kullanır. Kurum dağıtımında pod 3000 portuyla Se
 
 ## Dağıtım kabulü
 
-Giriş kabulünde `mert.ercan` ve `mert.ercan@trt.net.tr` biçimlerinin aynı kullanıcı adıyla kaynak girişine ulaştığını doğrulayın; dönüşüm web ve masaüstünün ortak [oturum yöneticisinde](../src/server/session-manager.js) yapılır.
+Giriş kabulünde kısa kullanıcı adı ve e-posta biçiminin [ortak normalizasyon kuralını](rules/session-policy.md#güvenceler) izlediğini doğrulayın.
 
 - İmajı kurum ortamında derleyip `TZ`, dinleme adresi ve kalıcı dizinin yazılabildiğini kontrol edin.
 - Dış HTTPS adresinden giriş, rapor, yenileme ve çıkışı; Secure/HttpOnly/SameSite çerezini doğrulayın.
@@ -62,4 +62,4 @@ Next.js çalışma zamanı kaynakları: kurulu sürümün `node_modules/next/dis
 
 ## Masaüstü bildirimleri
 
-[Mesai bildirimleri](rules/notifications.md) çalışan Electron uygulamasında üretilir. Telegram bağlantısını her kullanıcı kendi botuyla cihazında kurar; kanal tercihleri ve şifreli bağlantı profilinde saklanır. Kurum sunucusunda bildirim işçisi kurulmaz.
+[Mesai bildirimlerinin](rules/notifications.md) zamanlayıcısı ve Telegram bağlantısı kullanıcının çalışan Electron uygulamasında yönetilir.

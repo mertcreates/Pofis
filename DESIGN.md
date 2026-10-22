@@ -214,13 +214,13 @@ Renk değerleri frontmatter'da, uygulama karşılıkları ortak süre tokenları
 - **Metrikler:** `metric`; sayıların arasında genişlik atlamaması için `tabular-nums`.
 - **Metrik birimi:** büyük metriklerde `metric-unit` (15 px/500); kompakt veya dar kartlarda ana rakama göre 12–13 px olabilir. Saniye ikincil hiyerarşisini korur.
 - Yazı ağırlıkları: gövde ve menü seçenekleri **400**, etiket ve düğmeler **500**, bölüm/modal başlıkları ve kısa vurgular **600**, sayfa başlıkları ve ana metrikler **700**. Marka yazısı kendi çizimini korur. `card-title` iç içe kart başlıkları ve ikincil metriklerde, `compact` kısa destek bilgisinde kullanılır. `character-title` Pofi odasının karşılama başlığına, `identity-name` kimlik kartındaki ada aittir; ana ürün başlıklarının yerine geçmez.
-- Form metni masaüstünde `body` ölçüsünü kullanır. Dokunmatik kullanımda düzenlenebilir alanlar 16 px'e çıkar; bu, küçük yazılı alanlarda otomatik odak yakınlaşması yapan mobil tarayıcılar için ürün tercihidir. WCAG'nin genel bir asgari yazı boyutu değildir. Tarayıcı yakınlaştırması açık kalır.
+- Form metni masaüstünde `body` ölçüsünü kullanır. Dokunmatik kullanımda düzenlenebilir alanlar 16 px'e çıkar; bu, küçük yazılı alanlarda otomatik odak yakınlaşması yapan mobil tarayıcılar için ürün tercihidir. Tarayıcı yakınlaştırması açık kalır.
 
 Metin, kullanıcının mevcut bilgiyi anlamasına veya sonraki eylemi seçmesine yardım eder. Sistem ve Pofi sesleri [ton rehberinde](docs/brand/pofi-tone-guide.md) yönetilir.
 
 ## Layout
 
-- **4 / 8 / 12 / 16 / 24 / 32 px** ortak aralık ölçeğidir. Grafik işaretinin gerçek zaman konumu, ikon hizası ve metin ölçüsüne bağlı yerel hesaplar bu ölçeğe yuvarlanmaz. Bileşen istisnasını kendi CSS sahibinde gerekçesiyle yönet; aynı ihtiyaç tekrarlandığında ortak role taşı.
+- **4 / 8 / 12 / 16 / 24 / 32 px** ortak aralık ölçeğidir. Grafik konumu, ikon hizası ve metin ölçüleri kendi geometrisini korur. Bileşen istisnasını kendi CSS sahibinde gerekçesiyle yönet; aynı ihtiyaç tekrarlandığında ortak role taşı.
 - Kart iç boşluğu varsayılan `spacing.panel` (24 px); büyük modal veya geniş alanlarda gerekirse 32 px.
 - Başlık ile açıklama arasında çoğunlukla 4–8 px; açıklama ile ilgili kontrol arasında 12–16 px.
 - Aynı kontrol grubunda 8–12 px; ayrı içerik gruplarında 24–32 px.
@@ -232,11 +232,11 @@ Metin, kullanıcının mevcut bilgiyi anlamasına veya sonraki eylemi seçmesine
 
 ## Elevation & Depth
 
-Yüzeyler zemin ve ince sınırla ayrılır. Kartın hafif gölgesi, popover ve modal gölgesi ortak CSS tokenlarından gelir: `--card-shadow`, `--popover-shadow`, `--modal-shadow`. Gölge odak göstergesinin veya kontrol sınırının yerine geçmez.
+Yüzeyler zemin ve ince sınırla ayrılır. Kartın hafif gölgesi, popover ve modal gölgesi ortak CSS tokenlarından gelir: `--card-shadow`, `--popover-shadow`, `--modal-shadow`. Odak ve kontrol sınırları [etkileşim kurallarını](#etkileşim-ve-formlar) kullanır.
 
 ## Shapes
 
-Kontroller `rounded.control`, paneller `rounded.panel`, modallar `rounded.modal` kullanır. Grafik uçları ve küçük işaretler `rounded.indicator` basamağındadır. İç içe sınırların optik hizası için dış radius eksi sınır kalınlığı hesaplanabilir. Daireler ve kapsül biçimleri yalnız işaret, anahtar veya belirgin gezinme biçiminde kullanılır; genel kartların yerine geçmez.
+Kontroller `rounded.control`, paneller `rounded.panel`, modallar `rounded.modal` kullanır. Grafik uçları ve küçük işaretler `rounded.indicator` basamağındadır. İç içe sınırların optik hizası için dış radius eksi sınır kalınlığı hesaplanabilir. Daireler ve kapsül biçimleri işaret, anahtar ve belirgin gezinme kontrollerinde kullanılır.
 
 Yerel görsel ölçüler: haftalık grafik sütunlarının üst köşeleri 5 px, Pofi not defterinin önceki/sonraki gezinme düğmeleri 24 px radius kullanır. Dar ekran marka yazısı 23 px'tir; bu ölçü metin hiyerarşisinden ayrı marka yerleşimine aittir.
 
@@ -248,7 +248,7 @@ Yerel görsel ölçüler: haftalık grafik sütunlarının üst köşeleri 5 px,
 - **Seçili durum:** `soft` yüzey + `accent-text` ve gerektiğinde birincil kontur; erişilebilir seçim durumu ve görünür işaret.
 - **Hover:** Hafif yüzey veya `primary-hover`; kontrolün konumu ve boyutu değişmez.
 - **Focus-visible:** Klavyeyle erişilebilen kontrollerde mevcut sınır rengi, zemin, metin rengi veya alt çizgi değişerek odağı belirginleştirir. Gölge yüzey derinliği için kullanılır.
-- **Input:** `surface` zemini, `control-border` sınırı, tutarlı etiket ve yardımcı metin. Metin, sayı ve seçim alanları hem fare hem klavye odağında mevcut sınırı `accent-text`, zemini `soft` yapar; boyut ve sınır kalınlığı değişmez. Birimli alanlarda odak görünümünü dış kontrol taşır, iç input saydam kalır. Hatalı alanın odağı kırmızı sınır ve `error-soft` zeminle gösterilir. Tarayıcının varsayılan spinner'ı gibi tasarımdan kopuk görünümler gösterilmez. Erişilebilir form davranışı korunur.
+- **Input:** `surface` zemini, `control-border` sınırı, tutarlı etiket ve yardımcı metin. Metin, sayı ve seçim alanları hem fare hem klavye odağında mevcut sınırı `accent-text`, zemini `soft` yapar; boyut ve sınır kalınlığı değişmez. Birimli alanlarda odak görünümünü dış kontrol taşır, iç input saydam kalır. Hatalı alanın odağı kırmızı sınır ve `error-soft` zeminle gösterilir. Sayı alanları ortak form stillerini ve erişilebilir giriş davranışını kullanır.
 - **Segmented control:** Hazır seçenekleri tek grupta göster. `Özel` gibi ek değer girişlerini aynı gruba bağlı popover'da sun.
 - **Checkbox / switch:** Checkbox çoklu seçimi, switch açık/kapalı tercihi gösterir. Tercihin uygulanma anını ilgili kaydetme akışı belirler.
 - **Popover / modal:** Yerel, kısa seçim popover'da; çok adımlı bağlantı/kurulum akışı modaldadır. Kapatma, Escape, klavye odağı ve dar ekran davranışı net olmalıdır.
@@ -282,11 +282,11 @@ Canlı ve demo saatinin kod sahipleri [arayüz haritasındadır](docs/architectu
 
 ### Sayılar ve süreler
 
-Sayısal veriler tabular gösterilir. Saat/dakika baskın, saniye ikincildir. Birimli süreler `8 sa 3 dk 31 sn` biçimindedir; sıfır birimler atlanır, tam sıfır `0 sn`, bilinmeyen süre çizgiyle gösterilir. Giriş/çıkış saatleri `HH:mm:ss` biçimini korur. Plan kontrolleri dakika hassasiyetinde kısa gösterim kullanır: gereken süre ve hedefe kalan fark yukarı, gerçekleşen süre ve fazla süre aşağı yuvarlanır. Dakika altındaki pozitif fazla süre saniyesiyle gösterilir. Günlük kart ve süre alanı aynı yuvarlamayı kullanır; sıfır süreli açık gün `0 sa` olarak görünür. Beklenen toplam saniyeli hesap sonucundan gösterilir ve tam değeri başlıkta üzerine gelince okunur. [Yuvarlama sözleşmesi](docs/rules/plan-duration.md#güvenli-dakika-gösterimi) hesap ve kalıcılık hassasiyetini korur. Tarihler İstanbul takviminden gelir; seçili aralık başka yıldaysa yıl görünür.
+Sayısal veriler tabular gösterilir. Saat/dakika baskın, saniye ikincildir. Birimli süreler `8 sa 3 dk 31 sn` biçimindedir; sıfır birimler atlanır, tam sıfır `0 sn`, bilinmeyen süre çizgiyle gösterilir. Giriş/çıkış saatleri `HH:mm:ss` biçimini korur. Plan kontrolleri [güvenli dakika gösterimini](docs/rules/plan-duration.md#güvenli-dakika-gösterimi) kullanır; günlük kart ve süre alanı aynı yuvarlamayı izler. Sıfır süreli açık gün `0 sa` görünür. Beklenen toplamın saniyeli tam değeri başlık ipucunda korunur. Tarihler İstanbul takviminden gelir; seçili aralık başka yıldaysa yıl görünür.
 
 #### Günün akışı
 
-[DayFlow](src/components/attendance/day-flow.tsx), geçen süreyi “Bugünkü mesai”, yanındaki küçük farkı “Hedefe kalan / Hedefin üzerinde” olarak gösterir. Tarih başlık yanındadır; canlı durum ve altta tekrarlayan saat özeti gösterilmez.
+[DayFlow](src/components/attendance/day-flow.tsx), geçen süreyi “Bugünkü mesai”, yanındaki küçük farkı “Hedefe kalan / Hedefin üzerinde” olarak gösterir. Tarih başlık yanındadır; saatler akışın üzerindeki işaretlerde gösterilir.
 
 - Ortak [DurationTrack](src/components/primitives.tsx), [kayıtlı/tahmini süre](#kayıtlı-ve-tahmini-süre) rollerini kullanır. Hedef nötr çizgidir.
 - Uç etiketi canlı günde “Şimdi”, hedefi aşan kapalı günde “Çıkış”, diğer kapalı günlerde “Son kayıt” olur. Lavanta uç etiketi metin kadar geniştir.
@@ -299,7 +299,7 @@ Sayısal veriler tabular gösterilir. Saat/dakika baskın, saniye ikincildir. Bi
 
 [WeeklyTotal](src/components/dashboard/weekly-total.tsx), toplam ve sakin hedefi aynı satırda “toplam / hedef” olarak sunar. Yüzde başlıkta dolgusuz mor metindir; kalan/aşan süre alta yaslanır. Hedefe tam eşit toplam “Hedefle eşit” olarak sunulur. Yaklaşık yüzde ve farkın erişilebilir etiketleri kayıt eksikliği veya belirsizliğini açıklar. Tamamlanmış haftada hedefin altındaki süre “Hedefin altında” etiketiyle gösterilir. Eksik veya belirsiz kayıtlarda geçmiş haftanın farkı ve yüzdesi yaklaşık işaretiyle sunulur; güncel haftada fark gösterilmez.
 
-Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedir. Bölümler kendi etkin günlük hedeflerine göre dolar; her bölümün doluluğu kendi günlük hedefine göre hesaplanır ve kendi sınırında kalır. Sıfır süreli açık gün görünür kalır; bilinmeyen süre belirsiz olarak gösterilir. Gün adı, toplam süre ve hedef ortak tooltip'te görünür.
+Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedir. Bölümler [ortak ilerleme ölçeğiyle](docs/rules/progress.md) kendi sınırlarında dolar. Sıfır süreli açık gün görünür kalır; bilinmeyen süre belirsiz olarak gösterilir. Gün adı, toplam süre ve hedef ortak tooltip'te görünür.
 
 [Haftalık grafik](src/components/attendance/week-chart.tsx) geçmiş haftada günlük süre sütunlarını gösterir. Geçmiş günler `--chart-past`, bugün `--accent` kullanır; ölçek yalnız görünen sürelerden gelir. Canlı girdi verildiğinde kayıtlı bölümün üstüne açık tahmin eklenir; tooltip kayıtlı süre ve canlı toplamı ayırır. Lejant “Günlük kayıtlı süre”dir. 400 px ve altında sütunların süre metni komşu sütuna taşmaması için gizlenir; tam süre klavye ve dokunmayla açılan tooltip ile erişilebilir etikette korunur.
 
@@ -312,7 +312,7 @@ Yalnız güncel haftada gösterilen cetvelde her açık gün eşit genişliktedi
 - **Bildirim bağlantısı:** uygulamadaki Telegram kurulumu ortak modalda açılır. Yardım, token, sohbet seçimi ve işlem geri bildirimi aynı modalda yer alır; Escape ve kapatma odağı başlatan düğmeye döndürür.
 - **Plan:** [PlanEditor](src/components/plan-editor.tsx), varsayılan plan ve tarih etiketli hafta sekmelerini üstte gösterir; seçilen kapsama ait bilgilendirme sekmelerin altında, çalışma günlerinden önce yer alır. Özel hafta noktası sekmededir. Pazartesi–cuma kartları tek sırada kalır. Açık gün nötr, kilitli gün lavanta ve kilit ikonlu, kapalı gün sakin nötr, seçili gün mor kenarlıdır.
 - **Plan düzenleme:** gün adı/İzin–Aç eylemi ve kullanıcı kilidi solda, serbest süre girişi ile +/- sağdadır. Giriş tam dakika kabul eder; +/- 30 dakikalık çizgilere ilerler. Varsayılan sekmesinde Kapat–Aç kullanılır. Haftalık kart ve süre alanı aynı gereken süreyi gösterir. İzinli gün “İzinli”, şablondan kapalı gün “Kapalı”, sıfır süreli açık gün `0 sa` der. Kullanıcı kilidi süreyi korur ve açıkça kaldırılabilir. Geçmiş turnike kaydı bulunan gün ayrı kilitli gösterilir; gerçekleşen süre hesaplanamıyorsa “Süre belirsiz” görünür. Kayıtlı plan ve farklıysa şablon alt bilgide görünür.
-- **Plan toplamları:** varsayılan planda üstte “Haftalık plan” ve şablon toplamı, seçili haftada “Beklenen toplam” ve geçmiş günlerin gerçekleşeni ile tamamlanmamış günlerin gereken sürelerinin toplamı gösterilir. Beklenen toplamın izin sonrası referans hedefe farkı alttaki eylem alanında “40 sa hedefine kalan: 1 sa” veya “40 sa hedefinin üzerinde: 1 sa 10 dk” gibi gösterilir. Bu gösterim kayıtlı haftalık hedefi değiştirmez. Eylem sırası Planı sıfırla → Tamamla şeklindedir. Varsayılan sekmesinde şablon ilk plandan farklıysa Planı sıfırla görünür ve beş günü 8'er saate döndürür. Haftalık sekmede Sıfırla manuel kilitleri kaldırıp tamamlanmamış günleri güncel şablona döndürür. Tamamla, Günlere eşit dağıt ve Son mesai gününe dağıt seçeneklerini düğmenin üstünde, yerleşimde alan açmadan gösterir. Seçim, dışarı tıklama, odak çıkışı veya Escape seçenekleri kapatır. Kapasite yetmiyorsa Tamamla açıklamayla devre dışı görünür. [Hesap ve kayıt sözleşmesi](docs/rules/work-plan.md) bu belgedeki görsel kararlardan ayrıdır.
+- **Plan toplamları:** varsayılan planda “Haftalık plan” ve şablon toplamı, seçili haftada “Beklenen toplam” gösterilir. Referans hedef farkı altta “40 sa hedefine kalan: 1 sa” veya “40 sa hedefinin üzerinde: 1 sa 10 dk” biçimindedir. Eylem sırası Planı sıfırla → Tamamla'dır. Tamamla, iki dağıtım seçeneğini düğmenin üstünde popover olarak açar; seçim, dışarı tıklama, odak çıkışı veya Escape kapatır. Kapasite yetmiyorsa eylem açıklamayla devre dışıdır. Görünürlük, hesap ve kayıt koşulları [plan sözleşmesindedir](docs/rules/work-plan.md).
 - **Mobil plan:** kontroller ve eylemler satır kırabilir; sayı ile birimi birlikte kalır. Dokunmatik kontroller 44px olur; diğer ölçüler plan CSS sahibindedir. Tam süreler erişilebilir etiketlerde korunur.
 - **Rapor:** bugün ve geçmiş günler bağımsız native akordeondur. Kapalı satır gün, süre ve ilk giriş/son çıkış özetini gösterir. Gelecek günler her iki rapor görünümünde yalnız tarih, gün adı ve “Henüz gelmedi” yazan, açılmayan sade satırdır; haftalık planda izinli işaretlenmiş gelecek günlerde bu etiket “İzinli” olur. Saat, süre, hedef farkı ve detay oku gösterilmez. İstanbul takviminde gün geldiğinde normal rapor satırına geçer. Turnike uyarıları, hedef farkı, kayıtlı süre, durum ve ham hareketler ayrıntıdadır. Geniş tablonun ana satırında kısa kayıt durumu, açılan ayrıntısında turnike uyarıları bulunur. Hafta sonları yalnız kayıt/süre verisi varsa görünür. Ham liste ilk açılışta oluşturulur ve korunur. [Kayıt durumu sözleşmesi](docs/rules/record-status.md) ortaktır.
 - **Pofi:** 156px durum görseli ve ortak başlık/mesaj düzeni; maskota basınca oda açılır. Albüm, notlar, kart, Pofi mesaisi ve sürprizler kendi sahiplerini kullanır.
@@ -354,7 +354,7 @@ Bildirim ekranı masaüstü, web ve demoda ortak `NotificationSettings` bileşen
 ### Kabul kriterleri
 
 - Normal metin için en az **4.5:1**, büyük metin için en az **3:1** kontrast; anlamlı kontroller/grafik işaretleri için en az **3:1** hedeflenir.
-- İnce dekoratif kart border'ı tek başına bilgi taşımıyorsa 3:1 olmak zorunda değildir; input sınırı veya kritik durum işareti bununla karıştırılmaz.
+- Kontrast ölçümünde kontrolü veya durumu tanımlayan gerekli sınır ve işaretleri değerlendirin; kart ayraçları dekoratif roldedir.
 - Açık ve koyu temada gerçek bileşenlerin metin, kontrol ve durum kontrastını ölç; durumları metin/simgeyle de doğrula.
 - Hızlı taranabilirlik korunur: önce içerik/mesai bilgisi, sonra ayarlar ve yardımcı açıklamalar.
 - %200 metin büyütmede içerik ve eylemler korunur. 320 CSS px genişlikte (1280 px pencerenin %400 yakınlaştırılmasına eşdeğer yeniden akış genişliği) sayfa iki yönde kaydırma gerektirmez; anlamı için iki boyut isteyen içerik ayrı değerlendirilir. [Metin büyütme](https://www.w3.org/WAI/WCAG22/Understanding/resize-text.html) ve [yeniden akış](https://www.w3.org/WAI/WCAG22/Understanding/reflow.html) kabulde ayrı kontrol edilir.

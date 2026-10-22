@@ -15,7 +15,7 @@
 
 [Sunucu kimlik sahibi](../src/server/analytics-identity.ts), mevcut Pofi hesap anahtarından `pofis_ga_v1_` önekli SHA-256 kimliği üretir: UTF-8 JSON girdisi `["pofis:analytics-user:v1", accountKey]`. Anahtarın kendisi ve oturum token'ı Google'a gönderilmez. Aynı kaynak/normalize kullanıcı adıyla girişler, süreçler ve cihazlar aynı analytics kimliğini üretir. Ad-soyad kimliğe katılmaz. Kaynağın farklı harf/takma adlarla aynı hesabı kabul etmesi, mevcut Pofi anahtarı sözleşmesine bağlıdır; bu eşdeğerlik doğrulanmış değildir.
 
-[Kendi raporu route'u](../src/app/api/report/route.js) aktif oturumu doğruladıktan sonra yanıta `analyticsUserId` ekler. Bu alan raporun `no-store` sınırını kullanır. Ek sunucu, veri tabanı, isim eşleştirme tablosu veya yerel kimlik deposu oluşturulmaz. Pofi notlarının anahtarı ve seçim davranışı korunur. Bu kimlik takma kimliktir; sürümlü hash ve ayrı kullanım alanı anonimlik veya tahmin saldırısına direnç garantisi vermez.
+[Kendi raporu route'u](../src/app/api/report/route.js) aktif oturumu doğruladıktan sonra yanıta `analyticsUserId` ekler. Bu alan raporun `no-store` sınırını kullanır. Kimlik her yanıtta mevcut hesap anahtarından türetilir. Bu kimlik takma kimliktir; sürümlü hash ve ayrı kullanım alanı anonimlik veya tahmin saldırısına direnç garantisi vermez.
 
 [use-pdks](../src/data/use-pdks.ts) yalnız güncel, doğrulanmış raporun kimliğini [biçim denetiminden](../src/lib/analytics-identity.ts) geçirir; gecikmiş/iptal edilmiş yanıt kimliği değiştiremez. İlk başarılı rapor gelene kadar olaylar cihaz kimliğiyle ölçülür. Kimlik eksik/geçersizse hesap eşleştirmesi temizlenir; mesai ekranının kullanılabilirliği korunur.
 
@@ -23,7 +23,7 @@
 
 Çıkış isteğinin başında, başarılı hesap değişiminde, doğrulanmış `SESSION_EXPIRED` hatasında ve canlı görünüm kaldırıldığında kimlik `null` olur. Çıkış hatasında uygulamanın mevcut oturumu sürüyorsa önceki kimlik geri yüklenir. Demo ve diğer yollar canlı hesap kimliğini temizler. Başka sekmedeki oturum değişimi bu sekmenin sonraki oturum/rapor kontrolünde anlaşılır; sekmeler arası anlık bildirim eklenmez.
 
-Mevcut özel olaylar `page_view` ve `account_identified` ile sınırlıdır. Plan kaydetme, menü açma ve Pofi etkileşimi gibi kullanıcı işlemleri için olaylar henüz tanımlı değildir; bu işlemlerin ayrıntılı zaman çizelgesi mevcut ölçümden çıkarılamaz.
+Mevcut olay kapsamı sayfa geçişi (`page_view`) ve hesap kimliğinin etkinleşmesidir (`account_identified`).
 
 ## Google Analytics ayarları
 

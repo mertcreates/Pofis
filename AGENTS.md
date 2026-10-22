@@ -11,7 +11,7 @@
 
 ## Talimat ve iletişim dili
 
-İstenen davranışı somut, olumlu eylemlerle anlat. Her yönlendirme ilgili işi, sahibini ve beklenen sonucu açıkça söylesin; açıklamayı mevcut görev ve gözlenen kanıt üzerinden kur. Teknik koşulları, güvenlik sınırlarını ve hata durumlarını geçerli koşul ve uygulanacak eylemle tarif et. Örneklerde doğrudan kullanılacak metni göster.
+İstenen işi, sahibini ve beklenen sonucu doğrudan anlat. Teknik sınırları ve hata durumlarını koşul → uygulanacak eylem biçiminde yaz. Örneklerde kullanılacak metni göster. Belge bakımında yinelenen ayrıntıyı sahibi belgede topla; gerekçeyi ve istisnayı mevcut kod veya ürün kararıyla ilişkilendir.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

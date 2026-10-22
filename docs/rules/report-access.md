@@ -14,6 +14,8 @@ Yalnız `person: "self"` raporu kabul edilir. Tarih aralığı gerçek günlerde
 
 Kişi ve gün sınırı `REPORT_ACCESS` içinde yönetilir. Aralık doğrulaması ve sunucunun hata mesajındaki gün sayısı aynı `maxDays` değerini kullanır.
 
+Web ve masaüstü rapor istekleri, kaynak profilinin kimliği ve demo raporları kişi değerini `REPORT_ACCESS.person` sahibinden alır.
+
 ## Bağımlılıklar
 
 - [Takvim ve kaynak saati](calendar.md)
@@ -24,6 +26,7 @@ Kişi ve gün sınırı `REPORT_ACCESS` içinde yönetilir. Aralık doğrulamas�
 - [session.js](../../src/server/session.js)
 - [pdks.js](../../src/server/pdks.js)
 - [report-response.ts](../../src/data/report-response.ts)
+- [use-pdks.ts](../../src/data/use-pdks.ts), [install-notifications.ts](../../src/desktop/install-notifications.ts), [demo raporu](../../src/demo/report.ts)
 
 ## Testler
 
@@ -31,3 +34,4 @@ Kişi ve gün sınırı `REPORT_ACCESS` içinde yönetilir. Aralık doğrulamas�
 - [routes.test.js](../../src/server/routes.test.js)
 - [pdks.test.js](../../src/server/pdks.test.js)
 - [report-response.test.ts](../../src/data/report-response.test.ts)
+- [policy-adapters.test.ts](../../src/domain/rules/policy-adapters.test.ts): yalnız kişi sahibi değiştiğinde gerçek istekler ve demo/profil kimlikleri birlikte güncellenir.

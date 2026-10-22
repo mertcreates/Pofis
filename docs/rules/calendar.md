@@ -14,10 +14,6 @@ Arayüz: `TIME_ZONE`, `dateKey`, `secondsOf`, `sourceTimestamp`, `weekday`, `wee
 
 Tarihsel ileri saat geçişinde, geçiş öncesi kaynak saatleri eski UTC farkını korur. Örneğin 29 Mart 2015 02:30 İstanbul saati `2015-03-29T00:30:00Z` olur; atlanan 03:30 yerel saati `null` döndürür. Çözülen zaman damgası aynı kaynak tarih ve saatine geri dönmelidir.
 
-## Bağımlılıklar
-
-Temel takvim hesabını bu modül sağlar.
-
 ## Kullanan yerler
 
 - [report.ts](../../src/domain/report.ts)

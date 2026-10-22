@@ -10,7 +10,7 @@ Arayüz: `dailyDurationState`, `dailyRecordState`, `durationTotals`.
 
 ## Sözleşme
 
-Arayüzde **Kayıtlı süre**, ilk giriş ile son çıkış arasındaki süreyi; **Canlı toplam**, güvenilir açık giriş varken ilk girişten şimdiki ana kadar olan süreyi; **Anlık tahmin**, canlı toplamın kayıtlı süreyi aşan bölümünü adlandırır. Grafik ayrıntısındaki canlı toplam ile çubuğun anlık tahmin bölümü bu adlarla ayrılır. Günün akışı kartında toplam “Bugünkü mesai”, lejant bölümleri “Kayıtlı” ve “Tahmini” olarak gösterilir. Haftalık toplam başlığı her durumda “Haftalık toplam” olarak gösterilir.
+[Kayıtlı süre, canlı toplam ve anlık tahmin](../../GLOSSARY.md#mesai-ve-plan) ayrı değerlerdir. Grafik ayrıntısı canlı toplamı, süre çubuğunun açık bölümü anlık tahmini gösterir. Günün akışında toplam “Bugünkü mesai”, lejant “Kayıtlı / Tahmini” olarak adlandırılır; yerleşim ve görsel roller [DESIGN](../../DESIGN.md#kayıtlı-ve-tahmini-süre) sahibindedir.
 
 Canlı toplam ilk girişten şimdiki İstanbul saatine kadar geçen süredir. Yalnız bugün, güncel rapor, geçerli ilk giriş ve güvenilir son açık giriş varsa kullanılır. Günlük özet ve açık giriş aynı zorunlu hareket listesinden üretilir. Şimdiki an açık girişten önceyse veya canlı toplam kayıtlı sürenin gerisindeyse kayıtlı sonuca dönülür. Anlık tahmin = canlı toplam − kayıtlı süre; bir kez burada hesaplanır. Kayıtlı süre bilinmese de güvenilir açık girişten canlı toplam üretilir; güvenilir açık giriş yoksa bilinmeyen süre korunur.
 

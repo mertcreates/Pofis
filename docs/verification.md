@@ -29,13 +29,17 @@ Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron
 | Dağıtım | [Kurum ortamı kabulü](deployment.md#dağıtım-kabulü) |
 | Belge | Diff, yerel bağlantılar, kod sahibiyle tutarlılık ve `bun test src/domain/rules/rules.test.ts` |
 
-[Kurallar testi](../src/domain/rules/rules.test.ts) modül belgelerini, kural bağlantılarını ve bağımlılık sınırlarını denetler. Bun'ın import tarayıcısıyla türleri silindikten sonra kalan değer, yan etki, yeniden dışa aktarım, `require` ve sabit adresli dinamik importları kontrol eder. Serbest metin ile kodun anlamca tutarlılığı ayrıca incelenir.
+### Ortak kural ve adaptör testleri
 
-[Politika tüketim testi](../src/domain/rules/policy-consumers.test.ts), ayrı Bun süreçlerinde gerçek modülleri yükler. Bir senaryoda yalnız kural sahibinin değerlerini bellekte değiştirir; bildirim formu/varsayılanları, plan ve rapor sınırları, hata metinleri ve yemek takviminin yeni değerleri kullandığını sınar. Depodaki dosyalar değişmez. Yeni sahiplik riskleri, ilgili tüketiciye ulaşan somut davranış senaryosuyla kapsanır.
+| Test | Kanıtladığı davranış |
+| --- | --- |
+| [Kural mimarisi](../src/domain/rules/rules.test.ts) | Kural belgeleri, kod bağlantıları ve çalışma zamanı bağımlılık sınırları; değer/yan etki importları, yeniden dışa aktarım, require ve sabit adresli dinamik importlar |
+| [Politika tüketicileri](../src/domain/rules/policy-consumers.test.ts) | Sahibin değeri değiştiğinde bildirim formu/varsayılanları, plan ve rapor sınırları, hata metinleri ve yemek takviminin yeni değeri kullanması |
+| [Adaptörler](../src/domain/rules/policy-adapters.test.ts) | Web/masaüstü rapor kimliği, demo/profil kimliği, heartbeat iptali, demo süre adımı, Telegram formu/keşfi/girdi sınırı ve masaüstü oturum bitiş koşulu |
 
-Kapsam yüzdesini testlerin yüklediği modüllerle birlikte değerlendirin. Taşıma ve reducer testleri kendi modüllerinin davranışını doğrular. `usePdks` içindeki React effect ve istek sahipliği için bekleyen çıkış, hafta değişimi ve geciken rapor yanıtı zincirini tarayıcıda doğrulayın.
+Politika testleri gerçek modülleri ayrı Bun süreçlerinde, yalnız sahibin değerlerini bellekte değiştirerek çalıştırır. HTTP ve Electron yanıtları taklittir. Hook kurulmuş oturumla, Telegram formu manuel alan açıkken sunulur. Tarayıcıda bekleyen çıkış → hafta değişimi → geciken rapor yanıtı zincirini ve Telegram modal etkileşimini doğrulayın; React effect yaşam döngüsünün kabulü bu yoldadır.
 
-UI metinlerini, DOM davranışını ve yerleşimi demoda kontrol edin. Otomatik testlerde hesap, takvim, veri doğrulama ve oturum izolasyonu gibi somut davranış farklarını sınayın. İçerik testleri seçim, tarih, tekrar ve özel gün davranışını korur; metnin doğallığını editoryal incelemeyle değerlendirin.
+Test kapsamını yüklenen modüller ve somut davranış beklentileriyle değerlendirin. Belge/kod anlam uyumunu ayrıca inceleyin. İçerik testleri seçim, tarih, tekrar ve özel gün davranışını; editoryal inceleme metnin doğallığını doğrular.
 
 ## Plan doğrulaması
 
@@ -85,7 +89,7 @@ Paketleme, süreç ve installer kabulünün ayrıntılı kapsamı [masaüstü re
 
 Genel paket/kurulum kabulleri `POFIS_TEST_BLOCK_ANALYTICS=1` ile Google trafiğini engeller; loopback erişimi sürer. GA4 alanları ve hesap kimliği [ölçüm testlerinde](analytics.md#doğrulama) sahte `window.dataLayer` ile doğrulanır.
 
-Windows kapanış testleri her senaryoya ayrı fixture kapsamı açar; gerçek zorla kapatma testi yalnız izole kurulumdaki süreci sonlandırır ve dış süreci korur. macOS fixture testleri sistem işlemlerini taklit eder; native kabul gerçek `osascript`, ZIP ve uygulama süreçlerini kullanır. Hedef cihazda Gatekeeper, sistem izinleri, bildirim görünümü ve gerçek PDKS akışını ayrıca doğrulayın. Pano veya fixture sonucu bu kabulün yerine geçmez.
+Windows kapanış testleri izole kurulumdaki süreci sonlandırıp dış sürecin korunduğunu doğrular. macOS fixture testleri sistem işlemlerini taklit eder; native kabul gerçek `osascript`, ZIP ve uygulama süreçlerini kullanır. Gatekeeper, sistem izinleri, bildirim görünümü ve gerçek PDKS akışını hedef cihazda doğrulayın.
 
 ## Linux ve ortak Unix installer kabulü
 
@@ -99,6 +103,6 @@ Aynı D-Bus/anahtarlık oturumunda önce `bun scripts/electron/smoke.cjs <linux-
 
 ## Sonuçların yönetimi
 
-Her sonucu kullanılan kaynak, paket ve ortamla birlikte değerlendirin. Sürümü değiştirilmiş installer fixture'ı, farklı Chromium motorları arasında profil geçişini kanıtlamaz. Intel statik kontrolleri pencere/kurulum kabulü, `macos-15` sonucu macOS 12 çalışma kanıtı değildir.
+Her sonucu kullanılan kaynak, paket ve ortamla birlikte bildirin. Motor geçişini gerçek önceki/yeni paketlerle, pencere ve kurulum davranışını hedef işletim sisteminde doğrulayın. Statik paket kontrolü dosya/mimari sözleşmesini, fixture testi kendi senaryosunu kanıtlar.
 
 Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulamaların rapor, ekran görüntüsü ve ölçüm çıktılarını temizleyin. Geçerli ürün kararlarını ilgili sözleşmeye, açık bulguları görev listesine taşıyın. Davranış testleri ve demo üzerinden elle tarayıcı kabulü doğrulama yönteminin parçasıdır.

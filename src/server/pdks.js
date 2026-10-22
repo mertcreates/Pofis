@@ -1,5 +1,5 @@
 import { SOURCE_POLICY } from "../domain/rules/source-policy";
-import { isOwnReport } from "../domain/rules/report-access";
+import { REPORT_ACCESS, isOwnReport } from "../domain/rules/report-access";
 import { ui } from "../lib/ui-text.js";
 import { isSessionExpired } from "../lib/pdks-failure";
 import { load } from "cheerio";
@@ -684,7 +684,7 @@ export class PdksClient {
         "SOURCE_CHANGED",
       );
     this.self = {
-      id: "self",
+      id: REPORT_ACCESS.person,
       name,
       unit: "",
       title: "",

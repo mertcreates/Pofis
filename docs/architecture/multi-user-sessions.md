@@ -23,7 +23,7 @@ Bellekteki yönetici `pofis.session-manager:account-key-v1` anahtarıyla tutulur
 3. Kaynak çerezleri değiştiğinde kayıt asenkron yazılır. Oturum başına yazma/silme sırası korunur. Yeniden adlandırma kısmi JSON görünmesini önler; elektrik kesintisine karşı fsync garantisi verilmez. İstek sırasında kayıt hatasının yanıta, önbelleğe ve özgün kaynak hatasına etkisi [oturum politikasında](../rules/session-policy.md) tanımlıdır.
 4. Çıkış bellek kaydını kaldırır, devam eden kaynak isteğini iptal eder, bekleyen yazıların ardından dosyayı siler. Geciken okuma oturumu geri getiremez. Raporun kaynak işi başarıyla tamamlandığında ve hata verdiğinde üyelik ve TTL tekrar doğrulanır. Geçersiz oturum 401 döner ve tarayıcı çerezi temizlenir; aktif oturumun kaynak bağlantı hatası 502 döner.
 5. Dosya silme başarısızsa hata döner ve aynı süreç oturumu yeniden yüklemeyi engeller; silme yeniden denenebilir. Bu sınır, yeniden bağlantının geri alınmasındaki silme hatası için de geçerlidir. Silinemeyen kayıt süreç yeniden başlatılınca TTL sonuna kadar yeniden yüklenebilir; iptal bilgisi süreç belleğinde yaşar. Dosya erişimi ve disk hatalarının izlenmesi işletim sorumluluğudur.
-6. Etkin bellek oturumları varken tek bakım zamanlayıcısı çalışır. Süresi dolan bellek kayıtları dakikalık kontrolde, soğuk dosyalar saatlik dizin taramasında temizlenir. Silme veya tarama hataları loglanır ve sağlıklı oturumların keepalive işleri sürer. Hatalı soğuk tarama sonraki saatlik aralıkta yeniden denenir. Süreç boşken zamanlayıcı durur; yeni oturumla bakım devam eder. Süresi geçmiş dosyalar erişimde reddedilir.
+6. Etkin bellek oturumları varken tek bakım zamanlayıcısı çalışır. Süresi dolan bellek kayıtları ve soğuk dosyalar [politika aralıklarında](../rules/session-policy.md) temizlenir. Silme/tarama hataları loglanır, sonraki aralıkta yeniden denenir ve sağlıklı oturumların keepalive işleri sürer. Süreç boşken zamanlayıcı durur; yeni oturumla devam eder. Süresi geçmiş dosyalar erişimde reddedilir.
 
 Bozuk dosyada ilgili kullanıcı yeniden giriş yapar; diğer kullanıcıların yüklenmesi bağımsız sürer. Kaynak çerezleri hassastır; oturum dizinine yalnız uygulama hesabı erişmelidir. Plan ve tema mevcut tarayıcı depolamasını kullanmayı sürdürür.
 
@@ -41,7 +41,7 @@ Yerel üretim önizlemesi standart `next start`, Docker dağıtımı standalone 
 
 [Masaüstü kabuğu](../desktop.md#yaşam-döngüsü-ve-sorumluluklar) aynı oturum yöneticisini Node UtilityProcess ile kullanır. Kullanıcı profili dış tarayıcıdan ve kurum sunucusundan ayrıdır. Port, arka plan ve kapanış davranışı masaüstü rehberinde; heartbeat ve hesaba özgü işler [bildirim sözleşmesinde](../rules/notifications.md) yönetilir.
 
-Dağıtım tek uygulama süreci ve kalıcı yerel oturum diziniyle yapılmalıdır. Bellek kullanımı yüklenen oturum sayısıyla büyür; oturum dizininin sahibi tek uygulama sürecidir. Kurum ağı, TLS, yeniden başlatma, disk izinleri/yedekleri ve gerçek hesap kabulü dağıtım ortamında doğrulanır.
+Bellek kullanımı yüklenen oturum sayısıyla büyür; oturum dizininin sahibi tek uygulama sürecidir. Replica, kalıcı volume, TLS ve kurum kabulünü [dağıtım rehberine](../deployment.md) göre yönetin.
 
 Gerçek PDKS kapasitesi hedef kurum ortamında ölçülür. Yerel fixture ve yük kontrolleri [doğrulama rehberinde](../verification.md) açıklanır.
 

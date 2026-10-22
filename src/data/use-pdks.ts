@@ -7,6 +7,7 @@ import { readSessionResponse } from "@/lib/session-response.js";
 import { startSessionHeartbeat } from "@/lib/session-heartbeat.js";
 import { toRequestFailure, type PdksOperation } from "@/lib/pdks-failure";
 import { addDays } from "@/domain/rules/calendar";
+import { REPORT_ACCESS } from "@/domain/rules/report-access";
 import { readReportResponse } from "./report-response";
 import { initialPdksState, pdksReducer } from "./pdks-state";
 import { setAnalyticsUserId } from "@/lib/analytics";
@@ -86,7 +87,7 @@ export function usePdks(week: string) {
     dispatch({ type: "started", operation: "report" });
     try {
       const result = await requests.run(
-        `/api/report?${new URLSearchParams({ person: "self", from: week, to: addDays(week, 6) })}`,
+        `/api/report?${new URLSearchParams({ person: REPORT_ACCESS.person, from: week, to: addDays(week, 6) })}`,
       );
       if (!result || id !== generation.current) return;
       const nextReport = readReportResponse(result, week, addDays(week, 6));

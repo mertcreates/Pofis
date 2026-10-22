@@ -2,6 +2,7 @@ import { ui } from "../lib/ui-text.js";
 import snapshot from "./passages.json";
 import { addDays, dateKey, weekStart } from "@/domain/rules/calendar";
 import { readReportResponse } from "@/data/report-response";
+import { REPORT_ACCESS } from "@/domain/rules/report-access";
 import { pofiNotesForWeek } from "@/server/pofi-notes.js";
 
 // Keep the captured clock with the data so scenarios remain stable over time.
@@ -20,7 +21,7 @@ export function demoData() {
     reports.push(
       readReportResponse(
         {
-          person: { id: "self", name: ui.demoMessages.person, unit: "", title: "" },
+          person: { id: REPORT_ACCESS.person, name: ui.demoMessages.person, unit: "", title: "" },
           from,
           to,
           fetchedAt: snapshot.capturedAt,

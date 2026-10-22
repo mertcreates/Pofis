@@ -1,6 +1,7 @@
 "use client";
 
 import { ui } from "../../lib/ui-text.js";
+import { TELEGRAM_CHAT_ID_PATTERN } from "@/lib/telegram-input";
 
 import { useEffect, useRef, useState } from "react";
 import type { NotificationSettingsActions } from "@/desktop/notification-contract";
@@ -79,7 +80,7 @@ export function TelegramSetup({ actions, disabled, connectionError, onClose, onC
             </div>
             {(manualChat || chats.length > 0 || !!token.trim()) && <div className="notification-setup-field-group">
               {manualChat ? <label htmlFor="telegram-chat">{ui.telegramSetup.chatLabel}
-                <input id="telegram-chat" type="text" inputMode="numeric" autoComplete="off" required pattern="[1-9][0-9]{3,19}"
+                <input id="telegram-chat" type="text" inputMode="numeric" autoComplete="off" required pattern={TELEGRAM_CHAT_ID_PATTERN}
                   value={chatId} onChange={event => { setChatId(event.target.value); setError(""); }} placeholder={ui.telegramSetup.chatPlaceholder} />
               </label> : chats.length > 0 ? <label htmlFor="telegram-chats">{ui.telegramSetup.destinationLabel}
                 <span className="notification-chat-select">

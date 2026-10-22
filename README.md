@@ -4,6 +4,14 @@ Mesaiye biraz Pofi
 
 Next.js + React + Bun ile kişisel PDKS mesai takibi. Her kullanıcı kendi hesabıyla çalışır.
 
+## Nasıl başladı?
+
+> Sadece kaçta çıkabileceğimi görmek istiyordum.
+
+Pofis bu cümleyle başladı. Birkaç gün sonra [mesai planı kuralları](docs/rules/work-plan.md) 22 KB'lık bir belge olmuştu.
+
+Çıkış saatini artık görebiliyorum.
+
 ## Çalıştırma
 
 Bun 1.4.3 ile:

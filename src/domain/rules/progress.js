@@ -21,6 +21,19 @@ export function percentage(seconds, target) {
   return targetProgress(seconds, target)?.percentage ?? null;
 }
 
+/** @param {{recorded: number, estimated?: number, target?: number|null, total?: number}} input */
+export function durationSegments({ recorded, estimated = 0, target = null, total = Math.max(target ?? 0, recorded + estimated) }) {
+  const fraction = (seconds) => total > 0 ? Math.max(0, Math.min(1, seconds / total)) : 0;
+  const recordedFraction = fraction(recorded);
+  const estimatedFraction = Math.min(1 - recordedFraction, fraction(estimated));
+  return {
+    recorded: recordedFraction,
+    estimated: estimatedFraction,
+    filled: recordedFraction + estimatedFraction,
+    target: target !== null && target > 0 && total > 0 ? fraction(target) : null,
+  };
+}
+
 const CHART_SCALE = Object.freeze({
   minimumSeconds: 10 * 3600,
   stepSeconds: 2 * 3600,

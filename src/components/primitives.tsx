@@ -1,7 +1,7 @@
 "use client";
 
 import { durationClock, durationParts, durationText } from "@/domain/time";
-import { percentage } from "@/domain/rules/progress.js";
+import { durationSegments, percentage } from "@/domain/rules/progress.js";
 import { ui } from "@/lib/ui-text.js";
 
 export function Duration({ seconds }: { seconds: number | null }) {
@@ -34,19 +34,10 @@ export function DurationTrack({
 }: {
   recorded: number;
   estimated?: number;
-  total: number;
+  total?: number;
   target?: number | null;
 }) {
-  const recordedPercent =
-    total > 0 ? Math.max(0, Math.min(100, (recorded / total) * 100)) : 0;
-  const estimatedPercent =
-    total > 0
-      ? Math.max(0, Math.min(100 - recordedPercent, (estimated / total) * 100))
-      : 0;
-  const targetPercent =
-    target !== null && target > 0 && total > 0
-      ? Math.min(100, (target / total) * 100)
-      : null;
+  const segments = durationSegments({ recorded, estimated, total, target });
   return (
     <span
       aria-hidden="true"
@@ -54,16 +45,16 @@ export function DurationTrack({
     >
       <span
         className="duration-track-recorded"
-        style={{ width: `${recordedPercent}%` }}
+        style={{ width: `${segments.recorded * 100}%` }}
       />
       <span
         className="duration-track-estimated"
-        style={{ width: `${estimatedPercent}%` }}
+        style={{ width: `${segments.estimated * 100}%` }}
       />
-      {targetPercent !== null && (
+      {segments.target !== null && (
         <span
           className="duration-track-target"
-          style={{ left: `${targetPercent}%` }}
+          style={{ left: `${segments.target * 100}%` }}
         />
       )}
     </span>
@@ -96,7 +87,6 @@ export function Progress({
       <DurationTrack
         recorded={recorded ?? 0}
         estimated={estimated}
-        total={Math.max(target, seconds)}
         target={target}
       />
     </div>

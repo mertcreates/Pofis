@@ -1,6 +1,7 @@
 import { formatClock, formatDate } from "@/domain/time";
 import { dateKey } from "@/domain/rules/calendar";
 import { ui } from "@/lib/ui-text.js";
+import { EXTRA_TIME_STEP_MINUTES } from "./navigation";
 
 export function DemoDayPicker({
   dates,
@@ -66,8 +67,8 @@ export function DemoDayPicker({
           id="demo-extra-time"
           type="range"
           min={0}
-          max={Math.max(maxExtraMinutes, 15)}
-          step={15}
+          max={Math.max(maxExtraMinutes, EXTRA_TIME_STEP_MINUTES)}
+          step={EXTRA_TIME_STEP_MINUTES}
           value={extraMinutes}
           aria-valuetext={extraTimeLabel}
           disabled={maxExtraMinutes === 0}

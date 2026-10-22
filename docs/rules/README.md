@@ -67,6 +67,7 @@ Oklar kural sonuçlarının kullanıldığı yerleri gösterir. Rapor uyarlamas�
 | Metin ve marka | [ui-text](../../src/lib/ui-text.js), [ton rehberi](../brand/pofi-tone-guide.md) ve [görsel kaynaklar](../brand/assets.md) |
 | Kaynak tazeliği ve istek yaşamı | [use-pdks](../../src/data/use-pdks.ts): başarısız yenilemede eski rapor, geç kalan yanıtın ayrılması ve oturum bitişinde temizleme |
 | PDKS hata sözleşmesi | [pdks-failure](../../src/lib/pdks-failure.ts): ortak sınıflandırma ve toparlanma; [hata sözleşmesi](../pdks-errors.md) taşıma, durum ve sunum sahiplerini açıklar |
+| Telegram girdileri | [telegram-input](../../src/lib/telegram-input.ts): token ve kişisel sohbet kimliği biçimi; form, keşif ve sağlayıcı adaptörü aynı sahibi kullanır |
 | Demo verisi ve saati | [Demo rehberi](../demo.md): yakalama, gezinti ve istemci sahipleri; canlı görünümle ortak hesaplar |
 | Yemek menüsü | [Menü sözleşmesi](meal-menu.md): TRT kaynağı, tarih sınırı, önbellek ve kategori ayrıştırma; [sunucu](../../src/server/meals.ts), [sunum](../../src/lib/meals/presentation.ts) ve [modal](../../src/components/meals/menu-modal.tsx) |
 

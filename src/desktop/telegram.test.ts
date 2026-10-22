@@ -50,3 +50,16 @@ test("sohbet keşfi offset göndermeden kişisel sohbetleri tekilleştirir", asy
   }));
   expect(await telegram.chats(input.token)).toEqual([{ id: "12345", name: "Fixture" }]);
 });
+
+test("sohbet keşfi tokenı temizler; geçersiz tokenla sağlayıcıya erişmez", async () => {
+  let calls = 0;
+  const telegram = createTelegram(async url => {
+    calls++;
+    expect(url).toBe(`https://api.telegram.org/bot${input.token}/getUpdates`);
+    return Response.json({ ok: true, result: [] });
+  });
+  await expect(telegram.chats("invalid")).rejects.toThrow();
+  expect(calls).toBe(0);
+  expect(await telegram.chats(` ${input.token} `)).toEqual([]);
+  expect(calls).toBe(1);
+});

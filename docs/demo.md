@@ -21,11 +21,9 @@ Gün senaryoları: Hedefin altında → 15 Ekim; Tekrarlanan geçiş → 7 Ekim;
 
 ## Mesai bildirimi ayarları
 
-Yan menüdeki Bildirimler, Electron ile aynı [NotificationSettings](../src/components/notifications/settings.tsx) ekranını açar. Kontroller, açık kaydetme eylemi ve Telegram kurulumu aynı bileşenden gelir; demoya özel görünüm veya stil bulunmaz.
+Yan menüdeki Bildirimler, Electron ile aynı [NotificationSettings](../src/components/notifications/settings.tsx) ekranını açar. Kontroller, açık kaydetme eylemi ve Telegram kurulumu aynı bileşenden gelir.
 
-[Demo adaptörü](../src/demo/use-notifications.ts) yalnız durum ve işlem sonuçlarını sağlar. Tercihler başlangıçta kapalıdır. Süre ve kanal seçimleri kaydedilebilir; Telegram kurulumu örnek kişisel sohbeti bulur, bağlantı kurar ve kaldırır. Deneme gönderimleri yalnız örnek başarı sonucuyla tamamlanır. Gerçek token gerektirmez; girilen token saklanmaz. Ağ, Electron köprüsü, işletim sistemi bildirimi veya kalıcı depolama kullanılmaz. Sayfa yenilenince bildirim tercihleri ve örnek bağlantı sıfırlanır.
-
-Masaüstünün gerçek bağlantı ve gönderim davranışını [bildirim sözleşmesi](rules/notifications.md) açıklar.
+[Demo adaptörü](../src/demo/use-notifications.ts), işlemleri bellekte örnek sonuçlarla tamamlar. Tercihler başlangıçta kapalıdır; süre/kanal kaydı, örnek sohbet keşfi, Telegram bağlantısı/kaldırma ve deneme gönderimi yapılabilir. Formda örnek token kullanın. Tercihler ve bağlantı sayfa yenilenince sıfırlanır; gerçek sağlayıcı, Electron ve kalıcı profil kabulü [bildirim sözleşmesine](rules/notifications.md) göre yapılır.
 
 ## Hata ekranları ve durum mesajları
 
@@ -45,7 +43,7 @@ Senaryolar canlı ekranlarla aynı [hata bileşenini](../src/components/request-
 
 Yerel modal ve örnek plan senaryo/sekme değişiminde sıfırlanır. Bu örneklerin saklama alanı yalnız süreç belleğidir.
 
-Önizleme sahipleri: [hatalar](../src/demo/error-preview.tsx), [durum mesajları](../src/demo/notice-preview.tsx), [yerel modal senaryoları](../src/demo/local-preview.tsx). Ortak DashboardView bu senaryoları bilmez.
+Önizleme sahipleri: [hatalar](../src/demo/error-preview.tsx), [durum mesajları](../src/demo/notice-preview.tsx), [yerel modal senaryoları](../src/demo/local-preview.tsx). Ortak DashboardView senaryo içeriğini `children` olarak alır.
 
 ## Veri ve zaman
 
@@ -80,9 +78,10 @@ Yakalanan veride gerçek son hareketi giriş olan gün bulunmuyor. Demo ek süre
 
 - [Sunucu adaptörü](../src/demo/report.ts) fixture'ı ortak rapor sözleşmesiyle doğrular, haftalara böler ve mevcut Pofi not üreticisini sabit örnek anahtarla kullanır.
 - [Demo gezinti sahibi](../src/demo/navigation.ts) kullanılabilir günleri, sabit önizleme saatini, seçilen tarihe kadarki raporu ve geçerli son harekete bağlı sanal açık girişi yönetir. Takvim işlemleri [ortak takvim sahibinden](rules/calendar.md) gelir; süre/plan/Pofi formülleri [ortak rapor hazırlığında](../src/domain/report.ts) kendi kural sahiplerinden alınır.
+- Ek süre adımı `EXTRA_TIME_STEP_MINUTES` ile gezinti sahibinde yönetilir; hesap doğrulaması, gün sonu sınırı ve gün seçicinin `step`/kapalı kontrol üst sınırı bu değeri kullanır.
 - [Demo istemcisi](../src/demo/dashboard.tsx) seçili günü ve o güne ait geçici ek süreyi tutar; hafta ve sanal saat bu seçimden türetilir. [Gün seçici](../src/demo/day-picker.tsx) gün/süre kontrollerini ve açıklamaları sunar. [Ortak DashboardView](../src/components/dashboard/view.tsx) demo istemcisinin oluşturduğu içeriği standart children alanında sunar; hafta seçicinin üst sınırı yakalama tarihidir. Canlı [Dashboard](../src/components/dashboard.tsx) kendi saatini ve PDKS hook'unu yönetir.
 - [Plan depolama adaptörü](../src/data/work-plans.ts) demo anahtarlarını `demo:` önekiyle ayırır. Demo planları canlı planları değiştirmez; anında kayıt ve hata davranışı ortak kalır. Görünüm tercihi uygulama genelinde paylaşılır.
-- [Route](../src/app/demo/page.tsx) statik üretilir. Demo gezinme/yenileme akışı PDKS, oturum ve heartbeat API'lerini çağırmaz.
+- [Route](../src/app/demo/page.tsx) statik üretilir; gezinme ve yenileme fixture üzerinde çalışır.
 
 `/demo` uygulamayla birlikte sunulan, oturumsuz erişilebilir bir sayfadır. `noindex, nofollow` arama motoru tercihidir; erişim kısıtı sağlamaz. Dağıtım kapsamını [dağıtım rehberi](deployment.md) açıklar.
 

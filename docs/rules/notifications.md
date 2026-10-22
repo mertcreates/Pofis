@@ -9,6 +9,7 @@
 - [notification-runtime.ts](../../src/desktop/notification-runtime.ts) Electron ana sürecinde zamanlamayı, oturum yaşamını ve kanal başına gönderim kaydını yönetir.
 - [install-notifications.ts](../../src/desktop/install-notifications.ts) sınırlı IPC, native bildirim, yerel sunucu erişimi ve güvenli saklama adaptörlerini bağlar.
 - [telegram.ts](../../src/desktop/telegram.ts) kullanıcının botunu ve kişisel sohbetini doğrular; mesajları Telegram Bot API ile gönderir.
+- [telegram-input.ts](../../src/lib/telegram-input.ts) token ve kişisel sohbet kimliği biçiminin sahibidir. Manuel formun `pattern` değeri, keşfedilen sohbetlerin süzülmesi ve bağlantı girdisi aynı kimlik kuralını kullanır. Sohbet keşfi tokenı bağımsız doğrular.
 - [ui-text.js](../../src/lib/ui-text.js) gönderilen bildirimlerin başlık/gövdelerini `notificationMessages`, ayar ekranını `notifications`, Telegram kurulumunu `telegramSetup`, hata metinlerini `notificationErrors` ve `telegramErrors` altında tutar. Kural ve sağlayıcılar bu metinleri kullanır; zamanlama ve gönderim kararları kendi sahiplerinde kalır.
 
 ## Koşullar ve zamanlama
@@ -27,7 +28,7 @@ Masaüstünde bir dakikalık oturum heartbeat'ini ana süreç gönderir. İlk ot
 
 ## Gönderim ve hesap ayrımı
 
-Sunucu, Pofi hesap anahtarından bildirimlere özgü SHA-256 hesap kimliğini ve sabit oturum bitiş anını üretir. Kaynak anahtar ve PDKS çerezleri renderer'a verilmez. Hesap değişimi, başarılı çıkış, doğrulanmış oturum bitişi ve 8 saat TTL, ilgili arka plan işini durdurur. Giriş/çıkış işlemi sırasında gönderimler askıya alınır; başarısız çıkışta mevcut oturum yeniden bağlanır.
+Sunucu, Pofi hesap anahtarından bildirimlere özgü SHA-256 hesap kimliğini ve sabit oturum bitiş anını üretir. Kaynak anahtar ve PDKS çerezleri renderer'a verilmez. Hesap değişimi, başarılı çıkış, doğrulanmış oturum bitişi ve [oturum TTL'inin](session-policy.md) dolması ilgili arka plan işini durdurur. Giriş/çıkış işlemi sırasında gönderimler askıya alınır; başarısız çıkışta mevcut oturum yeniden bağlanır.
 
 Kalıcı tekrar anahtarı hesap + İstanbul tarihi + bildirim türü + kanaldır. Aynı gün gönderilmiş tür, hedef sonradan değişse de aynı kanalda tekrarlanmaz. Son yedi günün kayıtları korunur. Gönderim öncesi `pending` diske yazılır; kayıt yazılamıyorsa mesaj gönderilmez. Sağlayıcı kabulü `accepted` olur; bu durum okunma kanıtı değildir.
 
@@ -41,7 +42,7 @@ Ortak [TelegramSetup](../../src/components/notifications/telegram-setup.tsx) mod
 
 Bot tokenı ve sohbet bağlantısı Electron `safeStorage` ile şifrelenir; şifreli değer profilin `notifications/<hesap>.json` dosyasında saklanır. Güvenli saklama kullanılamıyorsa bağlantı kaydedilmez. Linux’ta basic_text ve unknown arka uçları da kullanılamayan güvenli saklama sayılır; Ubuntu GNOME anahtarlığı gerekir. Token durum yanıtına veya loglara eklenmez. Bağlantı kaldırılınca şifreli kayıt silinir. Tercihler ve kanal sonuçları aynı hesap dosyasındadır; bozuk kayıt korunur ve hata gösterilir. JSON yazıları sıralıdır; geçici dosya atomik yeniden adlandırılır. Elektrik kesintisine karşı fsync garantisi verilmez.
 
-macOS durum yanıtındaki güvenli saklama alanı Keychain desteğini belirtir; [güvenli saklama adaptörü](../../src/desktop/secure-storage.ts) açılış, gezinme ve duraklatma sırasında senkron Keychain sorgusu yapmaz. Keychain erişimi Telegram bağlantısını şifreleme veya mevcut bağlantıyı çözme sırasında yapılır; erişim reddedilirse açık token kaydedilmez. Bu davranış ad-hoc imzalama ve installer doğrulamasını değiştirmez.
+macOS durum yanıtındaki güvenli saklama alanı Keychain desteğini belirtir; [güvenli saklama adaptörü](../../src/desktop/secure-storage.ts) açılış, gezinme ve duraklatma sırasında senkron Keychain sorgusu yapmaz. Keychain erişimi Telegram bağlantısını şifreleme veya mevcut bağlantıyı çözme sırasında yapılır; erişim reddedilirse açık token kaydedilmez.
 
 Gönderilen içerik bildirim başlığı ve hesaplanan çıkış saatini anlatan kısa metindir. Telegram'a PDKS kullanıcı adı, parola, kaynak çerezi veya raporun tamamı gönderilmez.
 
@@ -51,7 +52,7 @@ Gönderilen içerik bildirim başlığı ve hesaplanan çıkış saatini anlatan
 
 Bildirimler yan menüden açılır. Kanal tercihleri ve ön süre, açık kaydetme eylemiyle uygulanır; Mesaim'e dönüp yeniden açıldığında kaydedilmemiş seçimler korunur. Ön süre 5 / 10 / 15 / 30 dakika veya 1–120 aralığında özel değerdir. Telegram kurulumu Bildirim kanalları bölümünden açılır. Bağlı olmayan kanalın kapalı tercihi açılamaz; daha önce açık kaydedilmiş tercih kapatılabilir. Yerleşim, switch ve popover kararları [DESIGN](../../DESIGN.md#bildirim-kontrolleri) sahibindedir.
 
-Normal web oturumunda aynı ekran salt okunurdur ve masaüstü gereksinimini gösterir. Masaüstü, web ve `/demo` aynı [NotificationSettings](../../src/components/notifications/settings.tsx) bileşenini kullanır. Demo, masaüstüyle aynı etkileşimleri [bellekte çalışan adaptörle](../../src/demo/use-notifications.ts) sunar; bağlantı ve gönderim sonuçları örnektir, gerçek API veya Electron köprüsü kullanılmaz. Demo tercihleri sayfa yenilenince sıfırlanır. Zamanlayıcı Electron ana sürecinde kalır.
+Masaüstü, web ve `/demo` aynı [NotificationSettings](../../src/components/notifications/settings.tsx) bileşenini kullanır. Normal web oturumunda ekran salt okunurdur ve masaüstü gereksinimini gösterir. [Demo bildirimleri](../demo.md#mesai-bildirimi-ayarları) aynı akışı örnek sonuçlarla sunar; gerçek zamanlayıcı Electron ana sürecindedir.
 
 Native bildirimin işletim sistemi kaynak adı **Pofis**, içerik ikonu `public/pofi/pofi-mark-256.png` olur. Windows paketleyicisi EXE ikonuyla birlikte `ProductName`, `FileDescription`, `InternalName` ve `OriginalFilename` alanlarını Pofis olarak işler; Electron'un bildirim kısayolu adı EXE `ProductName` alanından gelir. Süreç ve Başlat menüsü kısayolu aynı `app.pofis.client` kimliğini kullanır. macOS uygulama adı ve ikonu bundle metadata'sından gelir. Native bildirime tıklama çalışan Pofis penceresini açar.
 

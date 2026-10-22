@@ -1,4 +1,7 @@
 import { ui } from "../lib/ui-text.js";
+import { SESSION_POLICY } from "@/domain/rules/session-policy";
+import { REPORT_ACCESS } from "@/domain/rules/report-access";
+import { isSessionExpired } from "@/lib/pdks-failure";
 import { join } from "node:path";
 import type { App, IpcMain, Session, BrowserWindow, PowerMonitor, SafeStorage, Notification as ElectronNotification } from "electron";
 import { createNotificationRuntime } from "./notification-runtime";
@@ -31,10 +34,11 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
     const response = await session.fetch(`${origin}${path}`, {
       credentials: "include", cache: "no-store", redirect: "error",
       method,
-      signal: AbortSignal.any([signal, AbortSignal.timeout(path === "/api/session/heartbeat" ? 10_000 : 90_000)]),
+      signal: AbortSignal.any([signal, AbortSignal.timeout(path === "/api/session/heartbeat" ? SESSION_POLICY.heartbeatTimeoutMs : 90_000)]),
     });
     const data = await response.json();
-    if (response.status === 401 && data?.code === "SESSION_EXPIRED") throw Object.assign(new Error(ui.internalErrors.sessionExpired), { code: "SESSION_EXPIRED" });
+    if (isSessionExpired({ status: response.status, code: data?.code }))
+      throw Object.assign(new Error(ui.internalErrors.sessionExpired), { code: "SESSION_EXPIRED" });
     if (!response.ok) throw new Error(ui.notificationErrors.reportFailed);
     return data;
   }
@@ -52,7 +56,7 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
       if (typeof data?.connected !== "boolean") throw new Error(ui.notificationErrors.sessionUnreadable);
       return data.connected === true ? data.notificationSession : null;
     },
-    readReport: (from, to, signal) => request(`/api/report?${new URLSearchParams({ person: "self", from, to })}`, signal),
+    readReport: (from, to, signal) => request(`/api/report?${new URLSearchParams({ person: REPORT_ACCESS.person, from, to })}`, signal),
     heartbeat: async signal => { await request("/api/session/heartbeat", signal, "POST"); },
     onExpired: () => emit("pofis:notifications:expired", null),
     verifyTelegram: (input, signal) => telegram.verify(input, signal),

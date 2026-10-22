@@ -3,7 +3,7 @@ import { dateKey, sourceTimestamp, weekDates } from "@/domain/rules/calendar";
 import { passageDay } from "@/domain/rules/passages.js";
 import type { Report } from "@/domain/report";
 
-const EXTRA_TIME_STEP_MINUTES = 15;
+export const EXTRA_TIME_STEP_MINUTES = 15;
 const EXTRA_TIME_STEP_MILLISECONDS = EXTRA_TIME_STEP_MINUTES * 60_000;
 
 function validateExtraMinutes(minutes: number, maximum: number) {

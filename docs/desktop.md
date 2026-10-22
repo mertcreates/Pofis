@@ -6,7 +6,7 @@ Pofis, Next.js standalone uygulamasını Electron'un dahili Node.js runtime'ıyl
 
 Masaüstü hedefleri kilitli `43.8.1` Electron sürümünü kullanır. [Electron 44](https://www.electronjs.org/blog/electron-44-0) macOS alt sınırını 13'e yükseltir; 43 ile hedef alt sınır macOS Monterey 12'dir. Motor değişikliklerinde açılış, imza/Gatekeeper ve profil geçişi aşağıdaki [motor geçişi kabulüyle](#motor-geçişi-kabulü) doğrulanır.
 
-Geçişte Chromium 152'den 150'ye, V8 15.2'den 15.0'a iner; Node 24.22.0 korunur. Electron yerel eklenti ABI'si 149'dan 148'e değişir. Masaüstü sunucusu JavaScript ve statik dosyalardan oluşur. Görseller doğrudan sunulur (`images.unoptimized`); kullanılmayan sharp/libvips bağımlılıkları masaüstü çıktısına alınmaz. Paket kabulü gerçek görsel baytlarını ve Geist fontunun yüklenmesini doğrular.
+Masaüstü sunucusu JavaScript ve statik dosyalardan oluşur. Görseller doğrudan sunulur (`images.unoptimized`); sharp/libvips bağımlılıkları masaüstü çıktısından çıkarılır. Paket kabulü görsel baytlarını ve Geist fontunun yüklenmesini doğrular.
 
 Tek dağıtım kanalı ve hedef başına manifest kullanılır. Profil yolu, `app.pofis.client` uygulama kimliği, sabit `http://127.0.0.1:3210` origin'i ve veri şemaları korunur. Motor değişiminde installer uygulama sürümünü karşılaştırır; yeni paket daha yüksek Pofis sürümü taşır. Motor seçimi hedef işletim sistemi, gerekli özellikler ve somut hata/backport durumuyla değerlendirilir.
 
@@ -14,7 +14,7 @@ Tek dağıtım kanalı ve hedef başına manifest kullanılır. Profil yolu, `ap
 
 Üretim ölçümü ve ağ sınırları [GA4 sözleşmesindedir](analytics.md).
 
-[Platform tanımı](../electron/platform.cjs) desteklenen işletim sistemi/mimariyi, executable adlarını, kaynak yollarını, çıktı dizinini ve `metadataFile` meta veri yolunu belirler. CI Windows paketini Windows'ta; iki macOS paketini ve Linux x64 paketini ARM64 macOS runner'ında hazırlar. Üç Unix hedefi tek taşınabilir Next çıktısını paylaşır; her pakette hedefe özgü Electron bulunur. Hazırlama, Electron platform/mimarisini ve sürümünü doğrular; uyuşmazlıkta kopyalamadan durur. Intel runtime `PlistBuddy` ve `lipo -verify_arch x86_64`, Linux runtime ELF/sürüm kontrolleriyle statik doğrulanır. Windows ve ARM64 macOS'ta yerel dinamik sorgu kullanılır. `release.json` yolu `metadataFile` üzerinden yönetilir.
+[Platform tanımı](../electron/platform.cjs) desteklenen işletim sistemi/mimariyi, executable adlarını, kaynak yollarını, çıktı dizinini ve `metadataFile` meta veri yolunu belirler. Hazırlama, Electron hedefini ve sürümünü doğrular; uyuşmazlıkta kopyalamadan durur. `release.json` yolu `metadataFile` üzerinden yönetilir. CI runner'ları, ortak derleme ve hedeflerin dinamik/statik kabulü [yayın rehberindedir](release.md#bir-sürüm-yayımlama).
 
 | Hedef | Uygulama | Paket çıktısı | Dağıtım manifesti |
 | --- | --- | --- | --- |
@@ -37,7 +37,7 @@ bun run test:desktop
 bun run test:desktop:smoke <paket-komutunun-yazdığı-klasör>
 ```
 
-[Derleme betiği](../scripts/electron/build.cjs) `POFIS_STANDALONE=1` ve `POFIS_DESKTOP_BUILD=1` ile Next çıktısını hazırlar; `public` ve `.next/static` dosyalarını standalone klasörüne ekler. SWC yalnız derleme makinesinde çalışır. macOS CI, ARM64'te üretilen taşınabilir çıktıyı `POFIS_SHARED_STANDALONE` yoluyla Intel paketleyicisine verir. Intel için Rosetta veya x64 Bun hazırlığı gerekmez. [Ortak paketleyici](../scripts/electron/package.cjs) çıktıyı `resources/app/server/` altına kopyalar. Intel CI, paketleyiciye `x64`, [ZIP üreticisine](../scripts/electron/release.cjs) `-Arch x64` verir. Yalnız Next'in izlediği üretim bağımlılıkları taşınır; kök `node_modules` ağacı kopyalanmaz. Windows junction bağlantıları dereference edilerek paket kaynak depodan bağımsızlaştırılır. Dağıtım üreticisi tüm hedeflerde aynı manifest şemasını, sürüm kontrolünü ve SHA-256 hesabını kullanır. Windows ZIP'i sistem `tar.exe` aracı deflate seviye 1 ile üretir; araç yoksa .NET `Fastest` kullanılır. macOS'ta `ditto`, `.app` izinlerini ve bağlantılarını korur.
+[Derleme betiği](../scripts/electron/build.cjs), `POFIS_STANDALONE=1` ve `POFIS_DESKTOP_BUILD=1` ile Next çıktısını hazırlar; `public` ve `.next/static` dosyalarını standalone klasörüne ekler. [Paketleyici](../scripts/electron/package.cjs), izlenen üretim bağımlılıklarını `resources/app/server/` altına kopyalar; Windows junction bağlantılarını gerçek dosyalara dönüştürür. [Dağıtım üreticisi](../scripts/electron/release.cjs) tüm hedeflerde aynı manifest şemasını, sürüm denetimini ve SHA-256 hesabını kullanır. Windows ZIP'i `.zip.partial` geçici dosyasında açık ZIP biçimi ve UTF-8 dosya adlarıyla (`zip:hdrcharset=UTF-8`), `tar.exe` deflate seviye 1 veya .NET `Fastest` ile; macOS arşivi izinleri ve bağlantıları koruyan `ditto` ile üretilir. Ortak standalone kullanımı [CI akışında](release.md#cache-ve-süre-ölçümü) açıklanır.
 
 Windows'ta [sunucu paketleyicisi](../scripts/electron/pack-server.cjs), Next sunucusunu, izlenen bağımlılıklarını ve statik dosyalarını `resources/app/server.asar` içinde toplar. `server/` altında gerçek çalışma dizini, giriş sarmalayıcısı, preload, bildirim ve ortak metin dosyaları kalır. Electron utility süreci arşivdeki kodu ve dosyaları okur; [ASAR sözleşmesi](https://www.electronjs.org/docs/latest/tutorial/asar-archives) gereği çalışma dizini gerçek klasördür. Next'in ürettiği girişteki `chdir` kaldırılır; beklenen giriş biçimi değişirse paketleme durur. Oturumlar kullanıcı profilinde, Next önbelleği bellekte kalır. macOS ve Linux ortak standalone dizinini kullanmaya devam eder.
 
@@ -89,7 +89,7 @@ Linux statik kontrolü, hedef Ubuntu kabul komutları ve kanıtın sınırları 
 
 [İzin işleyicisi](../electron/permissions.cjs), yalnız ana Pofis penceresinin `http://127.0.0.1:3210` adresindeki ana çerçevesine `clipboard-sanitized-write` izni verir. Böylece hata ekranındaki **Teknik ayrıntıları kopyala** işlemi tarayıcının pano API'siyle çalışır. Pano okuma, alt çerçeveler, diğer pencereler/adresler ve diğer izinler reddedilir. Hem izin kontrolü hem izin isteği aynı sınırı uygular. Güncelleme komutu aşağıdaki sınırlı IPC köprüsünden kopyalanır; renderer'a Node.js erişimi verilmez.
 
-`bun run test:desktop` izin sınırlarını sınar. Önce `bun run desktop:prepare` ile standalone çıktısını hazırla. `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`, hazır preload'u kullanarak geçici profilde gerçek Electron ve örnek metinle eski ret politikasındaki hatayı, izinli yazmayı, güncelleme komutunun panoya kopyalanmasını ve pano okuma reddini kontrol eder. Sistem panosu profiller arasında ortaktır; bu komut panoyu temizler ve yalnız geçici CI/VM masaüstünde çalıştırılır. Ortak CI build'i Windows ve ARM64 hedeflerinde bu kontrolü Next derlemesinden sonra ve paketlemeden önce çağırır; Intel ve macOS üzerinde üretilen Linux paketleri statik kontrollerle doğrulanır. Hedef pakette ayrıca hata ekranı → **Teknik ayrıntıları kopyala** → metin alanına yapıştır zincirini doğrulayın.
+İzin sınırları `bun run test:desktop` ile, gerçek pano yazma/okuma sınırı ve güncelleme komutunun kopyalanması [izole pano kabulüyle](verification.md#masaüstü-kabulü) doğrulanır. Sistem panosu profiller arasında ortaktır; pano betiğini izole CI/VM masaüstünde çalıştırın. Hedef pakette hata ekranı → **Teknik ayrıntıları kopyala** → metin alanına yapıştır zincirini kontrol edin.
 
 ## Dış bağlantılar
 
@@ -181,7 +181,7 @@ bun test ./scripts/electron/prepare-site.test.cjs
 
 [Hazırlama aracı](../scripts/electron/prepare-site.cjs), yerel manifestin gerçek paket boyutunu ve SHA-256 değerini doğrular. Hedef public depo adresini landing `package.json` içindeki `repository.url` alanından okur; göreli arşiv adresini GitHub Releases HTTPS adresine çevirir; Windows/macOS için ZIP, Linux için tar.gz uzantısını platform sahibinden alır. Yalnız ilgili platformun `public/releases/<hedef>/latest.json` dosyasını ve Windows installer’ını ya da üretilen ortak Unix installer’ını (`install.sh`) yazar. Çıktı, landing deposundaki manifest ve installer dosyalarıdır; yayın [sürüm akışında](release.md) gerçekleştirilir.
 
-Yerel hazırlık dosyaları üretir. Canlı paket, anonim indirme ve HTTPS kabulü kullanıcı yetkisiyle başlatılan [yayın akışında](release.md#bir-sürüm-yayımlama) yapılır.
+Canlı paket, anonim indirme ve HTTPS kabulü [yayın akışında](release.md#bir-sürüm-yayımlama) yapılır.
 
 ## Depo ve çıktı yerleşimi
 
@@ -278,13 +278,7 @@ Menüdeki **Bildirimler** hatırlatma tercihlerini açar. Kanal bağlantısı, r
 
 ## Tekrarlanabilir kabul
 
-```powershell
-bun run test:desktop
-bun run test:desktop:smoke
-bun run test:desktop:distribution
-# Landing'deki gerçek PowerShell komutu ve public installer kopyası:
-bun run test:desktop:distribution --startup-only --site ../pofis-landing
-```
+Komut seçimi [doğrulama rehberindedir](verification.md#masaüstü-kabulü). Aşağıdaki bölümler kabul betiklerinin kapsamını açıklar. Windows'ta hızlı başlangıç kabulü için `bun run test:desktop:distribution --startup-only --site ../pofis-landing` kullanılır; tam yükseltme kabulü normal dağıtım komutuyla yapılır.
 
 [Süreç testleri](../electron/server.test.cjs) izole fixture süreçleriyle timeout/kimlik/port/iptal/temizleme yollarını sınar. [Paket kabulü](../scripts/electron/smoke.cjs) gerçek Electron/Next standalone üzerinde görsel baytları ve font yüklenmesi, giriş formu, oturum API'si, demo, tek örnek, gezinme sınırı ve profil kalıcılığını kontrol eder; `--source` kaynak kabuğunu açar. Pencere kapatma kabulü, geçici loopback ana süreç debugger bağlantısıyla `BrowserWindow.close()` çağırır; native `isVisible()` üzerinden pencerenin gizlendiğini, pencere/renderer ve sunucunun çalıştığını, ardından açık çıkışla sürecin ve portun kapandığını doğrular. [Renderer görünürlüğü](https://www.electronjs.org/docs/latest/api/browser-window#page-visibility) Chromium'un örtülme ve arka plan çizim koşullarına da bağlıdır; native pencere kabulü kendi görünürlük API'sini kullanır. Renderer `window.close()` native kapatma olayını atladığı için bu kabulde kullanılmaz.
 
@@ -312,7 +306,7 @@ bun run test:desktop:distribution --from-release <önceki-yayının-yerel-latest
 
 `--from`, iki farklı motoru aynı geçici profilde açar; tema, canlı/demo planları, HttpOnly/Strict çerez, sunucu oturum dosyasının gerçek `/api/session` tarafından yüklenmesi ve bitiş zamanının korunmasını kontrol eder. Sentetik çerez UI isteklerinden ayrı bir yola aittir; API kabulü token'ı doğrudan yerel sunucuya gönderir, gerçek PDKS'e bağlanmaz. Bu kontrol gerçek kurum oturumunun geçerliliğini kanıtlamaz. `--from-release` girdisinin ZIP'i manifestle aynı klasörde bulunmalı; indirme boyutu/hash'i gerçek installer tarafından da doğrulanır. Bu seçenekle ilk güncelleme yeni gerçek pakete yapılır; hata ve toparlanma senaryolarında mevcut sürüm fixture'ları kullanılır.
 
-macOS 12'de ilk kurulum ve 43 → 43 uygulama güncellemesini; macOS 13+ üzerinde her iki mimaride 44 → 43 profil geçişini sınayın. `macos-15` CI sonucu Monterey çalışma kanıtı değildir. Installer yeni sürümün açılış hatasında otomatik eski motora dönmez; veri korunarak daha yüksek uygulama sürümüyle onarım yapılır. 44'e dönüş macOS 12 kapsamını değiştireceğinden ayrıca kullanıcı kararı gerektirir.
+Motor değişikliğinde desteklenen en eski macOS sürümünde ilk kurulum ve uygulama güncellemesini, her iki mimaride önceki/yeni motorla profil geçişini sınayın. Hedef macOS sürümünü test kaydında belirtin. Installer yeni sürümün açılış hatasında veriyi korur; onarım daha yüksek uygulama sürümüyle yapılır. İşletim sistemi destek kapsamını değiştiren motor seçimi ürün kararı gerektirir.
 
 Güncelleme akışı açılış bildirimi, platform komutunun kopyalanması ve installer'ın kullanıcı tarafından çalıştırılmasıyla tamamlanır.
 

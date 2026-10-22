@@ -9,10 +9,10 @@ Workflow, incelenmiş landing kaynağını `SITE_REVIEWED_COMMIT` ile sabitler. 
 ## Bir kez yapılacak kurulum
 
 1. Bağımsız landing projesinin incelenmiş içeriğini `mertcreates/pofis-landing` public deposunun `main` dalına yayımla. Paket arşivlerini GitHub Releases varlıklarında tut.
-2. GitHub'da yalnız bu public depoya erişen, **Contents: read and write** yetkili fine-grained PAT oluştur. Private uygulama deposunda Settings → Secrets and variables → Actions → Repository secrets altında **POFIS_RELEASE_TOKEN** adıyla secret ekle. Token'ı kaynak dosyasına veya workflow girdisine yazma. GitHub Free private depolarda environment secret desteklemediği için repository secret kullanılır. Yayın workflow'u ve betik yalnız `master` dalında elle başlatılan çalıştırmayı kabul eder; token süresi veya depo koruma kuralları yayını durdurabilir.
+2. GitHub'da yalnız bu public depoya erişen, **Contents: read and write** yetkili fine-grained PAT oluştur. Private uygulama deposunda Settings → Secrets and variables → Actions → Repository secrets altında **POFIS_RELEASE_TOKEN** adıyla secret ekle. Workflow token'ı bu repository secret üzerinden okur. Yayın workflow'u ve betik yalnız `master` dalında elle başlatılan çalıştırmayı kabul eder; token süresi veya depo koruma kuralları yayını durdurabilir.
 3. [Cloudflare Workers bağlantısı](#cloudflare-workers-bağlantısı) yalnız public landing deposunu yayımlar. `pofis.app` bağlantısı hazırdır; release mevcut Git entegrasyonunu kullanır.
 4. Private depoda GitHub Actions kullanımını aç. Ücretli kullanımı engelleyen bütçe sınırını yapılandır. Actions kotasını ve macOS runner tüketimini GitHub kullanım ekranından izle. Paketleri sürüm varlıklarında sakla.
-5. Bu depodaki incelenmiş workflow ve betikleri `master` dalına gönder. Bu maddeler dış sistem değişiklikleridir; yerel uygulama bunları gerçekleştirmez.
+5. Bu depodaki incelenmiş workflow ve betikleri `master` dalına gönder. Bu kurulum adımlarını ilgili GitHub ve Cloudflare hesaplarında tamamla.
 
 ## Landing geliştirme ve dağıtım hazırlığı
 
@@ -24,7 +24,7 @@ Build, dağıtım girdilerini ve üretilen statik dosyaları doğrular: manifest
 
 ## Cloudflare Workers bağlantısı
 
-Landing, `mertcreates/pofis-landing` deposunun `main` dalından Cloudflare Workers üzerinden otomatik yayımlanır; `pofis.app` bu yayına bağlıdır. Mevcut Git/domain ayarları korunur.
+Cloudflare Workers, public landing deposunun `main` dalını `pofis.app` adresinde yayımlar.
 
 Build komutu `bun install --frozen-lockfile && bun run build`, statik çıktı `out/` dizinidir. Release otomasyonu ana uygulama deposunda, site yayını Workers Git entegrasyonunda çalışır.
 
@@ -90,19 +90,19 @@ Electron sürümü değiştiğinde workflow öncesinde [motor geçişi kabulün�
 | macOS Intel | Aynı `macos-15` runner, ARM64 Bun ve x64 Electron | `Pofis-<sürüm>-darwin-x64.zip` |
 | Ubuntu x64 | Aynı `macos-15` runner, ARM64 Bun ve Linux x64 Electron; statik kabul | `Pofis-<sürüm>-linux-x64.tar.gz` |
 
-Dört hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Windows ve ARM64'te Electron kurulumu ve testlerden sonra tür kontrollü Next derlemesi, pano kabulü ve paketleme sırasıyla çalışır. Uygulama ve masaüstü testleri eşzamanlıdır; masaüstü test dosyaları dört Bun worker’ında çalışır. Paketleyici ürettiği klasörün tam yolunu stdout üzerinden koordinatöre verir; sonraki aşamalar bu paketi kullanır. Intel ve Linux paketleri aşağıdaki statik kontrollerden geçer. Windows ve ARM64 için izole runner masaüstünde pano kabulü, gerçek paket üzerinde görsel/font ve ortak pencere/süreç kabulü çalışır. Windows ayrıca gerçek ZIP ve landing komutuyla izole PowerShell kurulum, güncelleme, hata, temizlik ve kaldırma kabulünü çalıştırır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
+Dört hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Windows ve ARM64'te pano, gerçek paket/pencere/süreç ve görsel/font kabulü; Windows'ta ayrıca gerçek ZIP ve landing komutuyla installer kabulü çalışır. Intel ve Linux statik kontrolleri aşağıda açıklanır. Paketleyicinin stdout'a yazdığı tam klasör yolu sonraki aşamalara aktarılır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
 
 Paket içeriği, macOS imzalama ve installer davranışı [masaüstü rehberinde](desktop.md#ortak-platform-sözleşmesi) yönetilir. ARM64 installer kabulü gerçek ZIP ile çalışır; Gatekeeper temiz hedef cihazda doğrulanır.
 
 ## Cache ve süre ölçümü
 
-Windows ZIP üretimi sistem `tar.exe` aracını deflate seviye 1 ile kullanır; araç yoksa .NET `Fastest` yolu çalışır. Arşiv biçimi `.zip.partial` geçici uzantısında da açıkça ZIP seçilir; dosya adları `zip:hdrcharset=UTF-8` ile runner'ın kod sayfasından bağımsız yazılır. Kabul fixture'ları native ZIP'in `/` ve önceki .NET ZIP'lerinin `\` yollarını okuyabilir. Güncelleme grubu, 3210 başka uygulamaya aitken aynı sürümün indirilmeden yeniden açılmasını doğrular; onarım grubu bu kontrolü tekrarlamadan başarısız sürümden onarımı ve diğer sürecin korunmasını sınar. Kilit kabulünde ilk installer'ın manifest yanıtı, ikinci installer kilit nedeniyle reddedilene kadar tutulur; sabit süre beklenmez.
+Windows ZIP üretimi ve ASAR düzeni [paket sözleşmesinde](desktop.md#ortak-platform-sözleşmesi), kurulum/güncelleme/onarım testlerinin süreç ve arşiv kapsamı [tekrarlanabilir kabulde](desktop.md#tekrarlanabilir-kabul) yönetilir.
 
-Uygulama testleri ve masaüstü testleri eşzamanlı çalışır; ön kontrol süresini en geç tamamlanan kontrol belirler. Masaüstü testleri `--parallel=4` ile en fazla dört test dosyasını birlikte çalıştırır. Windows'ta Next testlerden sonra derlenir; testlerle örtüşmesi küçük runner'larda CPU baskısı ve süreç zaman aşımı ürettiği için bu aşamalar sıralıdır. Bütün kontroller ve Next tamamlanmadan pano kabulü veya paketleme başlamaz. Bildirim ve preload dosyaları standalone derlemesinde bir kez üretilir; pano kabulü ve paketleme hazır çıktıyı kullanır. Her kontrolün hatası paketlemeyi durdurur. Next derlemesi aynı `tsconfig.json` kapsamındaki kaynak ve testlerin tür kontrolünü yapar; CI aynı kontrol için ayrıca `tsc` başlatmaz. Tür hatası Next derlemesini durdurur ve paketleme başlamaz. Yerel `bun run typecheck` komutu korunur.
+Uygulama testleri ve masaüstü testleri eşzamanlı çalışır; ön kontrol süresini en geç tamamlanan kontrol belirler. Masaüstü testleri `--parallel=4` ile en fazla dört test dosyasını birlikte çalıştırır. Windows'ta Next testlerden sonra derlenir; testlerle örtüşmesi küçük runner'larda CPU baskısı ve süreç zaman aşımı ürettiği için bu aşamalar sıralıdır. Bütün kontroller ve Next tamamlanmadan pano kabulü veya paketleme başlamaz. Bildirim ve preload dosyaları standalone derlemesinde bir kez üretilir; pano kabulü ve paketleme hazır çıktıyı kullanır. Her kontrolün hatası paketlemeyi durdurur. Next derlemesi aynı `tsconfig.json` kapsamındaki kaynak ve testlerin tür kontrolünü de yapar; tür hatası paketlemeyi durdurur. Yerel kontrol `bun run typecheck` komutudur.
 
 Paket aktarımı arşiv boyutunu, SHA-256 değerini ve manifesti doğrular; landing dosyalarını yeniden üretmez. Ortak site hazırlığı, hedeflerin aktarımı tamamlandıktan sonra installer ve public manifestleri yazar.
 
-Windows sunucusu [ASAR paketine](desktop.md#ortak-platform-sözleşmesi) alınır; küçük dosyaların ZIP'ten açılması ve sürüm temizliği azalır. Onarılmış uygulama kurulum kilidi ve açıkken kaldırma reddi için çalışır bırakılır; arada kapatılıp yeniden açılmaz. Son kapanışta 3210'daki diğer uygulamanın korunduğu doğrulanır.
+Windows kurulum kabulünde her zincir kendi geçici kurulumunu ve profilini kullanır; 3210 portundaki dış sürecin korunduğu doğrulanır.
 
 Tek Apple Silicon runner kaynakları ve ARM64 Next cache’ini hazırlar. [Koordinatör](../scripts/electron/macos-ci.cjs), ARM64 paket üretimiyle Intel ve Linux çalışma dizinlerinin kilitli bağımlılık kurulumlarını birlikte başlatır. Next bir kez ARM64 Bun ile derlenir; iki x64 paket aynı çıktıyı `POFIS_SHARED_STANDALONE` üzerinden kullanır. [Taşınabilirlik kontrolü](../scripts/electron/standalone.cjs) her ortak sunucu kopyasında native dosyaları reddeder. SWC derleme aracıdır; sharp/libvips masaüstü trace’lerinden çıkarılır. Kaynaklar, Electron kurulumu, landing dosyaları ve süre özetleri hedefler için ayrı tutulur. Bun ve paketleme araçları runner mimarisinde kalır; Electron indirme platformu/mimarisi hedefe göre seçilir. ARM64 paketi taslaktan kurtarıldığında doğrulanmış ZIP bir kez açılır ve sunucu iki hedef için paylaşılır. Kurtarılan hedefler yeniden üretilmez. Üç zincirin tamamı başarılı olunca paket aktarımı başlar.
 

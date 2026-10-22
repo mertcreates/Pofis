@@ -1,17 +1,10 @@
 import { ui } from "../lib/ui-text.js";
+import { isTelegramChatId, readTelegramInput, readTelegramToken } from "@/lib/telegram-input";
+export { readTelegramInput } from "@/lib/telegram-input";
 export class DeliveryError extends Error {
   constructor(message: string, readonly retryAfterMs: number | null = null, readonly uncertain = false) { super(message); }
 }
 export type TelegramCredentials = { token: string; chatId: string; label: string };
-
-export function readTelegramInput(value: unknown): { token: string; chatId: string } {
-  const input = value as { token?: unknown; chatId?: unknown } | null;
-  if (!input || typeof input.token !== "string" || !/^\d{5,16}:[A-Za-z0-9_-]{20,100}$/.test(input.token.trim()) ||
-      typeof input.chatId !== "string" || !/^[1-9]\d{3,19}$/.test(input.chatId.trim())) {
-    throw new Error(ui.telegramErrors.invalidInput);
-  }
-  return { token: input.token.trim(), chatId: input.chatId.trim() };
-}
 
 export function createTelegram(fetchImpl: (url: string, init: RequestInit) => Promise<Response> = fetch) {
   async function call(credentials: { token: string }, method: string, body: object, signal?: AbortSignal) {
@@ -42,13 +35,13 @@ export function createTelegram(fetchImpl: (url: string, init: RequestInit) => Pr
   }
   return {
     async chats(token: string, signal?: AbortSignal): Promise<{ id: string; name: string }[]> {
-      const credentials = readTelegramInput({ token, chatId: "1000" });
+      const credentials = { token: readTelegramToken(token) };
       const updates = await call(credentials, "getUpdates", { timeout: 0, allowed_updates: ["message"] }, signal);
       if (!Array.isArray(updates)) throw new Error(ui.telegramErrors.unreadableChats);
       const chats = new Map<string, string>();
       for (const update of updates) {
         const chat = update?.message?.chat;
-        if (chat?.type === "private" && /^[1-9]\d{3,19}$/.test(String(chat.id))) {
+        if (chat?.type === "private" && isTelegramChatId(String(chat.id))) {
           chats.set(String(chat.id), typeof chat.first_name === "string" ? chat.first_name.slice(0, 100) : String(chat.id));
         }
       }

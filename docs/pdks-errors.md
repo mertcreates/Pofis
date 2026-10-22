@@ -4,7 +4,7 @@
 
 ## Sahipler
 
-- [pdks-failure.ts](../src/lib/pdks-failure.ts): hata sınıfları, izinli tanı alanları ve işlem bazında toparlanma sözleşmesi. React veya sunucu bağımlılığı taşımaz.
+- [pdks-failure.ts](../src/lib/pdks-failure.ts): ortak hata sınıfları, izinli tanı alanları ve işlem bazında toparlanma sözleşmesi.
 - [api-client.js](../src/lib/api-client.js): HTTP/JSON doğrulaması, tarayıcı ağ hatası ve istek iptali. [http.js](../src/server/http.js) sunucu hatasını aynı tanı alanlarıyla serileştirir.
 - [session-response.js](../src/lib/session-response.js): oturum GET yanıtındaki boolean durumu, giriş/heartbeat POST yanıtındaki `true` ve çıkış DELETE yanıtındaki `false` değerini doğrular. Eksik veya çelişkili başarılı yanıt `INVALID_RESPONSE` olur.
 - [pdks-state.ts](../src/data/pdks-state.ts): bağlantı, rapor tazeliği ve hata durumunun atomik geçişleri. [use-pdks.ts](../src/data/use-pdks.ts) istekleri ve iptali yürütür.
@@ -37,13 +37,15 @@ Yalnız doğru kod/durum çiftine sahip `SESSION_EXPIRED` oturumu bitirir. Kod i
 
 Bu çiftin tek sahibi `isSessionExpired` kontrolüdür; API temizliği, kaynak doğrulaması, keepalive ve istemci aynı koşulu kullanır. Kaynakta başarılı HTTP yanıtındaki giriş sayfası veya kaynak 401 yanıtı oturum bitişi üretir. `403/429/5xx` hata yanıtının gövdesi giriş formu içerse de HTTP hata sınıfı korunur. Bozuk form/yönlendirme adresi veya doğrulanamayan profil `SOURCE_CHANGED` olur. İstek hazırlığındaki uygulama hatası ağ hatası olarak maskelenmez; oturum iptali özgün nedeni korur, kaynak zaman aşımı bağlantı hatasıdır. Tarayıcıda yarıda kesilen/çözülemeyen gövde `NETWORK_ERROR`, geçersiz JSON `INVALID_RESPONSE` olur.
 
+[Masaüstü HTTP adaptörü](../src/desktop/install-notifications.ts) de yanıtın kod/durum çiftini `isSessionExpired` ile doğrular; doğrulanmış sonucu bildirim çalışma zamanına oturum bitişi olarak aktarır.
+
 Toparlanma işlemi hatanın sahibine döner: oturum kontrolü GET `/api/session`, rapor GET `/api/report`, çıkış DELETE `/api/session`. Giriş yalnız formdan POST edilir. Giriş/çıkış sürerken ilgili eylem kilitlenir. Giriş/çıkış sürerken hafta değişse de oturum işleminin sonucu uygulanır; rapor yükleme işlemi oturum işlemi tamamlandıktan sonra başlatılabilir. Yeni durum yalnız güncel rapor isteğinin yanıtıyla güncellenir. İstek sonunda FormData kimlik alanları ve formdaki şifre temizlenir. Kullanıcı adı tekrar deneme için yalnız açık formda korunur.
 
-Sistem hatası giriş kartının yerini normal hata ekranıyla alır; form içinde hata kartı gösterilmez. Giriş isteği hatasında “Girişe dön” hatayı temizleyip boş formu açar; POST isteğini tekrarlamaz. Oturum bitişi giriş formunda kutusuz, nötr durum metnidir. Pofi yanlış bilgide normal, sistem hatasında hata duruşunu kullanır; istek sürerken çalışma duruşundadır.
+Sistem hatası normal hata ekranında sunulur. “Girişe dön” hatayı temizleyip boş formu açar; yeni giriş isteği form gönderildiğinde başlar. Oturum bitişi giriş formunda kutusuz, nötr durum metnidir. Pofi yanlış bilgide normal, sistem hatasında hata duruşunu kullanır; istek sürerken çalışma duruşundadır.
 
 Eski rapor varken hata kısa bir bildirim olarak raporun üzerinde kalır; rapor yokken tek hata görünümü sunulur.
 
-Tam sayfa hata görünümü lavanta Pofi sahnesinde başlık, kısa açıklama ve işleme uygun ana eylemi sunar; masaüstünde Pofi sağda, dar ekranda üsttedir. Giriş, raporsuz hatalar ve demo aynı [RequestError](../src/components/request-error.js) sahibini kullanır. Eski rapor üzerindeki kompakt bildirim Pofi Sahne düzenini kullanır: lavanta yüzeyde mesaj ve eylem, sağda küçük Pofi, altta açık İz kaydı bulunur. Bildirim aynı [tanı bileşenini](../src/components/request-error-details.tsx) kullanır; tam sayfa sahnesi raporu kapatmaz.
+Tam sayfa hata ve rapor üzerindeki kompakt bildirim ortak [RequestError](../src/components/request-error.js) sahibini kullanır. Tam sayfa görünümü rapor yokken, kompakt bildirim mevcut raporun üzerinde sunulur. Lavanta Pofi sahnesi ve duyarlı yerleşim [DESIGN](../DESIGN.md#hata-ve-yardımcı-ekranlar) belgesinde yönetilir.
 
 Teknik ayrıntılar kutusuz İz kaydı düzeninde sürekli görünür. “Sorunun nedeni” güvenli açıklama, hata kodu ve kısa İstanbul zamanını içerir. “İstek ayrıntıları” Pofis API ve PDKS alanlarını kendi isteklerinin altında toplar; verisi bulunmayan kaynak grubu çizilmez. API ve PDKS HTTP durumları kendi istek bağlamında gösterilir. Alanlar yalnız boşlukla ayrılır, uzun yollar satır kırar. “Teknik ayrıntıları kopyala” tüm izinli alanları ve özgün zaman damgasını kopyalar; başarı veya erişim reddi durum metniyle bildirilir.
 

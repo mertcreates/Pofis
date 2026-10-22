@@ -31,7 +31,7 @@ Giriş doğrulaması `PizzyMain.aspx` profilinde tek ve boş olmayan kişi adın
 
 Farklı oturumların kaynak istekleri bağımsız başlar. Aynı oturumdaki WebForms işlemleri kendi istemcisinin `run` kuyruğunda yürür; böylece çerez ve form durumu tutarlı kalır. Her HTTP isteği politika zaman aşımını ve oturum iptal sinyalini kullanır.
 
-Kaynak HTTP hatası, bağlantı hatası ve bozuk kaynak yapısı [ortak hata sözleşmesinde](../pdks-errors.md) ayrılır. Başarılı HTTP yanıtındaki giriş sayfası ve kaynak 401 yanıtı oturum bitişi olarak sınıflandırılır. Diğer başarısız HTTP yanıtları kaynak HTTP hatası olarak işlenir. Oturum iptali özgün iptal nedenini korur; zaman aşımı bağlantı hatasıdır. Hazırlık aşamasındaki uygulama hataları kendi uygulama hatası sınıfıyla işlenir.
+Kaynak HTTP hatası, bağlantı hatası, oturum bitişi, iptal ve bozuk kaynak yapısının sınıflandırması [ortak hata sözleşmesindedir](../pdks-errors.md).
 
 Oturuma ait PDKS istemcisi son başarılı raporu `reportCacheMs` boyunca süreç belleğinde tutar. Anahtar kişi kapsamı, tarih aralığı ve İstanbul gününü içerir. Aynı anahtarın eşzamanlı çağrıları tek işe birleşir. Özgün alınma zamanı korunur; dönen nesneler bağımsız kopyadır. Aralık/gün değişimi ve süre dolumu yeni kaynak işi başlatır. HTTP yanıtı `Cache-Control: no-store` taşır.
 

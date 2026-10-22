@@ -4,14 +4,14 @@
 
 ## Tek sahip
 
-[session-policy.ts](../../src/domain/rules/session-policy.ts), `SESSION_POLICY` değerlerini tanımlar; sunucu durumu veya sır içermez.
+[session-policy.ts](../../src/domain/rules/session-policy.ts), istemci ve sunucunun kullandığı `SESSION_POLICY` değerlerini tanımlar.
 
 | Politika | Değer |
 | --- | --- |
 | Oturum çerezi | `pofis_session`; HttpOnly, SameSite=strict, Path=/ |
 | Sabit TTL | oluşturulma anından itibaren sabit 8 saat |
 | Token | 32 rastgele bayt |
-| İstemci heartbeat / zaman aşımı | 1 dakika / 10 saniye |
+| İstemci heartbeat ve bellek bakım döngüsü / heartbeat zaman aşımı | 1 dakika / 10 saniye |
 | Etkin istemci lease'i / kaynak keepalive | 10 dakika / 20 dakika |
 | Soğuk dosya taraması / en uzun backoff | 1 saat / 1 saat |
 | Kullanıcı adı / şifre üst sınırı | 200 / 1000 karakter |
@@ -27,7 +27,7 @@ Secure çerezi doğrudan HTTPS veya proxy'nin ilk `X-Forwarded-Proto` değeri `h
 - Yeniden bağlantıda yeni kimlik doğrulama/ilk kayıt başarısızsa mevcut oturum korunur. Eski kaydı silme ve geri alma hatalarının sınırları [yaşam döngüsünde](../architecture/multi-user-sessions.md#oturum-yaşam-döngüsü) tanımlıdır.
 - Başarılı raporun oturum kaydı yazılamazsa işlem API `INTERNAL_ERROR` / 500 yanıtıyla sona erer; başarı önbelleği yalnız kayıt tamamlandığında oluşturulur. Etkin oturum korunur; depolama düzeldikten sonraki deneme kaynağı yeniden çağırır. Kaynak işi zaten hata verdiyse özgün hata korunur, ikincil disk hatası güvenli koduyla loglanır.
 - Temizlik ve keepalive hatalarında sağlıklı oturumlar çalışmayı sürdürür. Dosya yazma/silme sırası, yeniden başlatma ve silinemeyen dosyanın sınırları mimari sahibinde yönetilir.
-- Yalnız `SESSION_EXPIRED` + 401 oturumu bitirir. Yanlış şifrede mevcut oturum korunur. İstemci GET'te boolean, giriş/heartbeat başarısında `true`, çıkışta `false` bekler. [Yanıt ve toparlanma sözleşmesi](../pdks-errors.md).
+- Oturum yanıtlarının doğrulanması, oturumu bitiren kod/durum çifti ve toparlanma eylemleri [hata sözleşmesinde](../pdks-errors.md) yönetilir.
 
 [Masaüstü](../desktop.md) aynı TTL kurallarını kullanır. Heartbeat sahibi Electron ana sürecidir; pencere gizliyken de bir dakikalık döngü sürer. [Bildirim sözleşmesi](notifications.md). Rapor önbelleği ve kaynak kapasitesi [kaynak politikasına](source-policy.md) aittir.
 
@@ -37,7 +37,10 @@ Secure çerezi doğrudan HTTPS veya proxy'nin ilk `X-Forwarded-Proto` değeri `h
 - [session-storage.js](../../src/server/session-storage.js): dosya kalıcılığı.
 - [http.js](../../src/server/http.js): çerez ve giriş sınırları.
 - [session-heartbeat.js](../../src/lib/session-heartbeat.js), [connection.tsx](../../src/components/connection.tsx): istemci süreleri ve giriş alanları.
+- [install-notifications.ts](../../src/desktop/install-notifications.ts): masaüstü heartbeat isteği web ile aynı `heartbeatTimeoutMs` değerini kullanır.
 
 ## Testler
 
 [Depolama](../../src/server/session-storage.test.js) · [Oturum yöneticisi](../../src/server/session-manager.test.js) · [Route](../../src/server/routes.test.js) · [HTTP](../../src/server/http.test.js) · [Oturum yanıtı](../../src/lib/session-response.test.ts) · [Heartbeat](../../src/lib/session-heartbeat.test.js).
+
+[Adaptör testi](../../src/domain/rules/policy-adapters.test.ts), yalnız politika süresini bellekte değiştirip web ve masaüstü heartbeat isteklerinin yeni sürede iptal edildiğini doğrular.

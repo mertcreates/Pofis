@@ -26,7 +26,7 @@ Raporun zorunlu hareket listesi saat sırasıyla değerlendirilerek giriş/çık
 
 Bugünkü güvenilir açık giriş geçerli durumdur. Geçersiz saatte `time` alanı `null` olur.
 
-`hasReliableOpenEntry`, son hareket giriş olduğunda ve gün içinde okunamayan saat/yön bulunmadığında `true` olur. Art arda girişte son giriş açık kabul edilir; canlı süre yine günün ilk girişinden hesaplanır. Tekrarlar `issues` içinde uyarı olarak kalır ve tek başına `uncertain` üretmez. İlk eşleşmeyen çıkış `issues` içinde korunur; bugünkü güvenilir son açık giriş [günlük kayıt durumunda](record-status.md) bu önceki soruna rağmen `open` veya `ongoing` olur. Son açık giriş yoksa eşleşmeyen çıkış belirsizliği korunur. Geçersiz hareket güvenilir açık girişi engeller. Kayıt satırları tekrarın önceki hareketini eşleşmeyen, son girişi açık veya sonraki çıkışla eşleşmiş gösterir.
+`hasReliableOpenEntry`, son hareket giriş olduğunda ve gün içinde okunamayan saat/yön bulunmadığında `true` olur. Art arda girişte son giriş açık kabul edilir. Kayıt satırları tekrarın önceki hareketini eşleşmeyen, son girişi açık veya sonraki çıkışla eşleşmiş gösterir. Tekrar ve ilk eşleşmeyen çıkış `issues` içinde korunur; [günlük durum](record-status.md) bu sorunları güvenilir açık girişle birlikte değerlendirir. [Canlı süre](duration.md) günün ilk girişinden hesaplanır.
 
 ## Bağımlılıklar
 
