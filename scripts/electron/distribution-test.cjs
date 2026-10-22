@@ -80,7 +80,7 @@ async function run() {
   const updatedVersion = previousManifest ? candidate.version : `${major}.${minor}.${patch + 1}`;
   const [brokenVersion, repairedVersion] = [2, 3].map(offset => `${major}.${minor}.${patch + offset}`);
   let active = first;
-  let delayManifest = false;
+  let manifestGate;
   let manifestRequests = 0;
   let zipRequests = 0;
   let cdp;
@@ -94,7 +94,7 @@ async function run() {
       : Bun.file(join(__dirname, "install.ps1")), { headers: { "Content-Type": "text/plain; charset=utf-8" } });
     if (path === "/latest.json") {
       manifestRequests++;
-      if (delayManifest) await Bun.sleep(2000);
+      if (manifestGate) await manifestGate;
       return Response.json(active);
     }
     if (path === "/broken.zip") return new Response("corrupt archive");
@@ -314,27 +314,39 @@ async function run() {
     try {
       await expectInstall(true);
       assert.equal(await (await fetch(ORIGIN)).text(), "another app");
-      await expectInstall(true);
-      await close();
-      assert.equal(await (await fetch(ORIGIN)).text(), "another app");
+      // Same-version reuse on the occupied port is already proved by the update group.
+      // Keep the repaired instance for lock/reuse and open-app uninstall checks.
+      if (!group) {
+        await close();
+        assert.equal(await (await fetch(ORIGIN)).text(), "another app");
+      }
     } finally { occupied?.stop(true); }
-    passed("3210 başka uygulamadayken kurulum/açılış ve ikinci açılış başarılı; diğer süreç korunuyor");
-    delayManifest = true;
+    passed("başarısız sürüm onarıldı; 3210'daki diğer süreç kurulum ve açılış boyunca korundu");
+    let releaseManifest;
+    manifestGate = new Promise(done => { releaseManifest = done; });
     const previousRequests = manifestRequests;
     const one = installer(false);
-    await until(() => manifestRequests > previousRequests);
-    const two = await installer(false).done;
-    assert.notEqual(two.code, 0);
-    assert.match(two.output, /başka bir Pofis kurulumu/);
-    const firstResult = await one.done;
+    let firstResult;
+    try {
+      await until(() => manifestRequests > previousRequests);
+      const two = await installer(false).done;
+      assert.notEqual(two.code, 0);
+      assert.match(two.output, /başka bir Pofis kurulumu/);
+    } finally {
+      // Keep the owner inside the real installer lock until the contender finishes.
+      releaseManifest();
+      manifestGate = null;
+      firstResult = await one.done;
+    }
     assert.equal(firstResult.code, 0, firstResult.output);
     passed("eşzamanlı iki kurulumda tek sahip kilidi");
     await writeFile(join(profile, 'uninstall-preserve.txt'), 'preserve');
-    // The lock winner already opened this installation; use it for open-app removal refusal.
+    // The lock winner verified this installation; use it for open-app removal refusal.
     const blockedRemoval = await ps(`& ${quote(join(install, 'uninstall.ps1'))} -Confirmed`).done;
     assert.notEqual(blockedRemoval.code, 0);
     assert.match(blockedRemoval.output, /Pofis açık/);
     await close();
+    if (group) assert.equal(await (await fetch(ORIGIN)).text(), "another app");
     const removal = await ps(`& ${quote(join(install, 'uninstall.ps1'))} -Confirmed`).done;
     assert.equal(removal.code, 0, removal.output);
     await assert.rejects(access(install));

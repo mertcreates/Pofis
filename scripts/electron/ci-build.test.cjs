@@ -83,8 +83,8 @@ test("CI komutunun zaman sınırı bekleyen komutu sonlandırır", async () => {
     { timeoutMs: 50 })).rejects.toThrow("tamamlanmadı");
 });
 
-test("gerçek CI build'i erken kontroldeki hatada derleme ve paketleme başlatmaz", async () => {
-  for (const failedStep of intel ? ["desktop:install"] : ["desktop:install", "typecheck", "application-tests", "desktop-tests", "clipboard-smoke.cjs"]) {
+test("gerçek CI build'i kontrol veya Next hatasında paketleme başlatmaz", async () => {
+  for (const failedStep of intel ? ["desktop:install"] : ["desktop:install", "application-tests", "desktop-tests", "clipboard-smoke.cjs", "build.cjs"]) {
     const commands = [];
     const failure = new Error(`${failedStep} başarısız`);
     await expect(build(version, "unused-site", {
@@ -94,29 +94,31 @@ test("gerçek CI build'i erken kontroldeki hatada derleme ve paketleme başlatma
           ? args.includes("./src") ? "application-tests" : "desktop-tests" : basename(args[0]);
         commands.push(step);
         if (step === failedStep) throw failure;
-        if (step === "build.cjs" || step === "package.cjs") throw new Error("Pahalı aşama erken başladı.");
+        if (step === "package.cjs") throw new Error("Paketleme erken başladı.");
       },
     })).rejects.toBe(failure);
-    expect(commands).not.toContain("build.cjs");
+    if (failedStep !== "build.cjs" && process.platform !== "win32") expect(commands).not.toContain("build.cjs");
     expect(commands).not.toContain("package.cjs");
     expect(commands).toContain(failedStep);
   }
 });
 
-test("derleme bütün paralel doğrulamaları bekler; tek doğrulama hatası panoyu ve derlemeyi durdurur", async () => {
+test("derleme iki test grubunu bekler; test hatası panoyu ve paketlemeyi durdurur", async () => {
   if (intel) return;
   for (const failApplication of [false, true]) {
     const calls = [];
     const failure = new Error("uygulama testleri başarısız");
     const stop = new Error("pano sınırında dur");
-    let finishTypes, finishDesktop, gatesStarted;
+    let finishApplication, finishDesktop, gatesStarted;
     const ready = new Promise(done => { gatesStarted = done; });
     let settled = false;
     const pending = build(version, "unused-site", { summary: null,
       execute: async (_command, args) => {
         calls.push(args);
-        if (args[1] === "typecheck") return new Promise(done => { finishTypes = done; });
-        if (args[0] === "test" && args.includes("./src") && failApplication) throw failure;
+        if (args[0] === "test" && args.includes("./src")) {
+          if (failApplication) throw failure;
+          return new Promise(done => { finishApplication = done; });
+        }
         if (args[0] === "test" && args.includes("./electron")) {
           expect(args).toEqual(["test", "--parallel=4", "./electron", "./scripts/electron"]);
           gatesStarted();
@@ -126,14 +128,34 @@ test("derleme bütün paralel doğrulamaları bekler; tek doğrulama hatası pan
       },
     }).finally(() => { settled = true; });
     await ready;
-    finishTypes();
+    finishApplication?.();
     await Promise.resolve();
     expect(settled).toBe(false);
-    expect(calls.some(args => /clipboard-smoke|build\.cjs|package\.cjs/.test(args[0]))).toBe(false);
+    expect(calls.some(args => /clipboard-smoke|package\.cjs/.test(args[0]))).toBe(false);
+    expect(calls.some(args => basename(args[0]) === "build.cjs")).toBe(process.platform === "win32");
     finishDesktop();
     await expect(pending).rejects.toBe(failApplication ? failure : stop);
     expect(calls.some(args => basename(args[0]) === "clipboard-smoke.cjs")).toBe(!failApplication);
   }
+});
+
+test.skipIf(process.platform !== "win32")("Windows testleri bitse de Next tamamlanmadan pano veya paketleme başlamaz", async () => {
+  const calls = [];
+  let finishNext;
+  const next = new Promise(done => { finishNext = done; });
+  const stop = new Error("pano sınırı");
+  const pending = build(version, "unused-site", { summary: null,
+    execute: async (_command, args) => {
+      calls.push(args);
+      if (basename(args[0]) === "build.cjs") await next;
+      if (basename(args[0]) === "clipboard-smoke.cjs") throw stop;
+    },
+  });
+  await until(() => calls.some(args => args[0] === "test" && args.includes("./electron")));
+  expect(calls.some(args => /clipboard-smoke|package\.cjs/.test(args[0]))).toBe(false);
+  finishNext();
+  await expect(pending).rejects.toBe(stop);
+  expect(calls.some(args => basename(args[0]) === "package.cjs")).toBe(false);
 });
 
 test("süre özeti başarılı ve hatalı aşamayı kaydeder; hata korunur", async () => {

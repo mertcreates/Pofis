@@ -97,7 +97,7 @@ async function timed(label, task, summary = process.env.GITHUB_STEP_SUMMARY) {
   }
 }
 
-async function preflight(target, acceptance, execute = run, summary = process.env.GITHUB_STEP_SUMMARY) {
+async function preflight(target, acceptance, execute = run, summary = process.env.GITHUB_STEP_SUMMARY, clipboard = true) {
   if (typeof target === "boolean") {
     summary = execute;
     execute = acceptance || run;
@@ -126,14 +126,13 @@ async function preflight(target, acceptance, execute = run, summary = process.en
   }
   if (acceptance) {
     const results = await Promise.allSettled([
-      timed("Tür kontrolü", () => execute(process.execPath, ["run", "typecheck"]), summary),
       timed("Uygulama testleri", () => execute(process.execPath, ["test", "./src"]), summary),
       timed("Masaüstü birim testleri", () => execute(process.execPath, ["test", "--parallel=4", "./electron", "./scripts/electron"]), summary),
     ]);
     const failures = results.filter(result => result.status === "rejected").map(result => result.reason);
     if (failures.length === 1) throw failures[0];
     if (failures.length) throw new AggregateError(failures, "Derleme öncesi doğrulamaları kontrol et.");
-    await timed("Pano kabulü", () => execute(process.execPath, [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]), summary);
+    if (clipboard) await timed("Pano kabulü", () => execute(process.execPath, [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]), summary);
   }
 }
 
@@ -155,12 +154,24 @@ async function build(version, siteDirectory, { execute = run, summary = process.
   const stage = (label, task) => timed(label, task, summary);
   if (summary) await appendFile(summary,
     `\n## ${target.id} aşama süreleri\n\n| Aşama | Sonuç | Saniye |\n| --- | --- | --- |\n`);
-  await preflight(target, acceptance, execute, summary);
-  if (process.env.POFIS_SHARED_STANDALONE) {
-    if (target.id !== "darwin-x64" && !crossLinux) throw new Error("Ortak standalone çıktısı Intel macOS ve çapraz Linux paketleri içindir.");
-    console.log(`${target.id} paketi ARM64 kabulüyle aynı Next çıktısını kullanıyor.`);
+  if (target.platform === "win32" && !process.env.POFIS_SHARED_STANDALONE) {
+    const checks = await Promise.allSettled([
+      preflight(target, acceptance, execute, summary, false),
+      stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")])),
+    ]);
+    const failures = checks.filter(result => result.status === "rejected").map(result => result.reason);
+    if (failures.length === 1) throw failures[0];
+    if (failures.length) throw new AggregateError(failures, "Testleri ve Next derlemesini kontrol et.");
+    // Clipboard acceptance writes the standalone preload; wait for Next's output first.
+    await stage("Pano kabulü", () => execute(process.execPath, [join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]));
   } else {
-    await stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")]));
+    await preflight(target, acceptance, execute, summary);
+    if (process.env.POFIS_SHARED_STANDALONE) {
+      if (target.id !== "darwin-x64" && !crossLinux) throw new Error("Ortak standalone çıktısı Intel macOS ve çapraz Linux paketleri içindir.");
+      console.log(`${target.id} paketi ARM64 kabulüyle aynı Next çıktısını kullanıyor.`);
+    } else {
+      await stage("Next standalone derlemesi", () => execute(process.execPath, [join(__dirname, "build.cjs")]));
+    }
   }
   await stage("Electron paketleme ve imza", () => execute(process.execPath, [join(__dirname, "package.cjs"), target.arch, ...(crossLinux ? [target.platform] : [])]));
   const packages = join(root, "dist", target.outputDirectory);

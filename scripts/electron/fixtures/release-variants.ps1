@@ -11,13 +11,16 @@ foreach ($offset in $offsets) {
     Copy-Item -LiteralPath $SourceArchive -Destination $path
     $zip = [IO.Compression.ZipFile]::Open($path, [IO.Compression.ZipArchiveMode]::Update)
     try {
-        $entry = $zip.GetEntry('resources\app\package.json')
+        # Native ZIPs use /; older .NET ZIPs on Windows use \.
+        $entry = $zip.GetEntry('resources/app/package.json')
+        if (-not $entry) { $entry = $zip.GetEntry('resources\app\package.json') }
+        if (-not $entry) { throw 'Kabul paketinde uygulama bilgisi yok.' }
         $reader = [IO.StreamReader]::new($entry.Open())
         $app = $reader.ReadToEnd() | ConvertFrom-Json
         $reader.Dispose()
         $entry.Delete()
         $app.version = $version
-        $replacement = $zip.CreateEntry('resources\app\package.json')
+        $replacement = $zip.CreateEntry('resources/app/package.json')
         $writer = [IO.StreamWriter]::new($replacement.Open(), [Text.UTF8Encoding]::new($false))
         $writer.Write(($app | ConvertTo-Json -Depth 8)); $writer.Dispose()
         $zip.GetEntry('release.json').Delete()
@@ -26,8 +29,11 @@ foreach ($offset in $offsets) {
         $writer.Write((@{ schemaVersion = 1; version = $version; platform = 'win32'; arch = 'x64' } | ConvertTo-Json)); $writer.Dispose()
         if ($offset -eq 2) {
             # A real executable whose owned Node utility process deliberately fails at startup.
-            $zip.GetEntry('resources\app\electron\server-entry.cjs').Delete()
-            $entry = $zip.CreateEntry('resources\app\electron\server-entry.cjs')
+            $entry = $zip.GetEntry('resources/app/electron/server-entry.cjs')
+            if (-not $entry) { $entry = $zip.GetEntry('resources\app\electron\server-entry.cjs') }
+            if (-not $entry) { throw 'Kabul paketinde sunucu başlangıcı yok.' }
+            $entry.Delete()
+            $entry = $zip.CreateEntry('resources/app/electron/server-entry.cjs')
             $writer = [IO.StreamWriter]::new($entry.Open())
             $writer.Write('process.exit(42);'); $writer.Dispose()
         }

@@ -86,6 +86,7 @@ async function prepare(arch = process.arch, platform = process.platform) {
     filter: path => !/^\.env(?:\.|$)/.test(basename(path)) });
   if (process.env.POFIS_SHARED_STANDALONE) await assertPortableStandalone(join(payload, "server"));
   await require("./build-notifications.cjs").buildNotifications(join(payload, "server"));
+  if (target.platform === "win32") await require("./pack-server.cjs").packServer(join(payload, "server"));
   await mkdir(join(payload, "public", "pofi"), { recursive: true });
   await copyFile(join(root, "public", "pofi", "pofi-mark-256.png"), join(payload, "public", "pofi", "pofi-mark-256.png"));
   await writeFile(join(payload, "package.json"), JSON.stringify({

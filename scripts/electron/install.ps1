@@ -71,9 +71,15 @@ function Assert-RequiredFiles([string]$Directory, [string]$Version) {
         'resources\app\electron\main.cjs', 'resources\app\electron\server-entry.cjs',
         'resources\app\electron\server.cjs', 'resources\app\electron\startup.cjs', 'resources\app\electron\platform.cjs',
         'resources\app\electron\uninstall.ps1',
-        'resources\app\server\.next\BUILD_ID', 'resources\app\server\server.js',
-        'resources\app\server\node_modules\next\package.json', 'release.json')) {
+        'resources\app\server\server.js', 'release.json')) {
         if (-not [IO.File]::Exists((Join-Path $Directory $relative))) { throw "Paket eksik: $relative" }
+    }
+    # Current Windows bundles seal the server and dependencies in one ASAR file.
+    # Keep validating older unpacked installations during same-version reuse.
+    if (-not [IO.File]::Exists((Join-Path $Directory 'resources\app\server.asar'))) {
+        foreach ($relative in @('resources\app\server\.next\BUILD_ID', 'resources\app\server\node_modules\next\package.json')) {
+            if (-not [IO.File]::Exists((Join-Path $Directory $relative))) { throw "Paket eksik: $relative" }
+        }
     }
     $release = Get-Content -LiteralPath (Join-Path $Directory 'release.json') -Raw -Encoding UTF8 | ConvertFrom-Json
     $app = Get-Content -LiteralPath (Join-Path $Directory 'resources\app\package.json') -Raw -Encoding UTF8 | ConvertFrom-Json

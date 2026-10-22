@@ -72,6 +72,8 @@ Paketleme, süreç ve installer kabulünün ayrıntılı kapsamı [masaüstü re
 | macOS installer | Native ARM64 ortamında `bun scripts/electron/macos-distribution-test.cjs --site ../pofis-landing`; Intel statik kontrolü [yayın rehberinde](release.md#cache-ve-süre-ölçümü) |
 | Installer kapanışı | `bun test ./scripts/electron/install-close.test.cjs ./scripts/electron/install-macos.test.cjs`; Windows'ta `POFIS_TEST_BASH` Git Bash yolunu gösterir |
 | Windows arşiv sınırları | `bun test ./scripts/electron/install-archive.test.cjs`; sistem aracı ve .NET açıcı |
+| Windows ZIP üretimi | `bun test ./scripts/electron/archive.test.cjs`; native/.NET yazıcı, `.zip.partial`, installer ile açma, iki yol biçimiyle sürüm fixture'ları ve SHA-256 |
+| Windows sunucu ASAR'ı | `bun test ./scripts/electron/pack-server.test.cjs`; gerçek Electron utility sürecinde bağımlılık/dosya okuma ve gerçek çalışma dizini; ardından paket açılışı ve eski açık paketten ASAR paketine güncelleme kabulü |
 | Güncelleme arayüzü | Güncel standalone sonrasında `bun scripts/electron/update-demo.cjs --verify`; [senaryolar](desktop.md#güncelleme-bildirimini-deneme) |
 | Bildirim arayüzü ve IPC | Güncel standalone sonrasında `bun scripts/electron/notification-demo.cjs --verify`; sağlayıcılar fixture'dır |
 | Sistem panosu | `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`; panoyu değiştirdiği için yalnız izole CI/VM masaüstünde |
