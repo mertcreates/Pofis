@@ -12,6 +12,7 @@ export function DashboardMetrics({
   week,
   leaveDays,
   onSelectDay,
+  onOpenRecords,
 }: {
   days: DayReport[];
   today: string;
@@ -20,6 +21,7 @@ export function DashboardMetrics({
   week: string;
   leaveDays: readonly number[];
   onSelectDay: (date: string) => void;
+  onOpenRecords: () => void;
 }) {
   const summary = summarizeWeek(days, today);
   const day = days.find((day) => day.date === today);
@@ -27,7 +29,7 @@ export function DashboardMetrics({
   return (
     <div className={`metrics metrics-today${isCurrent ? "" : " metrics-history"}`}>
       {isCurrent && day && (
-        <DayFlow day={day} target={exitGoal} />
+        <DayFlow day={day} target={exitGoal} onOpenRecords={onOpenRecords} />
       )}
       <WeeklyTotal days={days} target={target} summary={summary} isCurrent={isCurrent} leaveDays={leaveDays} today={today} onSelectDay={onSelectDay} />
       {!isCurrent && <WeekChart days={days} today={today} start={week} current={false} />}

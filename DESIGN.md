@@ -207,6 +207,7 @@ Renk değerleri frontmatter'da, uygulama karşılıkları ortak süre tokenları
 
 - **Sayfa başlığı:** `page-title`; sayfa başına bir ana başlık.
 - **Bölüm başlığı:** `section-title`; gerektiğinde semantik hiyerarşi korunarak daha küçük kart başlığı kullanılabilir.
+- **Dashboard kart başlıkları:** Günün akışı, Haftalık toplam, Giriş-çıkış raporu ve Pofi aynı `h2` rolünü kullanır: `section-title` (18 px/600, 1.3), −0.5 px harf aralığı, `ink` rengi ve sıfır dış boşluk. Tarih, yüzde ve rozetler ayrı ikincil bilgi olarak kalır. Ortak stil [dashboard stillerinde](src/app/pofis.css) tanımlıdır.
 - **Modal başlığı:** `modal-title` (20 px/600, 1.3); bölüm başlığından ayrı basamaktır.
 - **Ana metin:** `body` (14 px).
 - **Etiket/kontrol metni:** `label`.
@@ -282,16 +283,17 @@ Canlı ve demo saatinin kod sahipleri [arayüz haritasındadır](docs/architectu
 
 ### Sayılar ve süreler
 
-Sayısal veriler tabular gösterilir. Saat/dakika baskın, saniye ikincildir. Birimli süreler `8 sa 3 dk 31 sn` biçimindedir; sıfır birimler atlanır, tam sıfır `0 sn`, bilinmeyen süre çizgiyle gösterilir. Giriş/çıkış saatleri `HH:mm:ss` biçimini korur. Plan kontrolleri [güvenli dakika gösterimini](docs/rules/plan-duration.md#güvenli-dakika-gösterimi) kullanır; günlük kart ve süre alanı aynı yuvarlamayı izler. Sıfır süreli açık gün `0 sa` görünür. Haftalık özet, hedefi ve beklenen toplamı farkla aynı saniye hassasiyetinde gösterir. Tarihler İstanbul takviminden gelir; seçili aralık başka yıldaysa yıl görünür.
+Sayısal veriler tabular gösterilir. Saat/dakika baskın, saniye ikincildir. Birimli süreler `8 sa 3 dk 31 sn` biçimindedir; sıfır birimler atlanır, tam sıfır `0 sn`, bilinmeyen süre çizgiyle gösterilir. Giriş–çıkış raporundaki saatler `HH:mm:ss` biçimini korur. Plan kontrolleri [güvenli dakika gösterimini](docs/rules/plan-duration.md#güvenli-dakika-gösterimi) kullanır; günlük kart ve süre alanı aynı yuvarlamayı izler. Sıfır süreli açık gün `0 sa` görünür. Haftalık özet, hedefi ve beklenen toplamı farkla aynı saniye hassasiyetinde gösterir. Tarihler İstanbul takviminden gelir; seçili aralık başka yıldaysa yıl görünür.
 
 #### Günün akışı
 
-[DayFlow](src/components/attendance/day-flow.tsx), geçen süreyi “Bugünkü mesai”, yanındaki küçük farkı “Hedefe kalan / Hedefin üzerinde” olarak gösterir. Tarih başlık yanındadır; saatler akışın üzerindeki işaretlerde gösterilir.
+[DayFlow](src/components/attendance/day-flow.tsx), “Bugünkü mesai” değerini üstte, “Hedefe kalan / Hedefi aşan” farkını yanında ikincil bilgi olarak gösterir; hedef tam karşılanınca “Hedefle aynı” görünür. Tarih başlık yanındadır. Dar kapsayıcıda üst bilgiler alt alta geçer.
 
 - Ortak [DurationTrack](src/components/primitives.tsx), [kayıtlı/tahmini süre](#kayıtlı-ve-tahmini-süre) rollerini kullanır. Hedef nötr çizgidir.
-- Uç etiketi canlı günde “Şimdi”, hedefi aşan kapalı günde “Çıkış”, diğer kapalı günlerde “Son kayıt” olur. Lavanta uç etiketi metin kadar geniştir.
-- “Hedef çıkış” saat ve nötr kesik bağlantıyla rayın altında yer alır; bağlantı rayın üst kenarından başlar. Satır mutlak konumlanır, lejant için alan ayrılır.
-- İşaret çizgileri gerçek zaman konumunu korur; etiketler rayın kenarlarında içeri kayar. Eksen saatleri opak kart zeminiyle okunur. Eksen ilk girişten son kayıt/şimdi ile hedefin en ilerisine uzanır; hedef sondaysa saat yalnız hedef etiketinde görünür.
+- “Şimdi” etiketi ve saati canlı süre çubuğunun ucunu takip eder; çıkış kaydında “Son çıkış” olur. “Hedef çıkış” etiketi ve saati kendi hedef işaretine bağlıdır; hedef aşılana kadar eksenin sonunda, aşıldığında geride kalır. İlk giriş bilgisi eksenin başındadır. Çıkış kaydı günün tamamlandığını söylemez. Sıfır olmayan saniyeler saat/dakikadan daha küçük, ikincil renkle görünür; tam değer erişilebilir ad ve başlıkta korunur. Hedef başka güne geçerse tarihi ayrıca gösterilir.
+- İşaret çizgileri gerçek zaman konumunu korur. Ölçek ilk girişten kayıtlı/canlı süre ile hedefin en ilerisine uzanır. Hedef nötr kesik çizgi, mevcut süre ucu vurgu çizgisidir. Etiketler kendi işaretlerini takip eder; kenarlarda metin kapsayıcı içine kayar. Canlı etiket üstte, hedef etiketi çubuğun hemen altındadır. İlk giriş hedefle aynı satırı paylaşır; hedef sol yarıdaysa veya kapsayıcı 360 piksel ve altındaysa çakışmayı önlemek için ilk giriş sonraki satıra geçer. Etiketler normal akışta içerikleri kadar yükseklik alır; sabit üst/alt dolgu ile boş alan ayrılmaz. Hedef saat üst özette tekrar edilmez.
+- Giriş kaydı ve bilinen süre yoksa grafik, sıfır süre ve lejant gösterilmez; kısa kayıt durumu kalır. Süre bilinmese de ilk girişten hesaplanabilen hedef çıkış korunur; bilinmeyen mesai süresi çizgidir, kalan süre üretilmez.
+- Kayıt sorunu başlıkta uzun nedenler yerine “Kayıtlarda belirsizlik var” ile belirtilir; “Kayıtları aç” bugünün mevcut rapor satırını açıp odaklar. Bilinen süre ve güvenilir açık girişe dayanan canlı tahmin korunur. Ayrıntılı nedenler raporda kalır. Lejant yalnız mevcut kayıtlı/anlık bölümler için gösterilir.
 
 [Süre](docs/rules/duration.md), [hedef](docs/rules/work-plan.md) ve [ölçek](docs/rules/progress.md) hesapları kural sahiplerinden gelir. [Yerleşim stilleri](src/components/attendance/day-flow.css) demo ve canlıda ortaktır.
 

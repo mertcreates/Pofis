@@ -330,10 +330,6 @@ details p {
   color: var(--ink);
   margin-bottom: 12px;
 }
-.records-title h2 {
-  font-size: var(--section-title-size);
-  line-height: 1.5;
-}
 .records {
   overflow: hidden;
   border: 1px solid var(--line);

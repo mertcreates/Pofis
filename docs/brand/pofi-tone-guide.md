@@ -179,7 +179,7 @@ Süre etiketleri [süre sözleşmesini](../rules/duration.md), hesaplar [kural s
 - Aynı eylemi aynı adla göster. PDKS oturumu için “Bağlan / Bağlantıyı kes”, turnike hareketleri için “Giriş / Çıkış” kullan.
 - Başlık, düğme ve kısa durum etiketlerini noktasız yaz. Açıklamalarda ve Pofi'nin cümlelerinde noktalama işaretlerini koru; süren işlemleri “…” ile belirt.
 - Kayıt yokluğunu gözlenen bilgiyle anlat: “Henüz giriş kaydı yok”. Geçmiş bir açık girişte gözlenen kayıt durumunu “Eşleşen çıkış kaydı yok” diye belirt.
-- Sürelerde kayıtlı süre, canlı toplam ve ek tahmin ayrımını koru. Günün akışında “Bugünkü mesai”, “Kayıtlı” ve “Tahmini” kullan; diğer bağlamların etiketleri [süre sözleşmesindedir](../rules/duration.md). Hedef karşılaştırmalarında “Hedefe kalan”, “Hedefin üzerinde” ve “Hedefle aynı” kullan.
+- Sürelerde kayıtlı süre, canlı toplam ve ek tahmin ayrımını koru. Günün akışında “Bugünkü mesai”, “Kayıtlı” ve “Tahmini” kullan; diğer bağlamların etiketleri [süre sözleşmesindedir](../rules/duration.md). Hedef karşılaştırmalarında “Hedefe kalan”, “Hedefi aşan” ve “Hedefle aynı” kullan.
 - Hata açıklaması sorunu ve uygulanabilir sonraki adımı söylesin. HTTP, API ve PDKS tanılarını teknik ayrıntılar alanında göster.
 - Pofi'nin sistem durumunu bildiren başlığı ile kendi gözlemini anlatan mesajını ayır. Kayıt belirsizliğinde açık yönlendirme önceliklidir.
 

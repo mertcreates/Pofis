@@ -37,7 +37,7 @@ const DayRow = memo(function DayRow({
   const row = useRef<HTMLElement>(null);
   useImperativeHandle(ref, () => ({
     open() {
-      if (day.date >= today || !row.current) return;
+      if (day.date > today || !row.current) return;
       setExpanded(true);
       setDetailsLoaded(true);
       if (row.current instanceof HTMLDetailsElement) row.current.open = true;

@@ -15,7 +15,7 @@ function render(leaveDays: number[], passages: Report["passages"] = [], isCurren
   const days = presentReport({ ...report, fetchedAt, passages }, readDayPlan([480, 480, 480, 480, 0, 0, 0])!,
     Date.parse(fetchedAt), false).days;
   const $ = load(renderToStaticMarkup(<DashboardMetrics days={days} today={today} week={report.from}
-    isCurrent={isCurrent} targetSeconds={32 * 3600} leaveDays={leaveDays} onSelectDay={() => {}} />));
+    isCurrent={isCurrent} targetSeconds={32 * 3600} leaveDays={leaveDays} onSelectDay={() => {}} onOpenRecords={() => {}} />));
   return { $ };
 }
 

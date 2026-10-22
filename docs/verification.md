@@ -41,6 +41,17 @@ Politika testleri gerçek modülleri ayrı Bun süreçlerinde, yalnız sahibin d
 
 Test kapsamını yüklenen modüller ve somut davranış beklentileriyle değerlendirin. Belge/kod anlam uyumunu ayrıca inceleyin. İçerik testleri seçim, tarih, tekrar ve özel gün davranışını; editoryal inceleme metnin doğallığını doğrular.
 
+## Günün akışı doğrulaması
+
+[Günün akışı testi](../src/components/attendance/day-flow.test.tsx), giriş yokken sıfır süre/grafik üretilmemesini, Şimdi → Son çıkış ayrımını, hedef öncesi/sonrası işaret konumlarını, saniyeli hedefin korunmasını, kayıt uyarısı sırasında güvenilir canlı sürenin devam etmesini ve eski raporda bilinmeyen sürenin hesaplanmış gibi gösterilmemesini sınar. Gerçek CSS yerleşimi ve odak davranışı bu statik testin kapsamında değildir.
+
+Tarayıcı kabulü:
+
+1. Giriş kaydı olmayan gün → kısa durum görünür; mesai sıfırmış gibi gösterilmez, boş grafik ve lejant yoktur. Eski raporda ilk giriş biliniyorsa hedef çıkış korunur; mesai bilinmiyorsa çizgi görünür ve kalan süre üretilmez.
+2. Canlı mesai → Bugünkü mesai ve Hedefe kalan/Hedefi aşan üsttedir; tam eşitlikte Hedefle aynı görünür. Şimdi etiketi ve saati ilerleyen çubuğun ucunu takip eder. Hedef çıkış rayın altında kendi işaretine bağlıdır; hedef aşılana kadar eksenin sonunda, aşılınca geride kalır. İlk giriş eksenin başındadır. Çıkış kaydı geldiyse Şimdi yerine Son çıkış görünür; gün tamamlandı denmez. Saniyeler daha küçük ve ikincildir; sıfır olmayan hedef saniyeleri kaybolmaz. Gece yarısını aşan hedefin tarihi görünür.
+3. Belirsiz kayıt → kısa uyarı ve Kayıtları aç eylemi görünür. Eylem bugünün rapor satırını açıp odaklamalıdır; ayrıntılı neden oradadır. Önceki kayıtlarda sorun olsa da güvenilir açık girişin canlı süresi devam etmelidir. Haftalık cetvelden bugünü seçmek Mesai planını açmaya devam etmelidir.
+4. Dar kapsayıcı, açık/koyu tema ve büyütülmüş metin → üst bilgiler gerektiğinde alt alta geçmeli, etiketler işaretlerini izleyip kenarlarda kapsayıcı içinde kalmalı ve üst üste binmemelidir. Sıfır hedefte ilk giriş ve hedef etiketleri ayrı satırlarda okunmalıdır. Metin taşmamalı ve Kayıtları aç düğmesinin klavye odağı görünmelidir.
+
 ## Plan doğrulaması
 
 Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut senaryolardan alınır.

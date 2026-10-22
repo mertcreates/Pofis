@@ -31,7 +31,7 @@ export function ReportContent({ prepared, initialNow, today, isCurrent, liveCloc
     else onEditPlan(date);
   }
   return <section className="dashboard" aria-label={ui.personRecords(owner)}>
-    <DashboardMetrics targetSeconds={targetSeconds} days={days} today={today} isCurrent={isCurrent} week={week} leaveDays={leaveDays} onSelectDay={selectDay} />
+    <DashboardMetrics targetSeconds={targetSeconds} days={days} today={today} isCurrent={isCurrent} week={week} leaveDays={leaveDays} onSelectDay={selectDay} onOpenRecords={() => report.current?.openDay(today)} />
     {isCurrent && todayReport && <div className="middle-grid">
       <ReportTable ref={report} days={days} today={today} compact leaveDays={leaveDays} />
       <PofiPanel key={today} day={todayReport} now={now} onOpen={onOpenRoom} />

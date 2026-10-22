@@ -29,7 +29,7 @@ export function WeeklyTotal({ days, target, summary, isCurrent, leaveDays, today
     : isCurrent ? ui.remainingLabel : ui.shortfallLabel;
   return <section className="dashboard-card metric weekly-total">
     <div className="metric-header">
-      <span>{ui.weeklyTotal}</span>
+      <h2>{ui.weeklyTotal}</h2>
       {percent !== null && <span className="metric-tag" aria-label={summary.incomplete ? ui.approximateWeekPercent(percent) : undefined}>{summary.incomplete && "≈ "}%{percent}</span>}
     </div>
     <div className="weekly-total-reading">

@@ -1,57 +1,48 @@
 .day-flow-rail { container-type: inline-size; }
 .metrics > .day-flow-rail { min-width: 0; min-height: 0; }
-.metrics .day-flow-rail .panel-heading { flex-direction: row; align-items: center; }
-.metrics .day-flow-rail .panel-heading h2 { font-size: var(--section-title-size); }
-.metrics .day-flow-rail .rail-legend { flex-direction: row; gap: 12px 16px; }
-.rail-elapsed { display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px 12px; margin-top: 16px; }
-.rail-elapsed > span { font-size: 12px; color: var(--secondary); }
-.rail-elapsed strong { font-size: 29px; line-height: 1.15; font-weight: 700; font-variant-numeric: tabular-nums; }
-.rail-elapsed small { font-size: 13px; }
-.rail-elapsed strong small { font-size: var(--metric-unit-size); font-weight: 500; }
-.rail-target-delta { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin-left: auto; }
-.rail-target-delta b { color: var(--ink); font-size: 13px; font-weight: 600; }
-.rail-target-delta small { font-size: 12px; }
-.day-flow-rail .panel-heading { align-items: center; }
-.rail-heading-text { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; }
-.rail-date { font-size: 12px; color: var(--secondary); white-space: nowrap; }
-.rail-status { display: inline-flex; align-items: center; gap: 8px; font-size: 12px; color: var(--secondary); }
-.rail-status i { width: 6px; height: 6px; flex-shrink: 0; border-radius: 50%; background: var(--control); }
-.rail-chart { position: relative; margin-top: 46px; }
+.metrics .day-flow-rail .panel-heading { flex-direction: row; align-items: baseline; }
+.rail-date { font-size: 12px; color: var(--secondary); }
+.rail-status { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; margin-top: 16px; font-size: 12px; color: var(--secondary); }
+.rail-status.has-record-issue > span { color: var(--warning); }
+.rail-empty { margin-block: 24px; }
+.rail-records-link { min-height: 44px; padding: 8px 0; border: 1px solid transparent; border-radius: var(--radius-control); background: transparent; font-size: 12px; color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.rail-records-link:is(:hover, :focus):not(:disabled) { background: transparent; color: var(--accent-text); }
+.rail-records-link:focus-visible:not(:disabled) { border-color: var(--accent-text); }
+.rail-elapsed { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 16px 24px; margin: 16px 0 0; }
+.rail-elapsed dt { font-size: 12px; color: var(--secondary); }
+.rail-elapsed dd { margin: 4px 0 0; font-size: 29px; line-height: 1.15; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rail-work { min-width: 0; }
+.rail-work small { font-size: var(--metric-unit-size); font-weight: 500; }
+.rail-elapsed .duration-seconds, .rail-clock-seconds { font-size: 12px; font-weight: 400; color: var(--secondary); }
+.rail-exit-goal { text-align: right; }
+.rail-other-day { display: block; margin-top: 4px; font-size: 12px; line-height: 1.5; font-weight: 400; color: var(--secondary); }
+.rail-target-delta { align-self: end; text-align: right; }
+.rail-elapsed .rail-target-delta dd { font-size: 13px; line-height: 1.5; font-weight: 600; color: var(--ink); }
+.rail-target-delta small { font-size: inherit; }
+.rail-chart { container-type: inline-size; margin-top: 16px; }
 .rail-track { position: relative; height: 12px; }
-.rail-end-marker { position: absolute; left: var(--rail-position); top: -18px; height: 36px; width: 0; border-left: 1px dashed var(--accent); }
-.rail-marker-label {
-  position: absolute;
-  bottom: 30px;
-  left: var(--rail-position);
-  width: max-content;
-  transform: translateX(clamp(calc(-1 * var(--rail-position)), -50%, calc(100cqw - var(--rail-position) - 100%)));
-  max-width: 100%;
-  font-weight: 600;
-  text-align: center;
-  overflow-wrap: anywhere;
-  font-size: 12px;
-  color: var(--accent-text);
-}
+.rail-end-marker { position: absolute; left: var(--rail-position); top: -8px; bottom: -4px; border-left: 1px dashed var(--accent); }
+.rail-marker-label { position: relative; left: var(--rail-position); width: max-content; max-width: 100%; margin-bottom: 8px; transform: translateX(clamp(calc(-1 * var(--rail-position)), -50%, calc(100cqw - var(--rail-position) - 100%))); text-align: center; font-size: 12px; line-height: 1.5; font-weight: 600; color: var(--accent-text); }
 .rail-marker-label > span { display: inline-block; padding: 4px 8px; border-radius: var(--radius-control); background: var(--accent-soft); }
-.rail-target-line { position: absolute; left: var(--rail-target-position); top: 0; height: 38px; border-left: 1px dashed var(--control); }
-.rail-target-row { position: absolute; top: 34px; inset-inline: 0; }
-.rail-target-label { position: absolute; top: 0; left: var(--rail-target-position); width: max-content; max-width: 100%; transform: translateX(clamp(calc(-1 * var(--rail-target-position)), -50%, calc(100cqw - var(--rail-target-position) - 100%))); text-align: center; font-size: 12px; font-weight: 500; color: var(--secondary); }
-.rail-target-label > span { display: inline-block; padding: 4px 8px; background: var(--surface-subtle); border-radius: var(--radius-control); }
-.rail-target-label time { display: block; margin-top: 4px; font-variant-numeric: tabular-nums; }
-.rail-axis { display: flex; justify-content: space-between; gap: 12px; margin-top: 4px; font-size: 12px; color: var(--secondary); font-variant-numeric: tabular-nums; }
-.rail-axis > span { position: relative; background: var(--paper); box-shadow: 3px 0 var(--paper), -3px 0 var(--paper); }
-.rail-axis > :last-child { text-align: right; }
-.rail-legend { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 26px 0 0; font-size: 12px; color: var(--secondary); }
-.rail-chart:has(.rail-target-row) + .rail-legend { margin-top: 52px; }
-.rail-legend > span { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+.rail-marker-label time { display: block; margin-top: 4px; font-variant-numeric: tabular-nums; }
+.rail-target-line { position: absolute; left: var(--rail-target-position); top: 0; height: 24px; border-left: 1px dashed var(--control); }
+.rail-axis { display: grid; grid-template-columns: minmax(0, 1fr); align-items: start; gap: 8px; margin: 8px 0 0; font-size: 12px; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.rail-axis dt { color: var(--secondary); }
+.rail-axis dd { margin: 4px 0 0; color: var(--ink); }
+.rail-first-entry { grid-area: 1 / 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.rail-first-entry dd { margin: 0; }
+.rail-axis-target-left .rail-first-entry { grid-area: 2 / 1; }
+.rail-target-label { grid-area: 1 / 1; position: relative; left: var(--rail-target-position); width: max-content; max-width: 100%; transform: translateX(clamp(calc(-1 * var(--rail-target-position)), -50%, calc(100cqw - var(--rail-target-position) - 100%))); text-align: center; }
+.rail-target-label dt { width: max-content; max-width: 100%; margin-inline: auto; padding: 4px 8px; background: var(--surface-subtle); border-radius: var(--radius-control); }
+.rail-legend { display: flex; flex-wrap: wrap; gap: 12px 16px; font-size: 12px; color: var(--secondary); }
+.rail-legend:empty { display: none; }
+.rail-legend > span { display: flex; align-items: center; gap: 8px; }
 .rail-legend i { width: 8px; height: 8px; flex-shrink: 0; border-radius: 50%; background: var(--duration-recorded); }
-.rail-legend > :nth-child(2) i { background: var(--duration-estimated); }
-@container (max-width: 420px) {
-  .rail-legend { flex-direction: column; }
-}
+.rail-legend .rail-estimated-dot { background: var(--duration-estimated); }
 @container (max-width: 360px) {
-  .day-flow-rail .panel-heading { flex-direction: column; align-items: flex-start; gap: 8px; }
-}
-@media (max-width: 700px) {
-  .rail-legend { flex-direction: row; gap: 12px 16px; margin-top: 20px; }
+  .metrics .day-flow-rail .panel-heading { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .rail-elapsed { grid-template-columns: minmax(0, 1fr); }
+  .rail-exit-goal { text-align: left; }
+  .rail-target-delta { text-align: left; }
+  .rail-axis:has(.rail-target-label) .rail-first-entry { grid-area: 2 / 1; }
 }
