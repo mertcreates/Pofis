@@ -11,7 +11,7 @@ test("Intel statik kontrolü Electron/helper mimarisini ve imzayı denetler", as
   const nativeFiles = ["Contents/MacOS/Pofis", "Contents/Frameworks/Helper.app/Contents/MacOS/Helper"];
   try {
     for (const path of [...nativeFiles, "Contents/Resources/app/electron/main.cjs", "Contents/Resources/app/electron/preload.cjs",
-      "Contents/Resources/app/electron/update-bridge.cjs", "Contents/Resources/app/server/server.js"]) {
+      "Contents/Resources/app/electron/update-bridge.cjs", "Contents/Resources/app/electron/transport.cjs", "Contents/Resources/app/server/server.js"]) {
       const file = join(app, path);
       await mkdir(join(file, ".."), { recursive: true });
       await writeFile(file, nativeFiles.includes(path) ? Buffer.from("cffaedfe00000000", "hex") : "fixture");
@@ -27,7 +27,7 @@ test("Intel statik kontrolü Electron/helper mimarisini ve imzayı denetler", as
     await expect(checkIntelPackage(directory, async (command) => { if (command.endsWith("/lipo")) throw wrongArchitecture; })).rejects.toBe(wrongArchitecture);
     const badSignature = new Error("bad signature");
     await expect(checkIntelPackage(directory, async (command) => { if (command.endsWith("/codesign")) throw badSignature; })).rejects.toBe(badSignature);
-    for (const name of ["preload.cjs", "update-bridge.cjs"]) {
+    for (const name of ["preload.cjs", "update-bridge.cjs", "transport.cjs"]) {
       const file = join(resources, "app/electron", name);
       await unlink(file);
       await expect(checkIntelPackage(directory, async () => { throw new Error("Eksik dosya önce reddedilmeli."); }))

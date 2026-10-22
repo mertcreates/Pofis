@@ -3,6 +3,7 @@ const { createReadStream } = require("node:fs");
 const { readFile, writeFile, mkdir, stat } = require("node:fs/promises");
 const { resolve, join } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
+const { unixInstaller } = require("./unix-installer.cjs");
 
 function normalizeInstaller(text) {
   return text.replace(/^\uFEFF/, "").replaceAll("\r\n", "\n");
@@ -21,7 +22,7 @@ async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
       !Number.isSafeInteger(manifest.size) || manifest.size <= 0 || !/^[a-f0-9]{64}$/.test(manifest.sha256)) {
     throw new Error("Dağıtım manifesti geçersiz.");
   }
-  const name = `Pofis-${manifest.version}-${target.id}.zip`;
+  const name = `Pofis-${manifest.version}-${target.id}.${target.archiveExtension}`;
   if (manifest.url !== `${manifest.version}/${name}`) throw new Error("Yerel paket adresi manifestle eşleşmiyor.");
   const archive = resolve(releaseDirectory, manifest.version, name);
   if ((await stat(archive)).size !== manifest.size) throw new Error("Paket boyutu manifestle eşleşmiyor.");
@@ -29,8 +30,9 @@ async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
   for await (const chunk of createReadStream(archive)) hash.update(chunk);
   if (hash.digest("hex") !== manifest.sha256) throw new Error("Paket SHA-256 değeri manifestle eşleşmiyor.");
   // HTTP supplies charset=utf-8; omit the file BOM so irm | iex receives plain PowerShell.
-  const installerName = target.platform === "win32" ? "install.ps1" : "install.sh";
-  const installer = normalizeInstaller(await readFile(installerPath || join(__dirname, installerName), "utf8"));
+  const installerName = target.platform === "win32" ? target.installer : "install.sh";
+  const payload = normalizeInstaller(await readFile(installerPath || join(__dirname, target.installer), "utf8"));
+  const installer = target.platform === "win32" ? payload : await unixInstaller({ [target.platform]: payload });
   const publicManifest = {
     schemaVersion: 1, platform: target.platform, arch: target.arch, version: manifest.version,
     size: manifest.size, sha256: manifest.sha256,
@@ -50,7 +52,7 @@ async function prepareSite({ siteDirectory, releaseDirectory, installerPath }) {
 if (require.main === module) {
   const args = process.argv.slice(2);
   if (args.length && (args.length !== 2 || args[0] !== "--site" || !args[1])) {
-    console.error("Kullanım: bun run desktop:site [--site <pofis-landing-klasörü>]");
+    console.error("Kullanım: bun scripts/electron/prepare-site.cjs [--site <pofis-landing-klasörü>]");
     process.exitCode = 1;
   } else {
     const root = resolve(__dirname, "../..");
@@ -58,7 +60,7 @@ if (require.main === module) {
     prepareSite({
       siteDirectory: args[1] || resolve(root, "../pofis-landing"),
       releaseDirectory: join(root, "dist", "releases", target.releaseDirectory),
-      installerPath: join(__dirname, target.platform === "win32" ? "install.ps1" : "install.sh"),
+      installerPath: join(__dirname, target.installer),
     }).catch(error => { console.error(error.message); process.exitCode = 1; });
   }
 }

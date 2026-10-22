@@ -30,7 +30,7 @@ Yerelde `build` doğrudan `next build`, `start` ise `next start --hostname 127.0
 
 ## Masaüstü altyapısı
 
-Pofis, Windows ve macOS üzerinde aktif kullanımdadır. Electron kabuğu aynı uygulamayı Next standalone ve paketle gelen Node.js ile açar. Geliştirme/paketleme komutları, kurulum ve masaüstü kabul durumu [masaüstü rehberinde](docs/desktop.md), üç platformun GitHub Actions/Workers akışı [sürüm yayınında](docs/release.md) açıklanır. Açık işler [görev listesinde](tasks/todo.md) tutulur.
+Pofis, Windows ve macOS üzerinde aktif kullanımdadır. Ubuntu 24.04 LTS x64 desteğinin uygulama ve kabul çalışması sürer. Electron kabuğu aynı uygulamayı Next standalone ve paketle gelen Node.js ile açar. Geliştirme/paketleme komutları, kurulum ve masaüstü kabul durumu [masaüstü rehberinde](docs/desktop.md), dört hedefin GitHub Actions/Workers akışı [sürüm yayınında](docs/release.md) açıklanır. Açık işler [görev listesinde](tasks/todo.md) tutulur.
 
 Paketli uygulama açılışta [yeni sürümü denetler](docs/desktop.md#açılışta-sürüm-denetimi) ve güncelleme varsa kurulum komutunu kopyalama seçeneği sunar.
 

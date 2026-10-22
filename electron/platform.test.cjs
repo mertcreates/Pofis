@@ -24,8 +24,18 @@ test("Windows x64 paketi mevcut installer sözleşmesini korur", () => {
   expect(target.executable).toBe("Pofis.exe");
   expect(target.metadataFile).toBe("release.json");
   expect(releaseManifest(target, "1.0.0", 5, "abc").url).toBe("1.0.0/Pofis-1.0.0-win32-x64.zip");
-  expect(() => platformTarget("linux", "x64")).toThrow("Desteklenmeyen");
+  expect(() => platformTarget("linux", "arm64")).toThrow("Desteklenmeyen");
   expect(() => platformTarget("darwin", "ia32")).toThrow("Desteklenmeyen");
+});
+
+test("Linux x64 kullanıcı kurulumu ve tar.gz dağıtımı için kendi yollarını kullanır", () => {
+  const target = platformTarget("linux", "x64");
+  expect(target.executable).toBe("pofis");
+  expect(target.electronExecutable).toBe("electron");
+  expect(target.resources).toBe("resources");
+  expect(target.releaseDirectory).toBe(join("linux", "x64"));
+  expect(target.installer).toBe("install-linux.sh");
+  expect(releaseManifest(target, "1.2.3", 42, "hash").url).toBe("1.2.3/Pofis-1.2.3-linux-x64.tar.gz");
 });
 
 test.each([false, true])("macOS süreç grubunu kapatır; dirençli alt süreçte SIGKILL: %s", async stubborn => {

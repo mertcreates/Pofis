@@ -5,11 +5,12 @@ const { createHash, randomUUID } = require("node:crypto");
 const { mkdir, readFile, writeFile, copyFile, rename, stat, access, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
+const { unixInstaller } = require("./unix-installer.cjs");
 const execute = promisify(execFile);
 
 function releaseManifest(target, version, size, sha256) {
   return { schemaVersion: 1, platform: target.platform, arch: target.arch, version, size, sha256,
-    url: `${version}/Pofis-${version}-${target.id}.zip` };
+    url: `${version}/Pofis-${version}-${target.id}.${target.archiveExtension}` };
 }
 
 async function release(packageDirectory, arch = process.arch) {
@@ -28,7 +29,7 @@ async function release(packageDirectory, arch = process.arch) {
   const output = join(root, "dist", "releases", target.releaseDirectory);
   const versionDirectory = join(output, app.version);
   await mkdir(versionDirectory, { recursive: true });
-  const name = `Pofis-${app.version}-${target.id}.zip`;
+  const name = `Pofis-${app.version}-${target.id}.${target.archiveExtension}`;
   const archive = join(versionDirectory, name);
   if (await stat(archive).then(() => true, error => { if (error.code === "ENOENT") return false; throw error; })) {
     throw new Error("Bu sürümün dağıtımı zaten var. Yeni sürüm numarası kullan.");
@@ -42,6 +43,8 @@ async function release(packageDirectory, arch = process.arch) {
     if (target.platform === "win32") {
       await execute(join(process.env.SystemRoot, "System32", "WindowsPowerShell", "v1.0", "powershell.exe"),
         ["-NoProfile", "-ExecutionPolicy", "Bypass", "-File", join(__dirname, "archive.ps1"), "-Source", directory, "-Destination", temporary]);
+    } else if (target.platform === "linux") {
+      await execute("tar", ["-czf", temporary, "-C", directory, "."]);
     } else {
       await execute("/usr/bin/ditto", ["-c", "-k", "--sequesterRsrc", "--keepParent", join(directory, "Pofis.app"), temporary]);
     }
@@ -55,8 +58,9 @@ async function release(packageDirectory, arch = process.arch) {
     const staging = `${latest}.${randomUUID()}.tmp`;
     await writeFile(staging, json, { flag: "wx" });
     await rename(staging, latest);
-    const installer = target.platform === "win32" ? "install.ps1" : "install.sh";
+    const installer = target.installer;
     await copyFile(join(__dirname, installer), join(output, installer));
+    if (target.platform !== "win32") await writeFile(join(output, "install.sh"), await unixInstaller());
     console.log(`Dağıtım dosyaları: ${output}`);
   } finally {
     try { await rm(temporary, { force: true }); }
@@ -67,7 +71,7 @@ async function release(packageDirectory, arch = process.arch) {
 if (require.main === module) {
   const index = process.argv.indexOf("-PackageDirectory");
   const directory = index === -1 ? null : process.argv[index + 1];
-  if (!directory) { console.error("Kullanım: bun run desktop:release -PackageDirectory <paket-klasörü>"); process.exitCode = 1; }
+  if (!directory) { console.error("Kullanım: bun scripts/electron/release.cjs -PackageDirectory <paket-klasörü>"); process.exitCode = 1; }
   else {
     const archIndex = process.argv.indexOf("-Arch");
     release(directory, archIndex === -1 ? process.arch : process.argv[archIndex + 1])

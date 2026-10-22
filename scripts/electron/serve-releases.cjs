@@ -1,6 +1,6 @@
 const { resolve, join, sep } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
-const { MAC_INSTALL_COMMAND } = require("./install-command.cjs");
+const { UNIX_INSTALL_COMMAND } = require("./install-command.cjs");
 
 function serveReleases(directory, port = 4173) {
   const root = resolve(directory);
@@ -12,7 +12,7 @@ function serveReleases(directory, port = 4173) {
     const file = Bun.file(path);
     if (!(await file.exists())) return new Response("Bulunamadı", { status: 404 });
     return new Response(file, { headers: {
-      "Content-Type": /\.(ps1|sh)$/.test(path) ? "text/plain; charset=utf-8" : path.endsWith(".json") ? "application/json" : "application/zip",
+      "Content-Type": /\.(ps1|sh)$/.test(path) ? "text/plain; charset=utf-8" : path.endsWith(".json") ? "application/json" : path.endsWith(".tar.gz") ? "application/gzip" : "application/zip",
       "Cache-Control": "no-store",
     } });
   } });
@@ -25,8 +25,8 @@ if (require.main === module) {
   if (target.platform === "win32") {
     console.log(`& ([scriptblock]::Create((irm http://127.0.0.1:${server.port}/install.ps1).TrimStart([char]0xFEFF))) -ManifestUrl http://127.0.0.1:${server.port}/latest.json`);
   } else {
-    console.log(MAC_INSTALL_COMMAND.replace("https://pofis.app/install.sh", `http://127.0.0.1:${server.port}/install.sh`) +
-      ` --manifest-url http://127.0.0.1:${server.port}/latest.json`);
+    console.log(UNIX_INSTALL_COMMAND.replace("https://pofis.app/install.sh", `http://127.0.0.1:${server.port}/install.sh`) +
+      ` -s -- --manifest-url http://127.0.0.1:${server.port}/latest.json`);
   }
 }
 module.exports = { serveReleases };

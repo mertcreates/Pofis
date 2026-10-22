@@ -14,22 +14,22 @@ test("yayın sürümü kaynak sürümüyle tam eşleşir", () => {
   }
 });
 
-test("üç hedef yalnız kendi public release ZIP adresini kabul eder", () => {
-  for (const id of ["win32-x64", "darwin-arm64", "darwin-x64"]) {
-    const { platform, arch } = targetFor(id);
+test("dört hedef yalnız kendi public release paket adresini kabul eder", () => {
+  for (const id of ["win32-x64", "darwin-arm64", "darwin-x64", "linux-x64"]) {
+    const { platform, arch, archiveExtension } = targetFor(id);
     const manifest = { schemaVersion: 1, platform, arch, version: "1.2.3", size: 50,
       sha256: "a".repeat(64),
-      url: `https://github.com/mertcreates/pofis-landing/releases/download/v1.2.3/Pofis-1.2.3-${id}.zip` };
+      url: `https://github.com/mertcreates/pofis-landing/releases/download/v1.2.3/Pofis-1.2.3-${id}.${archiveExtension}` };
     expect(() => assertManifest(manifest, "1.2.3", id)).not.toThrow();
     for (const invalid of [{ url: "https://example.com/package.zip" }, { size: 0 }, { size: 2 ** 31 },
       { version: "1.2.4" }, { arch: "ia32" }, { sha256: "bad" }]) {
       expect(() => assertManifest({ ...manifest, ...invalid }, "1.2.3", id)).toThrow();
     }
   }
-  expect(() => targetFor("linux-x64")).toThrow();
+  expect(() => targetFor("linux-arm64")).toThrow();
 });
 
-test("public commit yalnız installer ve üç manifesti içerebilir", () => {
+test("public commit yalnız installer ve platform manifestlerini içerebilir", () => {
   expect(() => assertPublicChanges(["public/install.ps1", "public/install.sh", "public/releases/windows/latest.json",
     "public/releases/macos/arm64/latest.json", "public/releases/macos/x64/latest.json"])).not.toThrow();
   for (const path of ["src/app/page.tsx", ".env", "public/source.zip", "package.json", "../Pofis/secret"]) {
@@ -181,12 +181,12 @@ test("HTTPS kontrolü CRLF/LF farkını kabul eder; değişen içerik ve eksik b
   let installer = "Write-Output 'Pofis'\n";
   let cache = "no-store";
   try {
-    for (const id of ["win32-x64", "darwin-arm64", "darwin-x64"]) {
+    for (const id of ["win32-x64", "darwin-arm64", "darwin-x64", "linux-x64"]) {
       const target = targetFor(id);
       const path = `releases/${target.releaseDirectory.replaceAll("\\", "/")}/latest.json`;
       const manifest = { schemaVersion: 1, platform: target.platform, arch: target.arch, version: "1.2.3",
         size: 50, sha256: "a".repeat(64),
-        url: `https://github.com/mertcreates/pofis-landing/releases/download/v1.2.3/Pofis-1.2.3-${id}.zip` };
+        url: `https://github.com/mertcreates/pofis-landing/releases/download/v1.2.3/Pofis-1.2.3-${id}.${target.archiveExtension}` };
       manifests.set(path, manifest);
       await mkdir(join(site, "public", "releases", target.releaseDirectory), { recursive: true });
       await writeFile(join(site, "public", path), JSON.stringify(manifest));

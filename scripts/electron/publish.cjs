@@ -4,18 +4,19 @@ const { join, resolve } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
 const { prepareSite, normalizeInstaller } = require("./prepare-site.cjs");
 const { checkVersion, run } = require("./ci-build.cjs");
+const { assertSiteCommands } = require("./install-command.cjs");
 
 const REPOSITORY = "mertcreates/pofis-landing";
-const TARGETS = ["win32-x64", "darwin-arm64", "darwin-x64"];
+const TARGETS = ["win32-x64", "darwin-arm64", "darwin-x64", "linux-x64"];
 const RELEASE_MARKER = "Pofis ortak sürüm otomasyonu.";
 const PUBLIC_FILES = ["public/install.ps1", "public/install.sh", "public/releases/windows/latest.json",
-  "public/releases/macos/arm64/latest.json", "public/releases/macos/x64/latest.json"];
+  "public/releases/macos/arm64/latest.json", "public/releases/macos/x64/latest.json", "public/releases/linux/x64/latest.json"];
 const root = resolve(__dirname, "../..");
 const delay = ms => new Promise(done => setTimeout(done, ms));
 
 function releaseBody(version) {
   if (!/^[a-f0-9]{40}$/.test(process.env.GITHUB_SHA || "")) throw new Error("Kaynak commit kimliği geçersiz.");
-  return `Pofis ${version}\n\n- Windows x64, macOS Apple Silicon ve Intel.\n- Node.js veya Bun kurmadan, uygulama simgesinden açılış.\n- Tek komutla kurulum ve güncelleme.\n- Güncellemelerde korunan ayarlar ve oturum bilgileri.\n\nKurulum: https://pofis.app\n\n${RELEASE_MARKER}\nKaynak commit: ${process.env.GITHUB_SHA}`;
+  return `Pofis ${version}\n\n- Windows x64, macOS Apple Silicon/Intel ve Ubuntu 24.04 LTS x64.\n- Node.js veya Bun kurmadan, uygulama simgesinden açılış.\n- Tek komutla kurulum ve güncelleme.\n- Güncellemelerde korunan ayarlar ve oturum bilgileri.\n\nKurulum: https://pofis.app\n\n${RELEASE_MARKER}\nKaynak commit: ${process.env.GITHUB_SHA}`;
 }
 
 function assertRelease(release, version) {
@@ -31,7 +32,7 @@ function targetFor(id) {
 
 function assertManifest(manifest, version, id) {
   const target = targetFor(id);
-  const url = `https://github.com/${REPOSITORY}/releases/download/v${version}/Pofis-${version}-${id}.zip`;
+  const url = `https://github.com/${REPOSITORY}/releases/download/v${version}/Pofis-${version}-${id}.${target.archiveExtension}`;
   if (manifest.schemaVersion !== 1 || manifest.version !== version || manifest.platform !== target.platform ||
       manifest.arch !== target.arch || manifest.url !== url || !Number.isSafeInteger(manifest.size) ||
       manifest.size <= 0 || manifest.size >= 2 ** 31 || !/^[a-f0-9]{64}$/.test(manifest.sha256)) {
@@ -100,11 +101,11 @@ async function cleanupDraft(version) {
   console.log(`Pofis ${version}: başarısız derlemenin sürüm taslağı ve paketleri silindi.`);
 }
 function assetNames(version, id) {
-  return [`Pofis-${version}-${id}.zip`, installerAsset(id), manifestName(id)];
+  return [`Pofis-${version}-${id}.${targetFor(id).archiveExtension}`, installerAsset(id), manifestName(id)];
 }
 // Each native job owns its own assets; the two macOS jobs never race on install.sh.
 function installerAsset(id) { return id === "win32-x64" ? "install.ps1" : `install-${id}.sh`; }
-function installerFile(id) { return id === "win32-x64" ? "install.ps1" : "install.sh"; }
+function installerFile(id) { return targetFor(id).installer; }
 function releaseDirectory(id) { return join(root, "dist/releases", targetFor(id).releaseDirectory); }
 
 async function readAsset(release, name, raw = false) {
@@ -153,6 +154,7 @@ async function recover(version, id, release, allowCleanup = true) {
 async function assertSite(site, version) {
   const pkg = JSON.parse(await readFile(join(site, "package.json"), "utf8"));
   if (pkg.name !== "pofis-landing" || pkg.repository?.url !== `https://github.com/${REPOSITORY}.git`) throw new Error("Tanıtım sitesinin deposu eşleşmiyor.");
+  assertSiteCommands(require(join(site, "src/content.ts")).content);
   if ((await run("git", ["branch", "--show-current"], site)) !== "main" ||
       (await run("git", ["remote", "get-url", "origin"], site)) !== `https://github.com/${REPOSITORY}.git`) {
     throw new Error("Site deposunun main dalı ve origin adresi doğrulanamadı.");
@@ -201,7 +203,7 @@ async function stage(version, id) {
   const manifestPath = join(directory, manifestName(id));
   await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + "\n");
   for (const [name, path] of [[assetNames(version, id)[0], archive],
-    [installerAsset(id), join(process.env.SITE_DIRECTORY, "public", installerFile(id))],
+    [installerAsset(id), join(directory, installerFile(id))],
     [manifestName(id), manifestPath]]) {
     const url = release.upload_url.replace(/\{.*$/, "") + "?name=" + encodeURIComponent(name);
     await api("asset", { method: "POST", upload: url, body: Bun.file(path) });
@@ -290,6 +292,7 @@ async function main() {
   if (action === "cleanup") return cleanupDraft(version);
   if (!process.env.SITE_DIRECTORY) throw new Error("SITE_DIRECTORY gerekli.");
   const site = resolve(process.env.SITE_DIRECTORY);
+  if (action === "check-site") return assertSite(site, version);
   if (action === "begin") {
     await assertSite(site, version);
     const repo = await api("");
@@ -310,7 +313,7 @@ async function main() {
     await prepare(site, version);
   } else if (action === "publish") await publish(site, version);
   else if (action === "verify") await verifyLive(site, version);
-  else throw new Error("Yayın adımı: begin|recover|stage|prepare|publish|verify|cleanup");
+  else throw new Error("Yayın adımı: check-site|begin|recover|stage|prepare|publish|verify|cleanup");
 }
 
 if (require.main === module) main().catch(error => { console.error(error.message); process.exitCode = 1; });

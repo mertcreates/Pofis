@@ -21,7 +21,7 @@ async function checkForUpdates({ target, currentVersion, isActive,
   if (manifest.schemaVersion !== 1 || manifest.platform !== target.platform || manifest.arch !== target.arch ||
       !Number.isSafeInteger(manifest.size) || manifest.size <= 0 || manifest.size >= 2 ** 31 ||
       typeof manifest.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(manifest.sha256) ||
-      manifest.url !== `https://github.com/mertcreates/pofis-landing/releases/download/v${manifest.version}/Pofis-${manifest.version}-${target.id}.zip`) {
+      manifest.url !== `https://github.com/mertcreates/pofis-landing/releases/download/v${manifest.version}/Pofis-${manifest.version}-${target.id}.${target.archiveExtension}`) {
     throw new Error("Geçersiz sürüm bilgisi.");
   }
   const difference = next.findIndex((part, index) => part !== current[index]);

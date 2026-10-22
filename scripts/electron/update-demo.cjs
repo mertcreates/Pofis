@@ -5,6 +5,7 @@ if (process.versions.electron) {
   const { checkForUpdates } = require("../../electron/updates.cjs");
   const { installUpdateBridge } = require("../../electron/update-bridge.cjs");
   const { createDesktopServer, ORIGIN } = require("../../electron/server.cjs");
+  const { createDesktopTransport } = require("../../electron/transport.cjs");
   const { isolateAcceptanceAnalytics } = require("../../electron/acceptance-network.cjs");
   const { platformTarget } = require("../../electron/platform.cjs");
   app.setName("Pofis");
@@ -22,15 +23,8 @@ if (process.versions.electron) {
       sessionDirectory: join(app.getPath("userData"), "sessions"),
       onUnexpectedExit: error => { console.error(error); app.exit(1); } });
     const origin = await server.start();
-    session.defaultSession.protocol.handle("http", async request => {
-      const url = new URL(request.url);
-      if (url.origin !== ORIGIN) return new Response("Forbidden", { status: 403 });
-      return session.defaultSession.fetch(`${origin}${url.pathname}${url.search}`, {
-        method: request.method, headers: request.headers,
-        body: ["GET", "HEAD"].includes(request.method) ? undefined : await request.arrayBuffer(),
-        redirect: "manual", credentials: "include", bypassCustomProtocolHandlers: true,
-      });
-    });
+    session.defaultSession.protocol.handle("http", createDesktopTransport({ serverOrigin: origin,
+      fetch: (url, options) => session.defaultSession.fetch(url, options) }));
     const verify = process.argv.includes("--verify");
     const copies = [];
     let copyFails = false;
@@ -48,7 +42,7 @@ if (process.versions.electron) {
       isActive: () => !quitting && !window.isDestroyed(),
       fetchManifest: async () => Response.json({ schemaVersion: 1, platform: target.platform,
         arch: target.arch, version, size: 42, sha256: "a".repeat(64),
-        url: `https://github.com/mertcreates/pofis-landing/releases/download/v${version}/Pofis-${version}-${target.id}.zip` }),
+        url: `https://github.com/mertcreates/pofis-landing/releases/download/v${version}/Pofis-${version}-${target.id}.${target.archiveExtension}` }),
     }));
     if (verify) {
       const assert = require("node:assert/strict");
@@ -122,7 +116,7 @@ if (process.versions.electron) {
   const { mkdtemp, rm } = require("node:fs/promises");
   const { tmpdir } = require("node:os");
   (async () => {
-    if (!process.versions.bun) throw new Error("Demoyu bun run desktop:update-demo ile aç.");
+    if (!process.versions.bun) throw new Error("Demoyu bun scripts/electron/update-demo.cjs ile aç.");
     const temporaryRoot = resolve(tmpdir());
     const profile = await mkdtemp(join(temporaryRoot, "pofis-update-demo-"));
     try {

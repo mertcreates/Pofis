@@ -92,7 +92,7 @@ test("ayrı kurulum kabulü üretimi tekrarlamaz ve kabul hatasını korur", asy
   } })).rejects.toBe(failure);
   expect(calls).toEqual([process.platform === "win32"
     ? ["run", "test:desktop:distribution", "--site", "site"]
-    : [join(__dirname, "macos-distribution-test.cjs"), "--site", "site"]]);
+    : [join(__dirname, process.platform === "linux" ? "linux-distribution-test.cjs" : "macos-distribution-test.cjs"), "--site", "site"]]);
 });
 
 test("macOS Intel hazırlığını paketlemeyle örtüştürür; hazırlık hatasında ARM kabulünü bekler", async () => {
@@ -218,7 +218,7 @@ test("Intel ARM çıktısını yeniden derlemeden paketler; bütün araçlar nat
     await writeFile(join(directory, "electron/platform.cjs"), `module.exports.platformTarget = (platform, arch) => {
       if (platform !== 'darwin' || arch !== 'x64') throw Error('Intel target was not selected from native ARM host');
       return {
-      id: 'darwin-x64', platform: 'darwin', arch: 'x64', outputDirectory: 'macos', releaseDirectory: 'macos/x64',
+      id: 'darwin-x64', platform: 'darwin', arch: 'x64', outputDirectory: 'macos', releaseDirectory: 'macos/x64', installer: 'install-macos.sh',
       electronExecutable: 'Electron.app/Contents/MacOS/Electron'
     }; };`);
     await writeFile(join(directory, "scripts/electron/prepare-site.cjs"), "module.exports.prepareSite = async () => {};");
@@ -250,15 +250,16 @@ test("yayınsız workflow ölçümü sürümü doğrulayıp paketleri üretir; y
     `return (${expression.replace(/^\$\{\{\s*|\s*\}\}$/g, "")})`)(
     { publish }, { os }, { recover: { outputs: {} }, recover_intel: { outputs: {} } },
     { begin: { result: "success" }, build: { result: "failure" } }, { ref: "refs/heads/master" }, () => true);
-  for (const os of ["Windows", "macOS"]) {
+  for (const os of ["Windows", "macOS", "Linux"]) {
     const commands = [];
     for (const job of Object.values(workflow.jobs)) {
       if (!active(job.if, false, os)) continue;
       for (const step of job.steps) if (active(step.if, false, os) && step.run) commands.push(step.run);
     }
-    expect(commands.some(command => /publish\.cjs|macos-ci\.cjs stage/.test(command))).toBe(false);
+    expect(commands.some(command => /publish\.cjs (?:begin|recover|stage|prepare|publish|verify|cleanup)\b|macos-ci\.cjs stage/.test(command))).toBe(false);
+    expect(commands.some(command => command.includes("publish.cjs check-site"))).toBe(true);
     expect(commands.some(command => command.includes("ci-build.cjs check"))).toBe(true);
-    expect(commands.some(command => command.includes(os === "Windows" ? "ci-build.cjs build" : "macos-ci.cjs"))).toBe(true);
+    expect(commands.some(command => command.includes(os === "macOS" ? "macos-ci.cjs" : "ci-build.cjs build"))).toBe(true);
   }
   const steps = workflow.jobs.build.steps;
   expect(steps.some(step => step.with?.path?.includes("pofis-intel/.next/cache"))).toBe(false);

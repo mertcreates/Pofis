@@ -8,9 +8,11 @@ const { installUpdateBridge } = require("./update-bridge.cjs");
 const { createWindowOpenHandler } = require("./external-links.cjs");
 const { installPermissions } = require("./permissions.cjs");
 const { isolateAcceptanceAnalytics } = require("./acceptance-network.cjs");
+const { createDesktopTransport } = require("./transport.cjs");
 const target = platformTarget();
 
 app.setName("Pofis");
+if (target.platform === "linux") app.setDesktopName("app.pofis.client.desktop");
 app.setPath("userData", app.commandLine.getSwitchValue("user-data-dir") || join(app.getPath("appData"), "Pofis"));
 
 let window;
@@ -61,15 +63,20 @@ async function fail(error) {
   app.quit();
 }
 
-if (!app.requestSingleInstanceLock()) {
+if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
   app.quit();
 } else {
   app.on("second-instance", (_event, argv) => {
+    if (argv.includes("--pofis-quit")) { app.quit(); return; }
     const id = startupId(argv);
     if (id) requests.add(id);
     focusAndReport().catch(fail);
   });
   app.on("activate", () => { focusAndReport().catch(fail); });
+  if (target.platform === "linux") {
+    process.on("SIGTERM", () => app.quit());
+    process.on("SIGINT", () => app.quit());
+  }
   app.on("window-all-closed", () => app.quit());
   app.on("before-quit", (event) => {
     if (quitting) return;
@@ -115,18 +122,8 @@ if (!app.requestSingleInstanceLock()) {
     if (quitting) return;
     // Keep Chromium storage on one origin while the server can move to a free port.
     // This intercepts only this Electron session, never the other local application.
-    session.defaultSession.protocol.handle("http", async request => {
-      const url = new URL(request.url);
-      if (url.origin !== ORIGIN) return new Response("Forbidden", { status: 403 });
-      const destination = new URL(serverOrigin);
-      destination.pathname = url.pathname;
-      destination.search = url.search;
-      return session.defaultSession.fetch(destination.href, {
-        method: request.method, headers: request.headers,
-        body: ["GET", "HEAD"].includes(request.method) ? undefined : await request.arrayBuffer(),
-        redirect: "manual", credentials: "include", bypassCustomProtocolHandlers: true,
-      });
-    });
+    session.defaultSession.protocol.handle("http", createDesktopTransport({ serverOrigin,
+      fetch: (url, options) => session.defaultSession.fetch(url, options) }));
     const publishUpdate = installUpdateBridge({ ipcMain, getWindow: () => window,
       isPackaged: app.isPackaged, platform: target.platform, writeClipboard: text => clipboard.writeText(text) });
     window = new BrowserWindow({

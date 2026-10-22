@@ -5,7 +5,7 @@ import Modal from "../modal.js";
 import { ui } from "@/lib/ui-text.js";
 import "./desktop-update.css";
 
-export type DesktopUpdate = { currentVersion: string; version: string; platform: "win32" | "darwin"; command: string };
+export type DesktopUpdate = { currentVersion: string; version: string; platform: "win32" | "darwin" | "linux"; command: string };
 declare global {
   interface Window {
     pofisUpdates?: {

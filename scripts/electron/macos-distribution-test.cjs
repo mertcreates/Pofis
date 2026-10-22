@@ -11,7 +11,8 @@ const { createReadStream } = require("node:fs");
 const { platformTarget } = require("../../electron/platform.cjs");
 const { signMacBundle } = require("./macos.cjs");
 const { releaseManifest } = require("./release.cjs");
-const { MAC_INSTALL_COMMAND } = require("./install-command.cjs");
+const { UNIX_INSTALL_COMMAND } = require("./install-command.cjs");
+const { unixInstaller } = require("./unix-installer.cjs");
 const execute = promisify(execFile);
 const root = resolve(__dirname, "../..");
 
@@ -29,13 +30,13 @@ async function run() {
   const appPath = join(directory, "Applications/Pofis.app");
   const profile = join(directory, "profile");
   let host, occupied, active, bundle, fixturePreparation;
-  const installer = await readFile(join(__dirname, "install.sh"), "utf8");
+  const installer = await unixInstaller();
   const siteIndex = process.argv.indexOf("--site");
-  const command = MAC_INSTALL_COMMAND;
+  const command = UNIX_INSTALL_COMMAND;
   if (siteIndex !== -1) {
     const site = resolve(process.argv[siteIndex + 1]);
     const { content } = require(join(site, "src/content.ts"));
-    assert.equal(content.install.platforms.find(item => item.id === "macos").command, command);
+    assert.equal(content.install.platforms.find(item => item.id === "unix").command, command);
     assert.equal(await readFile(join(site, "public/install.sh"), "utf8"), installer);
   }
   let zipRequests = 0, manifestRequests = 0, slow = false;
@@ -51,7 +52,7 @@ async function run() {
       (consent ? '; [[ "$prompts" == 1 ]]' : '');
     const child = spawn("/bin/bash", ["-o", "pipefail", "-c", script], { env: { ...env,
       MANIFEST_URL: `${base}/latest.json`, INSTALL_ROOT: installRoot, APP_PATH: appPath, USER_DATA: profile,
-      INSTALLER_SOURCE: join(__dirname, "install.sh") },
+      INSTALLER_SOURCE: join(__dirname, "install-macos.sh") },
       stdio: ["ignore", "pipe", "pipe"] });
     let output = "";
     child.stdout.on("data", data => output += data);

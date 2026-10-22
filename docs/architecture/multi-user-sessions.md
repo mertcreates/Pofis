@@ -43,7 +43,7 @@ Yerel üretim önizlemesi standart `next start`, Docker dağıtımı standalone 
 
 ## İşletim sınırları
 
-[Windows/macOS masaüstü kabuğu](../desktop.md) aynı oturum yöneticisini Electron’un Node.js UtilityProcess’iyle kullanır. Profil ve sunucu oturumları sürüm dosyalarından, dış tarayıcıdan ve kurum sunucusundan ayrıdır; dizinler ve güncelleme davranışı masaüstü rehberinde yönetilir. Normal pencere kapanışı sunucuyu kapatır ve PDKS oturumunun mevcut TTL süresini korur. Yeniden açılışta mevcut sabit TTL uygulanır.
+[Windows/macOS/Linux masaüstü kabuğu](../desktop.md) aynı oturum yöneticisini Electron’un Node.js UtilityProcess’iyle kullanır. Profil ve sunucu oturumları sürüm dosyalarından, dış tarayıcıdan ve kurum sunucusundan ayrıdır; dizinler ve güncelleme davranışı masaüstü rehberinde yönetilir. Normal pencere kapanışı sunucuyu kapatır ve PDKS oturumunun mevcut TTL süresini korur. Yeniden açılışta mevcut sabit TTL uygulanır.
 
 Masaüstü sürüm temizliği ve uygulama kaldırma kullanıcı profilini silmez. Yeniden kurulum mevcut profili ve oturumların sabit TTL kuralını kullanır; kaldırma ayrıntıları [masaüstü rehberindedir](../desktop.md#kaldırma).
 

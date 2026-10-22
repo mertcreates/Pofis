@@ -2,6 +2,14 @@
 
 Bu liste yerelde çalışan kurum içi Pofis uygulamasının açık işlerini tutar. Davranış sözleşmeleri [kural haritasında](../docs/rules/README.md), kabul yöntemi [doğrulama rehberindedir](../docs/verification.md).
 
+## Ubuntu 24.04 LTS x64 desteği
+
+Yerel hazırlık yapıldı; gerçek Ubuntu kabulü ve yayın bekliyor. Destek kapsamı ve kurulum sözleşmesi [masaüstü rehberinde](../docs/desktop.md#ubuntu-2404-lts-x64-ve-ortak-unix-kurulumu), test komutları [doğrulama rehberindedir](../docs/verification.md#linux-ve-ortak-unix-installer-kabulü).
+
+- [ ] Linux commit’inin bildirim/tepsi önkoşullarını tamamla: installer’ın gerektirdiği `pofis-notifications.cjs` üretimi ve uygulama entegrasyonu henüz HEAD’de yok. Linux stage kapsamı bu önkoşullardan ayrı tutuluyor.
+- [ ] Ubuntu CI’da paket açılışı, ortak installer, tek örnek, açıkken onaylı güncelleme, geri alma ve profil koruyan kaldırmayı çalıştır. Bildirim kabulü hem sıfır çıkış kodunu hem tamamlanma mesajını gerektirir; erken çıkışın nedenini çöz. Mevcut Windows ortamında Linux/WSL bulunmadığı için native kabul çalıştırılmadı.
+- [ ] Gerçek Ubuntu GNOME masaüstünde AppArmor ilk kurulumu, menü kısayolu, tepsi/arka plan, yerel bildirim, anahtarlık/Telegram, uyku dönüşü ve PDKS giriş/rapor kabulünü tamamla. Xvfb bu kabulün yerine geçmez.
+
 ## 0.5.0 yayın kabulü
 
 - [ ] Güncel kaynakla Windows ve ARM64 paket açılış/kurulum/güncelleme kabulünü, Intel statik paket kontrollerini tamamla. Genel kabul betikleri GA4 trafiğini engeller. Yayın workflow'u hedef sürüme yönelik kullanıcı yetkisiyle başlatılır; [yayın sözleşmesi](../docs/release.md).

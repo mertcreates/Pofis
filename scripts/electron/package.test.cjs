@@ -54,7 +54,7 @@ test("Intel darwin-x64 runtime doğrulamasında statik PlistBuddy ve lipo sözle
   }
 });
 
-test("Diğer platformlarda (arm64, win32) dinamik runtime sorgusu çalıştırılır", async () => {
+test("Intel dışındaki hedeflerde dinamik runtime sorgusu sürüm ve mimariyi doğrular", async () => {
   const directory = await mkdtemp(join(tmpdir(), "pofis-runtime-dyn-"));
   const executable = join(directory, "Electron.app/Contents/MacOS/Electron");
   try {

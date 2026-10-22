@@ -125,7 +125,7 @@ async function build(version, siteDirectory, { execute = run, summary = process.
     join(root, "dist/releases", target.releaseDirectory, version, `Pofis-${version}-${target.id}.zip`)]));
   const { prepareSite } = require("./prepare-site.cjs");
   await stage("Dağıtım dosyalarını doğrula ve siteyi hazırla", () => prepareSite({ siteDirectory, releaseDirectory: join(root, "dist/releases", target.releaseDirectory),
-    installerPath: join(__dirname, target.platform === "win32" ? "install.ps1" : "install.sh") }));
+    installerPath: join(__dirname, target.installer) }));
   if (acceptance && distribution) await accept(version, siteDirectory, { execute, summary });
 }
 
@@ -137,6 +137,8 @@ async function accept(version, siteDirectory, { execute = run, summary = process
   await timed("Kurulum ve güncelleme kabulü", async () => {
     if (target.platform === "win32") {
       await execute(process.execPath, ["run", "test:desktop:distribution", "--site", siteDirectory]);
+    } else if (target.platform === "linux") {
+      await execute(process.execPath, [join(__dirname, "linux-distribution-test.cjs"), "--site", siteDirectory]);
     } else {
       await execute(process.execPath, [join(__dirname, "macos-distribution-test.cjs"), "--site", siteDirectory]);
     }

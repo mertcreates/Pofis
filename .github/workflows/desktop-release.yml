@@ -43,6 +43,8 @@ jobs:
           $siteDirectory = Join-Path $env:RUNNER_TEMP 'pofis-landing'
           "SITE_DIRECTORY=$siteDirectory" >> $env:GITHUB_ENV
           git clone --depth 1 --branch main https://github.com/mertcreates/pofis-landing.git "$siteDirectory"
+      - name: Ortak Unix ve Windows kurulum komutlarını doğrula
+        run: bun scripts/electron/publish.cjs check-site
       - name: Sürüm taslağını hazırla
         if: inputs.publish
         env:
@@ -58,6 +60,8 @@ jobs:
             runner: windows-2022
           - target: darwin-arm64
             runner: macos-15
+          - target: linux-x64
+            runner: ubuntu-24.04
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 45
     env:
@@ -108,6 +112,26 @@ jobs:
       - name: Windows paketini üret ve gerçek uygulamayı sına
         if: runner.os == 'Windows' && steps.recover.outputs.reuse != 'true'
         run: bun scripts/electron/ci-build.cjs build
+      - name: Ubuntu masaüstü kabul ortamını hazırla
+        if: runner.os == 'Linux' && steps.recover.outputs.reuse != 'true'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb dbus-x11 gnome-keyring libsecret-1-0 libnss3 libatk-bridge2.0-0 libgtk-3-0t64 libgbm1 libasound2t64 libayatana-appindicator3-1 python3
+          bun scripts/electron/linux-ci.cjs sandbox
+      - name: Linux paketini üret ve gerçek uygulamayı sına
+        if: runner.os == 'Linux' && steps.recover.outputs.reuse != 'true'
+        shell: bash
+        env:
+          XDG_CURRENT_DESKTOP: GNOME
+          DESKTOP_SESSION: ubuntu
+        run: |
+          xvfb-run -a dbus-run-session -- bash -euo pipefail -c 'printf "pofis-ci-keyring" | gnome-keyring-daemon --unlock --components=secrets; bun scripts/electron/ci-build.cjs build; bun scripts/electron/notification-demo.cjs --verify | tee "$RUNNER_TEMP/pofis-linux-notifications.log"; grep -Fq "Bildirim kabulü geçti:" "$RUNNER_TEMP/pofis-linux-notifications.log"'
+      - name: Doğrulanmış Linux paketini sürüm taslağına aktar
+        if: inputs.publish && runner.os == 'Linux' && steps.recover.outputs.reuse != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
+        run: bun scripts/electron/publish.cjs stage
       - name: Doğrulanmış Windows paketini sürüm taslağına aktar
         if: inputs.publish && runner.os == 'Windows' && steps.recover.outputs.reuse != 'true'
         env:
@@ -184,7 +208,7 @@ jobs:
           $siteDirectory = Join-Path $env:RUNNER_TEMP 'pofis-landing'
           "SITE_DIRECTORY=$siteDirectory" >> $env:GITHUB_ENV
           git clone --depth 1 --branch main https://github.com/mertcreates/pofis-landing.git "$siteDirectory"
-      - name: Üç paketi doğrula ve dağıtım dosyalarını hazırla
+      - name: Dört paketi doğrula ve dağıtım dosyalarını hazırla
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
         run: bun scripts/electron/publish.cjs prepare
@@ -207,4 +231,4 @@ jobs:
         env:
           RELEASE_RESULT: ${{ job.status }}
         run: |
-          "## Pofis $env:RELEASE_VERSION`nSonuç: $env:RELEASE_RESULT`n`nWindows x64 · macOS Apple Silicon · macOS Intel`n`nhttps://pofis.app`n`nHatalı adımı inceleyip aynı sürümle yeniden çalıştırabilirsin. Tamamlanmış platform paketleri yeniden üretilmez." >> $env:GITHUB_STEP_SUMMARY
+          "## Pofis $env:RELEASE_VERSION`nSonuç: $env:RELEASE_RESULT`n`nWindows x64 · macOS Apple Silicon · macOS Intel · Ubuntu x64`n`nhttps://pofis.app`n`nHatalı adımı inceleyip aynı sürümle yeniden çalıştırabilirsin. Tamamlanmış platform paketleri yeniden üretilmez." >> $env:GITHUB_STEP_SUMMARY

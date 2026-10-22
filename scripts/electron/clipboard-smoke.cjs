@@ -51,7 +51,7 @@ if (process.versions.electron) {
       publishUpdate(await checkForUpdates({ target, currentVersion: "0.0.0", isActive: () => true,
         fetchManifest: async () => Response.json({ schemaVersion: 1, platform: target.platform, arch: target.arch,
           version: "0.0.1", size: 1, sha256: "a".repeat(64),
-          url: `https://github.com/mertcreates/pofis-landing/releases/download/v0.0.1/Pofis-0.0.1-${target.id}.zip` }),
+          url: `https://github.com/mertcreates/pofis-landing/releases/download/v0.0.1/Pofis-0.0.1-${target.id}.${target.archiveExtension}` }),
       }));
       await window.webContents.executeJavaScript("window.pofisUpdates.copyCommand()", true);
       assert.equal(clipboard.readText(), target.platform === "win32" ? "irm https://pofis.app/install.ps1 | iex"

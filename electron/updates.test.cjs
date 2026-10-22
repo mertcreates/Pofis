@@ -7,13 +7,13 @@ const { ORIGIN } = require("./server.cjs");
 function fixture(platform = "win32", arch = "x64", version = "0.1.1") {
   const target = platformTarget(platform, arch);
   const manifest = { schemaVersion: 1, platform, arch, version, size: 42, sha256: "a".repeat(64),
-    url: `https://github.com/mertcreates/pofis-landing/releases/download/v${version}/Pofis-${version}-${target.id}.zip` };
+    url: `https://github.com/mertcreates/pofis-landing/releases/download/v${version}/Pofis-${version}-${target.id}.${target.archiveExtension}` };
   const requests = [];
   const options = { target, currentVersion: "0.1.0", isActive: () => true,
     fetchManifest: async (...request) => { requests.push(request); return Response.json(manifest); } };
   return { manifest, requests, options };
 }
-test.each([["win32", "x64", "windows"], ["darwin", "arm64", "macos/arm64"], ["darwin", "x64", "macos/x64"]])(
+test.each([["win32", "x64", "windows"], ["darwin", "arm64", "macos/arm64"], ["darwin", "x64", "macos/x64"], ["linux", "x64", "linux/x64"]])(
   "%s/%s kendi manifestini denetler", async (platform, arch, path) => {
     const f = fixture(platform, arch);
     expect(await checkForUpdates(f.options)).toEqual({ currentVersion: "0.1.0", version: "0.1.1", platform });
@@ -68,7 +68,7 @@ function bridgeFixture(platform = "win32", isPackaged = true) {
   return { handlers, copies, events, contents, event: { sender: contents, senderFrame: contents.mainFrame }, publish };
 }
 test.each([["win32", "irm https://pofis.app/install.ps1 | iex"],
-  ["darwin", "curl -fsSL https://pofis.app/install.sh | bash"]])(
+  ["darwin", "curl -fsSL https://pofis.app/install.sh | bash"], ["linux", "curl -fsSL https://pofis.app/install.sh | bash"]])(
   "%s köprüsü bilgiyi saklar ve yalnız kullanıcı isteğinde sabit komutu kopyalar", (platform, command) => {
     const f = bridgeFixture(platform);
     expect(f.handlers["pofis:update:get"](f.event)).toBeNull();

@@ -40,7 +40,7 @@ test("yalnız doğrulanmış paketin public manifestini ve installer'ını aktar
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 
-for (const arch of ["arm64", "x64"]) test(`macOS ${arch}: ortak installer ve doğru manifest yolu aktarılır`, async () => {
+for (const [platform, arch, directory, installerName, extension] of [["darwin", "arm64", "macos", "install.sh", "zip"], ["darwin", "x64", "macos", "install.sh", "zip"], ["linux", "x64", "linux", "install.sh", "tar.gz"]]) test(`${platform} ${arch}: installer ve doğru manifest yolu aktarılır`, async () => {
   const root = await mkdtemp(join(tmpdir(), "pofis-mac-site-"));
   try {
     const siteDirectory = join(root, "site");
@@ -53,16 +53,16 @@ for (const arch of ["arm64", "x64"]) test(`macOS ${arch}: ortak installer ve do�
     await writeFile(join(siteDirectory, "package.json"), JSON.stringify({ name: "pofis-landing",
       repository: { url: "https://github.com/example/pofis-landing.git" } }));
     const bytes = Buffer.from("macOS aktarım fixture'ı; .app çalıştırma kabulü değildir");
-    const name = `Pofis-1.2.3-darwin-${arch}.zip`;
+    const name = `Pofis-1.2.3-${platform}-${arch}.${extension}`;
     await writeFile(join(releaseDirectory, "1.2.3", name), bytes);
     await writeFile(join(releaseDirectory, "latest.json"), JSON.stringify({ schemaVersion: 1,
-      platform: "darwin", arch, version: "1.2.3", size: bytes.length,
+      platform, arch, version: "1.2.3", size: bytes.length,
       sha256: createHash("sha256").update(bytes).digest("hex"), url: `1.2.3/${name}` }));
     await writeFile(installerPath, "#!/bin/bash\nprintf 'Pofis'\n");
     const { manifest } = await prepareSite({ siteDirectory, releaseDirectory, installerPath });
     expect(manifest.url).toBe(`https://github.com/example/pofis-landing/releases/download/v1.2.3/${name}`);
-    expect(JSON.parse(await readFile(join(siteDirectory, "public/releases/macos", arch, "latest.json"), "utf8"))).toEqual(manifest);
-    expect(await readFile(join(siteDirectory, "public/install.sh"), "utf8")).toBe("#!/bin/bash\nprintf 'Pofis'\n");
+    expect(JSON.parse(await readFile(join(siteDirectory, "public/releases", directory, arch, "latest.json"), "utf8"))).toEqual(manifest);
+    expect(await readFile(join(siteDirectory, "public", installerName), "utf8")).toContain("printf 'Pofis'\n");
     expect(await readFile(join(siteDirectory, "public/install.ps1"), "utf8")).toBe("Windows korunur");
   } finally { await rm(root, { recursive: true, force: true }); }
 });

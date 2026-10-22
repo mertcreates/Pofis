@@ -60,6 +60,10 @@ async function prepare(arch = process.arch) {
   if (target.platform === "darwin") {
     await cp(join(electronDist, "Electron.app"), join(output, "Pofis.app"), { recursive: true, verbatimSymlinks: true });
     await rebrandMacBundle(join(output, "Pofis.app"), manifest.version, icons.macos);
+  } else if (target.platform === "linux") {
+    await cp(electronDist, output, { recursive: true, dereference: true });
+    await rename(join(output, "electron"), join(output, target.executable));
+    await copyFile(join(__dirname, "uninstall-linux.sh"), join(output, "uninstall.sh"));
   } else {
     await cp(electronDist, output, { recursive: true });
     await rename(join(output, "electron.exe"), join(output, target.executable));
@@ -68,7 +72,7 @@ async function prepare(arch = process.arch) {
         "-Executable", join(output, target.executable), "-Icon", icons.windows], { windowsHide: true });
   }
   await mkdir(join(payload, "electron"), { recursive: true });
-  for (const file of ["main.cjs", "server.cjs", "server-entry.cjs", "startup.cjs", "platform.cjs", "updates.cjs", "update-bridge.cjs", "preload.cjs", "external-links.cjs", "permissions.cjs", "acceptance-network.cjs"]) {
+  for (const file of ["main.cjs", "transport.cjs", "server.cjs", "server-entry.cjs", "startup.cjs", "platform.cjs", "updates.cjs", "update-bridge.cjs", "preload.cjs", "external-links.cjs", "permissions.cjs", "acceptance-network.cjs"]) {
     await copyFile(join(root, "electron", file), join(payload, "electron", file));
   }
   if (target.platform === "win32") await copyFile(join(root, "electron", "uninstall.ps1"), join(payload, "electron", "uninstall.ps1"));
@@ -87,7 +91,7 @@ async function prepare(arch = process.arch) {
   if (target.platform === "darwin") {
     await signMacBundle(join(output, "Pofis.app"));
   }
-  console.log(`Pofis paketi (${target.id}): ${output}\n${target.platform === "darwin" ? "Pofis.app" : "Pofis.exe"} dosyasını aç.`);
+  console.log(`Pofis paketi (${target.id}): ${output}\n${target.executable} dosyasını aç.`);
 }
 
 if (require.main === module) prepare(process.argv[2]).catch((error) => { console.error(error.message); process.exitCode = 1; });

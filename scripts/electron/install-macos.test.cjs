@@ -5,10 +5,10 @@ const { mkdtemp, writeFile, readFile, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { tmpdir } = require("node:os");
 const execute = promisify(execFile);
-const { MAC_INSTALL_COMMAND } = require("./install-command.cjs");
+const { UNIX_INSTALL_COMMAND } = require("./install-command.cjs");
 const bash = process.platform === "darwin" ? "/bin/bash" : process.env.POFIS_TEST_BASH;
 const shellTest = bash ? test : test.skip;
-const installer = resolve(__dirname, "install.sh");
+const installer = resolve(__dirname, "install-macos.sh");
 // Windows has the bundled Git shell; native macOS tests use /bin/bash unchanged.
 const localCommand = script => process.platform === "win32"
   ? script.replaceAll("/bin/bash", "'" + bash.replaceAll("\\", "/") + "'") : script;
@@ -104,7 +104,7 @@ shellTest("kısa kurulum komutu installer argümanlarını ve hata kodunu korur"
   const host = Bun.serve({ hostname: "127.0.0.1", port: 0,
     fetch: () => new Response('printf "%s" "$1"; exit 23\n') });
   try {
-    const script = MAC_INSTALL_COMMAND.replace("https://pofis.app/install.sh", `http://127.0.0.1:${host.port}/install.sh`) + ' -s -- "iki kelime"';
+    const script = UNIX_INSTALL_COMMAND.replace("https://pofis.app/install.sh", `http://127.0.0.1:${host.port}/install.sh`) + ' -s -- "iki kelime"';
     const failure = await execute(bash, ["-c", localCommand(script)]).then(() => null, error => error);
     expect(failure?.code).toBe(23);
     expect(failure?.stdout).toBe("iki kelime");

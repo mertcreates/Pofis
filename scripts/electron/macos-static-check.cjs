@@ -15,6 +15,7 @@ async function checkIntelPackage(directory, execute = promisify(execFile)) {
     throw new Error("Intel paket bilgileri uyuşmuyor. release.json ile uygulamanın platform, mimari ve sürümünü kontrol et.");
   }
   for (const file of [target.executable, join(target.resources, "app/electron/main.cjs"),
+    join(target.resources, "app/electron/transport.cjs"),
     join(target.resources, "app/electron/preload.cjs"), join(target.resources, "app/electron/update-bridge.cjs"),
     join(target.resources, "app/server/server.js")]) {
     await access(join(directory, file));
