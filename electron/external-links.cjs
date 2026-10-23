@@ -5,7 +5,7 @@ function createWindowOpenHandler({ openExternal, onError }) {
     catch { return { action: "deny" }; }
 
     // Only the authored credit site's HTTPS origin may reach the OS browser.
-    if (destination.origin === "https://mertcreates.com" && !destination.username && !destination.password) {
+    if (destination.origin === "https://mertercan.com" && !destination.username && !destination.password) {
       openExternal(destination.href).catch(onError);
     }
     return { action: "deny" };

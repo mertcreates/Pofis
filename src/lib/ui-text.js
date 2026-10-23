@@ -4,7 +4,7 @@ export const product = {
   mascotName: "Pofi",
   tagline: "Mesaiye biraz Pofi.",
   creditLabel: "mertcreates.",
-  creditUrl: "https://mertcreates.com",
+  creditUrl: "https://mertercan.com",
 };
 
 export const ui = {
@@ -205,7 +205,7 @@ export const ui = {
     paste: "Yapıştır",
     selectAll: "Tümünü Seç",
     linkFailedTitle: "Bağlantı açılamadı",
-    linkFailed: "Tarayıcı açılamadı. https://mertcreates.com adresini tarayıcında açabilirsin.",
+    linkFailed: "Tarayıcı açılamadı. https://mertercan.com adresini tarayıcında açabilirsin.",
     rendererClosed: "Pofis arayüzü kapandı. Uygulamayı yeniden aç.",
     missingParent: "Pofis ana süreç kimliği eksik.",
     processGroupStopFailed: "Pofis süreç grubu kapatılamadı.",

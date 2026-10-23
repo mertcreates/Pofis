@@ -93,7 +93,7 @@ Linux statik kontrolü, hedef Ubuntu kabul komutları ve kanıtın sınırları 
 
 ## Dış bağlantılar
 
-Alt bilgideki “mertcreates.” bağlantısı [Electron ana sürecinden](../electron/main.cjs), [dış bağlantı işleyicisi](../electron/external-links.cjs) üzerinden varsayılan sistem tarayıcısında açılır. İşleyici yalnız `https://mertcreates.com` origin'ini ve kullanıcı bilgisi içermeyen adresleri kabul eder; diğer hedefler ve yeni Electron pencereleri engellenir. Ana pencerenin uygulama dışına gezinme ve yönlendirme sınırı korunur. Tarayıcı açılamazsa adresi elle açmayı öneren hata bildirimi gösterilir.
+Alt bilgi etiketi “mertcreates.”, `https://mertercan.com` adresine gider. [Electron ana süreci](../electron/main.cjs) bu bağlantıyı [dış bağlantı işleyicisi](../electron/external-links.cjs) üzerinden sistem tarayıcısında açar. İşleyici yalnız bu HTTPS origin'inin kullanıcı bilgisi içermeyen adreslerini geçirir; diğer hedefleri ve yeni Electron pencerelerini engeller. Ana pencere uygulama içinde kalır. Tarayıcı açılamazsa adresi elle açmayı öneren hata bildirimi gösterilir.
 
 `bun run test:desktop` gerçek footer adresinin tarayıcıya aktarılmasını, diğer origin/protokollerin engellenmesini ve tarayıcı açılış hatasını sınar. Paket kabulünde “mertcreates.” bağlantısına tıklayıp sistem tarayıcısının açıldığını ve Pofis penceresinin yerinde kaldığını ayrıca kontrol et.
 

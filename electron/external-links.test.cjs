@@ -14,11 +14,11 @@ test("gerçek footer adresi tarayıcıya aktarılır; Electron penceresi açılm
   const { product } = await import("../src/lib/ui-text.js");
   const f = fixture();
   expect(f.handler({ url: product.creditUrl })).toEqual({ action: "deny" });
-  expect(f.opened).toEqual(["https://mertcreates.com/"]);
+  expect(f.opened).toEqual(["https://mertercan.com/"]);
 });
 
 test.each([
-  "https://mertcreates.com/", "https://mertcreates.com/about?from=pofis#contact",
+  "https://mertercan.com/", "https://mertercan.com/about?from=pofis#contact",
 ])("izinli HTTPS adresi açılır: %s", url => {
   const f = fixture();
   expect(f.handler({ url })).toEqual({ action: "deny" });
@@ -26,12 +26,12 @@ test.each([
 });
 
 test.each([
-  "https://example.com", "https://mertcreates.com.evil.example",
-  "https://mertcreates.com@evil.example", "https://user:pass@mertcreates.com",
-  "https://www.mertcreates.com", "https://mertcreates.com:444",
-  "http://mertcreates.com", "http://127.0.0.1:3210/demo",
+  "https://example.com", "https://mertercan.com.evil.example",
+  "https://mertercan.com@evil.example", "https://user:pass@mertercan.com",
+  "https://www.mertercan.com", "https://mertercan.com:444",
+  "http://mertercan.com", "http://127.0.0.1:3210/demo",
   "file:///C:/Windows/notepad.exe", "javascript:alert(1)",
-  "mailto:hello@mertcreates.com", "ms-settings:display", "about:blank", "invalid",
+  "mailto:hello@example.com", "ms-settings:display", "about:blank", "invalid",
 ])("diğer hedefler işletim sistemine aktarılmaz: %s", url => {
   const f = fixture();
   expect(f.handler({ url })).toEqual({ action: "deny" });
@@ -42,7 +42,7 @@ test.each([
 test("tarayıcı açılışı başarısız olursa hata bildirilir", async () => {
   const error = new Error("No browser available");
   const f = fixture(async () => { throw error; });
-  expect(f.handler({ url: "https://mertcreates.com" })).toEqual({ action: "deny" });
+  expect(f.handler({ url: "https://mertercan.com" })).toEqual({ action: "deny" });
   await Promise.resolve();
   expect(f.errors).toEqual([error]);
 });
