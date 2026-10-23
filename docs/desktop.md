@@ -322,10 +322,10 @@ Kaldırma referansları: [Apple: Mac uygulamalarını kaldırma](https://support
 
 Panel, Pofis ana sayfasının oturumunu ve `http://127.0.0.1:3210` origin'ini paylaşır. Mesai, hedef çıkış ve haftalık ilerleme için yeni hesaplama veya depolama yolu bulunmaz: `prepareReport`, haftalık özet ve mevcut plan sahipleri kullanılır. Her yeniden açılışta panel sayfası yenilenir. Oturum yoksa Pofis'i açma eylemi gösterilir.
 
-- Pencere normalde odağı kaybettiğinde gizlenir. Sabitlenirse odağı kaybettiğinde açık kalır. Sabitleme yalnız mevcut oturum için geçerlidir.
+- Pencere çerçevesiz 356 × 468 px boyutundadır; başlık alanı sürüklenebilir, sabitleme düğmesi bu sürükleme alanının dışındadır. Pencere normalde odağı kaybettiğinde gizlenir. Sabitlenirse odağı kaybettiğinde açık kalır. Sabitleme yalnız mevcut oturum için geçerlidir.
 - Menüden veya panel içinden ana pencere açılabilir. Ana pencere kapatıldığında arka plan süreci ve tray yaşamaya devam eder. Açık "Pofis'ten Çık" ve Command-Q uygulamayı ve yerel sunucuyu kapatır.
 - `CommandOrControl+Shift+P` Pofi Mini'yi açıp kapatır. macOS Dock sağ tık menüsünde Pofi Mini ve ana pencere eylemleri vardır.
-- macOS menü çubuğunda güvenilir açık giriş varsa hedef çıkışa kalan süre `H:DD` biçiminde, hedef aşıldıysa `+H:DD` olarak görünür. Hedef yoksa, çıkış işlendiyse veya İstanbul takviminde gün değiştiyse süre gizlenir. Hedef saatini [bildirim çalışma zamanı](../src/desktop/notification-runtime.ts) ve [ortak hedef hesabı](../src/desktop/notification-report.ts) sağlar. Tray yalnız sonucu biçimlendirir.
+- macOS menü çubuğunda güvenilir açık giriş varsa hedef çıkışa kalan süre `H:DD` biçiminde, hedef aşıldıysa `+H:DD` olarak görünür. Hedef yoksa, çıkış işlendiyse veya İstanbul takviminde gün değiştiyse süre gizlenir. Hedef saatini [bildirim çalışma zamanı](../src/desktop/notification-runtime.ts) ve [ortak hedef hesabı](../src/desktop/notification-report.ts) sağlar. Tray yalnız sonucu biçimlendirir; etiket macOS'ta 15 saniyede bir yenilenir.
 - Menüdeki "Hedefe kalan süreyi göster" seçeneği sürenin görüntülenmesini açıp kapatır, varsayılan açıktır. Tercih kullanıcı profilindeki `menu-clock.json` içinde saklanır, PDKS bilgisi kaydedilmez.
 - macOS'ta paketli uygulamada "Oturum açılışında başlat" menüsü kullanıcının açık tercihiyle `app.setLoginItemSettings` değerini değiştirir. Varsayılan otomatik başlatma açılmaz.
 - Mini IPC köprüsü istekleri yalnız panelin kendi ana frame'inden ve Pofis origin'inden kabul eder. Dış bağlantılar ve origin dışına yönlenme panelde engellenir.
