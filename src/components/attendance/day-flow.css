@@ -31,7 +31,7 @@
 .rail-axis dd { margin: 4px 0 0; color: var(--ink); }
 .rail-first-entry { grid-area: 1 / 1; display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
 .rail-first-entry dd { margin: 0; }
-.rail-axis-target-left .rail-first-entry { grid-area: 2 / 1; }
+.rail-axis-target-near-start .rail-target-label { grid-area: 2 / 1; }
 .rail-target-label { grid-area: 1 / 1; position: relative; left: var(--rail-target-position); width: max-content; max-width: 100%; transform: translateX(clamp(calc(-1 * var(--rail-target-position)), -50%, calc(100cqw - var(--rail-target-position) - 100%))); text-align: center; }
 .rail-target-label dt { width: max-content; max-width: 100%; margin-inline: auto; padding: 4px 8px; background: var(--surface-subtle); border-radius: var(--radius-control); }
 .rail-legend { display: flex; flex-wrap: wrap; gap: 12px 16px; font-size: 12px; color: var(--secondary); }
@@ -44,5 +44,5 @@
   .rail-elapsed { grid-template-columns: minmax(0, 1fr); }
   .rail-exit-goal { text-align: left; }
   .rail-target-delta { text-align: left; }
-  .rail-axis:has(.rail-target-label) .rail-first-entry { grid-area: 2 / 1; }
+  .rail-axis:has(.rail-target-label) .rail-target-label { grid-area: 2 / 1; }
 }

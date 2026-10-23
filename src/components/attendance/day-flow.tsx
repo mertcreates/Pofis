@@ -91,7 +91,7 @@ export function DayFlow({ day, target, onOpenRecords }: { day: DayReport; target
           {targetAt !== null && <span className="rail-target-line" aria-hidden="true" />}
           <span className="rail-end-marker" aria-hidden="true" />
         </div>
-        <dl className={`rail-axis${targetAt !== null && targetPosition < 0.5 ? " rail-axis-target-left" : ""}`}>
+        <dl className={`rail-axis${targetAt !== null && targetPosition < 0.2 ? " rail-axis-target-near-start" : ""}`}>
           {day.firstEntry !== null && <div className="rail-first-entry">
             <dt>{ui.firstEntry}</dt>
             <dd><FlowTime at={day.firstEntry} date={day.date} /></dd>
