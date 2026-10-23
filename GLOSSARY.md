@@ -70,6 +70,9 @@ Kullanıcının haftalık planda günün gereken süresini korumak için koyduğ
 **Pofi notu**:
 Mesai kaydından bağımsız, belirli bir tarih ve kişi anahtarı için seçilen günlük metni.
 
+**Pofi faaliyet kaydı**:
+Odadaki “Pofi’nin mesaisi” ekranında tarih için seçilen üç kurgusal faaliyetten biri. Aynı gün herkes aynı kayıtları görür.
+
 **Yemek yorumu**:
 Seçilen menüdeki yemek ve rol koşullarına uyan bütün metinler arasından hesap anahtarı ve tarih için seçilen kısa Pofi metni.
 

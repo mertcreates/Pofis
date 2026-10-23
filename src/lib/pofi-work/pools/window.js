@@ -1,0 +1,23 @@
+/** @type {import('../types').PofiWorkEntry[]} */
+export const WINDOW_NOTES = [
+  { id: "sunny-corner", text: "Güneş masanın öbür ucuna geçti. Ben de yer değiştirdim." },
+  { id: "little-bird", text: "Pervaza bir kuş kondu. Yaklaşınca uçtu, ben de yerime döndüm." },
+  { id: "rain-drops", text: "Camdaki iki damlayı izledim. Aşağıda birleştiler." },
+  { id: "open-window", text: "Pencereyi araladım. Masamdaki kâğıt kıpırdayınca üstüne kalem koydum." },
+  { id: "distant-roof", text: "Karşı çatıdaki kuşu gördüm. Defterime çizerken uçmuş." },
+  { id: "card-reflection", text: "Camda kartımın yansımasını gördüm. Kart biraz yamukmuş, düzelttim." },
+  { id: "passing-cloud", text: "Bulut güneşin önüne geçti. Masamdaki aydınlık köşe kayboldu." },
+  { id: "window-handle", text: "Pencerenin koluna yetiştim. Kapatırken kartım cama değdi." },
+  { id: "quiet-perch", text: "Pencere önü boştu. Bir süre ben oturdum." },
+  { id: "curtain-shadow", text: "Perdenin gölgesi defterime düştü. Defteri aydınlık tarafa çektim." },
+  { id: "bus-stop", text: "Durakta bekleyenleri izledim. Otobüs gelince hepsi aynı tarafa döndü." },
+  { id: "leaf-on-sill", text: "Pervazda küçük bir yaprak vardı. Nereden geldiğini görmek için yukarı baktım." },
+  { id: "two-pigeons", text: "İki güvercin yan yana duruyordu. Biri yürüyünce öbürü de peşine takıldı." },
+  { id: "curtain-edge", text: "Perdenin ucu burnuma değdi. Biraz yana oturdum." },
+  { id: "street-sign", text: "Karşıdaki tabelayı okumaya çalıştım. En büyük yazıyı okuyabildim." },
+  { id: "flower-pot", text: "Pencere önündeki saksının altını sildim. Saksıyı eski izinin üstüne koydum." },
+  { id: "window-mist", text: "Cama nefes verince küçük bir yer buğulandı. Dışarıyı görmek için biraz yana kaydım." },
+  { id: "roof-tiles", text: "Karşı çatının kiremitlerini saydım. Bacanın arkasındakiler kaldı." },
+  { id: "distant-wave", text: "Karşı pencerede biri el salladı. Ben de patimi kaldırdım." },
+  { id: "high-branch", text: "Camın dışındaki dal sallanıyordu. Kuş konacak mı diye biraz bekledim." },
+];

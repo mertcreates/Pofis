@@ -4,7 +4,7 @@ Paylaşılan yüzeylerde demo ve canlı ekran aynı bileşenleri kullanır. Gör
 
 | Alan | Kod sahibi ve sorumluluk |
 | --- | --- |
-| Metinler | [ui-text.js](../../src/lib/ui-text.js): arayüz etiketleri, erişilebilir adlar, bildirim metinleri, işlem sonuçları ve hatalar. Pofi günlükleri [tema/özel not dosyalarında](../pofi-notes.md), yemek yorumları [senaryo dosyalarında](../rules/meal-menu.md), konsol easter egg metni kök yerleşimde yönetilir |
+| Metinler | [ui-text.js](../../src/lib/ui-text.js): arayüz etiketleri, erişilebilir adlar, bildirim metinleri, işlem sonuçları ve hatalar. Pofi notları ve faaliyetleri [içerik rehberindeki sahiplerde](../pofi-notes.md), yemek yorumları [senaryo dosyalarında](../rules/meal-menu.md), konsol easter egg metni kök yerleşimde yönetilir |
 | Uygulama çerçevesi | [AppShell](../../src/components/shell/app-shell.js), [başlık](../../src/components/shell/app-header.js), [alt bilgi](../../src/components/shell/app-footer.js): menü, ayarlar ve sürüm bilgisi |
 | Tema | [ThemeSwitch](../../src/components/shell/theme-switch.js), [useAppearance](../../src/data/use-appearance.ts): tercih ve işletim sistemi teması |
 | Masaüstü güncellemesi | [useDesktopUpdate / DesktopUpdateModal](../../src/components/shell/desktop-update.tsx): köprüden sürüm bilgisini alma, platform yönlendirmesi ve komut kopyalama; [masaüstü sözleşmesi](../desktop.md#açılışta-sürüm-denetimi) |
@@ -17,7 +17,7 @@ Paylaşılan yüzeylerde demo ve canlı ekran aynı bileşenleri kullanır. Gör
 | Haftalık grafik | [WeekChart](../../src/components/attendance/week-chart.tsx): günlük kayıtlı süre ve tahmin sütunları |
 | Giriş–çıkış raporu | [ReportTable](../../src/components/attendance/report-table.tsx), [RawPassages](../../src/components/attendance/records.tsx): açılır günlük özetler ve ham hareketler; `openDay(date)` arayüzü bugün veya geçmiş günün mevcut satırını açar, odaklar ve görünür alana kaydırır; [labels](../../src/components/attendance/labels.ts) kayıt durumunu ve somut nedenleri metne çevirir |
 | Pofi paneli | [PofiPanel](../../src/components/dashboard/pofi-panel.tsx): durum görseli, başlık, mesaj ve odayı açma |
-| Pofi odası | [Oda](../../src/components/pofi/room.js), [not defteri](../../src/components/pofi/notebook.js), [bağlantı](../../src/components/pofi-room-content.tsx): albüm, kart, notlar ve sürprizler |
+| Pofi odası | [Oda](../../src/components/pofi/room.js), [not defteri](../../src/components/pofi/notebook.js), [bağlantı](../../src/components/pofi-room-content.tsx): albüm, kart, notlar, günlük faaliyetler ve sürprizler. İçerik ve seçim sahipleri [içerik rehberindedir](../pofi-notes.md) |
 | Pofi çağırma ve ikonlar | [PofiCall](../../src/components/pofi-call.js), [Icon](../../src/components/ui-icon.js): klavye çağrısı ve ortak ikonlar |
 | Yemek menüsü | [MealMenuModal](../../src/components/meals/menu-modal.tsx), [tarih seçici](../../src/components/meals/date-picker.tsx): oturumlu ana ekrandan açılan menü ve Pofi notu; veri ve kategori sahipleri [menü sözleşmesinde](../rules/meal-menu.md) |
 | Mesai planı | [PlanEditor](../../src/components/plan-editor.tsx): varsayılan/özel hafta kontrolleri ve kayıt; isteğe bağlı `initialDate` aynı haftanın çalışma gününü başlangıçta seçer. [DashboardView](../../src/components/dashboard/view.tsx) modalı bu tarihle açar; hesaplar [plan sözleşmesinden](../rules/work-plan.md) gelir |

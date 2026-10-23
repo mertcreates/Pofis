@@ -39,6 +39,10 @@ export const ui = {
     invalidSpecialDay: (date) => `Invalid special day: ${date}`,
     unknownSharedVariant: (date) => `Unknown shared variant: ${date}`,
     invalidPofiNoteDate: (date) => `Invalid Pofi note date: ${date}`,
+    pofiWorkPoolTooSmall: "Her Pofi mesai havuzunda en az 10 farklı kayıt olmalı.",
+    pofiWorkLinkedTooSmall: "Bağlantılı Pofi mesai setleri kullanıldığında en az iki set olmalı.",
+    invalidPofiWorkDay: (id) => `Pofi mesai kaydı geçersiz veya tekrarlanmış: ${id}`,
+    invalidPofiWorkDate: "Pofi mesai kaydı tarihi geçersiz.",
     pofiNotesAreForWeekdaysAndSpecialDates: (date) => `Pofi notes are for weekdays and special dates: ${date}`,
     unsupportedTarget: (platform, arch) => `Desteklenmeyen Pofis hedefi: ${platform}/${arch}`,
     sessionExpired: "Oturum sona erdi.",
@@ -459,11 +463,11 @@ export const ui = {
       ["İmza", "Mesaiye biraz Pofi", "signature"],
     ],
     workIntro: "Kendi tuttuğum küçük kayıtlar.",
-    work: [
-      ["Pencere nöbeti", "Güneşli köşeyi buldum."],
-      ["Mola kontrolü", "Biraz esnedim."],
-      ["Mesai arkadaşlığı", "Yanındayım."],
-    ],
+    workLabels: {
+      window: "Pencere nöbeti",
+      break: "Mola kontrolü",
+      company: "Mesai arkadaşlığı",
+    },
   },
   weekdays: [
     { short: "Pzt", long: "Pazartesi" },

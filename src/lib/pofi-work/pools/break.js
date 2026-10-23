@@ -1,0 +1,23 @@
+/** @type {import('../types').PofiWorkEntry[]} */
+export const BREAK_NOTES = [
+  { id: "forgotten-cup", text: "Çayımı almaya gittim. Bardağımı masada unutmuşum." },
+  { id: "stretch", text: "Biraz esnedim. Sonra sandalyeye yeniden yerleştim." },
+  { id: "biscuit", text: "Bisküviyi çaya batırıp hemen çıkardım." },
+  { id: "corridor", text: "Koridorda biraz yürüdüm. Dönüşte su aldım." },
+  { id: "book-page", text: "Raftan bir kitap aldım. Ayraç koyduğum sayfayı açtım." },
+  { id: "warm-tea", text: "Çayı soğumadan içtim. Bardağı da mutfağa bıraktım." },
+  { id: "cardboard-box", text: "Masamın yanındaki kutuya kıvrıldım. Kuyruğuma da yer kaldı." },
+  { id: "cookie-crumbs", text: "Kurabiyenin kırıntılarını tabağa topladım." },
+  { id: "empty-packet", text: "Son bisküviyi aldım. Boş paketi de kaldırdım." },
+  { id: "water-bottle", text: "Suyumu içtim. Şişeyi doldurup masama döndüm." },
+  { id: "tea-bag", text: "Çay poşetinin ipi bardağa kaçtı. Kaşıkla çıkardım." },
+  { id: "snack-lid", text: "Atıştırmalıkları bitirince kutunun kapağını aradım. Kutunun altına koymuşum." },
+  { id: "long-way", text: "Mutfağa uzun yoldan gittim. Koridorun sonundaki bitkiye de baktım." },
+  { id: "resting-paws", text: "Patilerimi karnımın altına topladım. Bir süre öyle oturdum." },
+  { id: "apple-slice", text: "Elmamı dilimledim. En ince dilimi önce yedim." },
+  { id: "paper-napkin", text: "Sandviçimi peçetenin üstünde yedim. Masaya kırıntı dökülmedi." },
+  { id: "quiet-corner", text: "Boş bir sandalyeye oturdum. Patilerim yere yetişmedi." },
+  { id: "cooling-cup", text: "Bardağım sıcaktı. İki patimle tutmadan önce biraz bekledim." },
+  { id: "tea-spoon", text: "Çayı karıştırdım. Kaşığı çıkarmayı ilk yudumda hatırladım." },
+  { id: "last-cracker", text: "Pakette bir kraker kalmıştı. Paketi katlamadan önce onu yedim." },
+];

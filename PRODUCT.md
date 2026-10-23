@@ -31,7 +31,7 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 - Her kullanıcı kendi PDKS hesabıyla giriş yapar ve yalnız kendi raporunu görür. [Oturum politikası](docs/rules/session-policy.md) ve [kaynak politikası](docs/rules/source-policy.md) kimlik, kalıcılık ve erişim sınırlarını yönetir.
 - [Mesaim demosu](docs/demo.md), ortak ekran ve hesapları yakalanmış kayıtlarla giriş gerektirmeden sunar.
 - Oturum açmış kullanıcı [yemek menüsünü](docs/rules/meal-menu.md) ve seçilen güne ait Pofi yorumunu görüntüler.
-- Pofi [durumları](docs/rules/pofi.md), albüm, [günlük notları](docs/pofi-notes.md) ve [sürprizleri](docs/rules/pofi-surprises.md) mesai ekranına eşlik eder.
+- Pofi [durumları](docs/rules/pofi.md), albüm, [not defteri ve günlük faaliyetleri](docs/pofi-notes.md) ve [sürprizleri](docs/rules/pofi-surprises.md) mesai ekranına eşlik eder.
 - Masaüstü uygulaması pencere kapatılınca arka planda çalışır. Kullanıcının açtığı masaüstü ve kişisel Telegram kanalları [çıkış hedefini hatırlatır](docs/rules/notifications.md).
 - Üretim web ve masaüstü sürümleri [GA4 kullanım ölçümünü](docs/analytics.md) kullanır. Hesap eşleştirmesi ayrı bir takma kimlikle yapılır; PDKS giriş bilgileri ve mesai kayıtları olay alanlarına eklenmez.
 

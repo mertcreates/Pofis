@@ -10,7 +10,7 @@ Mesaim, Hata ekranları ve Durum mesajları sekmeleri arasında seçimler korunu
 
 | Önizleme | Kontrol ve sonuç |
 | --- | --- |
-| Gün | Pazartesi–Cuma seçicisi günü sanal “bugün” yapar. Günün akışı, rapordaki “Bugün” ve Pofi aynı günü gösterir. |
+| Gün | Pazartesi–Cuma seçicisi günü sanal “bugün” yapar. Günün akışı, rapordaki “Bugün”, Pofi durumu ve [odadaki faaliyetler](pofi-notes.md#pofinin-mesaisi) aynı günü kullanır. |
 | Geçmiş hafta | “Hazır senaryo → Geçmiş hafta” önceki haftanın tüm kayıtlarını yakalama saatiyle açar. Gün ve ek süre kontrolleri gizlenir. Hafta seçiciyle diğer geçmiş haftalara geçilebilir; yakalama haftasına geçmek veya gün senaryosu seçmek gün önizlemesine döner. |
 
 Gün senaryoları: Hedefin altında → 15 Ekim; Tekrarlanan geçiş → 7 Ekim; Kayıt olmayan gün → 9 Ekim; Devam eden mesai → 15 Ekim'e 120 dakika sanal ek süre. Hedef farkı kayıtlı demo planına göre hesaplanır. Elle seçim bir senaryoyla eşleşmezse “Özel seçim” görünür.

@@ -7,7 +7,7 @@ import { POFI_SURPRISES, nextSurpriseTap } from "@/domain/rules/pofi-surprises";
 import { POFI_ASSETS } from "@/domain/rules/pofi.js";
 import { product, ui } from "@/lib/ui-text.js";
 
-export default function PofiRoom({ onClose, children }) {
+export default function PofiRoom({ onClose, children, work }) {
   const [section, setSection] = useState(null);
   const [photo, setPhoto] = useState(null);
   const [laptopTaps, setLaptopTaps] = useState(0);
@@ -274,10 +274,10 @@ export default function PofiRoom({ onClose, children }) {
       {section === "work" && (
         <>
           <dl className="pofi-room-work">
-            {copy.work.map(([label, value]) => (
-              <div key={label}>
+            {Object.entries(copy.workLabels).map(([key, label]) => (
+              <div key={key}>
                 <dt>{label}</dt>
-                <dd>{value}</dd>
+                <dd>{work[key]}</dd>
               </div>
             ))}
           </dl>

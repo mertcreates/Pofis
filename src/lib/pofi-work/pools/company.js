@@ -1,0 +1,23 @@
+/** @type {import('../types').PofiWorkEntry[]} */
+export const COMPANY_NOTES = [
+  { id: "spare-pencil", text: "Kalem arayan birine masamdakini verdim." },
+  { id: "shared-file", text: "Birlikte bir dosyaya baktık. Bildiğim kısmını anlattım." },
+  { id: "parcel", text: "Masaya bırakılan paketi sahibine götürdüm." },
+  { id: "meeting-room", text: "Toplantı odasını soran biriyle kapısına kadar gittim." },
+  { id: "page-order", text: "Yere düşen sayfaları toplarken numaralarına baktım." },
+  { id: "printer", text: "Yazıcıdan çıkan sayfaları sahiplerine götürdüm." },
+  { id: "find-line", text: "Birlikte baktığımız dosyada aranan satırı buldum." },
+  { id: "paper-clip", text: "Dağılan kâğıtları topladım. Çekmecemden bir ataş bulup tutturdum." },
+  { id: "hold-door", text: "Elleri dolu gelen biri için kapıyı tuttum." },
+  { id: "chair", text: "Yan masaya biri geldi. Oturması için bir sandalye çektim." },
+  { id: "learn-shortcut", text: "Bir kısayol gösterdiler. Kendi bilgisayarımda da denedim." },
+  { id: "listen", text: "Birinin anlattığını dinledim. Bitirince anlamadığım yeri sordum." },
+  { id: "find-glasses", text: "Gözlüğünü arayan birine masanın köşesini gösterdim." },
+  { id: "label-box", text: "Kutuların üstüne içindekileri yazdık. Ben küçük kutudan başladım." },
+  { id: "quiet-company", text: "Yan masadaki arkadaşım işini bitirene kadar sessizce oturdum." },
+  { id: "return-ruler", text: "Ödünç aldığım cetveli geri verdim. Çizgiyi bitirmiştim." },
+  { id: "plant-name", text: "Yeni bitkinin adını öğrendim. Söylerken iki kez denemem gerekti." },
+  { id: "show-drawing", text: "Çizdiğim kediyi yan masaya gösterdim. Çizerken aynaya bakmıştım." },
+  { id: "move-lamp", text: "Birlikte bir yazıyı okumaya çalıştık. Masa lambasını aramıza çektim." },
+  { id: "found-badge", text: "Yerde bir personel kartı buldum. Üstündeki fotoğrafa bakıp sahibine götürdüm." },
+];

@@ -1,12 +1,14 @@
-# Pofi notlarını yönetme
+# Pofi içeriğini yönetme
 
 [Kural haritası](rules/README.md) · [Terimler](../GLOSSARY.md)
 
-Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kısa notlardır. İçerik kataloğu, tek not havuzu, seçim motoru ve ekran kendi sahiplerinde kalır. Not seçimi kişi anahtarı, hafta ve tarihe dayanır.
+Not defterinin günlükleri ve odadaki faaliyet kayıtları ayrı içerik ve seçim sahiplerinde yönetilir. Menü altındaki [yemek yorumları](rules/meal-menu.md#pofi-yemek-yorumları) menü sözleşmesine bağlıdır.
 
-Menü altındaki [yemek yorumları](rules/meal-menu.md#pofi-yemek-yorumları), aynı hesap anahtarı ve seçilen günle kendi bütün metin havuzundan seçilir. Yemek koşulları ve içerik sahipleri menü sözleşmesinde yönetilir.
+## Not defteri
 
-## Tek sahipler
+Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kısa notlardır. Not seçimi kişi anahtarı, hafta ve tarihe dayanır.
+
+### Tek sahipler
 
 | Sorumluluk | Dosya |
 | --- | --- |
@@ -21,7 +23,7 @@ Menü altındaki [yemek yorumları](rules/meal-menu.md#pofi-yemek-yorumları), a
 | Not yönetimi ve önizleme komutları | [CLI](../scripts/pofi-notes.ts) |
 | Tarih uygunluğu / gösterim | [takvim kuralı](rules/notebook-calendar.md), [not defteri](../src/components/pofi/notebook.js) |
 
-## Hesap anahtarı
+### Hesap anahtarı
 
 Başarılı PDKS girişinde `SHA-256(JSON.stringify(["pofis:pofi-account:v1", kurumOrigin, kullanıcıAdı.trim()]))` hesaplanır. Saklanan sonuç, sunucu oturumuna özel `self.pofiKey` alanıdır. API yalnız seçilen notları döndürür. Bu anahtar not seçimi içindir; rapor erişim yetkisini kaynak oturumu belirler.
 
@@ -29,17 +31,15 @@ Anahtar, [oturum yöneticisinin normalize ettiği kullanıcı adından](rules/se
 
 Tüm tarihlerde notlar güncel havuzdan hesaplanır. Hesap anahtarı olmayan oturumlar yeniden giriş ister.
 
-## Tek havuz
+### Tek havuz
 
-Güncel katalog **16 tema ve 1.024 normal not** içerir: Kahve, Toplantı, Asansör, Küçük bir yardım, Yapılacaklar listesi, Dosya adı, Bilgisayar, Pencere misafiri, Yapışkan not, Masa komşusu, Atıştırmalıklar, Küçük bir yanlışlık, Karton, Sandalye, Masa ve Öğle yemeği. Her temada 4 giriş, 4 gelişme ve 4 kapanış vardır; her tema 64 kombinasyon üretir. Özel notlar ve özel gün eşleştirmeleri korunur. Temalar kullanıcıyla belirlenir; metinler ve tüm kombinasyonları incelendikten sonra onaylanan tema kataloğa eklenir.
+Temalar kullanıcıyla belirlenir; metinler ve tüm kombinasyonları incelendikten sonra onaylanan tema kataloğa eklenir. Güncel tema ve not sayıları [doğrulama komutundan](#yerel-komutlar) alınır.
 
 Katalog giriş × gelişme × kapanış kombinasyonlarından havuz sırasını bir kez kurar; aynı havuz tüm tarihler için kullanılır. Seçim kişi anahtarına, haftaya ve güne göre deterministiktir. Normal havuz boşken haftalık sonuç yalnız o haftanın özel notlarını içerir; diğer günler için not dönmez. Defter mevcut nötr boş durumunu ve tarih gezinmesini korur. Doğrudan normal gün seçimi içerik yokluğu hatası verir. Dolu normal havuz haftalık tekrarı önlemek için en az beş benzersiz not içermelidir.
 
-İçerik eklemek ya da düzenlemek mevcut tek havuzu günceller ve geçmiş tarihler dahil her tarihteki seçimi etkileyebilir. Özel tarihler yalnız `special-days.ts` içinde tanımlanır; varyantlar `specials.js` kataloğundan alınır. 8 Aralık `little-star:v1` herkes için ortaktır.
+İçerik veya havuz sırası değişikliği geçmiş tarihler dahil her tarihteki seçimi etkileyebilir. Tema ve metin değişikliklerini Git diff'i ve [önizleme](#yerel-komutlar) üzerinden temsilî tarih ve kişi anahtarlarıyla kontrol edin.
 
-Tema ve metin değişikliklerini Git diff'i ve [önizleme](#yerel-komutlar) üzerinden inceleyin. Tema sırası ve havuz sırası seçim sonucunu etkiler; değişiklikte temsilî tarih ve kişi anahtarlarıyla sonuçları kontrol edin.
-
-## Tema veya metin eklemek
+### Tema veya metin eklemek
 
 1. [NoteTheme](../src/lib/pofi-notes/types.ts) yapısıyla yeni dosya ekleyin: `id`, `title`, `premise`, `intros`, `developments`, `endings`.
 2. Temayı `themes/index.js` listesine bir kez ekleyin. Katalog ve seçim motoru yeni kombinasyonları tek havuza dahil eder.
@@ -49,9 +49,9 @@ Tema ve metin değişikliklerini Git diff'i ve [önizleme](#yerel-komutlar) üze
 
 Özel not eklerken metni `specials.js` içine, `MM-DD → note` eşleştirmesini `special-days.ts` içine ekleyin. `sharedVariant` varsa herkes o varyantı görür; yoksa kişi anahtarıyla seçim yapılır.
 
-Özel notların her varyantı bağımsız, üç parçalı bir hikâyedir; her seçim bir varyantın kendi giriş, gelişme ve kapanışını birlikte kullanır. Katalogda 13 özel tarih vardır. 23 Nisan Ulusal Egemenlik ve Çocuk Bayramı, 29 Ekim Cumhuriyet Bayramı ve 10 Kasım Atatürk'ü Anma Günü bu tarihler arasındadır. Bayram notları küçük katılım ve gözlem anlarını, 10 Kasım notları saygılı anma davranışlarını anlatır. Kâğıt gemi serisi 12 Mart (İlk gün), 9 Nisan (Bir süre sonra) ve 7 Mayıs (Yeniden) sırasıyla ilerler. Her tarihin varyantı ayrı seçilir ve kendi içinde anlamlı bir hikâye sunar. 8 Aralık'ın ortak `little-star:v1` metni korunur; tarih eşlemesi ve tam metni davranış testiyle doğrulanır.
+Özel notların her varyantı bağımsız, üç parçalı bir hikâyedir; her seçim bir varyantın kendi giriş, gelişme ve kapanışını birlikte kullanır. Bayram notları küçük katılım ve gözlem anlarını, 10 Kasım notları saygılı anma davranışlarını anlatır. Kâğıt gemi serisi 12 Mart (İlk gün), 9 Nisan (Bir süre sonra) ve 7 Mayıs (Yeniden) sırasıyla ilerler. Her tarihin varyantı ayrı seçilir ve kendi içinde anlamlı bir hikâye sunar. 8 Aralık'ın herkes için ortak `little-star:v1` metni korunur; tarih eşlemesi ve tam metni davranış testiyle doğrulanır.
 
-## Yerel komutlar
+### Yerel komutlar
 
 Proje kökünde:
 
@@ -63,12 +63,24 @@ bun scripts/pofi-notes.ts preview --date 2026-10-19 --key example
 
 `validate` katalogdaki tema, normal not ve özel gün sayısını bildirir. `preview`, seçilen haftanın notlarını geçerli tek havuz ve özel gün listesiyle gösterir.
 
+## Pofi'nin mesaisi
+
+Odadaki kısa faaliyet kayıtları Pofi'nin kurgusal gününü anlatır. Üç bağımsız havuz kullanılır: [Pencere nöbeti](../src/lib/pofi-work/pools/window.js), [Mola kontrolü](../src/lib/pofi-work/pools/break.js), [Mesai arkadaşlığı](../src/lib/pofi-work/pools/company.js). İlgili listeye `{ id: "benzersiz-kimlik", text: "Pofi'nin kaydı." }` ekleyin. Her kayıt kendi içinde tamamlanmalı; diğer satırdaki olay veya nesneye ihtiyaç duymamalıdır.
+
+Mandalinayı soyma → paylaşma gibi bağlantılı anları [linked.js](../src/lib/pofi-work/linked.js) içinde `id`, `window`, `break`, `company` alanlarıyla bütün set olarak yazın. Yedi günde bir bu setlerden biri sırayla seçilir; diğer günlerde her havuzdan bir kayıt gelir. Bağlantılı set listesi boş bırakılabilir; kullanıldığında en az iki set gerekir. Normal havuzların eşleşmeleri döngüler arasında kayar.
+
+Aynı başlık altında son yedi takvim gününün metni tekrarlanmaz. Her havuzda en az 10 kayıt bulunmalı; aynı başlıktaki metinler havuz ve bağlantılı setler arasında benzersiz olmalıdır. [Katalog](../src/lib/pofi-work/catalogue.ts) bu sınırları, kimlikleri ve dolu metinleri doğrular. [Giriş modülü](../src/lib/pofi-work/index.ts) içeriği bağlar; başlıklar ve sabit oda metinleri [ui-text.js](../src/lib/ui-text.js) içinde kalır.
+
+[Oda bağlantısı](../src/components/pofi-room-content.tsx) canlıda mevcut İstanbul gününü, demoda seçilen sanal günü kullanır. Aynı gün herkes aynı kayıtları görür; yeniden açma veya yenileme seçimi değiştirmez. Hafta sonları dahildir. İçerik veya sıra değişikliği geçmiş ve gelecek seçimlerini etkileyebilir.
+
 ## Doğrulama
 
 ```powershell
-bun test src/lib/pofi-notes
+bun test src/lib/pofi-notes src/lib/pofi-work
 bun scripts/pofi-notes.ts validate
 bun run typecheck
 ```
 
-[Davranış testleri](../src/lib/pofi-notes/notebook.test.ts) deterministik haftalık seçimi, tekrar kontrolünü, boş havuzu, özel gün varyantlarını, bozuk girdiyi ve kurulu kataloğun sonradan değiştirilememesini sınar. 8 Aralık'ın ortak metni hafta içi ve hafta sonu için somut beklentiyle korunur. [CLI testi](../src/lib/pofi-notes/cli.test.ts) listeleme, doğrulama, önizleme ve desteklenmeyen komutun reddini kontrol eder.
+[Not defteri testleri](../src/lib/pofi-notes/notebook.test.ts) haftalık seçimi, tekrar kontrolünü, boş havuzu, özel gün varyantlarını, bozuk girdiyi ve değişmezliği sınar. [CLI testi](../src/lib/pofi-notes/cli.test.ts) listeleme, doğrulama, önizleme ve desteklenmeyen komutun reddini kontrol eder. [Faaliyet testleri](../src/lib/pofi-work/catalogue.test.ts) günlük seçimi, değişen eşleşmeleri, bağlantılı setleri, yedi günlük tekrar sınırını, içerik eklemeyi, tarih sınırlarını ve değişmezliği sınar.
+
+Metinleri [ton rehberiyle](brand/pofi-tone-guide.md) birlikte okuyun. Demoda bir gün seçip Pofi → Pofi’nin mesaisi ekranını açın; kapatıp açınca kayıtların korunduğunu, başka gün seçilince değiştiğini kontrol edin. Yenileme kontrolünü demonun varsayılan gününde yapın.
