@@ -330,4 +330,4 @@ Panel, Pofis ana sayfasının oturumunu ve `http://127.0.0.1:3210` origin'ini pa
 - macOS'ta paketli uygulamada "Oturum açılışında başlat" menüsü kullanıcının açık tercihiyle `app.setLoginItemSettings` değerini değiştirir. Varsayılan otomatik başlatma açılmaz.
 - Mini IPC köprüsü istekleri yalnız panelin kendi ana frame'inden ve Pofis origin'inden kabul eder. Dış bağlantılar ve origin dışına yönlenme panelde engellenir.
 
-[Menü/test sözleşmesi](../electron/background.test.cjs), [pencere/test sözleşmesi](../electron/mini-window.test.cjs) ve [macOS/Windows PR kabul akışı](../.github/workflows/pofi-mini-check.yml) değişiklikleri izler. Gerçek cihazda menü çubuğu yerleşimi, macOS Spaces, başlatma izni ve çoklu monitör konumu ayrıca kontrol edilir.
+[Menü/test sözleşmesi](../electron/background.test.cjs), [pencere/test sözleşmesi](../electron/mini-window.test.cjs) ve [Apple Silicon/Intel macOS ve Windows PR kabul akışı](../.github/workflows/pofi-mini-check.yml) değişiklikleri izler. Gerçek cihazda menü çubuğu yerleşimi, macOS Spaces, başlatma izni ve çoklu monitör konumu ayrıca kontrol edilir.
