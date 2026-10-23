@@ -314,3 +314,18 @@ Güncelleme akışı açılış bildirimi, platform komutunun kopyalanması ve i
 API referansları: [Electron app](https://www.electronjs.org/docs/latest/api/app), [Electron paketleme ve macOS bundle düzeni](https://www.electronjs.org/docs/latest/tutorial/application-distribution), [Electron UtilityProcess](https://www.electronjs.org/docs/latest/api/utility-process), [Get-FileHash](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/get-filehash?view=powershell-5.1).
 
 Kaldırma referansları: [Apple: Mac uygulamalarını kaldırma](https://support.apple.com/en-us/102610), [Microsoft: kaldırma kaydı alanları](https://learn.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key).
+
+
+## Pofi Mini ve macOS menü çubuğu
+
+[Pofi Mini penceresinin](../electron/mini-window.cjs) sahibi Electron ana süreçtir. Menü çubuğu veya Windows sistem tepsisi sol tıklaması küçük paneli açıp kapatır. Sağ tıklama macOS'ta native eylem menüsünü açar; diğer platformlarda sistem tepsisi menüsü kullanılır. Panelin içerik sahibi [mini sayfasıdır](../src/components/mini/mini-dashboard.tsx).
+
+Panel, Pofis ana sayfasının oturumunu ve `http://127.0.0.1:3210` origin'ini paylaşır. Mesai, hedef çıkış ve haftalık ilerleme için yeni hesaplama veya depolama yolu bulunmaz: `prepareReport`, haftalık özet ve mevcut plan sahipleri kullanılır. Her yeniden açılışta panel sayfası yenilenir. Oturum yoksa Pofis'i açma eylemi gösterilir.
+
+- Pencere normalde odağı kaybettiğinde gizlenir. Sabitlenirse odağı kaybettiğinde açık kalır. Sabitleme yalnız mevcut oturum için geçerlidir.
+- Menüden veya panel içinden ana pencere açılabilir. Ana pencere kapatıldığında arka plan süreci ve tray yaşamaya devam eder. Açık "Pofis'ten Çık" ve Command-Q uygulamayı ve yerel sunucuyu kapatır.
+- `CommandOrControl+Shift+P` Pofi Mini'yi açıp kapatır. macOS Dock sağ tık menüsünde Pofi Mini ve ana pencere eylemleri vardır.
+- macOS'ta paketli uygulamada "Oturum açılışında başlat" menüsü kullanıcının açık tercihiyle `app.setLoginItemSettings` değerini değiştirir. Varsayılan otomatik başlatma açılmaz.
+- Mini IPC köprüsü istekleri yalnız panelin kendi ana frame'inden ve Pofis origin'inden kabul eder. Dış bağlantılar ve origin dışına yönlenme panelde engellenir.
+
+[Menü/test sözleşmesi](../electron/background.test.cjs), [pencere/test sözleşmesi](../electron/mini-window.test.cjs) ve [macOS PR kabul akışı](../.github/workflows/pofi-mini-check.yml) değişiklikleri izler. Gerçek cihazda menü çubuğu yerleşimi, macOS Spaces, başlatma izni ve çoklu monitör konumu ayrıca kontrol edilir.

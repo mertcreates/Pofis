@@ -1,0 +1,46 @@
+.pofi-mini {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100vh;
+  padding: 20px;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  user-select: none;
+}
+.pofi-mini * { box-sizing: border-box; }
+.pofi-mini-open { color: var(--accent-content); }
+.pofi-mini-header, .pofi-mini-brand, .pofi-mini-week-heading {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.pofi-mini-header { -webkit-app-region: drag; }
+.pofi-mini-brand { justify-content: start; gap: 10px; }
+.pofi-mini-pin { -webkit-app-region: no-drag; }
+.pofi-mini-brand img { width: 34px; height: 34px; object-fit: contain; }
+.pofi-mini-brand span { display: grid; gap: 2px; }
+.pofi-mini-brand strong { font-size: 15px; line-height: 1.1; }
+.pofi-mini-brand small { font-size: 10px; color: var(--muted); }
+.pofi-mini-pin { border: 1px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--secondary); font: inherit; font-size: 11px; padding: 7px 9px; cursor: pointer; }
+.pofi-mini-pin.is-pinned { color: var(--accent); background: var(--accent-soft); }
+.pofi-mini-today { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 18px; display: grid; gap: 7px; }
+.pofi-mini-label { color: var(--muted); font-size: 12px; }
+.pofi-mini-duration { font-size: 34px; font-variant-numeric: tabular-nums; letter-spacing: -1.3px; line-height: 1.15; }
+.pofi-mini-status { color: var(--accent-text); font-size: 11px; min-height: 13px; }
+.pofi-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pofi-mini-grid > div { display: grid; gap: 7px; border: 1px solid var(--line); background: var(--paper); border-radius: 12px; padding: 12px; }
+.pofi-mini-grid strong { font-size: 18px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.pofi-mini-week { display: grid; gap: 12px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.pofi-mini-week-heading { align-items: start; gap: 4px; flex-wrap: wrap; }
+.pofi-mini-week-heading > span { color: var(--muted); font-size: 12px; }
+.pofi-mini-week-heading strong { font-size: 13px; font-variant-numeric: tabular-nums; }
+.pofi-mini-week-heading strong span { color: var(--muted); font-weight: 450; }
+.pofi-mini-track { height: 7px; border-radius: 8px; background: var(--track); overflow: hidden; }
+.pofi-mini-track span { display: block; height: 100%; border-radius: inherit; background: var(--accent); }
+.pofi-mini-week small { color: var(--muted); font-size: 10px; }
+.pofi-mini-open { margin-top: auto; width: 100%; padding: 11px; border: 0; border-radius: 10px; background: var(--accent); color: var(--accent-content); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
+.pofi-mini button:focus-visible { outline: 3px solid var(--accent-visual); outline-offset: 2px; }
+.pofi-mini-empty { display: grid; gap: 7px; padding: 20px 12px; margin: auto 0; text-align: center; font-size: 13px; color: var(--muted); }
+.pofi-mini-empty p { margin: 0; font-size: 12px; }

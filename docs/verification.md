@@ -145,3 +145,13 @@ Aynı D-Bus/anahtarlık oturumunda önce `bun scripts/electron/smoke.cjs <linux-
 Her sonucu kullanılan kaynak, paket ve ortamla birlikte bildirin. Motor geçişini gerçek önceki/yeni paketlerle, pencere ve kurulum davranışını hedef işletim sisteminde doğrulayın. Statik paket kontrolü dosya/mimari sözleşmesini, fixture testi kendi senaryosunu kanıtlar.
 
 Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulamaların rapor, ekran görüntüsü ve ölçüm çıktılarını temizleyin. Geçerli ürün kararlarını ilgili sözleşmeye, açık bulguları görev listesine taşıyın. Davranış testleri ve demo üzerinden elle tarayıcı kabulü doğrulama yönteminin parçasıdır.
+
+
+## Pofi Mini kabulü
+
+[Mini pencere davranış testleri](../electron/mini-window.test.cjs) konum sınırlamasını, tek pencere kullanımını, sabitlemeyi, kapanışı ve IPC gönderen doğrulamasını sınar. [Arka plan testleri](../electron/background.test.cjs) sol/sağ tıklama, ana pencereyi gösterme ve gerçek çıkış ayrımını doğrular. [PR macOS runner](../.github/workflows/pofi-mini-check.yml) bunlara ek olarak tür kontrolü, macOS paket üretimi ve mevcut paket açılış smoke testini çalıştırır. Bu test gerçek menü çubuğu görüntüsünün görsel kabulünün yerine geçmez.
+
+- Windows'ta tray sol tık → Pofi Mini, sağ tık → seçenekler; ana uygulama kapatılıp yeniden açıldığında mesai/planın güncellenmesi.
+- macOS'ta menü çubuğu sol tık → Pofi Mini, sağ tık → eylem menüsü; dışarı tıklama → gizlenme, sabitleme → görünür kalma, Dock eylemleri ve `CommandOrControl+Shift+P`.
+- PDKS girişi yok, rapor hatası, belirsiz kayıt, mesai öncesi, canlı mesai, çıkış sonrası, hedef aşımı ve hafta değişimi → panelin mevcut iş kurallarıyla aynı bilgiyi sunması.
+- Oturum açılışında başlatma varsayılan kapalı kalır, menüyle açılıp kapatılır, gerçek macOS oturum açılışıyla doğrulanır.

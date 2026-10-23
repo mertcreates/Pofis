@@ -1,0 +1,38 @@
+name: Pofi Mini macOS kontrolü
+on:
+  pull_request:
+    paths:
+      - "electron/**"
+      - "src/app/mini/**"
+      - "src/components/mini/**"
+      - "scripts/electron/**"
+      - "src/lib/ui-text.js"
+      - "package.json"
+      - "bun.lock"
+      - ".github/workflows/pofi-mini-check.yml"
+permissions:
+  contents: read
+jobs:
+  macos-mini:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: 1.4.3
+      - run: bun install --frozen-lockfile
+      - name: Pofi Mini davranışı ve tür kontrolü
+        run: |
+          bun test ./electron/background.test.cjs ./electron/mini-window.test.cjs
+          bun run typecheck
+      - name: macOS Electron uygulamasını üret
+        run: bun run desktop:package
+      - name: Uygulama paketinin açılışını doğrula
+        shell: bash
+        run: |
+          POFIS_PACKAGE=$(find dist/macos -type d -name 'Pofis-darwin-*' | head -n 1)
+          test -n "$POFIS_PACKAGE"
+          bun scripts/electron/smoke.cjs "$POFIS_PACKAGE"

@@ -26,6 +26,12 @@ contextBridge.exposeInMainWorld("pofisNotifications", {
   onExpired: callback => subscribeNotification("expired", callback),
 });
 
+contextBridge.exposeInMainWorld("pofisMini", {
+  get: () => ipcRenderer.invoke("pofis:mini:get"),
+  pin: () => ipcRenderer.invoke("pofis:mini:pin"),
+  openMain: () => ipcRenderer.invoke("pofis:mini:open-main"),
+});
+
 contextBridge.exposeInMainWorld("pofisUpdates", {
   get: () => ipcRenderer.invoke("pofis:update:get"),
   copyCommand: () => ipcRenderer.invoke("pofis:update:copy"),

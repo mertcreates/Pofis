@@ -187,6 +187,8 @@ export const ui = {
   desktop: {
     serverClosed: code => `Pofis sunucusu kapandı (kod: ${code}). Uygulamayı yeniden aç.`,
     trayTooltip: "Pofis · Mesaiye biraz Pofi.",
+    mini: "Pofi Mini",
+    startAtLogin: "Oturum açılışında başlat",
     open: "Pofis’i aç",
     quit: "Pofis’ten çık",
     notReady: "Pofis açık ama henüz hazır değil. Uygulamayı kapatıp yeniden aç.",
