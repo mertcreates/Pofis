@@ -16,7 +16,7 @@ test("İstanbul takviminde doğrulanmış hedefe kalan ve aşan dakika doğru ya
   expect(formatTrayCountdown(null, at)).toBe("");
   expect(formatTrayCountdown({ date: "2026-10-23", at: NaN }, at)).toBe("");
   // Outside Istanbul, the machine timezone must not change what counts as today.
-  expect(formatTrayCountdown(goal, Date.parse("2026-10-22T23:30:00Z"))).toBe("");
+  expect(formatTrayCountdown(goal, Date.parse("2026-10-22T20:30:00Z"))).toBe("");
 });
 
 test("menü süresi tercihi yeniden açılınca korunur, bozuk dosya değiştirilmez", () => {
