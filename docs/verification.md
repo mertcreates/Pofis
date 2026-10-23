@@ -118,12 +118,15 @@ Paketleme, süreç ve installer kabulünün ayrıntılı kapsamı [masaüstü re
 | Windows ZIP üretimi | `bun test ./scripts/electron/archive.test.cjs`; .NET ZIP çıktısının sistem aracı ve .NET ile açılması, Unicode dosya/klasör adları ve içerik, gizli dosyalar, boş klasörler, `.zip.partial` ve mevcut hedefin korunması |
 | Windows sunucu ASAR'ı | `bun test ./scripts/electron/pack-server.test.cjs`; beklenmeyen Next girişinde kaynağı koruyarak durma. Sunucunun bağımlılık/statik dosyalarıyla çalışması ve kapanması gerçek paket açılış kabulünde; eski paketten güncelleme dağıtım kabulünde doğrulanır. |
 | Güncelleme arayüzü | Güncel standalone sonrasında `bun scripts/electron/update-demo.cjs --verify`; [senaryolar](desktop.md#güncelleme-bildirimini-deneme) |
+| Sürüm geçmişi | Masaüstü ve 390 px genişlikte menü ile açılış, footer sürümünün kendi durağına gitmesi, beş dokunuşluk sürüm notunun korunması ve kullanıcı odağı değiştirdiğinde sayacın sıfırlanması, güncelleme modalının hedef sürümü açması, klavye odağı, açık/koyu tema ve public katalog kesildiğinde paket geçmişine dönüş |
 | Bildirim arayüzü ve IPC | Güncel standalone sonrasında `bun scripts/electron/notification-demo.cjs --verify`; sağlayıcılar fixture'dır |
 | Bildirim zamanlaması ve tercih sıfırlaması | `bun test src/domain/rules/notifications.test.ts src/desktop/notification-runtime.test.ts src/desktop/notification-store.test.ts src/desktop/install-notifications.test.ts`; sahte saat/sağlayıcı ve geçici disk kaydı. Beklenen davranış [bildirim sözleşmesinde](rules/notifications.md#gönderim-ve-hesap-ayrımı). |
 | Sistem panosu | Önce `bun run desktop:prepare`, ardından `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`; panoyu değiştirdiği için yalnız izole CI/VM masaüstünde |
 | Electron motor geçişi | Gerçek önceki/yeni paketlerle [motor geçişi kabulü](desktop.md#motor-geçişi-kabulü) |
 
 Genel paket/kurulum kabulleri `POFIS_TEST_BLOCK_ANALYTICS=1` ile Google trafiğini engeller; loopback erişimi sürer. GA4 alanları ve hesap kimliği [ölçüm testlerinde](analytics.md#doğrulama) sahte `window.dataLayer` ile doğrulanır.
+
+Sürüm geçmişinin veri ve yayın kontrolleri: `bun test src/domain/changelog.test.ts src/app/api/changelog/route.test.ts ./scripts/electron/prepare-site.test.cjs ./scripts/electron/publish.test.cjs`. Geçerli takvim tarihi, sürüm sırası, public katalogda aynı/yeni sürüm seçimi, eski/bozuk katalog ve ağ hatasında paket geçmişi, hazırlanan katalog değiştirilince yayından önce reddetme sınanır. Ağ yanıtları fixture, dosyalar geçici dizindir; bu sonuç canlı Cloudflare yayını veya paketli Electron gezinme kabulü sayılmaz.
 
 Windows kapanış testleri izole kurulumdaki süreci sonlandırıp dış sürecin korunduğunu doğrular. macOS fixture testleri sistem işlemlerini taklit eder; native kabul gerçek `osascript`, ZIP ve uygulama süreçlerini kullanır. Gatekeeper, sistem izinleri, bildirim görünümü ve gerçek PDKS akışını hedef cihazda doğrulayın.
 

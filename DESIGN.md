@@ -344,6 +344,12 @@ Hata sınıfları, form odağı, eski rapor, kopyalama ve yeniden deneme davran�
 
 Bildirim ekranı masaüstü, web ve demoda ortak `NotificationSettings` bileşenini kullanır. Demo aynı kontrolleri ve akışları bellekte çalışan örnek bağlantı/kayıt işlemleriyle sunar. Geniş ekranda Hatırlatmalar ve Bildirim kanalları 65/35 oranlı iki sütunda, dar ekranda tek sütunda görünür. Her hatırlatmanın altında Masaüstü ve Telegram switch’leri bulunur. Telegram bağlantısı yalnız Bildirim kanalları bölümünden açılır. Bağlı olmayan Telegram, hatırlatmalar altında pasif kanal seçeneği olarak görünür; kayıtlı tercihler korunur. Hatırlatma öncesi tek segmented control içinde 5 / 10 / 15 / 30 dakika ve Özel seçenekleri bulunur; Özel, tetikleyiciye bağlı küçük giriş popover’ı açar. Hatırlatma süreleri ve kanal tercihleri mevcut açık kaydetme eylemini kullanır. Telegram kurulumu masaüstünde en fazla 480 px genişliğindeki ortak modalda kademeli açılır: önce token ve Sohbeti bul, ardından sohbet seçimi ve Bağla. Elle sohbet kimliği girişi gerektiğinde açılır; hatalar ilgili formda kalır. [Davranış sahibi](docs/rules/notifications.md).
 
+### Sürüm geçmişi
+
+Sürüm geçmişi menüden, footer sürümünden ve güncelleme modalından açılan bağımsız bir okuma yüzeyidir. Katalogdaki sürümler yeniden eskiye tek sütunlu dikey zaman çizgisinde gösterilir. İnce nötr çizgi ve küçük işaretler tarihsel akışı taşır; en yeni veya doğrudan hedeflenen sürüm vurgu rengini kullanır. Büyük kart yığınları, konu filtreleri ve dekoratif rozetler kullanılmaz.
+
+Her durakta sürüm numarası ana başlık, yayın tarihi ikincil bilgi olur. İçerik yalnız dolu **Yenilikler**, **Düzeltmeler** ve **Bakım** gruplarını gösterir; masaüstünde grup adı ile maddeler iki sütunda, 600 px altında tek sütunda akar. Kurulu sürüm katalogda bulunuyorsa küçük **Bu sürüm** işareti taşır. Menü ekranın başına, footer kurulu sürümün durağına, güncelleme modalı yeni sürümün durağına odaklanır. Hedef public katalogda da bulunamazsa en yeni bilinen sürüm açılır. Giriş ekranından footer ile açıldığında **Girişe dön** eylemi görünür.
+
 ## Bileşen kabulü
 
 ### Bileşen kalitesi ve tutarlılık

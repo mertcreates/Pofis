@@ -24,6 +24,12 @@
 .desktop-update-content p {
   margin: 0;
 }
+.desktop-update-history {
+  justify-self: start;
+  padding-inline: 0;
+  color: var(--accent);
+  font-size: 14px;
+}
 .desktop-update-actions {
   display: flex;
   align-items: center;

@@ -1,10 +1,10 @@
 # Pofis sürüm yayını
 
-Ana uygulama deposu private kalır. [Release workflow'u](../.github/workflows/desktop-release.yml), public `mertcreates/pofis-landing` deposunun GitHub Releases bölümüne paketleri aktarır ve yalnız installer/manifest dosyalarını bu deponun `main` dalına gönderir. Cloudflare Workers Git entegrasyonu siteyi yayımlar. Uygulama kaynak deposu Cloudflare'a bağlanmaz.
+Ana uygulama deposu private kalır. [Release workflow'u](../.github/workflows/desktop-release.yml), public `mertcreates/pofis-landing` deposunun GitHub Releases bölümüne paketleri aktarır; installer, manifest ve manuel sürüm geçmişini bu deponun `main` dalına gönderir. Cloudflare Workers Git entegrasyonu siteyi yayımlar. Uygulama kaynak deposu Cloudflare'a bağlanmaz.
 
-Linux hedefi için ortak macOS / Ubuntu sekmesi ve güncel doğrulama betiği landing kaynaklarında bulunmalıdır. Begin işi, paket üretiminden ve taslak oluşturmadan önce ortak Unix/Windows komut sözleşmesini kontrol eder. Landing kaynakları eskiyse önce bunların kullanıcı yetkisiyle yayımlanması gerekir; release yalnız public installer ve manifest dosyalarını günceller.
+Linux hedefi için ortak macOS / Ubuntu sekmesi ve güncel doğrulama betiği landing kaynaklarında bulunmalıdır. Begin işi, paket üretiminden ve taslak oluşturmadan önce ortak Unix/Windows komut sözleşmesini kontrol eder. Landing kaynakları eskiyse önce bunların kullanıcı yetkisiyle yayımlanması gerekir; release yalnız aşağıda tanımlanan public dağıtım dosyalarını günceller.
 
-Begin işi landing `main` dalının güncel commit'ini seçip tüm işlere sabitler; landing kaynak değişiklikleri sürümü durdurmaz. Prepare ve publish adımları çalışma kopyasındaki değişiklikleri yalnız altı üretilen public dosyayla sınırlar. İçerik kataloğu veri nesnesi olarak okunur; yayın token'ıyla landing modülü çalıştırılmaz. Tüm action referansları tam commit SHA'sına sabitlenir.
+Begin işi landing `main` dalının güncel commit'ini seçip tüm işlere sabitler; landing kaynak değişiklikleri sürümü durdurmaz. Prepare ve publish adımları çalışma kopyasındaki değişiklikleri yalnız yedi üretilen public dosyayla sınırlar. İçerik kataloğu veri nesnesi olarak okunur; yayın token'ıyla landing modülü çalıştırılmaz. Tüm action referansları tam commit SHA'sına sabitlenir.
 
 ## Bir kez yapılacak kurulum
 
@@ -28,7 +28,7 @@ Cloudflare Workers, public landing deposunun `main` dalını `pofis.app` adresin
 
 Build komutu `bun install --frozen-lockfile && bun run build`, statik çıktı `out/` dizinidir. Release otomasyonu ana uygulama deposunda, site yayını Workers Git entegrasyonunda çalışır.
 
-Landing'in `public/_headers` dosyası installer ve manifestlere `Cache-Control: no-store` uygular. Canlı HTTPS kabulü bu başlıkları ayrıca doğrular. Uygulama ZIP'leri GitHub Releases üzerinden sunulur.
+Landing'in `public/_headers` dosyası installer, manifest ve sürüm geçmişine `Cache-Control: no-store` uygular. Sürüm geçmişi ayrıca `application/json` ve `X-Content-Type-Options: nosniff` başlıklarıyla sunulur. Canlı HTTPS kabulü bu başlıkları doğrular. Uygulama ZIP'leri GitHub Releases üzerinden sunulur.
 
 Paketli Electron uygulaması açılışta bu manifestlerden kendi hedefine ait olanı kullanır. Yeni sürüm bildirimi ve kurulum komutunu kopyalama davranışı [masaüstü sözleşmesinde](desktop.md#açılışta-sürüm-denetimi) yönetilir.
 
@@ -39,6 +39,18 @@ Uygulama sürümünün sahibi [package.json](../package.json) dosyasıdır. Yeni
 Public `latest.json` dosyaları ve footer'daki uygulama sürümü yayımlanmış paketlerden üretilir. İlk yayın manifesti oluşturur; sonraki yayınlarda mevcut manifest üzerinden sürüm düşürme koruması uygulanır. Otomasyon dört doğrulanmış paketten gerçek manifestleri üretir; bu dosyalar yalnız paketler anonim indirilebildikten sonra canlıya gönderilir.
 
 Installer sürüm düşürmez. Daha yüksek sürümlü bir geliştirme paketinden düşük sürüme geçiş gerekiyorsa önce normal kaldırma yolu kullanılır; kullanıcı profili korunur.
+
+### Uygulama içi sürüm geçmişi
+
+[Manuel katalog](../src/data/changelog.json), uygulamadaki **Sürüm geçmişi** ekranının tek içerik sahibidir. Yalnız yayımlanacak veya daha önce yayımlanmış sürümleri yeniden eskiye taşır; her kayıtta sürüm, yayın tarihi ve en az bir **Yenilikler**, **Düzeltmeler** veya **Bakım** maddesi bulunur. Metinler kullanıcıya yönelik doğal Türkçeyle elle yazılır; commit geçmişinden veya GitHub Release gövdesinden üretilmez.
+
+Yeni sürüm hazırlanırken `package.json` ile kataloğun ilk kaydı aynı sürüm olmalıdır. Tarih `YYYY-MM-DD` biçiminde geçerli bir takvim günüdür; hazırlıkta planlanan tarih yazılır ve yayın başka güne kalırsa yayımdan önce güncellenir. Geçmiş kayıtlar Git geçmişi ve gerçek yayın bilgileriyle karşılaştırılarak elle düzenlenir; küçük değişiklikler kullanıcıya etkisine göre birleştirilir.
+
+Begin sürüm eşleşmesini ve katalog biçimini taslak oluşturmadan önce doğrular. Prepare kataloğu `public/releases/changelog.json` yoluna kopyalar; publish hazırlanan dosyanın kaynakla tam eşleşmesini sürümü yayımlamadan önce kontrol eder. Canlı HTTPS kabulü de aynı içerikle birlikte yukarıdaki başlıkları doğrular.
+
+Sürüm geçmişini destekleyen uygulamalar `/api/changelog` üzerinden public kataloğu okur. Public kataloğun ilk sürümü paket kataloğundaki ilk sürümle aynı veya daha yeniyse public içerik kullanılır. Daha eski katalog, ağ veya içerik hatasında paketle gelen geçmiş korunur. Menü en yeni kayıttan, footer uygulamanın kendi sürümünden, güncelleme modalı hedef sürümden açılır; hedef kaydı bulunamazsa geçmişin başı gösterilir.
+
+Bu katalog GitHub Release açıklamasından ayrıdır. Aşağıdaki otomatik notlar public GitHub sürüm sayfasını; manuel katalog uygulama içindeki kalıcı geçmişi yönetir.
 
 ### Otomatik sürüm notları
 
@@ -61,7 +73,7 @@ Notlar taslakta bir kez üretilir. Aynı sürüm ve kaynak commit ile tekrar ça
 ## Yayın sonrası HTTPS kabulü
 
 1. `https://pofis.app/` sayfasını, macOS / Ubuntu ve Windows PowerShell sekmelerini, iki komutu ve kopyalama düğmesini kontrol et. macOS/Ubuntu ortak komutu: `curl -fsSL https://pofis.app/install.sh | bash`.
-2. `https://pofis.app/install.ps1` ve `https://pofis.app/install.sh` düz metin ve UTF-8, dört `https://pofis.app/releases/<hedef>/latest.json` adresi JSON dönmeli. Installer ve manifestlerde `Cache-Control: no-store` bulunmalı; içerikler beklenen dosyalarla eşleşmeli.
+2. `https://pofis.app/install.ps1` ve `https://pofis.app/install.sh` düz metin ve UTF-8, dört `https://pofis.app/releases/<hedef>/latest.json` adresi JSON dönmeli. Installer ve manifestlerde `Cache-Control: no-store` bulunmalı; içerikler beklenen dosyalarla eşleşmeli. `https://pofis.app/releases/changelog.json` içeriğini ve başlıklarını [katalog sözleşmesine](#uygulama-içi-sürüm-geçmişi) göre kontrol et.
 3. Public manifestlerdeki dört paket arşivini (Windows/macOS ZIP, Linux tar.gz) anonim indir; boyut ve SHA-256 değerlerini karşılaştır.
 4. Windows'ta `irm https://pofis.app/install.ps1 | iex` komutuyla kurulum → otomatik açılış → simgeden açılış → aynı komutla güncel sürüm kontrolünü tamamla. Yeni sürümde [onaylı kapanışın](desktop.md#açık-uygulamada-onaylı-güncelleme) iptal, normal kapanış ve ayrı zorla kapatma onayını; veri koruma, eski sürüm temizliği ve kaldırmayı doğrula. macOS'ta aynı kapanış zincirini `curl -fsSL https://pofis.app/install.sh | bash` üzerinden doğrula.
 
@@ -69,7 +81,7 @@ Bu adımlar canlı hosting ve paket yayını sonrasında uygulanır. Yerel hazı
 
 ## Bir sürüm yayımlama
 
-1. `package.json` sürümünü yeni `x.y.z` değerine getir; değişiklikleri inceleyip `master` dalına gönder.
+1. `package.json` sürümünü yeni `x.y.z` değerine getir; [manuel kataloğun](#uygulama-içi-sürüm-geçmişi) ilk kaydını aynı sürüm ve yayın tarihiyle hazırla. Değişiklikleri inceleyip `master` dalına gönder.
 2. GitHub → Actions → **Pofis sürümünü yayımla** → Run workflow; `master` dalını seç. Sürüm, çalıştırılan commit'in `package.json` dosyasından otomatik alınır ve tüm platformlara aktarılır.
 3. Akışın tür kontrolü, testler ve platform paket kabullerini tamamlamasını bekle. Actions yalnız elle başlatılan bu sürüm akışını çalıştırır. Günlük geliştirme kontrollerini [yerelde](verification.md#yerel-kontroller) çalıştır.
 
@@ -118,9 +130,9 @@ Build betiği aşamaları duvar saatiyle ölçer; alt süreç çıktıları loga
 
 1. Sürümü, public hedef depoyu, uygulamanın `master` dalını ve sürüm düşürülmediğini doğrular; draft release açar.
 2. Windows ve macOS işleri dört hedefin doğrulanmış paketlerini draft'a yükler. macOS koordinatörü iki macOS hedefi ve Linux hedefinin ayrı asset'lerini paralel aktarır; her hedef kendi manifestini en son yükler. Windows `install.ps1`, macOS işi iki mimari için mimariyle adlandırılan `install-darwin-<mimari>.sh` asset'lerini yükler. İki macOS installer'ının aynı canonical kaynakla eşleşmesi doğrulanır; macOS işi Linux hedefi için `install-linux-x64.sh` kaynak asset’ini de yükler. Ortak public installer’ın sahibi [Unix kurulum sözleşmesidir](desktop.md#ubuntu-2404-lts-x64-ve-ortak-unix-kurulumu).
-3. Tüm işler başarılıysa `prepare` paketleri tekrar indirip boyut/SHA-256 ile doğrular; dört public manifest ve iki installer hazırlanır. Yalnız bu altı küçük dosya bir günlük immutable artifact'e konur. `validate_site` aynı commit ve artifact ile typecheck/static build çalıştırır; bu runner yayın token'ını almaz. Site derleme çıktısı yayın işine aktarılmaz.
-4. Temiz `publish` runner'ı aynı commit'i ve `prepare` tarafından üretilen artifact kimliğini kullanır; installer'ları canonical kaynaklarla, manifestleri sürüm asset'leriyle karşılaştırır. Release yayımlanır. Dört paket arşivi anonim HTTPS üzerinden tekrar indirilip doğrulanır. Ancak bu kontrol geçerse landing değişiklikleri Mert Ercan (`me@mertercan.com`) kimliğiyle commit edilip `main` dalına gönderilir. Git'e yalnız altı izinli public dosya girebilir; kaynak ve paket arşivi aktarımı reddedilir. Site kodu ayrı runner'da çalıştığı için arka planda kalan süreçler yayın token'ına erişemez. Bu ayrım iki kısa Windows işi ekler; macOS/Linux üretimini çoğaltmaz.
-5. Cloudflare commit'i yayımlar. Betik en fazla beş dakika HTTPS landing, dört manifestin tam içeriği/cache başlıkları ve iki installer'ın içeriği/başlıklarını kontrol eder; tüm kontroller geçince beklemeden tamamlanır. Installer metni BOM olmadan LF ile hazırlanır; karşılaştırma CRLF/LF farkını yok sayar, gerçek içerik değişikliğini reddeder. Her başarısız denemede bekleme nedeni loga yazılır. Süre dolarsa workflow başarısız olur; mevcut paketi silmez veya başarı göstermez.
+3. Tüm işler başarılıysa `prepare` paketleri tekrar indirip boyut/SHA-256 ile doğrular; dört public manifest, iki installer ve manuel sürüm geçmişi hazırlanır. Yalnız bu yedi küçük dosya bir günlük immutable artifact'e konur. `validate_site` aynı commit ve artifact ile typecheck/static build çalıştırır; bu runner yayın token'ını almaz. Site derleme çıktısı yayın işine aktarılmaz.
+4. Temiz `publish` runner'ı aynı commit'i ve `prepare` tarafından üretilen artifact kimliğini kullanır; installer'ları canonical kaynaklarla, manifestleri sürüm asset'leriyle ve sürüm geçmişini kaynak katalogla karşılaştırır. Release yayımlanır. Dört paket arşivi anonim HTTPS üzerinden tekrar indirilip doğrulanır. Ancak bu kontrol geçerse landing değişiklikleri Mert Ercan (`me@mertercan.com`) kimliğiyle commit edilip `main` dalına gönderilir. Git'e yalnız yedi izinli public dosya girebilir; kaynak ve paket arşivi aktarımı reddedilir. Site kodu ayrı runner'da çalıştığı için arka planda kalan süreçler yayın token'ına erişemez. Bu ayrım iki kısa Windows işi ekler; macOS/Linux üretimini çoğaltmaz.
+5. Cloudflare commit'i yayımlar. Betik en fazla beş dakika HTTPS landing, dört manifest, iki installer ve manuel kataloğun içerik/başlıklarını kontrol eder; tüm kontroller geçince beklemeden tamamlanır. Installer metni BOM olmadan LF ile hazırlanır; karşılaştırma CRLF/LF farkını yok sayar, gerçek içerik değişikliğini reddeder. Her başarısız denemede bekleme nedeni loga yazılır. Süre dolarsa workflow başarısız olur; mevcut paketi silmez veya başarı göstermez.
 
 Release işlemleri ortak concurrency grubunda sıralanır. Bir build hedefi başarısızsa matrix diğer runner'daki işi iptal eder. Build sonucu başarısız veya iptal olduğunda `cleanup`, aynı sürüm ve kaynak commit'ine ait otomasyon taslağını yüklenen paketleriyle birlikte siler. Yayımlanmış sürümler ve başka kaynak commit'ine ait taslaklar silinmez; silme hatası görünür biçimde işi başarısız yapar. Sonraki denemede **Run workflow** veya **Re-run all jobs** ile tüm akış başlatılır; bu seçim tüm kurtarma ve birleştirme adımlarını çalıştırır. Taslak silinmiş ve sürüm henüz yayımlanmamışsa düzeltme commit'i aynı sürüm numarasıyla yeni taslak oluşturabilir.
 

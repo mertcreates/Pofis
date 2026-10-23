@@ -9,6 +9,7 @@ export const product = {
 
 export const ui = {
   serverDiagnostics: {
+    changelogRefreshFailed: "Public sürüm geçmişi alınamadı; paketle gelen kayıtlar kullanılıyor.",
     backgroundRefreshFailed: "Pofis arka plan raporu yenilenemedi.",
     pdksApiUnexpectedError: "PDKS API unexpected error:",
     pdksSessionCleanupFailed: "PDKS session cleanup failed:",
@@ -224,6 +225,7 @@ export const ui = {
     terminal: "Terminal’e"
   },
   diagnostics: {
+    changelogLoadFailed: "Sürüm geçmişi yenilenemedi; paketle gelen kayıtlar kullanılıyor.",
     notificationCleanupFailed: "Pofis bildirim geçici dosyası temizlenemedi.",
     notificationTickFailed: "Pofis bildirim döngüsü tamamlanamadı.",
     resumeRefreshFailed: "Pofis uyku sonrası raporu yenileyemedi.",
@@ -315,7 +317,20 @@ export const ui = {
     copying: "Kopyalanıyor…",
     copied: "Kopyalandı",
     copyError: "Kopyalanamadı. Komutu seçip elle kopyalayabilirsin.",
+    changes: "Bu sürümde neler değişti?",
     later: "Daha sonra",
+  },
+  changelog: {
+    title: "Sürüm geçmişi",
+    nav: "Sürüm geçmişi",
+    current: "Bu sürüm",
+    back: "Girişe dön",
+    openVersion: version => `Pofis v${version} sürüm geçmişini aç`,
+    categories: {
+      features: "Yenilikler",
+      fixes: "Düzeltmeler",
+      maintenance: "Bakım",
+    },
   },
   meals: {
     nav: "Yemek menüsü",

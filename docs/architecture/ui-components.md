@@ -8,6 +8,7 @@ Paylaşılan yüzeylerde demo ve canlı ekran aynı bileşenleri kullanır. Gör
 | Uygulama çerçevesi | [AppShell](../../src/components/shell/app-shell.js), [başlık](../../src/components/shell/app-header.js), [alt bilgi](../../src/components/shell/app-footer.js): menü, ayarlar ve sürüm bilgisi |
 | Tema | [ThemeSwitch](../../src/components/shell/theme-switch.js), [useAppearance](../../src/data/use-appearance.ts): tercih ve işletim sistemi teması |
 | Masaüstü güncellemesi | [useDesktopUpdate / DesktopUpdateModal](../../src/components/shell/desktop-update.tsx): köprüden sürüm bilgisini alma, platform yönlendirmesi ve komut kopyalama; [masaüstü sözleşmesi](../desktop.md#açılışta-sürüm-denetimi) |
+| Sürüm geçmişi | [ChangelogHistory](../../src/components/changelog/history.tsx): manuel kataloğu yeniden eskiye zaman çizgisinde sunma, menü/footer/güncelleme hedefini odaklama; içerik ve yayın sözleşmesi [sürüm rehberindedir](../release.md#uygulama-içi-sürüm-geçmişi) |
 | Mesaim | [DashboardView](../../src/components/dashboard/view.tsx), [başlık](../../src/components/dashboard/header.tsx): güncel/geçmiş hafta yerleşimi ve ortak ekran modeli |
 | Canlı saat ve gün seçimi | [ReportContent](../../src/components/dashboard/report-content.tsx): saniyelik izdüşüm ve cetvelde seçilen tarihi rapora/plana yönlendirme; [Dashboard](../../src/components/dashboard.tsx): İstanbul gün değişimi |
 | Hafta seçimi | [WeekPicker](../../src/components/dashboard/week-picker.tsx), [takvim](../../src/components/dashboard/week-calendar.ts): aylık gezinme ve hafta seçimi |

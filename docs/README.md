@@ -13,6 +13,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Çalışma ortamı, proxy ve Docker | [Dağıtım](deployment.md) |
 | Ortak Windows/macOS/Linux Electron altyapısı, paketleme, kurulum ve kabul durumu | [Masaüstü](desktop.md) |
 | Dört hedefli GitHub Actions release, Cloudflare Workers ayarları ve HTTPS kabulü | [Sürüm yayını](release.md) |
+| Manuel sürüm geçmişi, katalog bakımı ve public aktarımı | [Uygulama içi sürüm geçmişi](release.md#uygulama-içi-sürüm-geçmişi) |
 | Demo verisi, saat ve gezinme | [Mesaim demosu](demo.md) |
 | Masaüstü/Telegram tercihleri, zamanlama ve gönderim kaydı | [Mesai bildirimleri](rules/notifications.md) |
 | GA4 akışı ve kullanım ölçümünün veri sınırları | [Kullanım ölçümü](analytics.md) |

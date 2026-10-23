@@ -6,11 +6,12 @@ import Modal from "../modal.js";
 import { version } from "../../../package.json";
 import { POFI_SURPRISES } from "@/domain/rules/pofi-surprises";
 
-export default function AppFooter({ updateAvailable = false, onOpenUpdate }) {
+export default function AppFooter({ updateAvailable = false, onOpenUpdate, onOpenChangelog }) {
   const sequence = useRef(null);
   const [noteOpen, setNoteOpen] = useState(false);
 
   function tapVersion() {
+    onOpenChangelog?.(version);
     const now = performance.now();
     if (
       !sequence.current ||
@@ -35,11 +36,12 @@ export default function AppFooter({ updateAvailable = false, onOpenUpdate }) {
         <button
           type="button"
           className="app-version"
-          aria-label={ui.about.version(version)}
-          aria-haspopup="dialog"
+          aria-label={ui.changelog.openVersion(version)}
           onClick={tapVersion}
-          onBlur={() => {
-            sequence.current = null;
+          onBlur={(event) => {
+            // Opening history focuses this version's heading without ending the tap sequence.
+            if (event.relatedTarget?.getAttribute("data-changelog-version") !== version)
+              sequence.current = null;
           }}
           onKeyDown={(event) => {
             if (event.repeat) event.preventDefault();

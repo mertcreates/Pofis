@@ -107,6 +107,7 @@ Manifestin şeması, hedefi, `x.y.z` sürümü, boyutu, SHA-256 biçimi ve bekle
 
 - **Pofis'in yeni sürümü hazır** — kurulu ve yeni sürüm ile kurulum komutunu yeniden çalıştırma açıklaması.
 - **Komutu kopyala** platformun sabit komutunu panoya yazar; başarıda **Kopyalandı** görünür. Sonuç, başlangıçtan beri DOM'da bulunan durum alanından ekran okuyucuya bildirilir. Modal Windows için PowerShell, macOS/Linux için Terminal yönlendirmesi sunar. Kopyalama başarısızsa görünen komut elle seçilebilir. Komut manifestten alınmaz; çalıştırmayı kullanıcı başlatır.
+- **Bu sürümde neler değişti?**, [manuel sürüm geçmişini](release.md#uygulama-içi-sürüm-geçmişi) yeni sürümün durağında açar.
 - **Daha sonra**, Escape ve kapatma düğmesi modalı kapatır; güncelleme düğmesi erişilebilir kalır. Açılışta modal kendiliğinden açılmaz.
 
 [Preload](../electron/preload.cjs), yalnız sürüm bilgisini okuma, değişikliği dinleme ve sabit komutu kopyalama işlemlerini açar. [IPC sahibi](../electron/update-bridge.cjs), her istekte paketli uygulamayı, pencereyi, ana çerçeveyi ve uygulama origin'ini doğrular. Güncelleme bilgisi ana süreçte saklanır; sayfa yenilenince tekrar okunur. Web ve normal geliştirme açılışında köprü yüklenmez. `contextIsolation`, sandbox ve kapalı Node entegrasyonu korunur.

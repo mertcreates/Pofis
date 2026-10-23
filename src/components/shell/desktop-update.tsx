@@ -32,7 +32,11 @@ export function useDesktopUpdate() {
   return update;
 }
 
-export function DesktopUpdateModal({ update, onClose }: { update: DesktopUpdate; onClose: () => void }) {
+export function DesktopUpdateModal({ update, onClose, onOpenChangelog }: {
+  update: DesktopUpdate;
+  onClose: () => void;
+  onOpenChangelog: (version: string) => void;
+}) {
   const [status, setStatus] = useState<"idle" | "copying" | "copied" | "error">("idle");
   async function copy() {
     setStatus("copying");
@@ -52,6 +56,8 @@ export function DesktopUpdateModal({ update, onClose }: { update: DesktopUpdate;
       <p>{text.instruction(update.platform === "win32" ? ui.desktop.powershell : ui.desktop.terminal)}</p>
       <code className="desktop-update-command">{update.command}</code>
       <p>{text.confirmation}</p>
+      <button type="button" className="text-button desktop-update-history"
+        onClick={() => onOpenChangelog(update.version)}>{text.changes}</button>
       <div className="desktop-update-actions">
         <button type="button" className="primary" disabled={status === "copying"} onClick={copy}>
           {status === "copied" ? text.copied : status === "copying" ? text.copying : text.copy}

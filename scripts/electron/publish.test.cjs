@@ -5,6 +5,8 @@ const { createHash } = require("node:crypto");
 const { mkdtemp, mkdir, writeFile, rm } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
 const { join } = require("node:path");
+const { version } = require("../../package.json");
+const { readChangelog } = require("./prepare-site.cjs");
 const { assertVersion } = require("./ci-build.cjs");
 const { assertManifest, assertPublicChanges, assertNoDowngrade, verifyDownload, targetFor,
   readAsset, recover, releaseBody, assertRelease, cleanupDraft, verifyLiveOnce, beginRelease } = require("./publish.cjs");
@@ -128,7 +130,7 @@ test("yeni taslak en son yayımlanan kararlı sürümü baz alır; tekrar çalı
       calls.push([url, options.method]);
       if (options.method === "POST") {
         const draft = JSON.parse(options.body);
-        expect(draft.tag_name).toBe("v1.2.3");
+        expect(draft.tag_name).toBe(`v${version}`);
         expect(draft.draft).toBe(true);
         expect(draft.body).toContain("Bu sürüm için ayrıca bir değişiklik notu eklenmedi.");
         expect(draft.body).toContain(`Kaynak commit: ${process.env.GITHUB_SHA}`);
@@ -138,13 +140,13 @@ test("yeni taslak en son yayımlanan kararlı sürümü baz alır; tekrar çalı
       const page = Number(new URL(url).searchParams.get("page"));
       return Response.json(releases.slice((page - 1) * 100, page * 100));
     };
-    await beginRelease("1.2.3");
-    await beginRelease("1.2.3");
+    await beginRelease(version);
+    await beginRelease(version);
     expect(calls.some(([url]) => url.endsWith("page=2"))).toBe(true);
     expect(releases[0].body).toContain("İncelenmiş notlar.");
     expect(calls.filter(([, method]) => method === "POST")).toHaveLength(1);
     process.env.GITHUB_SHA = "f".repeat(40);
-    await expect(beginRelease("1.2.3")).rejects.toThrow("kaynak commit");
+    await expect(beginRelease(version)).rejects.toThrow("kaynak commit");
     expect(calls.filter(([, method]) => method !== "GET")).toHaveLength(1);
   } finally {
     globalThis.fetch = previousFetch;
@@ -231,13 +233,15 @@ test("HTTPS kontrolü CRLF/LF farkını kabul eder; değişen içerik ve eksik b
   const manifests = new Map();
   let installer = "Write-Output 'Pofis'\n";
   let cache = "no-store";
+  let catalogue = await readChangelog(version);
+  let catalogueHeaders = { "Cache-Control": "no-store", "X-Content-Type-Options": "nosniff" };
   try {
     for (const id of ["win32-x64", "darwin-arm64", "darwin-x64", "linux-x64"]) {
       const target = targetFor(id);
       const path = `releases/${target.releaseDirectory.replaceAll("\\", "/")}/latest.json`;
-      const manifest = { schemaVersion: 1, platform: target.platform, arch: target.arch, version: "1.2.3",
+      const manifest = { schemaVersion: 1, platform: target.platform, arch: target.arch, version,
         size: 50, sha256: "a".repeat(64),
-        url: `https://github.com/mertcreates/pofis-landing/releases/download/v1.2.3/Pofis-1.2.3-${id}.${target.archiveExtension}` };
+        url: `https://github.com/mertcreates/pofis-landing/releases/download/v${version}/Pofis-${version}-${id}.${target.archiveExtension}` };
       manifests.set(path, manifest);
       await mkdir(join(site, "public", "releases", target.releaseDirectory), { recursive: true });
       await writeFile(join(site, "public", path), JSON.stringify(manifest));
@@ -247,18 +251,25 @@ test("HTTPS kontrolü CRLF/LF farkını kabul eder; değişen içerik ve eksik b
     globalThis.fetch = async url => {
       const path = new URL(url).pathname.slice(1);
       if (manifests.has(path)) return Response.json(manifests.get(path), { headers: { "Cache-Control": "no-store" } });
+      if (path === "releases/changelog.json") return Response.json(catalogue, { headers: catalogueHeaders });
       if (path === "") return new Response("<html></html>", { headers: { "Content-Type": "text/html" } });
       if (path === "install.ps1" || path === "install.sh") return new Response(
         path === "install.ps1" ? installer : "#!/bin/bash\necho Pofis\n",
         { headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": cache } });
       throw new Error(`Beklenmeyen adres: ${url}`);
     };
-    await verifyLiveOnce(site, "1.2.3");
+    await verifyLiveOnce(site, version);
     installer = "Write-Output 'Başka içerik'\n";
-    await expect(verifyLiveOnce(site, "1.2.3")).rejects.toThrow("içeriği farklı: install.ps1");
+    await expect(verifyLiveOnce(site, version)).rejects.toThrow("içeriği farklı: install.ps1");
     installer = "Write-Output 'Pofis'\n";
     cache = "public, max-age=3600";
-    await expect(verifyLiveOnce(site, "1.2.3")).rejects.toThrow("HTTP başlıkları hazır değil: install.ps1");
+    await expect(verifyLiveOnce(site, version)).rejects.toThrow("HTTP başlıkları hazır değil: install.ps1");
+    cache = "no-store";
+    catalogue = catalogue.slice(1);
+    await expect(verifyLiveOnce(site, version)).rejects.toThrow("kaynak katalogla eşleşmiyor");
+    catalogue = await readChangelog(version);
+    catalogueHeaders = { "Cache-Control": "no-store", "X-Content-Type-Options": "" };
+    await expect(verifyLiveOnce(site, version)).rejects.toThrow("Canlı sürüm geçmişi veya başlıkları hazır değil");
   } finally {
     globalThis.fetch = previousFetch;
     await rm(site, { recursive: true, force: true });

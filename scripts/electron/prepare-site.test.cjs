@@ -3,7 +3,23 @@ const { mkdtemp, mkdir, writeFile, readFile, rm, access } = require("node:fs/pro
 const { tmpdir } = require("node:os");
 const { join } = require("node:path");
 const { createHash } = require("node:crypto");
-const { prepareSite, verifyRelease } = require("./prepare-site.cjs");
+const { prepareSite, verifyRelease, prepareChangelog, readChangelog, verifyPreparedChangelog } = require("./prepare-site.cjs");
+
+test("katalog aktarımı kaynakla eşleşir; eksik veya değiştirilmiş dosya yayından önce reddedilir", async () => {
+  const siteDirectory = await mkdtemp(join(tmpdir(), "pofis-changelog-"));
+  const { version } = require("../../package.json");
+  try {
+    await expect(verifyPreparedChangelog({ siteDirectory, version })).rejects.toThrow();
+    await expect(readChangelog("999.0.0")).rejects.toThrow("ilk kaydı");
+    await prepareChangelog({ siteDirectory, version });
+    await verifyPreparedChangelog({ siteDirectory, version });
+    const path = join(siteDirectory, "public/releases/changelog.json");
+    const catalogue = JSON.parse(await readFile(path, "utf8"));
+    catalogue[0].features = ["Kaynağa ait olmayan içerik"];
+    await writeFile(path, JSON.stringify(catalogue));
+    await expect(verifyPreparedChangelog({ siteDirectory, version })).rejects.toThrow("kaynak katalogla eşleşmiyor");
+  } finally { await rm(siteDirectory, { recursive: true, force: true }); }
+});
 
 test("yalnız doğrulanmış paketin public manifestini ve installer'ını aktarır", async () => {
   const root = await mkdtemp(join(tmpdir(), "pofis-site-"));

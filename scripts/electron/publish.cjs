@@ -2,7 +2,7 @@ const { createHash } = require("node:crypto");
 const { readFile, writeFile, appendFile, mkdir, open, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
-const { prepareSite, verifyRelease, normalizeInstaller } = require("./prepare-site.cjs");
+const { prepareSite, prepareChangelog, readChangelog, verifyPreparedChangelog, verifyRelease, normalizeInstaller } = require("./prepare-site.cjs");
 const { checkVersion, run } = require("./ci-build.cjs");
 const { assertSiteCommands, readSiteContent } = require("./install-command.cjs");
 const { unixInstaller } = require("./unix-installer.cjs");
@@ -11,7 +11,8 @@ const { sourceCommit, readReleaseNotes, releaseBody } = require("./release-notes
 const REPOSITORY = "mertcreates/pofis-landing";
 const TARGETS = ["win32-x64", "darwin-arm64", "darwin-x64", "linux-x64"];
 const PUBLIC_FILES = ["public/install.ps1", "public/install.sh", "public/releases/windows/latest.json",
-  "public/releases/macos/arm64/latest.json", "public/releases/macos/x64/latest.json", "public/releases/linux/x64/latest.json"];
+  "public/releases/macos/arm64/latest.json", "public/releases/macos/x64/latest.json", "public/releases/linux/x64/latest.json",
+  "public/releases/changelog.json"];
 const root = resolve(__dirname, "../..");
 const delay = ms => new Promise(done => setTimeout(done, ms));
 
@@ -100,6 +101,7 @@ async function previousRelease() {
 }
 
 async function beginRelease(version) {
+  await readChangelog(version);
   const release = await getRelease(version);
   if (release) {
     assertRelease(release, version);
@@ -212,6 +214,7 @@ async function prepare(site, version) {
     await prepareSite({ siteDirectory: site, releaseDirectory: directory,
       installerPath: join(directory, installerFile(id)) });
   }
+  await prepareChangelog({ siteDirectory: site, version });
   await changedFiles(site);
 }
 
@@ -236,6 +239,7 @@ async function stage(version, id) {
 
 async function publish(site, version) {
   await assertSite(site, version);
+  await verifyPreparedChangelog({ siteDirectory: site, version });
   for (const [name, expected] of [["install.ps1", await readFile(join(__dirname, "install.ps1"), "utf8")],
     ["install.sh", await unixInstaller()]]) {
     if (normalizeInstaller(await readFile(join(site, "public", name), "utf8")) !== normalizeInstaller(expected)) {
@@ -289,6 +293,19 @@ async function verifyLiveOnce(site, version) {
     if (normalizeInstaller(await installer.text()) !== expected) {
       throw new Error(`Yayındaki kurulum betiğinin içeriği farklı: ${name}`);
     }
+  }
+  const changelogResponse = await fetch("https://pofis.app/releases/changelog.json", {
+    cache: "no-store", signal: AbortSignal.timeout(10000),
+  });
+  if (!changelogResponse.ok || !changelogResponse.headers.get("content-type")?.includes("application/json") ||
+      !changelogResponse.headers.get("cache-control")?.includes("no-store") ||
+      changelogResponse.headers.get("x-content-type-options") !== "nosniff") {
+    throw new Error("Canlı sürüm geçmişi veya başlıkları hazır değil.");
+  }
+  const changelog = await changelogResponse.json();
+  const expectedChangelog = await readChangelog(version);
+  if (JSON.stringify(changelog) !== JSON.stringify(expectedChangelog)) {
+    throw new Error("Canlı sürüm geçmişi kaynak katalogla eşleşmiyor.");
   }
   const page = await fetch("https://pofis.app/", { signal: AbortSignal.timeout(10000) });
   if (!page.ok || !page.headers.get("content-type")?.includes("text/html")) throw new Error("Tanıtım sayfası henüz hazır değil.");

@@ -4,6 +4,7 @@ import { InlineNotice } from "../inline-notice";
 import { useState } from "react";
 import { DesktopUpdateModal, useDesktopUpdate } from "./desktop-update";
 import { NotificationSettings } from "../notifications/settings";
+import { ChangelogHistory } from "../changelog/history";
 
 /**
  * @param {{
@@ -33,7 +34,14 @@ export default function AppShell({
 }) {
   const update = useDesktopUpdate();
   const [updateOpen, setUpdateOpen] = useState(false);
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [activeSection, setActiveSection] = useState("content");
+  const [changelogVersion, setChangelogVersion] = useState();
+  const notificationsOpen = connected && activeSection === "notifications";
+  const changelogOpen = activeSection === "changelog";
+  function openChangelog(version) {
+    setChangelogVersion(version);
+    setActiveSection("changelog");
+  }
   return (
     <div
       className={["app-shell", !connected && "app-shell-public"]
@@ -48,22 +56,28 @@ export default function AppShell({
         settingsOpen={settingsOpen}
         mealsOpen={mealsOpen}
         showMeals={showMeals}
-        onSection={(section) => { setNotificationsOpen(false); onSection?.(section); }}
+        onSection={(section) => { setActiveSection("content"); onSection?.(section); }}
         updateAvailable={!!update}
         onOpenUpdate={() => setUpdateOpen(true)}
         showNotifications={!!notifications}
         notificationsOpen={notificationsOpen}
-        onOpenNotifications={() => setNotificationsOpen(true)}
+        onOpenNotifications={() => setActiveSection("notifications")}
+        changelogOpen={changelogOpen}
+        onOpenChangelog={() => openChangelog()}
       />
       <div className="app-content">
         <main>
           {appearance.error && <InlineNotice tone="warning">{appearance.error}</InlineNotice>}
-          <div hidden={connected && notificationsOpen}>{children}</div>
+          <div hidden={notificationsOpen || changelogOpen}>{children}</div>
           {connected && notifications && <NotificationSettings visible={notificationsOpen} source={notifications} />}
+          {changelogOpen && <ChangelogHistory focusVersion={changelogVersion}
+            onBack={connected ? undefined : () => setActiveSection("content")} />}
         </main>
-        <AppFooter updateAvailable={!connected && !!update} onOpenUpdate={() => setUpdateOpen(true)} />
+        <AppFooter updateAvailable={!connected && !!update} onOpenUpdate={() => setUpdateOpen(true)}
+          onOpenChangelog={openChangelog} />
       </div>
-      {updateOpen && update && <DesktopUpdateModal update={update} onClose={() => setUpdateOpen(false)} />}
+      {updateOpen && update && <DesktopUpdateModal update={update} onClose={() => setUpdateOpen(false)}
+        onOpenChangelog={(version) => { setUpdateOpen(false); openChangelog(version); }} />}
     </div>
   );
 }
