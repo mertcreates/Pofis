@@ -54,7 +54,7 @@ Bildirimler yan menüden açılır. Kanal tercihleri ve ön süre, açık kaydet
 
 Masaüstü, web ve `/demo` aynı [NotificationSettings](../../src/components/notifications/settings.tsx) bileşenini kullanır. Normal web oturumunda ekran salt okunurdur ve masaüstü gereksinimini gösterir. [Demo bildirimleri](../demo.md#mesai-bildirimi-ayarları) aynı akışı örnek sonuçlarla sunar; gerçek zamanlayıcı Electron ana sürecindedir.
 
-Native bildirimin işletim sistemi kaynak adı **Pofis**, içerik ikonu `public/pofi/pofi-mark-256.png` olur. Windows paketleyicisi EXE ikonuyla birlikte `ProductName`, `FileDescription`, `InternalName` ve `OriginalFilename` alanlarını Pofis olarak işler; Electron'un bildirim kısayolu adı EXE `ProductName` alanından gelir. Süreç ve Başlat menüsü kısayolu aynı `app.pofis.client` kimliğini kullanır. macOS uygulama adı ve ikonu bundle metadata'sından gelir. Native bildirime tıklama çalışan Pofis penceresini açar.
+Native bildirimin işletim sistemi kaynak adı **Pofis** olur. Windows ve Linux'ta içerik ikonu `public/pofi/pofi-mark-256.png` olur. Windows paketleyicisi EXE ikonuyla birlikte `ProductName`, `FileDescription`, `InternalName` ve `OriginalFilename` alanlarını Pofis olarak işler; Electron'un bildirim kısayolu adı EXE `ProductName` alanından gelir. Süreç ve Başlat menüsü kısayolu aynı `app.pofis.client` kimliğini kullanır. macOS uygulama adı ve ikonu bundle metadata'sından gelir; aynı görselin iki kez görünmemesi için bildirime ayrıca içerik ikonu eklenmez. Native bildirime tıklama çalışan Pofis penceresini açar.
 
 | Durum | Başlık | Gövde örneği |
 | --- | --- | --- |

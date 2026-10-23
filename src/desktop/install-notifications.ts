@@ -62,7 +62,9 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
     verifyTelegram: (input, signal) => telegram.verify(input, signal),
     sendTelegram: (credentials: TelegramCredentials, title, body, signal) => telegram.send(credentials, title, body, signal),
     sendNative: (title, body) => new Promise<void>((resolve, reject) => {
-      const notification = new Notification({ title, body, icon: join(app.getAppPath(), "public", "pofi", "pofi-mark-256.png") });
+      const notification = new Notification({ title, body,
+        ...(process.platform === "darwin" ? {} : { icon: join(app.getAppPath(), "public", "pofi", "pofi-mark-256.png") }),
+      });
       shown.add(notification);
       const timer = setTimeout(() => reject(new DeliveryError(ui.notificationErrors.nativeUnconfirmed, null, true)), 5000);
       notification.once("show", () => { clearTimeout(timer); resolve(); });
