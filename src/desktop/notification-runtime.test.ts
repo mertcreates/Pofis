@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { createNotificationRuntime } from "./notification-runtime";
 import { createNotificationStore, emptyNotificationAccount, type NotificationAccount, type NotificationStore } from "./notification-store";
 import { emptyWorkPlans } from "@/domain/rules/work-plan";
-import { defaultNotificationPreferences } from "@/domain/rules/notifications";
+import { defaultNotificationPreferences, type NotificationGoal } from "@/domain/rules/notifications";
 import type { NotificationReport, NotificationSession } from "./notification-contract";
 import { DeliveryError } from "./telegram";
 import { mkdtemp, rm } from "node:fs/promises";
@@ -63,6 +63,7 @@ function fixture() {
   let offline = false;
   const records = new Map<string, NotificationAccount>();
   const sent: string[] = [];
+  const goals: (NotificationGoal | null)[] = [];
   let reports = 0;
   const report: NotificationReport = {
     person: { id: "self", name: "Fixture", title: "", unit: "" }, from: "2026-10-19", to: "2026-10-25",
@@ -88,11 +89,11 @@ function fixture() {
     async verifyTelegram() { return { token: "fixture", chatId: "12345", label: "@fixture" }; },
     async sendNative() { sent.push("native"); },
     async sendTelegram() { sent.push("telegram"); },
-    onChange() {}, onReport() {},
+    onChange() {}, onReport() {}, onGoal(goal: NotificationGoal | null) { goals.push(goal); },
   };
   const runtime = createNotificationRuntime(deps);
   const enable = async () => runtime.save({ ...defaultNotificationPreferences(), approaching: { native: true, telegram: true }, reached: { native: true, telegram: true } });
-  return { runtime, deps, report, records, sent, enable,
+  return { runtime, deps, report, records, sent, goals, enable,
     time: (value: string) => { clock = at(value); }, offline: () => { offline = true; },
     identity: (value: NotificationSession | null) => { identity = value; }, reports: () => reports };
 }
@@ -312,4 +313,19 @@ test("yanıt vermeyen rapor yenilemesi hedef anındaki bildirimi bekletemez", as
   f.time("16:50:00"); await f.runtime.tick();
   expect(f.sent).toEqual(["native"]);
   release(f.report); await pending;
+});
+
+test("menü çubuğu hedefi bildirimlerin ortak planından gelir, çıkış ve oturum sonunda silinir", async () => {
+  const f = fixture();
+  await f.runtime.sync(plans);
+  await f.runtime.refresh();
+  expect(f.goals.at(-1)).toEqual({ date: "2026-10-21", at: at("17:00:00") });
+  f.time("16:59:00");
+  await f.runtime.tick();
+  expect(f.goals.at(-1)?.at).toBe(at("17:00:00"));
+  f.report.passages.push({ date: "2026-10-21", time: "16:59:30", direction: "out" });
+  await f.runtime.refresh();
+  expect(f.goals.at(-1)).toBeNull();
+  f.runtime.pause();
+  expect(f.goals.at(-1)).toBeNull();
 });

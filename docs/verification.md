@@ -8,7 +8,7 @@ Kontrolü değişen davranışa göre seçin. Beklenen sonucu ürün sözleşmes
 
 ## Yerel kontroller
 
-Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta yalnız elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama) bulunur; bu akış tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
+Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta paket yayını için elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama) bulunur; Pofi Mini PR'ları ayrıca [üç hedefli kabul akışını](../.github/workflows/pofi-mini-check.yml) otomatik çalıştırır. Sürüm akışı tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
 
 ```powershell
 bun test
@@ -145,3 +145,15 @@ Aynı D-Bus/anahtarlık oturumunda önce `bun scripts/electron/smoke.cjs <linux-
 Her sonucu kullanılan kaynak, paket ve ortamla birlikte bildirin. Motor geçişini gerçek önceki/yeni paketlerle, pencere ve kurulum davranışını hedef işletim sisteminde doğrulayın. Statik paket kontrolü dosya/mimari sözleşmesini, fixture testi kendi senaryosunu kanıtlar.
 
 Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulamaların rapor, ekran görüntüsü ve ölçüm çıktılarını temizleyin. Geçerli ürün kararlarını ilgili sözleşmeye, açık bulguları görev listesine taşıyın. Davranış testleri ve demo üzerinden elle tarayıcı kabulü doğrulama yönteminin parçasıdır.
+
+
+## Pofi Mini kabulü
+
+[Mini pencere davranış testleri](../electron/mini-window.test.cjs) konum sınırlamasını, tek pencere kullanımını, sabitlemeyi, kapanışı ve IPC gönderen doğrulamasını sınar. [Arka plan testleri](../electron/background.test.cjs) sol/sağ tıklama, ana pencereyi gösterme ve gerçek çıkış ayrımını doğrular. [PR Apple Silicon/Intel Mac ve Windows kabul akışı](../.github/workflows/pofi-mini-check.yml) bunlara ek olarak hedef zamanı güncellemeyi, tür kontrolünü, Apple Silicon ve Intel macOS ile Windows'ta paket üretimini, gerçek Pofi Mini penceresinin açılışını, sabitleme düğmesinin durumunu, IPC köprüsünü ve ana ekrana dönüşü sınar. Doğrulanan üç platformun `Pofis-*.zip` deneme paketleri ile giriş/demo ekran görüntüleri ve desteklenen runner'larda mini ekran görüntüsü, PR'ın Actions > Artifacts alanında 30 gün saklanır. Mac ZIP'leri `ditto` ile imzayı ve dosya izinlerini koruyacak şekilde oluşturulur. Bu test gerçek menü çubuğu görüntüsünün görsel kabulünün yerine geçmez.
+
+- Windows'ta tray sol tık → Pofi Mini, sağ tık → seçenekler; ana uygulama kapatılıp yeniden açıldığında mesai/planın güncellenmesi.
+- macOS'ta menü çubuğu sol tık → Pofi Mini, sağ tık → eylem menüsü; başlıktan sürükleme, dışarı tıklama → gizlenme, sabitleme → görünür kalma, Dock eylemleri ve `CommandOrControl+Shift+P`.
+- macOS'ta hedef çıkışa geri sayım, hedef aşıldığında `+` işareti, çıkış kaydında/oturum kapanışında silinme, gün değişiminde silinme ve "Hedefe kalan süreyi göster" seçeneğinin kapatılıp yeniden başlatılınca korunması.
+- PDKS girişi yok, rapor hatası, belirsiz kayıt, mesai öncesi, canlı mesai, çıkış sonrası, hedef aşımı ve hafta değişimi → panelin mevcut iş kurallarıyla aynı bilgiyi sunması.
+- Oturum açılışında başlatma varsayılan kapalı kalır, menüyle açılıp kapatılır, gerçek macOS oturum açılışıyla doğrulanır.
+23 Ekim 2026 itibarıyla [PR #1'in son tam kabul koşusu](https://github.com/bugjardotdev/Pofis/actions/runs/39967421826) Apple Silicon, Intel macOS ve Windows'ta başarılıdır. Bu koşudan sonraki ana dala uyarlama ve dokümantasyon güncellemesi, Actions kotasını korumak için `[skip ci]` ile taşınır; yeni PR başının ayrıca CI'da doğrulandığı anlamına gelmez. Gerçek Mac'te menü çubuğu ve Spaces gibi görsel/işletim sistemi kabulleri henüz yapılmamıştır.

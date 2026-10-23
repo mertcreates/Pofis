@@ -1,5 +1,5 @@
 const { product, ui } = require("./ui-text.cjs");
-const { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, session, shell, utilityProcess, Tray, nativeImage, Notification, safeStorage, powerMonitor } = require("electron");
+const { app, BrowserWindow, clipboard, dialog, ipcMain, Menu, session, shell, utilityProcess, Tray, nativeImage, Notification, safeStorage, powerMonitor, globalShortcut, screen } = require("electron");
 const { join } = require("node:path");
 const { createDesktopServer, ORIGIN } = require("./server.cjs");
 const { startupId, writeStartupResult } = require("./startup.cjs");
@@ -11,6 +11,8 @@ const { installPermissions } = require("./permissions.cjs");
 const { isolateAcceptanceAnalytics } = require("./acceptance-network.cjs");
 const { installBackground, showWindow: showNativeWindow } = require("./background.cjs");
 const { createDesktopTransport } = require("./transport.cjs");
+const { createMiniWindow } = require("./mini-window.cjs");
+const { createMenuClockPreference } = require("./menu-clock.cjs");
 const target = platformTarget();
 
 app.setName(product.name);
@@ -27,6 +29,7 @@ let ready = false;
 let updateTimer;
 let notifications;
 let background;
+let mini;
 const requests = new Set();
 const firstRequest = startupId(process.argv);
 if (firstRequest) requests.add(firstRequest);
@@ -89,6 +92,8 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     clearTimeout(updateTimer);
     notifications?.stop();
     background?.stop();
+    mini?.stop();
+    globalShortcut.unregisterAll();
     if (!server) { app.quit(); return; }
     server.stop().then(() => app.quit()).catch(async () => {
       await dialog.showMessageBox({ type: "error", title: product.name, message:
@@ -144,12 +149,36 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
       if (quitting || reportingFailure || !window || window.isDestroyed()) return;
       showNativeWindow({ app, window, platform: target.platform });
     };
+    const preload = app.isPackaged ? join(__dirname, "..", "server", "preload.cjs")
+      : join(__dirname, "..", ".next", "standalone", "preload.cjs");
+    mini = createMiniWindow({ BrowserWindow, screen, ipcMain, app, preload,
+      platform: target.platform, icon, showMain: showWindow, isQuitting: () => quitting });
+    const toggleMini = bounds => mini.toggle(bounds).catch(error => {
+      console.error("Pofi Mini açılamadı:", error);
+      showWindow();
+    });
+    // The native menu title uses the same verified goal as notifications.
     background = installBackground({ app, window, Tray, Menu, nativeImage, icon,
-      platform: target.platform, showWindow, isQuitting: () => quitting });
+      platform: target.platform, showWindow, toggleMini, isQuitting: () => quitting,
+      menuClock: target.platform === "darwin"
+        ? createMenuClockPreference(join(app.getPath("userData"), "menu-clock.json")) : null,
+      login: target.platform === "darwin" && app.isPackaged ? {
+        get: () => app.getLoginItemSettings().openAtLogin,
+        set: enabled => app.setLoginItemSettings({ openAtLogin: enabled }),
+      } : null });
+    globalShortcut.register("CommandOrControl+Shift+P", () => void toggleMini());
+    // The packaged-app smoke test drives the real menu action through the main inspector.
+    if (process.env.POFIS_TEST_BLOCK_ANALYTICS === "1")
+      app.on("pofis:acceptance:mini", () => void toggleMini());
+    if (app.dock) app.dock.setMenu(Menu.buildFromTemplate([
+      { label: ui.desktop.mini, click: () => void toggleMini() },
+      { label: ui.desktop.open, click: showWindow },
+    ]));
     const runtimePath = app.isPackaged ? join(__dirname, "..", "server", "pofis-notifications.cjs")
       : join(__dirname, "..", ".next", "standalone", "pofis-notifications.cjs");
     notifications = require(runtimePath).installDesktopNotifications({ app, ipcMain, session: session.defaultSession,
-      Notification, safeStorage, powerMonitor, getWindow: () => window, origin: ORIGIN, showWindow });
+      Notification, safeStorage, powerMonitor, getWindow: () => window, origin: ORIGIN, showWindow,
+      onGoal: goal => background?.setGoal(goal) });
     window.webContents.on("did-start-navigation", (_event, _url, isInPlace, isMainFrame) => {
       if (isMainFrame && !isInPlace) notifications.pause();
     });

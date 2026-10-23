@@ -1,7 +1,7 @@
 import { ui } from "../lib/ui-text.js";
 import { dateKey, weekStart, addDays } from "@/domain/rules/calendar";
 import { defaultNotificationPreferences, readNotificationPreferences, mesaiNotifications, NOTIFICATION_POLICY,
-  type NotificationChannel, type NotificationPreferences } from "@/domain/rules/notifications";
+  type NotificationChannel, type NotificationPreferences, type NotificationGoal } from "@/domain/rules/notifications";
 import { readStoredPlans } from "@/lib/plan-storage.js";
 import { readReportResponse } from "@/data/report-response";
 import type { WorkPlans } from "@/domain/rules/work-plan";
@@ -27,6 +27,7 @@ type Dependencies = {
   sendTelegram(credentials: TelegramCredentials, title: string, body: string, signal: AbortSignal): Promise<void>;
   onChange(status: NotificationStatus): void;
   onReport(report: NotificationReport): void;
+  onGoal?(goal: NotificationGoal | null): void;
 };
 
 export function readNotificationSession(value: unknown): NotificationSession {
@@ -63,7 +64,8 @@ export function createNotificationRuntime(deps: Dependencies) {
       telegram: { connected: !!credentials, label: credentials?.label ?? "" }, nativeSupported: deps.nativeSupported,
       secureStorageAvailable: deps.secureStorageAvailable(), lastRefreshAt, refreshError, deliveryErrors: { ...deliveryErrors } };
   }
-  const publish = () => deps.onChange(status());
+  const publishGoal = (goal = notificationGoal(report, plans, now())) => deps.onGoal?.(goal);
+  const publish = () => { deps.onChange(status()); publishGoal(); };
   function expire() { pause(); deps.onExpired?.(); }
   function pause() {
     pendingSync = null;
@@ -175,6 +177,7 @@ export function createNotificationRuntime(deps: Dependencies) {
       if (!session || !account) return;
       const current = requireAccount();
       const goal = notificationGoal(report, plans, now());
+      publishGoal(goal);
       const candidates = mesaiNotifications(goal, account.preferences, dateKey(now()), now(), eligibleSince);
       for (const event of candidates) for (const channel of ["native", "telegram"] as const) {
         if (current.generation !== generation || !account || !session || session.expiresAt <= now() ||

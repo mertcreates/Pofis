@@ -12,6 +12,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Oturum yaşam döngüsü ve tek süreç sınırları | [Çok kullanıcılı yapı](architecture/multi-user-sessions.md) |
 | Çalışma ortamı, proxy ve Docker | [Dağıtım](deployment.md) |
 | Ortak Windows/macOS/Linux Electron altyapısı, paketleme, kurulum ve kabul durumu | [Masaüstü](desktop.md) |
+| Pofi Mini, macOS menü çubuğu ve gerçek cihaz kabulü | [Masaüstü entegrasyonu](desktop.md#pofi-mini-ve-macos-menü-çubuğu), [Pofi Mini kabulü](verification.md#pofi-mini-kabulü) |
 | Dört hedefli GitHub Actions release, Cloudflare Workers ayarları ve HTTPS kabulü | [Sürüm yayını](release.md) |
 | Manuel sürüm geçmişi, katalog bakımı ve public aktarımı | [Uygulama içi sürüm geçmişi](release.md#uygulama-içi-sürüm-geçmişi) |
 | Demo verisi, saat ve gezinme | [Mesaim demosu](demo.md) |

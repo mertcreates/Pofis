@@ -8,13 +8,14 @@ import { createNotificationRuntime } from "./notification-runtime";
 import { createNotificationStore } from "./notification-store";
 import { secureStorageAvailable } from "./secure-storage";
 import { createTelegram, readTelegramInput, DeliveryError, type TelegramCredentials } from "./telegram";
-import { NOTIFICATION_POLICY, type NotificationChannel } from "@/domain/rules/notifications";
+import { NOTIFICATION_POLICY, type NotificationChannel, type NotificationGoal } from "@/domain/rules/notifications";
 import type { NotificationPreferences } from "@/domain/rules/notifications";
 
-export function installDesktopNotifications({ app, ipcMain, session, safeStorage, Notification, powerMonitor, getWindow, origin, showWindow, telegramFetch }: {
+export function installDesktopNotifications({ app, ipcMain, session, safeStorage, Notification, powerMonitor, getWindow, origin, showWindow, onGoal, telegramFetch }: {
   app: App; ipcMain: IpcMain; session: Session; safeStorage: SafeStorage;
   Notification: typeof ElectronNotification; powerMonitor: PowerMonitor;
   getWindow(): BrowserWindow | undefined; origin: string; showWindow(): void;
+  onGoal?: (goal: NotificationGoal | null) => void;
   telegramFetch?: Parameters<typeof createTelegram>[0];
 }) {
   const telegram = createTelegram(telegramFetch);
@@ -78,6 +79,7 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
     }),
     onChange: status => emit("pofis:notifications:status", status),
     onReport: report => emit("pofis:notifications:report", report),
+    onGoal,
   });
   const operations = {
     get: () => runtime.status(), sync: (plans: string) => runtime.sync(plans), pause: () => runtime.pause(),
