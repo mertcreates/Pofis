@@ -8,7 +8,7 @@ Kontrolü değişen davranışa göre seçin. Beklenen sonucu ürün sözleşmes
 
 ## Yerel kontroller
 
-Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta yalnız elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama) bulunur; bu akış tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
+Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta paket yayını için elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama) bulunur; Pofi Mini PR'ları ayrıca [iki platformlu kabul akışını](../.github/workflows/pofi-mini-check.yml) otomatik çalıştırır. Sürüm akışı tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
 
 ```powershell
 bun test
@@ -149,9 +149,10 @@ Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulam
 
 ## Pofi Mini kabulü
 
-[Mini pencere davranış testleri](../electron/mini-window.test.cjs) konum sınırlamasını, tek pencere kullanımını, sabitlemeyi, kapanışı ve IPC gönderen doğrulamasını sınar. [Arka plan testleri](../electron/background.test.cjs) sol/sağ tıklama, ana pencereyi gösterme ve gerçek çıkış ayrımını doğrular. [PR macOS runner](../.github/workflows/pofi-mini-check.yml) bunlara ek olarak tür kontrolü, macOS paket üretimi ve mevcut paket açılış smoke testini çalıştırır. Bu test gerçek menü çubuğu görüntüsünün görsel kabulünün yerine geçmez.
+[Mini pencere davranış testleri](../electron/mini-window.test.cjs) konum sınırlamasını, tek pencere kullanımını, sabitlemeyi, kapanışı ve IPC gönderen doğrulamasını sınar. [Arka plan testleri](../electron/background.test.cjs) sol/sağ tıklama, ana pencereyi gösterme ve gerçek çıkış ayrımını doğrular. [PR Mac/Windows kabul akışı](../.github/workflows/pofi-mini-check.yml) bunlara ek olarak hedef zamanı güncellemeyi, tür kontrolünü, her iki platformda paket üretimini, gerçek Pofi Mini penceresinin açılışını, IPC sabitlemeyi ve ana ekrana dönüşü sınar. Bu test gerçek menü çubuğu görüntüsünün görsel kabulünün yerine geçmez.
 
 - Windows'ta tray sol tık → Pofi Mini, sağ tık → seçenekler; ana uygulama kapatılıp yeniden açıldığında mesai/planın güncellenmesi.
 - macOS'ta menü çubuğu sol tık → Pofi Mini, sağ tık → eylem menüsü; dışarı tıklama → gizlenme, sabitleme → görünür kalma, Dock eylemleri ve `CommandOrControl+Shift+P`.
+- macOS'ta hedef çıkışa geri sayım, hedef aşıldığında `+` işareti, çıkış kaydında/oturum kapanışında silinme, gün değişiminde silinme ve "Hedefe kalan süreyi göster" seçeneğinin kapatılıp yeniden başlatılınca korunması.
 - PDKS girişi yok, rapor hatası, belirsiz kayıt, mesai öncesi, canlı mesai, çıkış sonrası, hedef aşımı ve hafta değişimi → panelin mevcut iş kurallarıyla aynı bilgiyi sunması.
 - Oturum açılışında başlatma varsayılan kapalı kalır, menüyle açılıp kapatılır, gerçek macOS oturum açılışıyla doğrulanır.

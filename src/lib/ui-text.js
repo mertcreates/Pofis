@@ -189,6 +189,7 @@ export const ui = {
     trayTooltip: "Pofis · Mesaiye biraz Pofi.",
     mini: "Pofi Mini",
     startAtLogin: "Oturum açılışında başlat",
+    showRemainingInMenu: "Hedefe kalan süreyi göster",
     open: "Pofis’i aç",
     quit: "Pofis’ten çık",
     notReady: "Pofis açık ama henüz hazır değil. Uygulamayı kapatıp yeniden aç.",

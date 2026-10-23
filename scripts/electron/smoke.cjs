@@ -237,6 +237,57 @@ async function run() {
     await cdp.send("Page.navigate", { url: `${ORIGIN}/demo` });
     await until(() => evaluate("!!document.body && (!!document.querySelector('.dashboard') || document.body.innerText.includes('Kayıtlı süre'))"));
     await screenshot("demo.png");
+    // Open the actual native mini window, inspect its isolated renderer and exercise both IPC actions.
+    const miniMain = await connect(mainDebugUrl);
+    let miniPage;
+    try {
+      const toggle = await miniMain.send("Runtime.evaluate", {
+        expression: "process.mainModule.require('electron').app.emit('pofis:acceptance:mini')",
+        returnByValue: true,
+      });
+      assert.equal(toggle.exceptionDetails, undefined);
+      assert.equal(toggle.result.value, true);
+      const miniTarget = await until(async signal => {
+        const pages = await (await fetch(`${debugOrigin}/json/list`, { signal })).json();
+        return pages.find(page => page.type === "page" && page.url === `${ORIGIN}/mini`);
+      }, 30000, "Pofi Mini native pencere hedefi yüklenmedi.");
+      miniPage = await connect(miniTarget.webSocketDebuggerUrl);
+      await until(async () => {
+        const result = await miniPage.send("Runtime.evaluate", {
+          expression: "document.readyState === 'complete' && !!document.querySelector('.pofi-mini') && typeof window.pofisMini?.pin === 'function'",
+          returnByValue: true,
+        });
+        return result.result?.value === true;
+      }, 30000, "Pofi Mini arayüzü veya güvenli IPC köprüsü yüklenmedi.");
+      const pin = await miniPage.send("Runtime.evaluate", {
+        expression: "window.pofisMini.pin()", awaitPromise: true, returnByValue: true,
+      });
+      assert.equal(pin.exceptionDetails, undefined);
+      assert.deepEqual(pin.result.value, { pinned: true });
+      const opened = await miniPage.send("Runtime.evaluate", {
+        expression: "window.pofisMini.openMain().then(() => true)", awaitPromise: true, returnByValue: true,
+      });
+      assert.equal(opened.exceptionDetails, undefined);
+      assert.equal(opened.result.value, true);
+      await until(async () => {
+        const state = await miniMain.send("Runtime.evaluate", {
+          expression: "(() => { const windows = process.mainModule.require('electron').BrowserWindow.getAllWindows(); return windows.length === 2 && windows.filter(w => w.isVisible()).length === 1; })()",
+          returnByValue: true,
+        });
+        return state.result?.value === true;
+      }, 30000, "Mini ana pencereye döndüğünde gizlenmedi.");
+      console.log("PASS: gerçek Pofi Mini penceresi, UI/IPC, sabitleme ve ana pencereye dönüş.");
+    } finally { miniPage?.close(); miniMain.close(); }
+    // The mini is a live hidden native window; close() checks the main window contract.
+    const cleanupMini = await connect(mainDebugUrl);
+    try {
+      const result = await cleanupMini.send("Runtime.evaluate", {
+        expression: "(() => { const windows = process.mainModule.require('electron').BrowserWindow.getAllWindows(); const mini = windows.find(w => w.getURL().endsWith('/mini')); mini?.destroy(); return windows.length === 2; })()",
+        returnByValue: true,
+      });
+      assert.equal(result.exceptionDetails, undefined);
+      assert.equal(result.result.value, true);
+    } finally { cleanupMini.close(); }
     await close();
     occupied = Bun.serve({ hostname: "127.0.0.1", port: 3210, fetch: () => new Response("another app") });
     await launch();

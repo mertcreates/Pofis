@@ -12,6 +12,7 @@ const { isolateAcceptanceAnalytics } = require("./acceptance-network.cjs");
 const { installBackground, showWindow: showNativeWindow } = require("./background.cjs");
 const { createDesktopTransport } = require("./transport.cjs");
 const { createMiniWindow } = require("./mini-window.cjs");
+const { createMenuClockPreference } = require("./menu-clock.cjs");
 const target = platformTarget();
 
 app.setName(product.name);
@@ -156,13 +157,19 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
       console.error("Pofi Mini açılamadı:", error);
       showWindow();
     });
+    // The native menu title uses the same verified goal as notifications.
     background = installBackground({ app, window, Tray, Menu, nativeImage, icon,
       platform: target.platform, showWindow, toggleMini, isQuitting: () => quitting,
+      menuClock: target.platform === "darwin"
+        ? createMenuClockPreference(join(app.getPath("userData"), "menu-clock.json")) : null,
       login: target.platform === "darwin" && app.isPackaged ? {
         get: () => app.getLoginItemSettings().openAtLogin,
         set: enabled => app.setLoginItemSettings({ openAtLogin: enabled }),
       } : null });
     globalShortcut.register("CommandOrControl+Shift+P", () => void toggleMini());
+    // The packaged-app smoke test drives the real menu action through the main inspector.
+    if (process.env.POFIS_TEST_BLOCK_ANALYTICS === "1")
+      app.on("pofis:acceptance:mini", () => void toggleMini());
     if (app.dock) app.dock.setMenu(Menu.buildFromTemplate([
       { label: ui.desktop.mini, click: () => void toggleMini() },
       { label: ui.desktop.open, click: showWindow },
@@ -170,7 +177,8 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     const runtimePath = app.isPackaged ? join(__dirname, "..", "server", "pofis-notifications.cjs")
       : join(__dirname, "..", ".next", "standalone", "pofis-notifications.cjs");
     notifications = require(runtimePath).installDesktopNotifications({ app, ipcMain, session: session.defaultSession,
-      Notification, safeStorage, powerMonitor, getWindow: () => window, origin: ORIGIN, showWindow });
+      Notification, safeStorage, powerMonitor, getWindow: () => window, origin: ORIGIN, showWindow,
+      onGoal: goal => background?.setGoal(goal) });
     window.webContents.on("did-start-navigation", (_event, _url, isInPlace, isMainFrame) => {
       if (isMainFrame && !isInPlace) notifications.pause();
     });
