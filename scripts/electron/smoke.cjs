@@ -265,8 +265,27 @@ async function run() {
         const miniShot = await miniPage.send("Page.captureScreenshot", { format: "png" });
         await writeFile(join(artifactDirectory, "mini.png"), Buffer.from(miniShot.data, "base64"));
       }
+      // Give React hydration time to attach the real button action before clicking.
+      await Bun.sleep(500);
+      const pinBefore = await miniPage.send("Runtime.evaluate", {
+        expression: "(() => { const button = document.querySelector('.pofi-mini-pin'); return !button?.classList.contains('is-pinned') && button?.textContent?.trim() === 'Sabitle'; })()",
+        returnByValue: true,
+      });
+      assert.equal(pinBefore.result.value, true);
+      const pinClick = await miniPage.send("Runtime.evaluate", {
+        expression: "document.querySelector('.pofi-mini-pin').click(); true",
+        returnByValue: true,
+      });
+      assert.equal(pinClick.exceptionDetails, undefined);
+      await until(async () => {
+        const state = await miniPage.send("Runtime.evaluate", {
+          expression: "(() => { const button = document.querySelector('.pofi-mini-pin'); return button?.classList.contains('is-pinned') && button?.textContent?.trim() === 'Sabitlemeyi kaldır'; })()",
+          returnByValue: true,
+        });
+        return state.result?.value === true;
+      }, 10000, "Pofi Mini sabitleme düğmesinin etkin durumu güncellenmedi.");
       const pin = await miniPage.send("Runtime.evaluate", {
-        expression: "window.pofisMini.pin()", awaitPromise: true, returnByValue: true,
+        expression: "window.pofisMini.get()", awaitPromise: true, returnByValue: true,
       });
       assert.equal(pin.exceptionDetails, undefined);
       assert.deepEqual(pin.result.value, { pinned: true });

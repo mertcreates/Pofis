@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { ArrowUpRight, Pin, PinOff } from "lucide-react";
 import { useClock } from "@/data/use-clock";
 import { usePdks } from "@/data/use-pdks";
 import { useWorkPlans } from "@/data/use-work-plans";
@@ -57,29 +58,31 @@ export function MiniDashboard({ initialNow }: { initialNow: number }) {
   function togglePin() {
     void window.pofisMini?.pin().then(value => setPinned(value.pinned));
   }
+  const pinLabel = pinned ? ui.desktop.miniUnpin : ui.desktop.miniPin;
 
   return (
     <main className="pofi-mini">
       <header className="pofi-mini-header">
         <div className="pofi-mini-brand">
           <img src="/pofi/pofi-mark-256.png" alt="" width="34" height="34" />
-          <span><strong>Pofi Mini</strong><small>{product.tagline}</small></span>
+          <span><strong>{ui.desktop.mini}</strong><small>{product.tagline}</small></span>
         </div>
         <button className={`pofi-mini-pin${pinned ? " is-pinned" : ""}`} type="button"
-          onClick={togglePin} aria-pressed={pinned} title={pinned ? "Sabitlemeyi kaldır" : "Pencereyi sabitle"}>
-          {pinned ? "●" : "○"} <span>Sabitle</span>
+          onClick={togglePin} title={pinLabel}>
+          {pinned ? <PinOff size={14} aria-hidden="true" /> : <Pin size={14} aria-hidden="true" />}
+          <span>{pinLabel}</span>
         </button>
       </header>
 
       {pdks.connected === false ? (
-        <div className="pofi-mini-empty"><strong>PDKS bağlantısı yok</strong><p>Mesaini görmek için Pofis'e giriş yap.</p></div>
+        <div className="pofi-mini-empty"><strong>{ui.desktop.miniDisconnectedTitle}</strong><p>{ui.desktop.miniDisconnectedHelp}</p></div>
       ) : !presentation ? (
         <div className="pofi-mini-empty" role="status">
-          {pdks.failure ? "Mesai bilgileri alınamadı. Pofis'ten yeniden dene." : "Mesai bilgileri hazırlanıyor…"}
+          {pdks.failure ? ui.desktop.miniLoadFailed : ui.desktop.miniLoading}
         </div>
       ) : (
         <>
-          <section className="pofi-mini-today" aria-label="Bugünkü mesai">
+          <section className="pofi-mini-today" aria-label={ui.todayWork}>
             <span className="pofi-mini-label">{ui.todayWork}</span>
             <strong className="pofi-mini-duration">{duration === null ? "—" : durationClock(duration)}</strong>
             <span className="pofi-mini-status">{day?.state === "uncertain" ? ui.incompleteRecord :
@@ -91,7 +94,8 @@ export function MiniDashboard({ initialNow }: { initialNow: number }) {
             <div><span className="pofi-mini-label">{ui.targetExit}</span>
               <strong>{exitAt === null ? "—" : formatClock(exitAt, false)}</strong></div>
             <div><span className="pofi-mini-label">{delta === null ? ui.targetRemaining :
-              delta >= 0 ? ui.targetOver : ui.targetRemaining}</span>
+              delta > 0 ? ui.targetOver :
+              delta === 0 ? ui.equalTargetLabel : ui.targetRemaining}</span>
               <strong>{delta === null ? "—" : durationText(Math.abs(delta), false)}</strong></div>
           </div>
           <section className="pofi-mini-week">
@@ -106,7 +110,9 @@ export function MiniDashboard({ initialNow }: { initialNow: number }) {
           </section>
         </>
       )}
-      <button type="button" className="pofi-mini-open" onClick={openMain}>{ui.desktop.open} ↗</button>
+      <button type="button" className="pofi-mini-open" onClick={openMain}>
+        {ui.desktop.open} <ArrowUpRight size={15} aria-hidden="true" />
+      </button>
     </main>
   );
 }
