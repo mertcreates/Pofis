@@ -79,7 +79,7 @@ export function createNotificationRuntime(deps: Dependencies) {
   function requireAccount() {
     if (session && session.expiresAt <= now()) expire();
     if (!session || !account) throw new Error(ui.notificationErrors.loginRequired);
-    return { session, account, generation };
+    return { session, account, generation, preferencesRevision: account.preferencesRevision ?? 0 };
   }
   function persist(update: (value: NotificationAccount) => NotificationAccount, current = requireAccount()) {
     const task = mutations.then(async () => {
@@ -177,17 +177,20 @@ export function createNotificationRuntime(deps: Dependencies) {
       const goal = notificationGoal(report, plans, now());
       const candidates = mesaiNotifications(goal, account.preferences, dateKey(now()), now(), eligibleSince);
       for (const event of candidates) for (const channel of ["native", "telegram"] as const) {
-        if (current.generation !== generation || !account || !session || session.expiresAt <= now()) return;
+        if (current.generation !== generation || !account || !session || session.expiresAt <= now() ||
+            (account.preferencesRevision ?? 0) !== current.preferencesRevision) return;
         if (!account.preferences[event.kind][channel] || (channel === "native" ? !deps.nativeSupported : !credentials)) continue;
         const key = `${event.key}:${channel}`;
         const previous = account.deliveries[key];
         if (previous && (previous.state !== "failed" || previous.attempts >= NOTIFICATION_POLICY.maxAttempts || previous.retryAt > now())) continue;
         const attempts = (previous?.attempts ?? 0) + 1;
         await persist(value => {
+          if ((value.preferencesRevision ?? 0) !== current.preferencesRevision) return value;
           const deliveries = Object.fromEntries(Object.entries(value.deliveries).filter(([key]) => key.slice(0, 10) >= dateKey(now() - 7 * 86400_000)));
           return { ...value, deliveries: { ...deliveries, [key]: { state: "pending", attempts, retryAt: 0 } } };
         }, current);
-        if (current.generation !== generation || now() >= event.expiresAt || session.expiresAt <= now()) return;
+        if (current.generation !== generation || now() >= event.expiresAt || session.expiresAt <= now() ||
+            (account!.preferencesRevision ?? 0) !== current.preferencesRevision) return;
         if (!account!.preferences[event.kind][channel] || (channel === "telegram" && !credentials) ||
             notificationGoal(report, plans, now())?.at !== goal?.at) {
           await persist(value => { const deliveries = { ...value.deliveries }; delete deliveries[key]; return { ...value, deliveries }; }, current);
@@ -198,19 +201,23 @@ export function createNotificationRuntime(deps: Dependencies) {
           if (channel === "native") await deps.sendNative(event.title, event.body);
           else await deps.sendTelegram(credentials!, event.title, event.body, controller.signal);
           result = { state: "accepted", attempts, retryAt: 0 };
-          if (current.generation === generation) delete deliveryErrors[channel];
+          if (current.generation === generation && (account?.preferencesRevision ?? 0) === current.preferencesRevision)
+            delete deliveryErrors[channel];
         } catch (error) {
           const failure = error instanceof DeliveryError ? error : new DeliveryError(ui.notificationErrors.deliveryFailed, null, true);
           const retryAt = failure.retryAfterMs === null ? Number.MAX_SAFE_INTEGER : now() + failure.retryAfterMs;
           result = { state: failure.uncertain ? "unknown" : "failed", attempts, retryAt, error: failure.message };
-          if (current.generation === generation) deliveryErrors[channel] = failure.message;
+          if (current.generation === generation && (account?.preferencesRevision ?? 0) === current.preferencesRevision)
+            deliveryErrors[channel] = failure.message;
         }
-        // Record the old account's outcome even when logout cancelled the request.
+        // A completed send must not restore records reset by a later preference change.
         if (current.generation === generation && account) {
-          await persist(value => ({ ...value, deliveries: { ...value.deliveries, [key]: result } }), current);
+          await persist(value => (value.preferencesRevision ?? 0) === current.preferencesRevision
+            ? { ...value, deliveries: { ...value.deliveries, [key]: result } } : value, current);
         } else {
           const task = mutations.then(async () => {
             const latest = await deps.store.load(current.session.accountId);
+            if ((latest.preferencesRevision ?? 0) !== current.preferencesRevision) return;
             await deps.store.save(current.session.accountId, { ...latest, deliveries: { ...latest.deliveries, [key]: result } });
           });
           mutations = task.catch(() => {});
@@ -229,8 +236,17 @@ export function createNotificationRuntime(deps: Dependencies) {
     async save(input: unknown) {
       const current = requireAccount();
       const preferences = readNotificationPreferences(input);
-      await persist(value => ({ ...value, preferences }), current);
-      eligibleSince = now();
+      let changed = false;
+      await persist(value => {
+        changed = value.preferences.leadMinutes !== preferences.leadMinutes ||
+          (["approaching", "reached"] as const).some(kind =>
+            value.preferences[kind].native !== preferences[kind].native || value.preferences[kind].telegram !== preferences[kind].telegram);
+        if (!changed) return value;
+        const today = dateKey(now());
+        return { ...value, preferences, preferencesRevision: (value.preferencesRevision ?? 0) + 1,
+          deliveries: Object.fromEntries(Object.entries(value.deliveries).filter(([key]) => key.slice(0, 10) !== today)) };
+      }, current);
+      if (changed) eligibleSince = now();
       publish(); return status();
     },
     async connectTelegram(input: unknown) {

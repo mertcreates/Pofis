@@ -1,10 +1,13 @@
 import { expect, test } from "bun:test";
 import { createNotificationRuntime } from "./notification-runtime";
-import { emptyNotificationAccount, type NotificationAccount, type NotificationStore } from "./notification-store";
+import { createNotificationStore, emptyNotificationAccount, type NotificationAccount, type NotificationStore } from "./notification-store";
 import { emptyWorkPlans } from "@/domain/rules/work-plan";
 import { defaultNotificationPreferences } from "@/domain/rules/notifications";
 import type { NotificationReport, NotificationSession } from "./notification-contract";
 import { DeliveryError } from "./telegram";
+import { mkdtemp, rm } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 
 const at = (time: string) => Date.parse(`2026-10-21T${time}+03:00`);
 const plans = JSON.stringify(emptyWorkPlans());
@@ -51,7 +54,7 @@ test("eski gönderim sonucu aynı hesaba yeniden bağlandıktan sonraki tercihle
   const stored = f.records.get("a".repeat(64))!;
   expect(stored.preferences.leadMinutes).toBe(25);
   expect(stored.preferences.approaching.native).toBe(false);
-  expect(stored.deliveries["2026-10-21:approaching:native"].state).toBe("accepted");
+  expect(stored.deliveries["2026-10-21:approaching:native"]).toBeUndefined();
 });
 
 function fixture() {
@@ -144,6 +147,114 @@ test("kalıcı gönderim kaydı yeniden açılış ve aynı hedefte ikinci gönd
   await reopened.sync(plans); await reopened.tick();
   expect(f.sent).toEqual(["native"]);
   expect(f.records.get("a".repeat(64))!.deliveries["2026-10-21:approaching:native"].state).toBe("accepted");
+});
+
+test("ön süre değişikliği bugünkü iki kanalın kaydını sıfırlar; yeni eşik yeniden açılıştan sonra da gönderilir", async () => {
+  const f = fixture();
+  const accountId = "a".repeat(64);
+  const previous = emptyNotificationAccount();
+  previous.deliveries["2026-10-20:approaching:telegram"] = { state: "accepted", attempts: 1, retryAt: 0 };
+  f.records.set(accountId, previous);
+  f.time("14:00:00");
+  await f.runtime.sync(plans); await f.runtime.refresh(); await f.runtime.connectTelegram({});
+  const preferences = { ...defaultNotificationPreferences(), leadMinutes: 45, approaching: { native: true, telegram: true } };
+  await f.runtime.save(preferences);
+  f.time("16:15:00"); await f.runtime.tick();
+  expect(f.sent).toEqual(["native", "telegram"]);
+  f.time("16:20:00"); await f.runtime.save({ ...preferences, leadMinutes: 25 });
+  expect(Object.keys(f.records.get(accountId)!.deliveries)).toEqual(["2026-10-20:approaching:telegram"]);
+  const reopened = createNotificationRuntime(f.deps);
+  await reopened.sync(plans); await reopened.refresh();
+  f.time("16:35:00"); await reopened.tick(); await reopened.tick();
+  expect(f.sent).toEqual(["native", "telegram", "native", "telegram"]);
+});
+
+test("aynı tercihleri kaydetmek gönderim kaydını ve yaklaşan eşiğin uygunluğunu değiştirmez", async () => {
+  const f = fixture(); await f.runtime.sync(plans); await f.runtime.refresh(); await f.enable();
+  const preferences = f.runtime.status().preferences;
+  f.time("16:50:10"); await f.runtime.save(preferences); await f.runtime.tick();
+  expect(f.sent).toEqual(["native"]);
+  const deliveries = structuredClone(f.records.get("a".repeat(64))!.deliveries);
+  await f.runtime.save(preferences); await f.runtime.tick();
+  expect(f.records.get("a".repeat(64))!.deliveries).toEqual(deliveries);
+  expect(f.sent).toEqual(["native"]);
+});
+
+test("kanal tercihi değişikliği tekrar kaydını sıfırlar; geçmiş eşik hemen gönderilmez", async () => {
+  const f = fixture(); await f.runtime.sync(plans); await f.runtime.refresh(); await f.enable();
+  f.time("16:50:00"); await f.runtime.tick();
+  const preferences = f.runtime.status().preferences;
+  f.time("16:50:10");
+  await f.runtime.save({ ...preferences, approaching: { ...preferences.approaching, telegram: false } });
+  await f.runtime.tick();
+  expect(f.sent).toEqual(["native"]);
+  expect(f.records.get("a".repeat(64))!.deliveries).toEqual({});
+  await f.runtime.sync(JSON.stringify({ defaultPlan: [480, 480, 490, 480, 480, 0, 0], weekOverrides: {} }));
+  f.time("17:00:00"); await f.runtime.tick();
+  expect(f.sent).toEqual(["native", "native"]);
+});
+
+test.each(["başarılı", "hatalı"])("ayar değişirken tamamlanan eski gönderim kaydı veya hatayı geri yazmaz (%s)", async outcome => {
+  const f = fixture(); await f.runtime.sync(plans); await f.runtime.refresh(); await f.runtime.connectTelegram({}); await f.enable();
+  let release!: () => void;
+  let started!: () => void;
+  const sending = new Promise<void>(resolve => { started = resolve; });
+  f.deps.sendNative = async () => {
+    f.sent.push("native"); started();
+    await new Promise<void>(resolve => { release = resolve; });
+    if (outcome === "hatalı") throw new DeliveryError("old delivery failed", null, true);
+  };
+  f.time("16:50:00"); const tick = f.runtime.tick(); await sending;
+  f.time("16:51:00"); await f.runtime.save({ ...f.runtime.status().preferences, leadMinutes: 5 });
+  release(); await tick;
+  expect(f.sent).toEqual(["native"]);
+  expect(f.records.get("a".repeat(64))!.deliveries).toEqual({});
+  expect(f.runtime.status().deliveryErrors).toEqual({});
+  f.deps.sendNative = async () => { f.sent.push("native"); };
+  f.time("16:55:00"); await f.runtime.tick();
+  expect(f.sent).toEqual(["native", "native", "telegram"]);
+});
+
+test("tercih kaydı başarısızsa mevcut tercihler ve gönderim engeli korunur", async () => {
+  const f = fixture(); await f.runtime.sync(plans); await f.runtime.refresh(); await f.enable();
+  f.time("16:50:00"); await f.runtime.tick();
+  const preferences = f.runtime.status().preferences;
+  const stored = structuredClone(f.records.get("a".repeat(64))!);
+  const save = f.deps.store.save;
+  f.deps.store.save = async () => { throw new Error("disk"); };
+  await expect(f.runtime.save({ ...preferences, leadMinutes: 5 })).rejects.toThrow("disk");
+  f.deps.store.save = save;
+  expect(f.runtime.status().preferences).toEqual(preferences);
+  expect(f.records.get("a".repeat(64))).toEqual(stored);
+  await f.runtime.tick(); expect(f.sent).toEqual(["native"]);
+});
+
+test("tercih sıfırlaması diskte korunur; eski gönderimin sonucu yeniden bağlanınca kaydı geri getirmez", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-notification-reset-"));
+  const f = fixture();
+  f.deps.store = createNotificationStore(directory);
+  try {
+    await f.runtime.sync(plans); await f.runtime.refresh(); await f.enable();
+    let release!: () => void;
+    let started!: () => void;
+    const sending = new Promise<void>(resolve => { started = resolve; });
+    f.deps.sendNative = async () => { f.sent.push("native"); started(); await new Promise<void>(resolve => { release = resolve; }); };
+    f.time("16:50:00"); const tick = f.runtime.tick(); await sending;
+    f.runtime.pause(); await f.runtime.sync(plans);
+    f.time("16:51:00"); await f.runtime.save({ ...f.runtime.status().preferences, leadMinutes: 5 });
+    release(); await tick;
+    const stored = await f.deps.store.load("a".repeat(64));
+    expect(stored.preferences.leadMinutes).toBe(5);
+    expect(stored.deliveries).toEqual({});
+    f.deps.sendNative = async () => { f.sent.push("native"); };
+    const reopened = createNotificationRuntime(f.deps);
+    await reopened.sync(plans); await reopened.refresh();
+    f.time("16:55:00"); await reopened.tick(); await reopened.tick();
+    expect(f.sent).toEqual(["native", "native"]);
+  } finally {
+    f.runtime.pause();
+    await rm(directory, { recursive: true, force: true });
+  }
 });
 
 test("uyku dönüşünde eski eşikleri göndermez; sonraki hedef çalışır", async () => {

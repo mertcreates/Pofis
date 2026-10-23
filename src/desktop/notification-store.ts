@@ -8,6 +8,7 @@ export type Delivery = { state: "pending" | "accepted" | "failed" | "unknown"; a
 export type NotificationAccount = {
   version: 1;
   preferences: NotificationPreferences;
+  preferencesRevision?: number;
   telegram?: string;
   deliveries: Record<string, Delivery>;
 };
@@ -32,6 +33,7 @@ export function createNotificationStore(directory: string): NotificationStore {
       try {
         const value = JSON.parse(raw) as NotificationAccount;
         if (value.version !== 1 || (value.telegram !== undefined && typeof value.telegram !== "string") ||
+            (value.preferencesRevision !== undefined && (!Number.isSafeInteger(value.preferencesRevision) || value.preferencesRevision < 0)) ||
             !value.deliveries || typeof value.deliveries !== "object" || Array.isArray(value.deliveries)) throw new Error();
         const preferences = readNotificationPreferences(value.preferences);
         for (const [key, entry] of Object.entries(value.deliveries)) {

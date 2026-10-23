@@ -119,6 +119,7 @@ Paketleme, süreç ve installer kabulünün ayrıntılı kapsamı [masaüstü re
 | Windows sunucu ASAR'ı | `bun test ./scripts/electron/pack-server.test.cjs`; beklenmeyen Next girişinde kaynağı koruyarak durma. Sunucunun bağımlılık/statik dosyalarıyla çalışması ve kapanması gerçek paket açılış kabulünde; eski paketten güncelleme dağıtım kabulünde doğrulanır. |
 | Güncelleme arayüzü | Güncel standalone sonrasında `bun scripts/electron/update-demo.cjs --verify`; [senaryolar](desktop.md#güncelleme-bildirimini-deneme) |
 | Bildirim arayüzü ve IPC | Güncel standalone sonrasında `bun scripts/electron/notification-demo.cjs --verify`; sağlayıcılar fixture'dır |
+| Bildirim zamanlaması ve tercih sıfırlaması | `bun test src/domain/rules/notifications.test.ts src/desktop/notification-runtime.test.ts src/desktop/notification-store.test.ts src/desktop/install-notifications.test.ts`; sahte saat/sağlayıcı ve geçici disk kaydı. Beklenen davranış [bildirim sözleşmesinde](rules/notifications.md#gönderim-ve-hesap-ayrımı). |
 | Sistem panosu | Önce `bun run desktop:prepare`, ardından `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`; panoyu değiştirdiği için yalnız izole CI/VM masaüstünde |
 | Electron motor geçişi | Gerçek önceki/yeni paketlerle [motor geçişi kabulü](desktop.md#motor-geçişi-kabulü) |
 
