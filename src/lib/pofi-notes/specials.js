@@ -3,24 +3,24 @@ export const POFI_SPECIAL_NOTES = {
     "theme": "Yeni yıl",
     "variants": {
       "v1": [
-        "Takvimi bir sayfa ileri çevirdim.",
-        "Rakam değişmiş. Masam aynı yerdeydi.",
-        "Ben de yerimi aldım."
+        "Yeni takvimi masama koyarken eskisinin arkasındaki telefon numarasını gördüm.",
+        "Yanımdaki arkadaşıma sordum, onunmuş.",
+        "Bu kez numaranın yanına adını da yazdım."
       ],
       "v2": [
         "Bugün yeni yılmış.",
         "Defterimin ilk sayfasını açtım.",
-        "Daha yazacak bir şeyim yoktu. Güzel duruyordu."
+        "Yazacak bir şey bulamadım. Sayfa yine de hoşuma gitti."
       ],
       "v3": [
-        "Takvim değişmiş.",
-        "Sandalyemi biraz düzelttim.",
-        "Yeni yıla hazırdım sayılır."
+        "Bir arkadaşım yeni yıla hazır olup olmadığımı sordu.",
+        "Sandalyemi düzeltip oturdum.",
+        "“Şimdi hazırım,” dedim."
       ],
       "v4": [
-        "Yeni yıl için masamı düzenledim.",
-        "Kalemi kalemliğe geri koydum.",
-        "Şimdilik bu kadar yenilik yeter."
+        "Yeni yıl için kalemliğin yerini değiştirdim.",
+        "Kaleme uzanırken patim yine eski yerine gitti.",
+        "Kalemliği geri koydum."
       ]
     }
   },
@@ -28,24 +28,24 @@ export const POFI_SPECIAL_NOTES = {
     "theme": "29 Şubat",
     "variants": {
       "v1": [
-        "Takvimde bugün fazladan bir gün var.",
-        "Defterimde ona da bir sayfa ayırdım.",
-        "Şimdilik boş duruyor."
+        "Bir arkadaşım bu yıl fazladan bir günümüz olduğunu söyledi.",
+        "Ne yapacağını sordum.",
+        "Çay koyacakmış. Ben de bir bardak istedim."
       ],
       "v2": [
         "Bugünün her yıl gelmediğini söylediler.",
         "Saatime baktım. Her zamanki gibi ilerliyordu.",
-        "Defterime bugünün tarihini yazdım."
+        "Biraz sonra tekrar baktım."
       ],
       "v3": [
-        "Bugün 29 Şubat.",
-        "Defterime alışkanlıkla 1 Mart yazmışım.",
-        "Silip düzelttim. Bir gün erken davranmışım."
+        "Defterime 1 Mart yazarken arkadaşım “Daha şubattayız,” dedi.",
+        "Kalemi bırakıp takvime baktım.",
+        "Haklıymış. Silgisini istedim."
       ],
       "v4": [
-        "Şubat bitmek için biraz daha bekliyormuş.",
-        "Ben de pencereye baktım.",
-        "Dışarıda her zamanki gibi bir gün vardı."
+        "Bugün şubatın son günüymüş.",
+        "Dün de öyle sanmıştım.",
+        "Takvimin sayfasını çevirmeden önce bir daha baktım."
       ]
     }
   },
@@ -53,23 +53,23 @@ export const POFI_SPECIAL_NOTES = {
     "theme": "Kâğıt gemi · İlk gün",
     "variants": {
       "v1": [
-        "Defterimin arasında küçük bir kâğıt gemi buldum.",
-        "Oraya nasıl geldiğini bilmiyorum.",
-        "Masamın kenarına koydum."
+        "Defterimi açınca arasından yassılaşmış bir kâğıt gemi çıktı.",
+        "İki yanından tutup biraz açtım.",
+        "Masaya koyunca devrilmedi."
       ],
       "v2": [
         "Sabah masamda kâğıttan bir gemi vardı.",
-        "Bir süre nereye gideceğini düşündüm.",
-        "Şimdilik masamda kalmasına karar verdim."
+        "Yanımdaki arkadaşıma onun mu diye sordum.",
+        "Değilmiş. Birlikte biraz baktık."
       ],
       "v3": [
-        "Küçük bir kâğıt gemi gördüm.",
-        "Kat yerlerini düzelttim.",
-        "Suyunu sonra düşünürüm dedim."
+        "Masamda küçük bir kâğıt gemi buldum.",
+        "Patimle hafifçe itince kalemliğe kadar kaydı.",
+        "Önündeki silgiyi kenara çektim."
       ],
       "v4": [
-        "Defterimi açınca arasından küçük bir gemi düştü.",
-        "Eğilip aldım, burnu biraz ezilmişti.",
+        "Masamın altında küçük bir kâğıt gemi buldum.",
+        "Eğilip aldım. Burnu biraz ezilmişti.",
         "Düzeltip masaya koydum."
       ]
     }
@@ -79,23 +79,23 @@ export const POFI_SPECIAL_NOTES = {
     "variants": {
       "v1": [
         "Masamdaki kâğıt gemiyi pencereye yaklaştırdım.",
-        "Gölgesi biraz büyüdü.",
-        "Gölgesi kalemliğe kadar uzandı. Kalemliği biraz yana çektim."
+        "Güneş vurunca gölgesi kalemliğe kadar uzandı.",
+        "Patimi gölgenin ucuna koydum. Gemiden epey uzaktı."
       ],
       "v2": [
         "Kâğıt gemi bugün masanın öbür ucundaydı.",
-        "Ben koyduğum yeri hatırlıyordum.",
-        "Kimin taşıdığını bilmiyorum."
+        "Arkadaşım masayı silerken kenara almış.",
+        "Altı temiz olmuştu. Gemiyi orada bıraktım."
       ],
       "v3": [
-        "Küçük geminin burnu kıvrılmış.",
+        "Masamdaki kâğıt geminin burnu kıvrılmış.",
         "Düzelttim ama bırakınca yine kıvrıldı.",
-        "Masaya koydum. Böyle de durabiliyordu."
+        "Birkaç kez denedim. Sonra öylece masaya koydum."
       ],
       "v4": [
-        "Kâğıt gemiyi bir süre izledim.",
-        "Bütün gün aynı yerde durdu.",
-        "Ben birkaç kez yer değiştirdim."
+        "Masamdaki kâğıt geminin arkasında bir yazı fark ettim.",
+        "Okumak için sandalyemden kalkıp masanın öbür yanına geçtim.",
+        "Eski bir alışveriş listesiymiş. Ekmek yazıyordu."
       ]
     }
   },
@@ -103,24 +103,24 @@ export const POFI_SPECIAL_NOTES = {
     "theme": "Kâğıt gemi · Yeniden",
     "variants": {
       "v1": [
-        "Çekmecem açıktı. İçinde kâğıt gemiyi buldum.",
+        "Kalem ararken çekmecede kâğıt gemiyi buldum.",
         "Alıp tekrar masaya koydum.",
-        "Pek uzağa gitmemiş."
+        "Kalemi aramaya devam ettim."
       ],
       "v2": [
-        "Masamdaki küçük gemiyi göremedim.",
-        "Bir kâğıdın altında kalmış.",
-        "Üstündeki kâğıdı kaldırdım."
+        "Masamdaki kâğıt gemiyi bir süredir görmüyordum.",
+        "Kâğıtları toplarken altlarından çıktı.",
+        "Biraz tozlanmış. Üfleyince yana devrildi."
       ],
       "v3": [
         "Kâğıt geminin bir katı açılmış.",
-        "Tekrar katladım.",
-        "Masaya koyunca yine düzgün durdu."
+        "Eski kat izini bulup yeniden katladım.",
+        "Masaya koyunca yine düzgün durdu. Biraz seyrettim."
       ],
       "v4": [
-        "Küçük kâğıt gemiyi başka bir yere koydum.",
-        "Orada daha az rüzgâr var.",
-        "Bu kez kâğıtlarım uçuşurken gemi yerinde kaldı."
+        "Pencereyi açınca masamdaki kâğıt gemi kaymaya başladı.",
+        "Alıp kalemliğin arkasına koydum.",
+        "Orada durdu. Pencereyi açık bıraktım."
       ]
     }
   },
@@ -128,19 +128,19 @@ export const POFI_SPECIAL_NOTES = {
     "theme": "Küçük kalp",
     "variants": {
       "v1": [
-        "Bugün masamda kalp şeklinde küçük bir kâğıt vardı.",
-        "Kimin bıraktığını bilmiyordum.",
-        "Bir süre orada bıraktım."
+        "Bugün masamda kalp şeklinde küçük bir kâğıt buldum.",
+        "Kimin bıraktığını bilmiyorum.",
+        "Kaybolmasın diye defterimin arasına koydum."
       ],
       "v2": [
-        "Not defterimin kenarına küçük bir kalp çizdim.",
-        "Biraz yamuk oldu.",
-        "Silmedim."
+        "Küçük bir kâğıda kalp çizdim.",
+        "Yanımdaki arkadaşım bakınca ona uzattım.",
+        "Masasına koydu. Oradan da görebiliyordum."
       ],
       "v3": [
-        "Birine güzel bir şey söylemek istedim.",
-        "Ne söyleyeceğimi düşünürken biri bana günaydın dedi.",
-        "Ben de günaydın dedim."
+        "Arkadaşım yanıma oturunca sevindim.",
+        "Bunu nasıl söyleyeceğimi biraz düşündüm.",
+        "“Yanıma oturunca sevindim,” dedim."
       ],
       "v4": [
         "Bugün bir arkadaşım kâğıttan kalp kesti.",
@@ -153,14 +153,14 @@ export const POFI_SPECIAL_NOTES = {
     "theme": "1 Nisan",
     "variants": {
       "v1": [
-        "Bugün şaka yapmam gerektiğini söylediler.",
-        "Biraz düşündüm.",
-        "Her zamanki gibi oturdum. Şaka sayılmadı."
+        "Arkadaşımın sandalyesine kâğıttan bir kedi koydum.",
+        "Gelince önce ona günaydın dedi.",
+        "Sonra bana da dedi."
       ],
       "v2": [
-        "Takvime baktım. Bugün 1 Nisanmış.",
-        "Çok ciddi görünmeye çalıştım.",
-        "Kimse fark etmedi."
+        "Bir arkadaşıma şaka yapmak için perdenin arkasına saklandım.",
+        "Kuyruğum dışarıda kalmış.",
+        "Beni hemen buldu. Nasıl bulduğunu sordum."
       ],
       "v3": [
         "Masama bir çift kâğıt göz yapıştırmışlar.",
@@ -168,9 +168,9 @@ export const POFI_SPECIAL_NOTES = {
         "Defteri biraz yana çektim."
       ],
       "v4": [
-        "Bugün biri bana inanmadı.",
-        "Doğruyu söylemiştim.",
-        "Yarın tekrar anlatırım."
+        "Mutfakta kurabiye olduğunu söyledim.",
+        "Arkadaşım 1 Nisan şakası sandı.",
+        "Gidip ona da bir tane getirdim."
       ]
     }
   },
@@ -188,14 +188,14 @@ export const POFI_SPECIAL_NOTES = {
         "Bitince alkışladım."
       ],
       "v3": [
-        "Bugün bayrakları izledim.",
-        "Rüzgâr hepsini aynı yöne çevirmiyordu.",
-        "Yine de yan yanaydılar."
+        "23 Nisan gösterisinden önce bir çocuk yanıma geldi.",
+        "Kurdelesini bağlamasına yardım ettim.",
+        "Sonra arkadaşlarının yanına koştu."
       ],
       "v4": [
         "Bugün Atatürk'ün çocuklara armağan ettiği bayramı kutluyoruz.",
-        "Çocukların hazırladığı resimlere baktım.",
-        "Birinde kocaman bir güneş vardı."
+        "Bir çocuk bana yaptığı resmi gösterdi.",
+        "Kocaman bir güneş çizmiş. Işınlarını birlikte saydık."
       ]
     }
   },
@@ -203,24 +203,24 @@ export const POFI_SPECIAL_NOTES = {
     "theme": "Dünya Kediler Günü",
     "variants": {
       "v1": [
-        "Bugün kedilerin günüymüş.",
-        "Bir süre takvime baktım.",
-        "Ben yine her zamanki yerime oturdum."
+        "Bir arkadaşım bugün kedilerin günü olduğunu söyledi.",
+        "Masanın altından başımı çıkardım.",
+        "“Benim de mi?” diye sordum."
       ],
       "v2": [
-        "Bana bugün kedilerin günü olduğunu söylediler.",
+        "Kediler Günü için fotoğrafımı çekmek istediler.",
         "Yaka kartımı düzelttim.",
-        "Özel bir şey yapmam gerekmiyormuş."
+        "Tam çekerlerken pencereye bir kuş kondu. Başımı çevirdim."
       ],
       "v3": [
-        "Takvimde kedilerle ilgili bir gün gördüm.",
-        "Masamın altındaki karton kutuya baktım.",
-        "Bugün orada biraz oturabilirdim."
+        "Kediler Günü için bana küçük bir minder getirdiler.",
+        "Masamın altındaki karton kutuya tam sığdı.",
+        "Ben de üstüne yerleştim."
       ],
       "v4": [
         "Bugün kedilerin günüymüş.",
         "Kutlamak için pencerenin yanındaki güneşli yere geçtim.",
-        "Biraz sonra ışık yer değiştirdi. Ben değiştirmedim."
+        "Uyandığımda güneş masanın öbür ucundaydı."
       ]
     }
   },
@@ -228,24 +228,24 @@ export const POFI_SPECIAL_NOTES = {
     "theme": "29 Ekim · Cumhuriyet Bayramı",
     "variants": {
       "v1": [
-        "Bugün 29 Ekim Cumhuriyet Bayramı.",
-        "Pencereye küçük bir Türk bayrağı astım.",
-        "Sokakta da bayraklar vardı."
+        "Cumhuriyet Bayramı için arkadaşımla pencereye bayrak astık.",
+        "O bandı keserken ben bayrağı tuttum.",
+        "Sonra birlikte sokağa çıkıp nasıl göründüğüne baktık."
       ],
       "v2": [
-        "Sabah meydandan geçerken kutlamaları gördüm.",
+        "Sabah meydanda Cumhuriyet Bayramı kutlamaları vardı.",
         "Bir çocuk elindeki bayrağı sallıyordu.",
-        "Ben de biraz durup izledim."
+        "Ben de durup bir süre izledim."
       ],
       "v3": [
-        "Bugün Cumhuriyet'in ilanının yıl dönümü.",
-        "Atatürk'ün bir fotoğrafına baktım.",
-        "Defterime küçük bir bayrak çizdim."
+        "Bugün Cumhuriyet Bayramı.",
+        "Atatürk'ün gülümsediği bir fotoğrafına baktım.",
+        "Ben de gülümsedim."
       ],
       "v4": [
-        "Meydandan bir marş sesi geliyordu.",
-        "Yaklaşıp sonuna kadar dinledim.",
-        "Bittiğinde ben de alkışladım."
+        "Meydanda hep birlikte bir marş söylüyorlardı.",
+        "Bildiğim yerlerine ben de katıldım.",
+        "Bilmediğim yerlerde dinledim."
       ]
     }
   },
@@ -304,18 +304,18 @@ export const POFI_SPECIAL_NOTES = {
     "variants": {
       "v1": [
         "Takvimin son sayfasına geldim.",
-        "Bir süre kapatmadım.",
-        "Sonra yeni takvimi yanına koydum."
+        "Yeni takvimi yanına koydum.",
+        "Bugünlük eskisi açık kaldı."
       ],
       "v2": [
         "Bugün yılın son günüymüş.",
-        "Masamın üzerini kontrol ettim.",
-        "Her şey gelecek yıla hazır görünüyordu."
+        "Arkadaşımla çay içtik.",
+        "Tabakta iki bisküvi kalmıştı. Birini ona uzattım."
       ],
       "v3": [
-        "Takvimdeki son kutuya baktım.",
-        "Diğerlerinden pek farklı görünmüyordu.",
-        "Yine de bir süre ona baktım."
+        "Yılın son günü defterimin eski sayfalarına baktım.",
+        "Bir sayfaya küçük bir kuş çizmişim.",
+        "Yanına bir tane daha çizdim."
       ],
       "v4": [
         "Yıl bitmeden bir şey yapmak istedim.",

@@ -580,7 +580,7 @@ export const ui = {
       },
       overworked: {
         title: "Hedefin üzerinde.",
-        message: "Farkı bir kenara not ettim.",
+        message: "Bir kez daha esnedim.",
       },
       error: {
         title: "Kayıtlarda belirsizlik var.",

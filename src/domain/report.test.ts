@@ -287,7 +287,7 @@ test.each([
   if (scenario.message) expect(pofi.message).toBe(scenario.message);
   if (scenario.state === "overworked") {
     expect(pofi.title).toBe("Hedefin üzerinde.");
-    expect(pofi.message).toBe("Farkı bir kenara not ettim.");
+    expect(pofi.message).toBe("Bir kez daha esnedim.");
   }
 });
 

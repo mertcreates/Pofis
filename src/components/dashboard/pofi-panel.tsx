@@ -23,7 +23,7 @@ export function PofiPanel({ day, now, onOpen }: Props) {
   const message =
     specialTime && pofiText.state !== "error"
       ? ui.pofi.clockSurprise
-      : pofiText.basis === "live"
+      : pofiText.basis === "live" && pofiText.title
         ? `${pofiText.title} ${pofiText.message}`
         : pofiText.message;
   return (
