@@ -259,6 +259,8 @@ async function run() {
         });
         return result.result?.value === true;
       }, 30000, "Pofi Mini arayüzü veya güvenli IPC köprüsü yüklenmedi.");
+      const miniShot = await miniPage.send("Page.captureScreenshot", { format: "png" });
+      await writeFile(join(artifactDirectory, "mini.png"), Buffer.from(miniShot.data, "base64"));
       const pin = await miniPage.send("Runtime.evaluate", {
         expression: "window.pofisMini.pin()", awaitPromise: true, returnByValue: true,
       });

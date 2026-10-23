@@ -36,3 +36,28 @@ jobs:
         run: bun run desktop:package
       - name: Uygulama paketinin açılışını doğrula
         run: bun scripts/electron/smoke.cjs
+      - name: Mac deneme uygulamasını ZIP'e al
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          PACKAGE=$(find dist/macos -maxdepth 1 -type d -name 'Pofis-darwin-*' -print -quit)
+          test -n "$PACKAGE"
+          mkdir -p dist/previews
+          /usr/bin/ditto -c -k --sequesterRsrc --keepParent "$PACKAGE/Pofis.app" "dist/previews/Pofis-mac-${{ runner.arch }}.zip"
+      - name: Windows deneme uygulamasını ZIP'e al
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $package = Get-ChildItem dist/windows -Directory | Where-Object { $_.Name -like 'Pofis-win32-*' } | Sort-Object Name | Select-Object -Last 1
+          if (!$package) { throw 'Windows paketi bulunamadı.' }
+          New-Item -ItemType Directory -Force dist/previews | Out-Null
+          Compress-Archive -Path (Join-Path $package.FullName '*') -DestinationPath dist/previews/Pofis-windows-x64.zip -CompressionLevel Optimal
+      - name: Deneme paketi ve kabul ekran görüntüleri
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: pofis-preview-${{ matrix.os }}
+          path: |
+            dist/previews/*.zip
+            dist/electron/checks/preview/*.png
+          if-no-files-found: error
+          retention-days: 30
