@@ -267,6 +267,37 @@ async function run() {
       }
       // Give React hydration time to attach the real button action before clicking.
       await Bun.sleep(500);
+      // The Mini primary action must retain its shared hover colors.
+      await miniPage.send("DOM.enable");
+      await miniPage.send("CSS.enable");
+      const miniDocument = await miniPage.send("DOM.getDocument");
+      const miniOpenNode = await miniPage.send("DOM.querySelector", {
+        nodeId: miniDocument.root.nodeId, selector: ".pofi-mini-open",
+      });
+      assert.ok(miniOpenNode.nodeId, "Pofi Mini ana ekrana dönüş düğmesi bulunamadı.");
+      await miniPage.send("CSS.forcePseudoState", {
+        nodeId: miniOpenNode.nodeId, forcedPseudoClasses: ["hover"],
+      });
+      const openHover = await miniPage.send("Runtime.evaluate", {
+        expression: `(() => {
+          const button = document.querySelector('.pofi-mini-open');
+          const reference = document.createElement('span');
+          reference.style.background = 'var(--accent-hover)';
+          reference.style.color = 'var(--accent-content)';
+          document.body.append(reference);
+          const buttonStyle = getComputedStyle(button);
+          const referenceStyle = getComputedStyle(reference);
+          const matches = buttonStyle.backgroundColor === referenceStyle.backgroundColor &&
+            buttonStyle.color === referenceStyle.color;
+          reference.remove();
+          return matches;
+        })()`,
+        returnByValue: true,
+      });
+      assert.equal(openHover.result.value, true, "Pofi Mini ana eyleminin hover renkleri korunmalı.");
+      await miniPage.send("CSS.forcePseudoState", {
+        nodeId: miniOpenNode.nodeId, forcedPseudoClasses: [],
+      });
       const pinBefore = await miniPage.send("Runtime.evaluate", {
         expression: "(() => { const button = document.querySelector('.pofi-mini-pin'); return !button?.classList.contains('is-pinned') && button?.textContent?.trim() === 'Sabitle'; })()",
         returnByValue: true,

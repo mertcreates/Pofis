@@ -110,7 +110,7 @@ export function MiniDashboard({ initialNow }: { initialNow: number }) {
           </section>
         </>
       )}
-      <button type="button" className="pofi-mini-open" onClick={openMain}>
+      <button type="button" className="pofi-mini-open primary" onClick={openMain}>
         {ui.desktop.open} <ArrowUpRight size={15} aria-hidden="true" />
       </button>
     </main>
