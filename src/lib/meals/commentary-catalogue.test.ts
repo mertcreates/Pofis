@@ -31,6 +31,8 @@ test("rare pair and role scenarios have independent recorded witnesses", () => {
     ["2026-07-25", "corn-twice"],
     ["2026-08-01", "vermicelli-twice"],
     ["2026-08-08", "tomato-twice"],
+    ["2026-05-14", "chickpeas-pickles"],
+    ["2026-05-20", "rice-sutlac"],
   ]) {
     const recorded = history.find((m) => m.date.startsWith(date));
     if (!recorded) throw new Error(`Missing archived menu: ${date}`);

@@ -22,7 +22,7 @@ export const sceneScenarios = [
     variants: [
       "Kaşığın içine bakınca yüzüm ters göründü. Kaşığı çevirdim, bu kez burnum büyüdü.",
       "Kaşıkla çatalı yan yana düzelttim. Tepsiyi kaldırınca ikisi de eski yerine kaydı.",
-      "Çatalın bir ucu peçetenin dışına taşıyordu. Peçeteyi açınca çataldan çok ona yer gerekti.",
+      "Çatal peçetenin dışına taşıyordu. Peçeteyi açınca çatal sığdı ama peçete tepsiden taştı.",
     ],
   },
   {
@@ -38,7 +38,7 @@ export const sceneScenarios = [
     variants: [
       "Menüyü okurken sıra bana gelmiş. Elimdeki kâğıdı bırakıp tepsiyi aldım.",
       "Menüyü önüme açınca arkadaşım da okumak istedi. Kâğıdın köşelerini birlikte tuttuk.",
-      "Menüyü önüme koydum. Tabağı nereye koyacağımı düşününce biraz yana çektim.",
+      "Menüyü önüme koydum. Tabağa yer kalmayınca kâğıdı biraz yana çektim.",
     ],
   },
   {

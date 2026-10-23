@@ -6,7 +6,7 @@ export const pairScenarios = [
     requires: [{ food: "beans" }, { food: "freshBeans" }],
     variants: [
       "Fasulyenin kurusu da var, tazesi de. Bugün birlikte gelmişler.",
-      "Fasulye var dedim, arkadaşım hangisi diye sordu. Menüyü ona uzattım, ikisi de burada.",
+      "Fasulye var dedim, arkadaşım hangisi diye sordu. Menüyü ona uzattım, ikisi de oradaydı.",
       "Menüde iki kez fasulye gördüm. İkinci bakışta birinin taze olduğunu fark ettim.",
     ],
   },
@@ -33,7 +33,7 @@ export const pairScenarios = [
     requires: [{ food: "beans" }, { food: "pickles", role: "extras" }],
     variants: [
       "Fasulyeyi görünce gözüm turşuyu aradı. Alt taraftaymış.",
-      "Fasulyenin yanına turşu da alacağım dedim. Arkadaşım başını salladı, aynı şeyi düşünmüşüz.",
+      "Fasulyenin yanına turşu aldım. Bir parçayı çatala takmaya çalışırken tabağın öbür ucuna kaçırdım.",
       "Fasulyenin yanına turşu aldım. Yanımdaki de isteyince kâseyi ona biraz daha yaklaştırdım.",
     ],
   },
@@ -41,7 +41,7 @@ export const pairScenarios = [
     id: "beans-cacik", kind: "pair",
     requires: [{ food: "beans" }, { food: "cacik", role: "extras" }],
     variants: [
-      "Fasulye ve cacık diye sesli okudum. Yanımdaki de menüye uzanınca biraz ona döndüm.",
+      "Fasulyenin yanına cacık aldım. İkisinin de içinde kaşık vardı, elimdekini sessizce tepsiye bıraktım.",
       "Fasulyenin yanına cacık da alacağım. Tabağı biraz yana çektim, kâseye yer kalsın.",
       "Fasulyeyle cacığı taşıyordum. Arkadaşım kapıyı açınca ikisini de dökmeden geçebildim.",
     ],
@@ -51,7 +51,7 @@ export const pairScenarios = [
     requires: [{ food: "chickpeas" }, { food: "rice", role: "accompaniment" }],
     variants: [
       "Nohutla pilav için tabağın iki yanını ayırdım. Ortada buluşabilirler.",
-      "Nohudu okurken pilav da gözüme ilişti. İkisine birlikte yer açtım.",
+      "Nohutla pilavı ayrı ayrı aldım. Tepsiyi taşırken bir nohut pilava geçti.",
       "Nohutla pilavı tabağa yan yana aldım. Ortadaki lokmada ikisi de vardı.",
     ],
   },
@@ -59,7 +59,7 @@ export const pairScenarios = [
     id: "chickpeas-cacik", kind: "pair",
     requires: [{ food: "chickpeas" }, { food: "cacik", role: "extras" }],
     variants: [
-      "Nohutla cacık alacağımı söyledim. Arkadaşım kendisi için de isteyince tepside iki kişilik yer açtım.",
+      "Nohutla cacık alacağımı söyledim. Arkadaşım da aynısını isteyince boş tepsisini benimkinin yanına koydum.",
       "Nohudu görünce tabağı hazırladım. Cacığı görünce bir kâse daha ekledim.",
     ],
   },
@@ -104,7 +104,7 @@ export const pairScenarios = [
     variants: [
       "Lahmacunun yanına ne alırım diye bakıyordum. Ezmeyi görünce aramayı bıraktım.",
       "Ezme aşağıda, lahmacun yukarıdaymış. Ben onları tabağın aynı tarafına aldım.",
-      "Lahmacunla ezmeyi birlikte okuyunca arkadaşım da menüye eğildi. İkimiz de görebilelim diye biraz yana kaydım.",
+      "Lahmacunu dürüm yapmıştım, ezmeyi unuttuğumu fark ettim. Bir ucunu yeniden açtım.",
     ],
   },
   {
@@ -147,16 +147,16 @@ export const pairScenarios = [
     id: "bafra-cacik", kind: "pair",
     requires: [{ food: "bafra", role: "main" }, { food: "cacik", role: "extras" }],
     variants: [
-      "Bafra pidesiyle cacık var dedim. Arkadaşım pideyi sorunca menüyü ona çevirdim.",
+      "Bafra pidesiyle cacık aldım. Pideyi tutunca kaşığa uzanacak boş patim kalmadı.",
       "Bafra pidesinin yanına cacık da alacaktım. Kâseye yer açarken peçetem masadan düştü, önce onu aldım.",
-      "Cacığa yer açarken Bafra pidesini de düşündüm. Tabağı biraz yana çektim.",
+      "Bafra pidesini bir yana, cacığı öbür yana koydum. Ben ikisinin ortasına oturdum.",
     ],
   },
   {
     id: "bafra-kisir", kind: "pair",
     requires: [{ food: "bafra", role: "main" }, { food: "kisir", role: "extras" }],
     variants: [
-      "Bafra pidesini seçtim, kısırı da yanıma aldım. Arkadaşım ne seçtiğimi sorunca tabağı biraz ona çevirdim.",
+      "Bafra pidesini seçtim, yanına da kısır aldım. Tabağa bakarken pideyi nereden tutacağımı düşündüm.",
       "Kısırı görünce Bafra pidesinin yanındaki yeri boş bıraktım.",
     ],
   },
@@ -189,8 +189,8 @@ export const pairScenarios = [
     id: "bulgur-yogurt", kind: "pair",
     requires: [{ food: "bulgur", role: "accompaniment" }, { food: "yogurt", role: "extras" }],
     variants: [
-      "Bulgur pilavının yanına yoğurdu da koyacağım. Kaşığı ikisinin arasına bıraktım.",
-      "Bulgur pilavıyla yoğurdu yan yana koydum. Arkadaşım yoğurdu ortaya çekince tabağımı ben de biraz yaklaştırdım.",
+      "Bulgur pilavına yoğurt ekledim. Karıştırınca pilavı göremedim, kaşığı biraz daha derine daldırdım.",
+      "Bulgur pilavına yoğurt ekleyecektim. Kaşıktan düşmeyince biraz daha bekledim.",
       "Yoğurdu bulgur pilavının üstüne mi koysam diye düşündüm. Şimdilik yan yana duruyorlar.",
     ],
   },
@@ -215,7 +215,7 @@ export const pairScenarios = [
     id: "cacik-pickles", kind: "pair",
     requires: [{ food: "cacik", role: "extras" }, { food: "pickles", role: "extras" }],
     variants: [
-      "Cacıkla turşu yan yana yazılmış. Ben masada ikisine ayrı yer açtım.",
+      "Cacıkla turşuyu tepsiye koydum. Yürürken cacığa bakıyordum, turşu da sallanıyormuş.",
       "Cacığı seçtim, turşuyu arkadaşım istedi. Ortaya koyunca ikimizin de eli yetişti.",
       "Cacıkla turşuyu taşırken masada yer aradım. Arkadaşım tepsisini kaydırınca ikisi de sığdı.",
     ],
@@ -226,7 +226,7 @@ export const pairScenarios = [
     variants: [
       "Domates çorbasıyla haydariyi tepsime koydum. Yan yana sığmayınca küçük tabağı kendime doğru çektim.",
       "Haydariyi görünce küçük bir tabak aldım. Domates çorbası için olan kâse zaten hazırdı.",
-      "Domates çorbasını içtim, haydariyi de yanıma çektim. Arkadaşım kâsesini götürürken benimkini de aldı.",
+      "Domates çorbasını bitirip haydariyi önüme çektim. Boş kâseyi kaldırınca dirseğime de yer açıldı.",
     ],
   },
   {
@@ -314,6 +314,22 @@ export const pairScenarios = [
       "Brüksel lahanasıyla kırmızı lahana aynı menüde. Soyadları aynı diye yan yana yazdım.",
       "Lahana alacağım dedim, hangisi diye sordular. Kırmızıyla Brüksel arasında karar vermem gerekiyormuş.",
       "Kırmızı lahanayı tanıyordum, Brüksel lahanasını sordum. Arkadaşım küçük dedi, ne kadar küçük olduğunu görmeye gittim.",
+    ],
+  },
+  {
+    id: "chickpeas-pickles", kind: "pair",
+    requires: [{ food: "chickpeas" }, { food: "pickles", role: "extras" }],
+    variants: [
+      "Nohudun yanına turşu koyarken tabağı eğdim. Nohutlar turşunun yanına geldi.",
+      "Nohutla turşuyu aldım. Arkadaşım turşuyu sorunca tabağı aramıza çektim, onun da çatalı hazırmış.",
+    ],
+  },
+  {
+    id: "rice-sutlac", kind: "pair",
+    requires: [{ food: "rice", role: "accompaniment" }, { food: "sutlac", role: "dessert" }],
+    variants: [
+      "Pilavı bitirip sütlaca geçtim. Kaşığı bırakmak için biraz erkenmiş.",
+      "Pilavın yanına sütlacı da koydum. Tatlıyı sona bırakacaktım, tepside en yakınıma gelmiş.",
     ],
   },
 ] as const satisfies readonly MealScenario[];
