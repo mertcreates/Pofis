@@ -3,9 +3,9 @@ const { mkdtemp, mkdir, writeFile, rm } = require("node:fs/promises");
 const { join } = require("node:path");
 const { tmpdir } = require("node:os");
 const { run } = require("./ci-build.cjs");
-const { reviewSiteSource } = require("./checkout-site.cjs");
+const { selectSiteCommit } = require("./checkout-site.cjs");
 
-test("önceki yayının public dosyaları kabul edilir; değişen landing kodu inceleme ister", async () => {
+test("en güncel landing commit'i, public dağıtım dosyaları dışındaki değişikliklerde de seçilir", async () => {
   const directory = await mkdtemp(join(tmpdir(), "pofis-site-source-"));
   const git = args => run("git", args, directory);
   const commit = async () => {
@@ -16,15 +16,12 @@ test("önceki yayının public dosyaları kabul edilir; değişen landing kodu i
   try {
     await git(["init"]);
     await mkdir(join(directory, "src"));
-    await mkdir(join(directory, "public"));
     await writeFile(join(directory, "src/content.ts"), "reviewed source");
     const reviewed = await commit();
-    expect(await reviewSiteSource(directory, reviewed)).toBe(reviewed);
-    await writeFile(join(directory, "public/install.sh"), "generated installer");
-    const release = await commit();
-    expect(await reviewSiteSource(directory, reviewed)).toBe(release);
     await writeFile(join(directory, "src/content.ts"), "new code");
-    await commit();
-    await expect(reviewSiteSource(directory, reviewed)).rejects.toThrow("dağıtım kapsamı dışında");
+    const latest = await commit();
+    expect(await git(["diff", "--name-only", reviewed, latest])).toBe("src/content.ts");
+    expect(await selectSiteCommit(directory)).toBe(latest);
+    expect(await selectSiteCommit(directory, reviewed)).toBe(reviewed);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });

@@ -40,7 +40,7 @@ function assertManifest(manifest, version, id) {
 }
 
 function assertPublicChanges(paths) {
-  if (paths.some(path => !PUBLIC_FILES.includes(path))) throw new Error("Site deposunda dağıtım kapsamı dışında değişiklik var.");
+  if (paths.some(path => !PUBLIC_FILES.includes(path))) throw new Error("Site yayınında üretilen public dosyalar dışında değişiklik oluştu.");
 }
 
 function assertNoDowngrade(current, next) {
@@ -180,7 +180,7 @@ async function assertSite(site, version) {
   if (!/^[a-f0-9]{40}$/.test(process.env.SITE_COMMIT || "") ||
       (await run("git", ["rev-parse", "HEAD"], site)) !== process.env.SITE_COMMIT ||
       (await run("git", ["remote", "get-url", "origin"], site)) !== `https://github.com/${REPOSITORY}.git`) {
-    throw new Error("Site deposunun incelenmiş commit'i ve origin adresi doğrulanamadı.");
+    throw new Error("Site deposunun seçilen commit'i ve origin adresi doğrulanamadı.");
   }
   let raw;
   try {

@@ -4,7 +4,7 @@ Ana uygulama deposu private kalır. [Release workflow'u](../.github/workflows/de
 
 Linux hedefi için ortak macOS / Ubuntu sekmesi ve güncel doğrulama betiği landing kaynaklarında bulunmalıdır. Begin işi, paket üretiminden ve taslak oluşturmadan önce ortak Unix/Windows komut sözleşmesini kontrol eder. Landing kaynakları eskiyse önce bunların kullanıcı yetkisiyle yayımlanması gerekir; release yalnız public installer ve manifest dosyalarını günceller.
 
-Workflow, incelenmiş landing kaynağını `SITE_REVIEWED_COMMIT` ile sabitler. Begin, `main` üzerindeki farkların yalnız altı üretilen public dosyada olduğunu doğrulayıp seçtiği commit'i tüm işlere aktarır. Landing kodu değişirse bu kaynak commit'i incelemeden sonra güncellenir. İçerik kataloğu veri nesnesi olarak okunur; yayın token'ıyla landing modülü çalıştırılmaz. Tüm action referansları tam commit SHA'sına sabitlenir.
+Begin işi landing `main` dalının güncel commit'ini seçip tüm işlere sabitler; landing kaynak değişiklikleri sürümü durdurmaz. Prepare ve publish adımları çalışma kopyasındaki değişiklikleri yalnız altı üretilen public dosyayla sınırlar. İçerik kataloğu veri nesnesi olarak okunur; yayın token'ıyla landing modülü çalıştırılmaz. Tüm action referansları tam commit SHA'sına sabitlenir.
 
 ## Bir kez yapılacak kurulum
 

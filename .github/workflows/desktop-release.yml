@@ -8,9 +8,6 @@ on:
         default: true
 permissions:
   contents: read
-env:
-  # Reviewed landing source; update this SHA together with its command contract.
-  SITE_REVIEWED_COMMIT: ba52b74c5e714aa099c66fe3c0543352734d9184
 concurrency:
   group: pofis-production-release
   cancel-in-progress: false
