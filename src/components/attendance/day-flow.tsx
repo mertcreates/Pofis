@@ -26,9 +26,16 @@ export function DayFlow({ day, target, onOpenRecords }: { day: DayReport; target
   const live = day.liveSeconds !== null;
   const hasRecorded = day.recordedSeconds !== null;
   const hasDuration = hasRecorded || live;
-  const hasIssues = day.state === "uncertain" || day.recordIssues.length > 0;
-  const status = hasIssues ? ui.incompleteRecord
-    : !hasDuration || (!live && day.state !== "outside") ? stateLabel(day, false) : null;
+  const hasBlockingRecordIssue = day.recordIssues.some(
+    ({ kind }) => kind === "invalid-record" || kind === "missing-exit",
+  );
+  const isUncertain = day.state === "uncertain";
+  const showRecordWarning = isUncertain && (!hasDuration || hasBlockingRecordIssue);
+  const status = isUncertain
+    ? showRecordWarning ? ui.incompleteRecord : null
+    : !hasDuration || (!live && day.state !== "outside")
+      ? stateLabel(day, false)
+      : null;
   const targetAt = targetExitAt(day.firstEntry, target);
   const showMetrics = hasDuration || targetAt !== null;
   const delta = targetAt !== null && target !== null && hasDuration ? total - target : null;
@@ -50,9 +57,9 @@ export function DayFlow({ day, target, onOpenRecords }: { day: DayReport; target
         {formatDate(day.date, { day: "numeric", month: "long", weekday: "long" })}
       </time>
     </div>
-    {status && <div className={`rail-status${hasIssues ? " has-record-issue" : ""}${!showMetrics ? " rail-empty" : ""}`}>
+    {status && <div className={`rail-status${showRecordWarning ? " has-record-issue" : ""}${!showMetrics ? " rail-empty" : ""}`}>
       <span role="status">{status}</span>
-      {hasIssues && <button type="button" className="rail-records-link" onClick={onOpenRecords}>{ui.openRecords}</button>}
+      {showRecordWarning && <button type="button" className="rail-records-link" onClick={onOpenRecords}>{ui.openRecords}</button>}
     </div>}
     {showMetrics && <dl className="rail-elapsed">
         <div className="rail-work">

@@ -26,7 +26,7 @@ Girdiler günlük ilk giriş/son çıkış özeti, geçiş analizi, raporun İst
 | Giriş/çıkış kaydı tutarlı, bugün | `outside` | Son hareket: çıkış |
 | Giriş/çıkış kaydı tutarlı, geçmiş | `recorded` | Giriş–çıkış kaydı var |
 
-[Geçiş analizi](passages.md) sorunları belirler. Çift giriş/çıkış ve bugünkü güvenilir son açık girişten önceki eşleşmeyen çıkış uyarı olarak korunur; tek başlarına `uncertain` üretmez. Açık giriş bulunmayan eşleşmeyen çıkış, okunamayan hareket ve geçmişte çıkışsız kalan giriş belirsizdir. Plan dışı günlerde de aynı kayıt kuralları uygulanır.
+[Geçiş analizi](passages.md) sorunları belirler. Çift giriş/çıkış ve bugünkü güvenilir son açık girişten önceki eşleşmeyen çıkış `recordIssues` içinde korunur; tek başlarına `uncertain` üretmez. İlk giriş–son çıkış süresi bilinen günde eşleşmeyen ara çıkış da Günün akışı uyarısı üretmez. Açık giriş bulunmayan eşleşmeyen çıkış, okunamayan hareket ve geçmişte çıkışsız kalan giriş belirsizdir. Plan dışı günlerde de aynı kayıt kuralları uygulanır.
 
 Örnek: 12:00 çıkış / 13:00 giriş bugün güvenilir açık gündür. Güncel rapor ve uygun saatte `ongoing`, eski raporda veya saat son girişten önceyse `open`, ertesi gün hâlâ çıkış yoksa `uncertain` olur. Canlı süre örnekleri [süre sözleşmesindedir](duration.md).
 
@@ -40,13 +40,13 @@ Eski raporda kayıtlı süre esas alınır. Son açık giriş bilgisi korunur, `
 
 ## Bağlı sonuçlar
 
-Rapor modeli `recordIssues` ile [geçiş sahibinin nedenlerini](passages.md#kayıt-sorunları) taşır. Gün akışı neden ile saati gösterir. Giriş–çıkış raporunun ana listesi turnike uyarılarını göstermez; neden ve saat açılan günün ayrıntısında bulunur. Her sorun türünün ilk örneği sunulur; ham hareketlerin tamamı ayrıntıda korunur. Geçiş nedeni bulunmayan tutarsız özette “Giriş ve çıkış saatlerinden süre hesaplanamıyor.” kullanılır.
+Rapor modeli `recordIssues` ile [geçiş sahibinin nedenlerini](passages.md#kayıt-sorunları) taşır. Gün akışı, belirsiz durumda kullanılabilir kayıtlı/anlık süre yoksa veya okunamayan kayıt/geçmişte eksik çıkış gibi hesabı etkileyen neden varsa kısa uyarıyı ve “Kayıtları aç” eylemini gösterir. Tekrarlar ve süresi bilinen güne ait eşleşmeyen ara çıkış burada uyarı üretmez. Giriş–çıkış raporunun ana listesi turnike uyarılarını göstermez; neden ve saat açılan günün ayrıntısında bulunur. Her sorun türünün ilk örneği sunulur; ham hareketlerin tamamı ayrıntıda korunur. Geçiş nedeni bulunmayan tutarsız özette “Giriş ve çıkış saatlerinden süre hesaplanamıyor.” kullanılır.
 
 - [Rapor uyarlaması](../../src/domain/report.ts) durumu bir kez hazırlanan geçiş analizi ve süre sonucundan üretir. Belirsiz kayıt `state: "uncertain"` sonucuyla aktarılır.
 - Turnike hareketi bulunan geçmiş gün, `recorded` veya `uncertain` durumundan bağımsız olarak haftalık plan düzenlemesinde kilitlenir. İlk giriş–son çıkış süresi varsa [plan sahibi](work-plan.md) bu süreyi devir ve toplamda kullanır. Süre yoksa gerçekleşen bilinmez ve günün planı korunur. Bugünün `outside` durumunda tekrar giriş olasılığı için plan düzenlemesi açık kalır.
 - Belirsiz gün [plan sahibine](work-plan.md) `uncertain` olarak aktarılır. Bugünün durumu `uncertain` ise bugünkü çıkış hedefi engellenir. Önceki yön tekrarlarından sonra güvenilir açık girişle `open`/`ongoing` olan bugün, plan hesabında açık kalır. Kayıtsız geçmiş günün plan süresi beklenen toplamda korunur.
 - [Haftalık toplam](week.md) bilinen ilk giriş–son çıkış sürelerini korur. Belirsiz günün günlük hedef farkı gösterilmez; haftalık farkın sunumu [DESIGN](../../DESIGN.md#haftalık-toplam-ve-grafik) belgesindedir.
-- [Gün akışı](../../src/components/attendance/day-flow.tsx) ve [giriş–çıkış raporu](../../src/components/attendance/report-table.tsx) aynı durum etiketini tüketir.
+- [Gün akışı](../../src/components/attendance/day-flow.tsx) `DayReport.state` üzerinden belirsizlik uyarısını; [giriş–çıkış raporu](../../src/components/attendance/report-table.tsx) kısa durum etiketini ve açılan ayrıntıda geçiş nedenlerini gösterir.
 - [Pofi](pofi.md) karakter davranışını kendi sahibinde seçer; aynı geçiş belirsizliği girdisini kullanır.
 
 ## Testler

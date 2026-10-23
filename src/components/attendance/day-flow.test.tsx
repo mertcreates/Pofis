@@ -44,12 +44,35 @@ test("hedef öncesinde Şimdi ilerler; hedef aşılınca hedef işareti geride k
   expect(after(".rail-marker-label time").attr("aria-label")).toBe("18:00:17");
 });
 
-test("önceki kayıt sorunu kısa uyarıyla gösterilir; güvenilir canlı süre korunur", () => {
-  const $ = render([entry, { date: entry.date, time: "09:00:00", direction: "in" }]);
-  expect($("[role=status]").text()).toBe("Kayıtlarda belirsizlik var");
-  expect($(".rail-records-link").text()).toBe("Kayıtları aç");
+test("ara giriş-çıkış tekrarları Günün akışı uyarısı üretmez; güvenilir canlı süre korunur", () => {
+  const $ = render([
+    entry,
+    { date: entry.date, time: "09:00:00", direction: "in" },
+    { date: entry.date, time: "12:00:00", direction: "out" },
+    { date: entry.date, time: "13:00:00", direction: "out" },
+    { date: entry.date, time: "14:00:00", direction: "in" },
+  ]);
+  expect($("[role=status]")).toHaveLength(0);
+  expect($(".rail-records-link")).toHaveLength(0);
   expect($(".rail-work dd").text()).toBe("6 sa 40 dk 14 sn");
   expect($(".rail-marker-label > span").text()).toBe("Şimdi");
+});
+
+test("eşleşmeyen ara çıkış bilinen ilk-son süresini belirsiz diye etiketlemez", () => {
+  const $ = render([
+    { date: entry.date, time: "07:00:00", direction: "out" },
+    entry,
+    { date: entry.date, time: "12:00:00", direction: "out" },
+  ]);
+  expect($("[role=status]")).toHaveLength(0);
+  expect($(".rail-records-link")).toHaveLength(0);
+  expect($(".rail-work dd").text()).toBe("3 sa 59 dk 43 sn");
+});
+
+test("gerçek belirsizlikte kısa uyarı ve kayıtları aç eylemi korunur", () => {
+  const $ = render([{ date: entry.date, time: "12:00:00", direction: "out" }]);
+  expect($("[role=status]").text()).toBe("Kayıtlarda belirsizlik var");
+  expect($(".rail-records-link").text()).toBe("Kayıtları aç");
 });
 
 test("eski raporda giriş bilinse de bilinmeyen mesai sıfıra veya canlı süreye çevrilmez", () => {
