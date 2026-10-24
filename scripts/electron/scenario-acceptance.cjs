@@ -85,14 +85,25 @@ async function run() {
     assert.match(await renderer("document.querySelector('.pofi-mini-duration').textContent", true), /5 sa 30/);
     // Keep desktop focus changes outside the repeated show/hide timing samples.
     assert.equal((await renderer("window.pofisMini.pin()", true)).pinned, true);
+    phase = "sabitlenmiş Mini tekrar çağırma";
+    for (let index = 0; index < 3; index++) {
+      assert.equal(await main(`(() => {
+        const { app, BrowserWindow } = process.mainModule.require('electron');
+        const mini = BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/mini'));
+        const before = mini.getBounds();
+        app.emit('pofis:acceptance:mini');
+        return mini.isVisible() && mini.isFocused() && JSON.stringify(mini.getBounds()) === JSON.stringify(before);
+      })()`), true);
+    }
+    const hideMini = () => main("process.mainModule.require('electron').BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/mini')).close()");
     const warmOpenMs = [];
     for (let index = 0; index < 5; index++) {
       phase = `Mini tekrar açılış ${index + 1}`;
-      await main("process.mainModule.require('electron').app.emit('pofis:acceptance:mini')");
+      await hideMini();
       await until(() => main("!process.mainModule.require('electron').BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/mini')).isVisible()"));
       warmOpenMs.push(await measureOpen());
     }
-    await main("process.mainModule.require('electron').app.emit('pofis:acceptance:mini')");
+    await hideMini();
     await until(() => renderer("document.visibilityState === 'hidden'", true));
     const idle = await main(`(async () => {
       const { app, BrowserWindow } = process.mainModule.require('electron');

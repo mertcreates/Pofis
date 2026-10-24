@@ -27,7 +27,7 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   class BrowserWindow extends EventEmitter {
     constructor(options) {
       super(); this.options = options; this.visible = false; this.destroyed = false;
-      this.position = null; this.alwaysOnTop = false; this.reloads = 0;
+      this.position = null; this.alwaysOnTop = false; this.reloads = 0; this.focuses = 0;
       this.webContents = new EventEmitter();
       this.webContents.mainFrame = { url: "http://127.0.0.1:3210/mini" };
       this.webContents.setWindowOpenHandler = () => {};
@@ -38,7 +38,7 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
     setPosition(x, y) { this.position = { x, y }; }
     setSize(width, height) { this.size = { width, height }; }
     show() { this.visible = true; }
-    focus() {}
+    focus() { this.focuses++; }
     hide() { this.visible = false; }
     isVisible() { return this.visible; }
     isDestroyed() { return this.destroyed; }
@@ -101,6 +101,19 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   instances[0].webContents.emit("before-input-event", { preventDefault: () => escapes++ }, { key: "Escape" });
   expect(instances[0].visible).toBe(true);
   expect(escapes).toBe(1);
+  const pinnedPosition = { ...instances[0].position };
+  const focuses = instances[0].focuses;
+  for (let click = 0; click < 3; click++) {
+    await mini.toggle({ x: 900, y: 0, width: 18, height: 20 });
+    expect(instances[0].visible).toBe(true);
+    expect(instances[0].position).toEqual(pinnedPosition);
+  }
+  expect(instances[0].focuses).toBe(focuses + 3);
+  expect(handlers.get("pofis:mini:pin")(event)).toEqual({ pinned: false });
+  await mini.toggle();
+  expect(instances[0].visible).toBe(false);
+  await mini.toggle();
+  expect(handlers.get("pofis:mini:pin")(event)).toEqual({ pinned: true });
   handlers.get("pofis:mini:open-main")(event);
   expect([instances[0].visible, mainOpened]).toEqual([false, 1]);
   await mini.toggle();

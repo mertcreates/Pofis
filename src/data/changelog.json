@@ -4,12 +4,12 @@
     "publishedOn": "2026-10-24",
     "features": [
       "Pofi Mini eklendi. Menü çubuğu veya sistem tepsisinden bugünkü mesaiye, hedef çıkışa ve haftalık özete ulaşabilirsin.",
-      "Pofi Mini günün durumuna göre şekilleniyor; mesai olmayan günlerde boş hedef alanları gizleniyor. Çalıştığın süre varsa görünmeye devam ediyor. Panel içeriğe göre boyutlanıyor, süreler saniyesine kadar gösteriliyor.",
-      "Pofi Mini’yi sabitleyerek açık tutabilir, Mac’te Command+Shift+P, Windows ve Linux’ta Ctrl+Shift+P ile açıp kapatabilirsin. macOS Dock menüsünden de ulaşılabiliyor.",
+      "Pofi Mini’nin içeriği ve boyutu günün mesai durumuna uyum sağlıyor. Süreler saniyesine kadar gösteriliyor.",
+      "Pofi Mini’yi sabitleyerek açık tutabilir, Mac’te Command+Shift+P, Windows ve Linux’ta Ctrl+Shift+P ile açıp kapatabilirsin. macOS Dock ve Pencere menülerinden de ulaşılabiliyor.",
       "macOS menü çubuğunda hedefe kalan veya hedefi aşan süreyi görebilirsin. Süre gösterimini kapatma ve Pofis’i oturum açılışında başlatma seçenekleri eklendi.",
       "Mesai planına giriş veya çıkış saati seçme eklendi. Seçtiğin saate ve günün çalışma süresine göre diğer saat hesaplanıyor; seçimlerin gün ve hafta için saklanıyor.",
       "Haftalık cetvelde izinli günler de görünüyor. Bir günü seçerek raporuna veya planına geçebilir, günün akışındaki kayıt uyarısından ilgili raporu açabilirsin. Süreler ve hedef çıkış daha belirgin gösteriliyor.",
-      "Sürüm geçmişi eklendi. Yenilikleri ve düzeltmeleri ilk sürümden bugüne bir arada görebilirsin.",
+      "Sürüm geçmişi eklendi. Ekranın altındaki sürüm numarasına tıklayarak yenilikleri ve düzeltmeleri görebilirsin. Henüz okumadığın sürümün yanında küçük bir işaret beliriyor.",
       "Pofi’nin odasındaki “Çalışırken” notlarına pencere nöbeti, mola ve mesai arkadaşlığı anları eklendi."
     ],
     "fixes": [

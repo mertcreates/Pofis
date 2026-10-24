@@ -108,7 +108,15 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
 
   async function toggle(bounds) {
     if (stopped || isQuitting()) return;
-    if (visible) { hide(); return; }
+    if (visible) {
+      if (pinned) {
+        if (valid() && loaded) {
+          mini.show();
+          mini.focus();
+        }
+      } else hide();
+      return;
+    }
     visible = true;
     const anchor = bounds || getAnchorBounds();
     const point = anchor ? null : screen.getCursorScreenPoint();
