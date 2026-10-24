@@ -57,7 +57,7 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   expect(instances[0].visible).toBe(true);
   expect(instances[0].url).toBe("http://127.0.0.1:3210/mini");
   expect(instances[0].options.webPreferences.sandbox).toBe(true);
-  expect(instances[0].spaces).toEqual({ value: true, options: { visibleOnFullScreen: true } });
+  expect(instances[0].spaces).toEqual({ value: true, options: { visibleOnFullScreen: true, skipTransformProcessType: true } });
   const event = { sender: instances[0].webContents, senderFrame: instances[0].webContents.mainFrame };
   expect(handlers.get("pofis:mini:get")(event)).toEqual({ pinned: false });
   handlers.get("pofis:mini:resize")(event, 280.2);

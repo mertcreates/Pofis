@@ -84,7 +84,8 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
       webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, preload, additionalArguments },
     });
     mini.setAlwaysOnTop(pinned, "floating");
-    if (platform === "darwin") mini.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+    // Keep the main app's Dock identity while configuring the native panel's Spaces behavior.
+    if (platform === "darwin") mini.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
     mini.on("will-move", (_event, bounds) => { movedBounds = bounds; });
     mini.on("blur", () => { if (!pinned && !isQuitting()) hide(); });
     mini.on("close", event => {

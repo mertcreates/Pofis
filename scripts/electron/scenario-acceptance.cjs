@@ -63,6 +63,7 @@ async function run() {
     await until(() => renderer("document.querySelector('.dashboard-person')?.textContent.includes('Mesai sürüyor')"));
     assert.equal(await renderer("typeof require + ':' + typeof process"), "undefined:undefined");
     assert.equal(await renderer("typeof window.pofisScenario"), "object");
+    if (target.platform === "darwin") assert.equal(await main("process.mainModule.require('electron').app.dock.isVisible()"), true, "Ana pencere açıkken Dock simgesi görünür olmalı");
     const measureOpen = () => main(`new Promise(resolve => {
       const { app, BrowserWindow } = process.mainModule.require('electron');
       const started = performance.now();
@@ -80,6 +81,7 @@ async function run() {
     const firstOpenMs = await measureOpen();
     phase = "Mini ilk açılış";
     await until(() => renderer("!!document.querySelector('.pofi-mini-duration')", true));
+    if (target.platform === "darwin") assert.equal(await main("process.mainModule.require('electron').app.dock.isVisible()"), true, "Mini açıldığında Pofis Dock simgesi görünür kalmalı");
     const mainSeed = await renderer("window.pofisScenario.seed");
     assert.deepEqual(await renderer("window.pofisScenario.seed", true), mainSeed);
     assert.match(await renderer("document.querySelector('.pofi-mini-duration').textContent", true), /5 sa 30/);
@@ -116,6 +118,7 @@ async function run() {
     })()`);
     console.log(JSON.stringify({ platform: target.id, firstOpenMs, warmOpenMs, hiddenSampleMs: 2000, idle }));
     await measureOpen();
+    if (target.platform === "darwin") assert.equal(await main("process.mainModule.require('electron').app.dock.isVisible()"), true, "Mini tekrar açılışları Dock simgesini korumalı");
     assert.equal((await renderer("window.pofisMini.pin()", true)).pinned, false);
     phase = "Mini tema senkronizasyonu";
     await renderer("localStorage.setItem('pofis:theme:v1', 'dark'); true");
