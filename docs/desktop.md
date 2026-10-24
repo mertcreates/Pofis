@@ -8,7 +8,7 @@ Masaüstü hedefleri kilitli `43.8.1` Electron sürümünü kullanır. [Electron
 
 Masaüstü sunucusu JavaScript ve statik dosyalardan oluşur. Görseller doğrudan sunulur (`images.unoptimized`); sharp/libvips bağımlılıkları masaüstü çıktısından çıkarılır. Paket kabulü görsel baytlarını ve Geist fontunun yüklenmesini doğrular.
 
-Tek dağıtım kanalı ve hedef başına manifest kullanılır. Profil yolu, `app.pofis.client` uygulama kimliği, sabit `http://127.0.0.1:3210` origin'i ve veri şemaları korunur. Motor değişiminde installer uygulama sürümünü karşılaştırır; yeni paket daha yüksek Pofis sürümü taşır. Motor seçimi hedef işletim sistemi, gerekli özellikler ve somut hata/backport durumuyla değerlendirilir.
+Tek dağıtım kanalı ve hedef başına manifest kullanılır. Profil yolu, paketli uygulamanın `app.pofis.client` kimliği, sabit `http://127.0.0.1:3210` origin'i ve veri şemaları korunur. Motor değişiminde installer uygulama sürümünü karşılaştırır; yeni paket daha yüksek Pofis sürümü taşır. Motor seçimi hedef işletim sistemi, gerekli özellikler ve somut hata/backport durumuyla değerlendirilir.
 
 ## Ortak platform sözleşmesi
 
@@ -150,6 +150,8 @@ Veri girdilerinin sahibi [demo senaryoları](../src/demo/desktop-scenarios.ts), 
 Uygulama simgesinin tek kaynağı [pofi-mark-256.png](../public/pofi/pofi-mark-256.png) dosyasıdır. Pencere ve macOS Dock aynı PNG'yi kullanır. Paketleme, görseli değiştirmeden `dist/electron/icons/` altında ICO ve ICNS üretir; Windows EXE/kısayol simgesine ve macOS uygulama paketine işler.
 
 Windows paketinde EXE ürün adı ve dosya açıklaması **Pofis** olarak işlenir. Electron 43 bildirim kısayolunun adını bu ürün bilgisinden okur; yalnız `app.setName` çağrısı yeterli değildir. `bun test ./scripts/electron/windows-branding.test.cjs` gerçek Electron EXE kopyasında Pofis adı/ikonu ile korunan motor sürümünü doğrular. Bildirim başlık, gövde ve kanal kimliği [bildirim sözleşmesindedir](rules/notifications.md#sunum-ve-uygulama-kimliği).
+
+Windows paketinin uygulama kimliği `app.pofis.client`, kaynak sürümünün kimliği `app.pofis.client.dev` olur. Electron 43 kaynak sürümü için `Electron.lnk`, paket için `Pofis.lnk` oluşturur. Ayrı kimlikler, Windows'un her uygulamayı kendi adı ve simgesiyle eşleştirmesini sağlar. [Başlangıç testi](../electron/windows-identity.test.cjs) iki çalışma biçiminin farklı kimlik kaydettiğini doğrular. Görsel kabul: kaynak sürümünü açıp kapatın, ardından paketi açın; görev çubuğunda Pofi simgesi ve Pofis adı görünmelidir. Önceki sürümden kalan geliştirme kısayolu, düzeltilmiş kaynak sürümü ilk açıldığında Electron tarafından yenilenir.
 
 Geliştirici bilgisayarında Bun 1.4.3 ile:
 

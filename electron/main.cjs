@@ -23,7 +23,8 @@ const additionalArguments = scenarioMode ? ["--pofis-scenarios"] : [];
 // Electron also uses this name in HTTP User-Agent, which must remain ASCII.
 app.setName(scenarioMode ? `${product.name} Senaryo` : product.name);
 if (target.platform === "linux") app.setDesktopName("app.pofis.client.desktop");
-if (target.platform === "win32") app.setAppUserModelId("app.pofis.client");
+// Development and packaged runtimes own separate Windows shortcut identities.
+if (target.platform === "win32") app.setAppUserModelId(app.isPackaged ? "app.pofis.client" : "app.pofis.client.dev");
 app.setPath("userData", scenarioMode ? join(app.commandLine.getSwitchValue("user-data-dir") || app.getPath("appData"), "Pofis-Scenarios")
   : app.commandLine.getSwitchValue("user-data-dir") || join(app.getPath("appData"), "Pofis"));
 
