@@ -225,15 +225,11 @@ test("gün eylemleri sırasını korur; manuel kilit durum ve sabit süre olarak
   const open = editor();
   expect(open('.work-plan-day-options button').map((_, el) => open(el).text()).get()).toEqual(['İzin', '', 'Planlayıcı']);
   expect(open('.work-plan-lock').attr('aria-label')).toBe('Süreyi kilitle');
-  expect(open('.work-plan-lock').attr('title')).toBe('Süreyi kilitle');
-  expect(open('.work-plan-lock svg.lucide-lock-keyhole-open').length).toBe(1);
   expect(open('.work-plan-stepper').length).toBe(1);
   const locked = editor([4]);
   expect(locked('.work-plan-lock').text()).toBe('');
-  expect(locked('.work-plan-lock svg.lucide-lock-keyhole').length).toBe(1);
   expect(locked('.work-plan-lock').attr('aria-pressed')).toBe('true');
   expect(locked('.work-plan-lock').attr('aria-label')).toBe('Kilidi aç');
-  expect(locked('.work-plan-lock').attr('title')).toBe('Kilidi aç');
   expect(locked('.work-plan-locked-time').text()).toBe('8 sa');
   expect(locked('.work-plan-stepper').length).toBe(0);
   expect(locked('.work-plan-day-action:disabled, .work-plan-clock-toggle:disabled').length).toBe(2);

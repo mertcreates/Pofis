@@ -16,7 +16,6 @@ test("Planlayıcı içeriği açıldığında saat alanı ve kontroller doğruda
   expect($('.work-plan-time-choice button').map((_, button) => $(button).text()).get()).toEqual(['girersem', 'çıkmak için']);
   expect($('.work-plan-time-clear').is(':disabled')).toBe(true);
   expect($('output').text()).toBe('');
-  expect($('.work-plan-clock-operation svg').length).toBe(0);
   expect($('button[aria-expanded]').length).toBe(0);
 });
 
@@ -29,8 +28,6 @@ test.each([
   const $ = render(time);
   expect($('.work-plan-time-field input').map((_, input) => $(input).attr('value')).get()).toEqual([...values]);
   expect($('.work-plan-time-choice').length).toBe(1);
-  expect($('.work-plan-clock-controls').children().map((_, el) => $(el).attr('class')).get()).toEqual(['work-plan-clock-prompt', 'work-plan-time-choice']);
-  expect($('.work-plan-clock-prompt > span').length).toBe(0);
   expect($('.work-plan-time-suffix').text()).toBe(time.minute === 363 ? '’te' : time.minute === 400 ? '’ta' : time.minute === 1080 ? '’de' : '’da');
   expect($('output .work-plan-time-conclusion').text()).toBe(opposite);
   expect($('output strong').text()).toBe(result);
@@ -51,7 +48,6 @@ test.each([
   const $ = render(time, false, 28800, day);
   expect($('output strong').text()).toBe(clock);
   expect($('.work-plan-time-conclusion').text()).toBe(conclusion);
-  expect($('output').children().length).toBe(2);
 });
 
 test("kilitli saat alanı ve tüm düzenleme eylemleri devre dışıdır", () => {

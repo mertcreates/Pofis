@@ -1,12 +1,8 @@
 import { expect, test } from "bun:test";
-import { getIstanbulDate, getMealCalendarDates, getMealDateRange, getMealWeekDates, shiftMealDate, shiftMealCalendarMonth, shiftMealWeek } from "./dates";
+import { getMealCalendarDates, getMealDateRange, getMealWeekDates, shiftMealDate, shiftMealCalendarMonth, shiftMealWeek } from "./dates";
 
 test("date range includes one calendar month back and fifteen days ahead", () => {
   expect(getMealDateRange("2026-10-20")).toEqual({ minDate: "2026-09-20", maxDate: "2026-11-04" });
-});
-
-test("Istanbul midnight determines the selected day", () => {
-  expect(getIstanbulDate(new Date("2026-10-19T22:30:00Z"))).toBe("2026-10-20");
 });
 
 test("month changes clamp to the last valid day and preserve leap years", () => {

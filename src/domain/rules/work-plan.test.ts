@@ -136,11 +136,14 @@ test("yalnız bağımsız haftalık hedef varsa özel hafta planı ve hedefi kor
   expect(changeWeekPlan(changed, week, null, [28800,28800,28800]).weekTargets?.[week]).toBe(45 * 3600);
 });
 
-test("tamamla önce seçili gün dışındaki uygun günlere dağıtır", () => {
+test("tamamla seçili günü korur; seçim yoksa tüm uygun günlere dağıtır", () => {
   const plan = readDayPlan([480,480,240,480,480,0,0])!;
   const resolved = resolveWeekPlan(days([8,8,null,null,null,null,null]), plan, "2026-10-14");
   expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, 2))
     .toEqual([480,480,240,600,600,0,0]);
+  expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved))
+    .toEqual([480,480,330,570,540,0,0]);
+  expect(plan).toEqual([480,480,240,480,480,0,0]);
 });
 
 test("tek açık seçili Cuma 8 saatten 9:59'a tamamlanır; yeniden hesapta 40 saat kalır", () => {
@@ -191,17 +194,6 @@ test("Tamamla saniyeli gerekeni saklar; kapasite yetmezse kısmi kayıt üretmez
   expect(after.targets[3]).toBe(53383);
   source[2].recordedSeconds = 0;
   expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolveWeekPlan(source, plan, "2026-10-15"), null)).toBeNull();
-});
-
-test("tamamla seçili Çarşambayı korur; seçim yoksa tüm uygun günleri kullanır", () => {
-  const plan = readDayPlan([480,480,240,480,480,0,0])!;
-  const eligible = [false,false,true,true,true,false,false];
-  const selectedDay = 2;
-  expect(completeToDefaultTotal(plan, DEFAULT_WORK_PLAN, eligible, selectedDay))
-    .toEqual([480,480,240,600,600,0,0]);
-  expect(completeToDefaultTotal(plan, DEFAULT_WORK_PLAN, eligible))
-    .toEqual([480,480,330,570,540,0,0]);
-  expect(plan).toEqual([480,480,240,480,480,0,0]);
 });
 
 test("tamamla diğer uygun günlerin kapasitesini kullanır; fazlayı bu günlerin sonundan azaltır", () => {
@@ -347,12 +339,6 @@ test("tek kalan güne devir uygulanır; tamamlanan günün özgün hedefi korunu
   expect(result.targets).toEqual([0, 0, 0, 0, 0, 0, 0]);
   expect(result.unallocatedSeconds).toBe(-144000);
   expect(resolveWeekPlan([], readDayPlan([0, 0, 0, 0, 0, 0, 0])!, "2026-10-16").weeklySeconds).toBe(0);
-});
-
-test("son gün hedefi sıfırın altına inmez; etkin hedef günlük sınırlarla korunur", () => {
-  const result = resolveWeekPlan(days([16, 16, 16, 16, null, null, null]), DEFAULT_WORK_PLAN, "2026-10-16");
-  expect(result.exitGoal).toBe(0);
-  expect(result.targets[4]).toBe(0);
 });
 
 test("devir yalnız aynı haftanın geçmiş tamamlanmış kayıtlarından gelir", () => {

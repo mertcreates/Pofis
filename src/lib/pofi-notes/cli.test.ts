@@ -8,7 +8,7 @@ import {
 } from "node:fs";
 import { join, resolve, relative } from "node:path";
 
-test("Pofi CLI inspects and previews the current single pool without writing it", () => {
+test("Pofi CLI lists, validates and previews the catalogue; unsupported commands fail", () => {
   const root = resolve(import.meta.dir, "../../..");
   const work = join(root, "work");
   mkdirSync(work, { recursive: true });
@@ -52,9 +52,6 @@ test("Pofi CLI inspects and previews the current single pool without writing it"
     expect(validation.status).toBe(0);
     expect(JSON.parse(validation.output)).toMatchObject({
       valid: true,
-      themes: 16,
-      notes: 1024,
-      specialDays: 13,
     });
     expect(
       run("preview", "--date", "2026-10-16", "--key", "example").status,

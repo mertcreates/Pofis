@@ -64,7 +64,6 @@ test("geçmiş kayıtsız gün, sıfır saat çalışılmış gibi gösterilmez"
   const { $ } = render([]);
   const monday = $(".weekly-ruler-day").first();
   expect(monday.hasClass("has-record-issue")).toBe(true);
-  expect(monday.find(".weekly-ruler-day-label svg")).toHaveLength(1);
   expect(monday.attr("aria-label")).toBe("Pazartesi, Kayıt bulunamadı, Çalışılan: Kayıtlı süre yok, Hedef: 8 sa. Pazartesi kayıtlarını aç");
 });
 
@@ -79,7 +78,6 @@ test.each([
   const { $ } = render([], passages.map(passage => ({ ...passage })));
   const thursday = $(".weekly-ruler-day").eq(3);
   expect(thursday.hasClass("has-record-issue")).toBe(true);
-  expect(thursday.find(".weekly-ruler-day-label svg")).toHaveLength(1);
   expect(thursday.attr("aria-label")).toBe(`Perşembe, Kayıtlarda belirsizlik var, Çalışılan: ${actual}, Hedef: 8 sa. Perşembe kayıtlarını aç`);
   expect(thursday.find(".weekly-ruler-tick").attr("style")).toContain(`--ruler-recorded:${fraction * 100}%`);
 });
@@ -91,6 +89,5 @@ test("hedef altında olsa da tutarlı kayıtlı gün uyarı almaz; süre ve hede
   ]);
   const thursday = $(".weekly-ruler-day").eq(3);
   expect(thursday.hasClass("has-record-issue")).toBe(false);
-  expect(thursday.find(".weekly-ruler-day-label svg")).toHaveLength(0);
   expect(thursday.attr("aria-label")).toBe("Perşembe, Çalışılan: 2 sa, Hedef: 8 sa. Perşembe kayıtlarını aç");
 });

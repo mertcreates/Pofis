@@ -11,12 +11,14 @@ Kontrolü değişen davranışa göre seçin. Beklenen sonucu ürün sözleşmes
 Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta paket yayını için elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama) bulunur. Otomatik Pofi Mini PR workflow'u mevcut değildir. Sürüm akışı tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
 
 ```powershell
-bun test
+bun test ./src ./electron ./scripts/electron
 bun run typecheck
 bun run build
 ```
 
 Önce etkilenen test dosyalarını çalıştırın. Hesap ve ortak politika değişikliklerinde ilgili bağımlı davranışları da kontrol edin. Üretim derlemesi, derleme veya çalışma zamanı etkisi olan değişikliklerin son kontrolüdür; görsel iterasyon `bun run dev` ile yapılır.
+
+`bunfig.toml` test kökü `src` olduğundan yalın `bun test` yalnız bu dizini kapsar. Tam paket için yukarıdaki üç dizinli komutu kullanın. Test seçme ve sadeleştirme kararları [test değeri denetimindedir](test-value.md).
 
 Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron ./src/desktop` kullanılır. İptal/alt süreç temizliği, yayın kaynağı ve paket sınırları izole testlerle; macOS süreç seçimi ve Keychain reddi adaptörlerle sınanır. Süreç sözleşmesi [yayın rehberinde](release.md#yayın-sırası-ve-hata-davranışı), cihaz kontrolleri aşağıdaki masaüstü kabul bölümlerindedir.
 

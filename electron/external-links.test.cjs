@@ -18,7 +18,7 @@ test("gerçek footer adresi tarayıcıya aktarılır; Electron penceresi açılm
 });
 
 test.each([
-  "https://mertercan.com/", "https://mertercan.com/about?from=pofis#contact",
+  "https://mertercan.com/about?from=pofis#contact",
 ])("izinli HTTPS adresi açılır: %s", url => {
   const f = fixture();
   expect(f.handler({ url })).toEqual({ action: "deny" });

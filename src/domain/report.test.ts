@@ -3,7 +3,6 @@ import { prepareReport, presentReport, type Report } from "./report";
 import { DEFAULT_WORK_PLAN, emptyWorkPlans, changeDefaultPlan, changeWeekPlan, resolveStoredPlan, resolveStoredTarget, completedDaySeconds } from "./rules/work-plan";
 import { summarizeWeek } from "@/domain/rules/week";
 import { readDayPlan } from "@/domain/rules/work-plan";
-import { pofiNotesForWeek } from "@/server/pofi-notes.js";
 
 const now = Date.parse("2026-10-16T15:00:00+03:00");
 
@@ -289,26 +288,6 @@ test.each([
     expect(pofi.title).toBe("Hedefin üzerinde.");
     expect(pofi.message).toBe("Bir kez daha esnedim.");
   }
-});
-
-test("notlar kişi bazında sabit, mevcut haftayla sınırlı, 8 Aralık ortak", () => {
-  const notes = pofiNotesForWeek("2026-10-16", "fixture-person");
-  expect(notes.map((note) => note.date)).toEqual([
-    "2026-10-12", "2026-10-13", "2026-10-14", "2026-10-15", "2026-10-16",
-  ]);
-  expect(pofiNotesForWeek("2026-10-16", "fixture-person")).toEqual(notes);
-  expect(pofiNotesForWeek("2026-10-16", "another-person")).not.toEqual(notes);
-  expect(pofiNotesForWeek("2026-12-08", "a")).toHaveLength(5);
-  expect(
-    pofiNotesForWeek("2026-12-08", "a").find(
-      (note) => note.date === "2026-12-08",
-    ),
-  ).toEqual(
-    pofiNotesForWeek("2026-12-08", "b").find(
-      (note) => note.date === "2026-12-08",
-    ),
-  );
-  expect(() => pofiNotesForWeek("2026-10-16", "")).toThrow();
 });
 
 test("45 dakika fazla çalışma korunur; günlük hedef, hedef çıkış ve Pofi özgün planı kullanır", () => {

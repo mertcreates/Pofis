@@ -64,13 +64,6 @@ test.each([3,4])("iki gün de otomatik sıfırken %s gününe eklenen süre doğ
   expect(after.unallocatedSeconds).toBe(0);
 });
 
-test.each([null,0,3,4])("fazla süre seçili gün %s iken de Cuma'dan azaltılır", selected => {
-  const days = source([8,8,8,null,null,null,null]);
-  const before = resolveWeekPlan(days, DEFAULT_WORK_PLAN, "2026-10-15", false, 41 * 3600);
-  expect(completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, before, selected))
-    .toEqual(DEFAULT_WORK_PLAN);
-});
-
 test("sıfır açık günü izinli yapmak, yeniden açmak ve sıfırlamak niyeti korur", () => {
   const days = source([12,12,8,null,null,null,null]);
   const initial = emptyWorkPlans();

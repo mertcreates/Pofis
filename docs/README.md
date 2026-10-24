@@ -24,6 +24,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Arayüz bileşenleri ve sorumlulukları | [Arayüz sahipleri](architecture/ui-components.md) |
 | Açık geliştirme işleri | [Görev listesi](../tasks/todo.md) |
 | Doğrulama komutları ve kabul yöntemi | [Doğrulama rehberi](verification.md) |
+| Testlerin koruduğu riskler ve sadeleştirme kararları | [Test değeri denetimi](test-value.md) |
 | PDKS istekleri, hata sınıfları ve toparlanma | [PDKS hata sözleşmesi](pdks-errors.md) |
 
 ## Belge bakımı
