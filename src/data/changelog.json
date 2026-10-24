@@ -5,7 +5,7 @@
     "features": [
       "Pofi Mini eklendi. Menü çubuğu veya sistem tepsisinden bugünkü mesaiye, hedef çıkışa ve haftalık özete ulaşabilirsin.",
       "Pofi Mini’nin içeriği ve boyutu günün mesai durumuna uyum sağlıyor. Süreler saniyesine kadar gösteriliyor.",
-      "Pofi Mini’yi sabitleyerek açık tutabilir, Mac’te Command+Shift+P, Windows ve Linux’ta Ctrl+Shift+P ile açıp kapatabilirsin. macOS Dock ve Pencere menülerinden de ulaşılabiliyor.",
+      "Pofi Mini’yi sabitleyerek açık tutabilir, başlığından sürükleyerek taşıyabilirsin. Mac’te Command+Shift+P, Windows ve Linux’ta Ctrl+Shift+P kısayoluyla ulaşabilirsin. Mac’te Dock ve Pencere menülerinden de açabilirsin.",
       "macOS menü çubuğunda hedefe kalan veya hedefi aşan süreyi görebilirsin. Süre gösterimini kapatma ve Pofis’i oturum açılışında başlatma seçenekleri eklendi.",
       "Mesai planına giriş veya çıkış saati seçme eklendi. Seçtiğin saate ve günün çalışma süresine göre diğer saat hesaplanıyor; seçimlerin gün ve hafta için saklanıyor.",
       "Haftalık cetvelde izinli günler de görünüyor. Bir günü seçerek raporuna veya planına geçebilir, günün akışındaki kayıt uyarısından ilgili raporu açabilirsin. Süreler ve hedef çıkış daha belirgin gösteriliyor.",
@@ -13,6 +13,7 @@
       "Pofi’nin odasındaki “Çalışırken” notlarına pencere nöbeti, mola ve mesai arkadaşlığı anları eklendi."
     ],
     "fixes": [
+      "Geçmiş bir haftayı incelerken mesai planını açtığında seçtiğin hafta korunuyor.",
       "Bildirim ayarlarını değiştirdiğinde aynı günün sonraki hatırlatmaları da yeni ayarlarını kullanıyor.",
       "macOS bildirimlerinde uygulama simgesinin iki kez görünmesi düzeltildi.",
       "Pofi panelindeki mesajların noktalama işaretleri ve yemek yorumlarındaki anlatım tutarsızlıkları düzeltildi."

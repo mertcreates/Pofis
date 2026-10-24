@@ -140,6 +140,21 @@ async function run() {
     })()`, true), true);
     assert.equal(await renderer("document.body.scrollWidth <= document.documentElement.clientWidth", true), true);
     await until(() => renderer("window.pofisNotifications.get().then(value => value.active)"));
+    phase = "seçili haftanın planını açma";
+    const currentHeading = await renderer("document.querySelector('h1').textContent");
+    await renderer("document.querySelector('button[aria-label=\"Önceki hafta\"]').click()");
+    await until(() => renderer("document.querySelector('h1').textContent !== " + JSON.stringify(currentHeading)));
+    const selectedHeading = await renderer("document.querySelector('h1').textContent");
+    assert.equal(selectedHeading, "12 – 18 Ekim");
+    await renderer("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Mesai planı').click()");
+    await until(() => renderer("!!document.querySelector('dialog[open]')"));
+    assert.equal(await renderer("document.querySelector('dialog[open] .work-plan-tabs').textContent.includes('Seçili hafta · 12 – 18 Eki')"), true,
+      "Plan sekmesi raporda seçili haftayı göstermeli");
+    await renderer("document.querySelector('dialog[open] button[aria-label=\"Kapat\"]').click()");
+    await until(() => renderer("!document.querySelector('dialog[open]')"));
+    assert.equal(await renderer("document.querySelector('h1').textContent"), selectedHeading, "Plan kapatılınca seçili hafta korunmalı");
+    await renderer("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Mesaim').click()");
+    await until(() => renderer("document.querySelector('h1').textContent === " + JSON.stringify(currentHeading)));
     await choose("offline", true);
     phase = "bağlantı kesintisi";
     await until(() => renderer("!!document.querySelector('[role=alert]')", true));

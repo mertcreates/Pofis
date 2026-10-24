@@ -62,7 +62,7 @@ Tarayıcı kabulü:
 
 Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut senaryolardan alınır.
 
-[Plan gezinme testi](../src/components/dashboard/plan-navigation.test.ts), geçmiş ve güncel hafta seçiliyken menü eylemlerini gerçek `DashboardView` üzerinden çağırır: Mesai planı ve yemek menüsü seçili haftayı korur, Mesaim güncel haftaya geçer. Tarayıcı kabulü: geçmiş haftayı seçin → yan menüden Mesai planını açın → haftalık sekmedeki tarih aralığını ve o haftanın kayıtlarını kontrol edin → Çalışma düzenine geçip haftalık sekmeye dönün → modalı kapatın. Aynı hafta görünmeye devam etmelidir. Haftalık bir düzenleme yapıp yeniden açın; kaydı seçilen haftada ve güncel haftanın planını kendi haftasında kontrol edin. Kaynak raporu yüklenirken düzenleme yükleme koşuluna uymalıdır.
+[Paketli senaryo kabulü](../scripts/electron/scenario-acceptance.cjs), gerçek arayüzde önceki haftaya geçer; Mesai planını açıp sekmedeki tarih aralığını, kapatınca rapor haftasının korunduğunu ve Mesaim ile güncel haftaya dönüşü doğrular. Tarayıcıda ayrıca Çalışma düzeni → haftalık plan geçişini ve düzenlemeyi kaydedip yeniden açmayı kontrol edin; kayıt ve yükleme beklentileri [plan sözleşmesindedir](rules/work-plan.md#kalıcılık-ve-navigasyon).
 
 | Otomatik test | Kapsam |
 | --- | --- |
