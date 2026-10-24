@@ -114,8 +114,11 @@ export function DashboardView({
             setDialog({ kind: "meals" });
             return;
           }
+          if (section === "settings") {
+            setDialog({ kind: "plan" });
+            return;
+          }
           selectWeek(currentWeek);
-          if (section === "settings") setDialog({ kind: "plan" });
         }}
         onDisconnect={pdks ? () => void pdks.disconnect() : undefined}
       >
