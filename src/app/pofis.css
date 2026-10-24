@@ -654,6 +654,17 @@ body {
   color: var(--ink);
 }
 .app-version:focus-visible:not(:disabled) { background: var(--accent-soft); }
+.app-version[data-new] { position: relative; }
+.app-version[data-new]::after {
+  content: "";
+  position: absolute;
+  top: 6px;
+  right: -2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
 .build-note { color: var(--ink); }
 .build-note h3 { margin: 0 0 16px; font-size: 1rem; font-weight: 600; }
 .build-note p { margin: 0; font-size: .9375rem; line-height: 1.7; }

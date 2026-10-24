@@ -50,7 +50,7 @@ Yeni özellik yayımlanmadan önce yapılan düzeltmeleri özelliğin son hâliy
 
 Begin sürüm eşleşmesini ve katalog biçimini taslak oluşturmadan önce doğrular. Prepare kataloğu `public/releases/changelog.json` yoluna kopyalar; publish hazırlanan dosyanın kaynakla tam eşleşmesini sürümü yayımlamadan önce kontrol eder. Canlı HTTPS kabulü de aynı içerikle birlikte yukarıdaki başlıkları doğrular.
 
-Sürüm geçmişini destekleyen uygulamalar `/api/changelog` üzerinden public kataloğu okur. Public kataloğun ilk sürümü paket kataloğundaki ilk sürümle aynı veya daha yeniyse public içerik kullanılır. Daha eski katalog, ağ veya içerik hatasında paketle gelen geçmiş korunur. Menü en yeni kayıttan, footer uygulamanın kendi sürümünden, güncelleme modalı hedef sürümden açılır; hedef kaydı bulunamazsa geçmişin başı gösterilir.
+Sürüm geçmişini destekleyen uygulamalar `/api/changelog` üzerinden public kataloğu okur. Public kataloğun ilk sürümü paket kataloğundaki ilk sürümle aynı veya daha yeniyse public içerik kullanılır. Daha eski katalog, ağ veya içerik hatasında paketle gelen geçmiş korunur. Footer uygulamanın kendi sürümünden, güncelleme modalı hedef sürümden açılır; hedef kaydı bulunamazsa geçmişin başı gösterilir.
 
 Bu katalog GitHub Release açıklamasından ayrıdır. Aşağıdaki otomatik notlar public GitHub sürüm sayfasını; manuel katalog uygulama içindeki kalıcı geçmişi yönetir.
 

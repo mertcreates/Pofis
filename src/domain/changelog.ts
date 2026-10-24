@@ -1,3 +1,5 @@
+export const CHANGELOG_SEEN_KEY = "pofis:changelog-seen";
+
 export type ChangelogRelease = {
   version: string;
   publishedOn: string;

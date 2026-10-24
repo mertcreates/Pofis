@@ -62,6 +62,7 @@ Oklar kural sonuçlarının kullanıldığı yerleri gösterir. Rapor uyarlamas�
 | Rapor hazırlığı ve saat izdüşümü | [report.ts](../../src/domain/report.ts): kaynak ve planı ekran modeline uyarlar; hesapları ilgili kurallardan alır |
 | Pofi notları | [İçerik yönetim rehberi](../pofi-notes.md): not defteri ve odadaki günlük faaliyet kayıtlarının içerik/seçim sahipleri; [kaynak adaptörü](../../src/server/pdks.js) defterin hesap anahtarını üretir; [sunucu](../../src/server/pofi-notes.js) defter seçimine bağlar |
 | Plan kalıcılığı | [plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulama; [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamı; [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonra durum güncelleme |
+| Sürüm geçmişi takibi | [changelog.ts](../../src/domain/changelog.ts) katalog doğrulama, sıralama ve `pofis:changelog-seen` depolama anahtarı; [app-footer.js](../../src/components/shell/app-footer.js) okundu durumunu günceller |
 | Tema | [theme](../../src/lib/theme.js) tercih değerleri ve `pofis:theme:v1` depolama anahtarı; [use-appearance](../../src/data/use-appearance.ts) işletim sistemi ve depolama olayları |
 | Kullanım ölçümü | [analytics](../../src/lib/analytics.ts): sabit GA4 alanları ve başlangıç; [ölçüm sözleşmesi](../analytics.md) akış ayarlarını ve veri sınırlarını yönetir |
 | Metin ve marka | [ui-text](../../src/lib/ui-text.js), [ton rehberi](../brand/pofi-tone-guide.md) ve [görsel kaynaklar](../brand/assets.md) |

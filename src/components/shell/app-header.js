@@ -19,8 +19,6 @@ export default function AppHeader({
   showNotifications = false,
   notificationsOpen = false,
   onOpenNotifications,
-  changelogOpen = false,
-  onOpenChangelog,
 }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuId = useId();
@@ -90,7 +88,7 @@ export default function AppHeader({
               <nav className="sidebar-nav" aria-label={ui.mainMenu}>
                 <button
                   type="button"
-                  aria-current={!notificationsOpen && !changelogOpen ? "page" : undefined}
+                  aria-current={!notificationsOpen ? "page" : undefined}
                   onClick={() => selectSection("overview")}
                 >
                   <Icon name="layout" />
@@ -123,11 +121,6 @@ export default function AppHeader({
                   <Icon name="calendar" />
                   {ui.settings}
                 </button>
-                <button type="button" aria-current={changelogOpen ? "page" : undefined}
-                  onClick={() => {
-                    if (menuOpen) menuButton.current?.focus({ preventScroll: true });
-                    setMenuOpen(false); onOpenChangelog();
-                  }}><Icon name="file" />{ui.changelog.nav}</button>
               </div>
             )}
           </div>

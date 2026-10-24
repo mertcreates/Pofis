@@ -1,16 +1,36 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { product, ui } from "@/lib/ui-text.js";
 import Modal from "../modal.js";
 import { version } from "../../../package.json";
 import { POFI_SURPRISES } from "@/domain/rules/pofi-surprises";
+import { CHANGELOG_SEEN_KEY } from "@/domain/changelog";
 
 export default function AppFooter({ updateAvailable = false, onOpenUpdate, onOpenChangelog }) {
   const sequence = useRef(null);
   const [noteOpen, setNoteOpen] = useState(false);
+  const [isNew, setIsNew] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(CHANGELOG_SEEN_KEY) !== version) {
+        setIsNew(true);
+      }
+    } catch {
+      // Tarayıcı depolaması kapalıysa veya erişilemiyorsa sessizce devam edilir.
+    }
+  }, []);
 
   function tapVersion() {
+    if (isNew) {
+      try {
+        localStorage.setItem(CHANGELOG_SEEN_KEY, version);
+      } catch {
+        // Tarayıcı depolaması kapalıysa sessizce devam edilir.
+      }
+      setIsNew(false);
+    }
     onOpenChangelog?.(version);
     const now = performance.now();
     if (
@@ -36,6 +56,7 @@ export default function AppFooter({ updateAvailable = false, onOpenUpdate, onOpe
         <button
           type="button"
           className="app-version"
+          data-new={isNew || undefined}
           aria-label={ui.changelog.openVersion(version)}
           onClick={tapVersion}
           onBlur={(event) => {

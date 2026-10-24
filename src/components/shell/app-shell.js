@@ -62,8 +62,6 @@ export default function AppShell({
         showNotifications={!!notifications}
         notificationsOpen={notificationsOpen}
         onOpenNotifications={() => setActiveSection("notifications")}
-        changelogOpen={changelogOpen}
-        onOpenChangelog={() => openChangelog()}
       />
       <div className="app-content">
         <main>

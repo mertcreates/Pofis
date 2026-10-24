@@ -346,9 +346,9 @@ Bildirim ekranı masaüstü, web ve demoda ortak `NotificationSettings` bileşen
 
 ### Sürüm geçmişi
 
-Sürüm geçmişi menüden, footer sürümünden ve güncelleme modalından açılan bağımsız bir okuma yüzeyidir. Katalogdaki sürümler yeniden eskiye tek sütunlu dikey zaman çizgisinde gösterilir. İnce nötr çizgi ve küçük işaretler tarihsel akışı taşır; en yeni veya doğrudan hedeflenen sürüm vurgu rengini kullanır. Büyük kart yığınları, konu filtreleri ve dekoratif rozetler kullanılmaz.
+Sürüm geçmişi footer sürümünden ve güncelleme modalından açılan bağımsız bir okuma yüzeyidir. Footer'daki sürüm butonunda yeni sürüm açılana kadar beliren sakin bir vurgu noktası yer alır; tıklandığında okundu kaydedilir ve nokta kalkar. Katalogdaki sürümler yeniden eskiye tek sütunlu dikey zaman çizgisinde gösterilir. İnce nötr çizgi ve küçük işaretler tarihsel akışı taşır; en yeni veya doğrudan hedeflenen sürüm vurgu rengini kullanır. Büyük kart yığınları, konu filtreleri ve dekoratif rozetler kullanılmaz.
 
-Her durakta sürüm numarası ana başlık, yayın tarihi ikincil bilgi olur. İçerik yalnız dolu **Yenilikler**, **Düzeltmeler** ve **Bakım** gruplarını gösterir; masaüstünde grup adı ile maddeler iki sütunda, 600 px altında tek sütunda akar. Kurulu sürüm katalogda bulunuyorsa küçük **Bu sürüm** işareti taşır. Menü ekranın başına, footer kurulu sürümün durağına, güncelleme modalı yeni sürümün durağına odaklanır. Hedef public katalogda da bulunamazsa en yeni bilinen sürüm açılır. Giriş ekranından footer ile açıldığında **Girişe dön** eylemi görünür.
+Her durakta sürüm numarası ana başlık, yayın tarihi ikincil bilgi olur. İçerik yalnız dolu **Yenilikler**, **Düzeltmeler** ve **Bakım** gruplarını gösterir; masaüstünde grup adı ile maddeler iki sütunda, 600 px altında tek sütunda akar. Kurulu sürüm katalogda bulunuyorsa küçük **Bu sürüm** işareti taşır. Footer kurulu sürümün durağına, güncelleme modalı yeni sürümün durağına odaklanır. Hedef public katalogda da bulunamazsa en yeni bilinen sürüm açılır. Giriş ekranından footer ile açıldığında **Girişe dön** eylemi görünür.
 
 ### Pofi Mini
 
