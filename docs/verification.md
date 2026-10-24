@@ -149,7 +149,11 @@ Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulam
 
 ## Pofi Mini kabulü
 
-[Mini pencere davranış testleri](../electron/mini-window.test.cjs) konum, tek pencere, sabitleme, kapanış ve IPC gönderen doğrulamasını sınar. İlk açılışta tek yükleme, yükleme hatasından sonra toparlanma, hızlı aç/kapat, yüklemede gizleme ve durdurma da kapsanır. [Arka plan testleri](../electron/background.test.cjs) sol/sağ tıklama, ana pencereyi gösterme ve gerçek çıkış ayrımını doğrular.
+[Mini pencere davranış testleri](../electron/mini-window.test.cjs) konum, tek pencere, sabitleme, kapanış ve IPC gönderen doğrulamasını sınar. İlk açılışta tek yükleme, tekrar açılışta gezinmeden gösterme, yükleme/renderer hatasından sonra toparlanma, hızlı aç/kapat, ekran değişiminde sınırlandırma, dinleyici temizliği, yüklemede gizleme ve durdurma da kapsanır. macOS Spaces API çağrısı taklit adaptörle denetlenir. [Arka plan testleri](../electron/background.test.cjs) sol/sağ tıklama, ana pencereyi gösterme ve gerçek çıkış ayrımını doğrular.
+
+[PDKS yaşam döngüsü testi](../src/data/pdks-lifecycle.test.ts), gerçek React hook'unu izole Electron renderer'ında sahte HTTP/köprü yanıtlarıyla çalıştırır. HTTP/olay yarışı, eski/eşit zamanlı rapor, arka plan hatası ve toparlanma, tekrar görünürken tek doğrulama, hafta/hesap değişimi, gecikmiş oturum yanıtı ve abonelik temizliği denetlenir. Gerçek PDKS veya kullanıcı profili kullanılmaz. [Saat testleri](../src/data/clock.test.ts) gizliyken timer kurulmadığını ve görünürlük dönüşünde gerçek zamana geçildiğini doğrular.
+
+İlk yükleme sırasında çöken Mini'nin geciken yükleme sonucu yeni pencereyi gösteremez, kapatamaz veya yükleme durumunu temizleyemez. [Pencere testi](../electron/mini-window.test.cjs) eski yüklemenin başarı ve hata sonuçlarını yeni açılış ve hızlı tıklamalarla birlikte sınar.
 
 [Bildirim adaptörü testleri](../src/desktop/install-notifications.test.ts) rapor, hesap geçişi ve oturum bitişinin Mini'ye iletilmesini ve Mini'nin yalnız yenileme çağırabilmesini doğrular. [Plan depolama testleri](../src/data/work-plans.test.ts) diğer pencerenin değişikliğini, canlı/demo ayrımını, temizleme olayını, bozuk kaydın korunmasını ve abonelik temizliğini sınar. [Mini sunum testleri](../src/components/mini/mini-dashboard.test.tsx) saniyeli hedef/kalan/aşan süreyi ve yükleniyor/bağlantısız/hata ayrımını gerçek bileşeni statik sunarak kontrol eder; React effect yaşam döngüsünü ve CSS yerleşimini kanıtlamaz.
 

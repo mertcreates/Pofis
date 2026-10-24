@@ -15,7 +15,7 @@
 .pofi-mini-header, .pofi-mini-brand, .pofi-mini-week-heading {
   display: flex; align-items: center; justify-content: space-between;
 }
-.pofi-mini-header { -webkit-app-region: drag; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.pofi-mini-header { -webkit-app-region: drag; flex-wrap: wrap; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
 .pofi-mini-brand { justify-content: start; gap: 10px; }
 .pofi-mini-pin { -webkit-app-region: no-drag; }
 .pofi-mini-brand img { width: 34px; height: 34px; object-fit: contain; }

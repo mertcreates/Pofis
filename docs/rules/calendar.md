@@ -21,6 +21,7 @@ Tarihsel ileri saat geçişinde, geçiş öncesi kaynak saatleri eski UTC farkı
 - [report-response.ts](../../src/data/report-response.ts)
 - [week-calendar.ts](../../src/components/dashboard/week-calendar.ts), [WeekPicker](../../src/components/dashboard/week-picker.tsx): ay gezinmesi ve ayla kesişen pazartesiler.
 - [time.ts](../../src/domain/time.ts): tarih aralığı etiketleri; başka yıl ve yıl sınırında açık yıl gösterimi.
+- [clock.ts](../../src/data/clock.ts) ve [use-clock.ts](../../src/data/use-clock.ts): saniyelik veya İstanbul gece yarısına ayarlı istemci saati. Belge gizliyken timer kurulmaz; `visibilitychange` ile görünür olduğunda gerçek saat okunur ve timer yeniden kurulur. Abonelik kaldırıldığında timer ve görünürlük dinleyicisi temizlenir.
 - [Yemek tarihleri](../../src/lib/meals/dates.ts) ve [tarih seçici](../../src/components/meals/date-picker.tsx): ortak gün/hafta hesapları ve saat dilimi; yemeğe özgü aralık ve ay gezinmesi [menü sözleşmesindedir](meal-menu.md).
 
 ## Testler

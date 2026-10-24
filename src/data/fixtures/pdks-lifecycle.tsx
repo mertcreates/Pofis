@@ -1,0 +1,127 @@
+import { createRoot } from "react-dom/client";
+import { usePdks } from "../use-pdks";
+import type { NotificationStatus, NotificationReport } from "@/desktop/notification-contract";
+import { defaultNotificationPreferences } from "@/domain/rules/notifications";
+
+const week = "2026-10-19";
+const report = (name: string, at: number): NotificationReport => ({
+  person: { id: "self", name, title: "", unit: "" }, from: week, to: "2026-10-25",
+  fetchedAt: new Date(at).toISOString(), passages: [],
+  notificationSession: { accountId: "a".repeat(64), expiresAt: Date.now() + 60_000 },
+});
+let source = report("initial", 1000);
+let connected = true;
+let hold = true;
+let release: (() => void) | undefined;
+let sessions = 0, reports = 0, refreshes = 0;
+let visible = true;
+Object.defineProperty(document, "visibilityState", { get: () => visible ? "visible" : "hidden" });
+const statusListeners = new Set<(value: NotificationStatus) => void>();
+const reportListeners = new Set<(value: NotificationReport) => void>();
+const expiryListeners = new Set<() => void>();
+const bridge = {
+  refresh: async () => { refreshes++; },
+  subscribe: (fn: (value: NotificationStatus) => void) => { statusListeners.add(fn); return () => { statusListeners.delete(fn); }; },
+  onReport: (fn: (value: NotificationReport) => void) => { reportListeners.add(fn); return () => { reportListeners.delete(fn); }; },
+  onExpired: (fn: () => void) => { expiryListeners.add(fn); return () => { expiryListeners.delete(fn); }; },
+};
+window.pofisNotifications = bridge as typeof window.pofisNotifications;
+window.fetch = (async (input: RequestInfo | URL) => {
+  if (String(input).startsWith("/api/session")) { sessions++; return Response.json({ connected }); }
+  reports++;
+  const snapshot = source;
+  // Deliberately ignore AbortSignal to prove generation/cancellation also rejects a late response.
+  if (hold) await new Promise<void>(resolve => { release = resolve; });
+  return Response.json(snapshot);
+}) as typeof window.fetch;
+let state: ReturnType<typeof usePdks>;
+let selectedWeek = week;
+function Harness() { state = usePdks(selectedWeek, { observeDesktopSession: true }); return null; }
+const root = createRoot(document.getElementById("root")!);
+root.render(<Harness />);
+const wait = async (condition: () => boolean) => {
+  const start = performance.now();
+  while (!condition()) {
+    if (performance.now() - start > 3000) throw new Error(`Timed out: ${condition}`);
+    await new Promise(resolve => setTimeout(resolve, 5));
+  }
+};
+const check = (condition: boolean, message: string) => { if (!condition) throw new Error(message); };
+const emitStatus = (active: boolean, refreshError = "") => {
+  for (const fn of statusListeners) fn({ active, refreshError, preferences: defaultNotificationPreferences(),
+    telegram: { connected: false, label: "" }, nativeSupported: true, secureStorageAvailable: true,
+    lastRefreshAt: null, deliveryErrors: {} });
+};
+const push = (value: NotificationReport) => { for (const fn of reportListeners) fn(value); };
+const settle = () => new Promise(resolve => setTimeout(resolve, 30));
+
+(window as any).runLifecycle = async () => {
+  await wait(() => !!release && state?.busy === "report");
+  push(report("pushed", 2000));
+  await wait(() => state.report?.person.name === "pushed");
+  release!(); hold = false;
+  await settle();
+  check(state.report?.person.name === "pushed", "Late HTTP response overwrote the pushed report");
+  push(report("older", 1500)); await settle();
+  check(state.report?.person.name === "pushed", "Older report event overwrote newer data");
+  check(refreshes === 0, "Mini triggered a redundant background report request");
+
+  source = report("current", 3000);
+  emitStatus(true);
+  await wait(() => state.report?.person.name === "current");
+  emitStatus(true, "temporary network error");
+  await wait(() => state.stale && !!state.failure);
+  push(report("recovered", 4000));
+  await wait(() => !state.stale && !state.failure);
+
+  source = report("manual refresh", 4500); hold = true; release = undefined;
+  const manual = state.refresh();
+  await wait(() => !!release && state.busy === "report");
+  push(report("same cached response", 4000)); await settle();
+  check(state.busy === "report", "Equal cached report cancelled a newer refresh");
+  release!(); hold = false; await manual;
+  await wait(() => state.report?.person.name === "manual refresh");
+
+  const before = { sessions, reports };
+  visible = false; document.dispatchEvent(new Event("visibilitychange"));
+  await settle();
+  check(sessions === before.sessions && reports === before.reports, "Hiding requested data");
+  source = report("reopened", 5000);
+  visible = true; document.dispatchEvent(new Event("visibilitychange"));
+  await wait(() => state.report?.person.name === "reopened");
+  check(sessions === before.sessions + 1 && reports === before.reports + 1, "Reopening must revalidate once");
+
+  hold = true; release = undefined;
+  const previousWeekRequest = state.refresh();
+  await wait(() => !!release);
+  const releasePreviousWeek = release!;
+  hold = false;
+  selectedWeek = "2026-10-26";
+  source = { ...report("next week", 5500), from: selectedWeek, to: "2026-11-01" };
+  root.render(<Harness />);
+  await wait(() => state.report?.person.name === "next week");
+  releasePreviousWeek(); await previousWeekRequest;
+  push(report("late previous week", 6000)); await settle();
+  check(state.report?.from === selectedWeek && state.report.person.name === "next week", "Previous week response replaced the selected week");
+  selectedWeek = week; source = report("current week", 6500);
+  root.render(<Harness />);
+  await wait(() => state.report?.person.name === "current week");
+
+  connected = false; emitStatus(false);
+  await wait(() => state.connected === false && state.report === null);
+  push(report("old account", 6000)); await settle();
+  check(state.report === null, "Disconnected account accepted a pushed report");
+  connected = true; source = report("new account", 7000); emitStatus(true);
+  await wait(() => state.report?.person.name === "new account");
+  hold = true; release = undefined;
+  const pending = state.refresh();
+  await wait(() => !!release);
+  for (const fn of expiryListeners) fn();
+  await wait(() => state.connected === false);
+  release!(); await pending; await settle();
+  check(state.report === null, "Expired session revived a delayed report");
+  root.unmount();
+  check(statusListeners.size + reportListeners.size + expiryListeners.size === 0, "Bridge listeners leaked");
+  return { reportRace: true, olderPush: true, backgroundFailureRecovery: true, revalidateOnShow: true,
+    weekChange: true, accountSwitch: true, lateExpiry: true, cleanup: true, redundantRefreshes: refreshes };
+};

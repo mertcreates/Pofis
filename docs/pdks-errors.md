@@ -49,6 +49,8 @@ Tam sayfa hata ve rapor üzerindeki kompakt bildirim ortak [RequestError](../src
 
 Teknik ayrıntılar kutusuz İz kaydı düzeninde sürekli görünür. “Sorunun nedeni” güvenli açıklama, hata kodu ve kısa İstanbul zamanını içerir. “İstek ayrıntıları” Pofis API ve PDKS alanlarını kendi isteklerinin altında toplar; verisi bulunmayan kaynak grubu çizilmez. API ve PDKS HTTP durumları kendi istek bağlamında gösterilir. Alanlar yalnız boşlukla ayrılır, uzun yollar satır kırar. “Teknik ayrıntıları kopyala” tüm izinli alanları ve özgün zaman damgasını kopyalar; başarı veya erişim reddi durum metniyle bildirilir.
 
+Masaüstünden gelen doğrulanmış güncel rapor, aynı haftanın bekleyen HTTP rapor isteğini iptal edip nesil sayacını ilerletir; geciken yanıt yeni raporu ezemez. Daha eski `fetchedAt` taşıyan olay reddedilir. Devam eden yenileme sırasında mevcut raporla aynı alınma zamanına sahip önbellek olayı yeni isteği iptal etmez. Mini'nin abone olduğu arka plan yenileme hatası mevcut hata/tazelik durumuna aktarılır; başarılı rapor hatayı temizler ve canlı tahmini yeniden açar. İş kuralları [rapor ve süre sahiplerinde](rules/README.md) kalır.
+
 ## Uygulama içi hata ve yerel bildirimler
 
 Rapor hazırlığı veya saat izdüşümündeki beklenmeyen istisnalar [DashboardView](../src/components/dashboard/view.tsx) veya [ReportContent](../src/components/dashboard/report-content.tsx) üzerinden Next.js hata sınırına ulaşır. [error.tsx](../src/app/error.tsx) güvenli Pofi hata ekranını ve framework yeniden denemesini sunar. `runtime` hatasının kullanıcı sunumu güvenli genel mesajdan oluşur. İz kaydında hata sınıfı ve zaman gösterilir; istek bölümü yalnız gerçek istek alanları bulunduğunda çizilir.

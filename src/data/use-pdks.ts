@@ -21,6 +21,7 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   const generation = useRef(0);
   const mutationInFlight = useRef(false);
   const desktopActive = useRef<boolean | null>(null);
+  const [refreshVersion, requestRefresh] = useReducer((value: number) => value + 1, 0);
 
   const fail = useCallback((error: unknown, operation: PdksOperation) => {
     const failure = toRequestFailure(error, operation);
@@ -35,9 +36,15 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   const onExpired = useEffectEvent((error: unknown) => fail(error, "session"));
   const onDesktopReport = useEffectEvent((value: NotificationReport) => {
     if (observeDesktopSession && desktopActive.current === false) return;
-    if (!connected || state.busy || mutationInFlight.current || value.from !== week) return;
+    if (!connected || (state.busy && state.busy !== "report") || mutationInFlight.current || value.from !== week) return;
     try {
       const next = readReportResponse(value, week, addDays(week, 6));
+      if (report?.from === next.from && report.to === next.to) {
+        const difference = Date.parse(next.fetchedAt) - Date.parse(report.fetchedAt);
+        if (difference < 0 || (difference === 0 && state.busy === "report")) return;
+      }
+      requests.cancel();
+      generation.current++;
       setAnalyticsUserId(readAnalyticsUserId(value));
       dispatch({ type: "report-loaded", report: next });
     } catch (error) { fail(error, "report"); }
@@ -68,13 +75,17 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
       const sessionConnected = readSessionResponse(result, "/api/session", "GET");
       if (!sessionConnected) setAnalyticsUserId(null);
       dispatch({ type: "session-checked", connected: sessionConnected });
+      return sessionConnected;
     } catch (error) {
       if (!signal?.aborted && id === generation.current) fail(error, "session");
     }
   }, [fail]);
 
   const onDesktopStatus = useEffectEvent((status: NotificationStatus) => {
-    if (desktopActive.current === status.active) return;
+    if (desktopActive.current === status.active) {
+      if (status.active && status.refreshError) fail(new Error(status.refreshError), "report");
+      return;
+    }
     desktopActive.current = status.active;
     requests.cancel();
     generation.current++;
@@ -86,6 +97,17 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   useEffect(() => {
     if (!observeDesktopSession || !window.pofisNotifications) return;
     return window.pofisNotifications.subscribe(onDesktopStatus);
+  }, [observeDesktopSession]);
+
+  const onVisible = useEffectEvent(async () => {
+    if (document.visibilityState !== "visible" || state.busy || mutationInFlight.current) return;
+    const wasConnected = connected;
+    if (await checkSession() && wasConnected) requestRefresh();
+  });
+  useEffect(() => {
+    if (!observeDesktopSession || !window.pofisNotifications) return;
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, [observeDesktopSession]);
 
   useEffect(() => {
@@ -111,18 +133,18 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
       const nextReport = readReportResponse(result, week, addDays(week, 6));
       setAnalyticsUserId(readAnalyticsUserId(result));
       dispatch({ type: "report-loaded", report: nextReport });
-      void window.pofisNotifications?.refresh().catch(() => console.warn(ui.serverDiagnostics.backgroundRefreshFailed));
+      if (!observeDesktopSession) void window.pofisNotifications?.refresh().catch(() => console.warn(ui.serverDiagnostics.backgroundRefreshFailed));
     } catch (error) {
       if (id === generation.current) fail(error, "report");
     }
-  }, [connected, week, requests, fail]);
+  }, [connected, week, requests, fail, observeDesktopSession]);
 
   useEffect(() => {
     void load();
     return () => {
       requests.cancel();
     };
-  }, [load, requests]);
+  }, [load, requests, refreshVersion]);
 
   const connect = useCallback(async (form: HTMLFormElement) => {
     if (mutationInFlight.current) return;

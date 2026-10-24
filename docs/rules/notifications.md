@@ -20,6 +20,8 @@ Her bildirim türü için masaüstü ve Telegram ayrı ayrı açılır. Varsayı
 
 Güncel haftanın raporu açılışta ve 30 dakikada bir ana süreçten yenilenir. Görünen geçmiş hafta bu işi değiştirmez. Başarılı manuel yenileme arka plan raporunun yenilenmesini de ister. Ekran planın bütün kayıtlarını doğrulanmış mevcut serileştirmeyle ana sürece aktarır; plan değişikliğinde hedef yeniden hesaplanır.
 
+Eşzamanlı plan senkronizasyonlarında son istek geçerlidir. Eski isteğin geciken oturum yanıtı veya hatası yeni oturumu durduramaz ve eski planı tekrar deneme kuyruğuna yazamaz. Yeni istek önceki bekleyen plan tekrarını kaldırır; geçici hatada yalnız son plan yeniden denenir.
+
 Son başarılı raporda güvenilir açık giriş varsa geçici ağ/yenileme hatası bildirimleri durdurmaz. Görünümün eski rapor nedeniyle canlı tahmini durdurması kendi sözleşmesini korur; bildirimler son bilinen giriş ve güncel planla sürer. Yeni raporda çıkış, belirsiz hedef veya kapalı gün bulunursa mesai bildirimi üretilmez. Önceki günün açık girişi bugüne taşınmaz.
 
 Ana süreç 15 saniyede bir zamanı değerlendirir. Ön bildirim hedefin seçilen dakika öncesinde, tamamlanma bildirimi hedef anında oluşur. Bir dakikalık geçerlilik aralığı küçük işlem gecikmelerini karşılar. Ön bildirim hedef anında sona erer. Açılıştan veya tercihlerin kaydedilmesinden önceki eşikler gönderilmez. Uyku dönüşünde rapor yenilemesi başlatılır ve uyanmadan önceki eşikler atlanır. Süren veya başarısız yenilemede aynı günün son bilinen açık girişiyle sonraki eşikler değerlendirilmeye devam eder.

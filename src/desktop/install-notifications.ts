@@ -33,7 +33,8 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
     for (const window of [getWindow(), getMiniWindow?.()]) {
       if (!window || window.isDestroyed()) continue;
       const contents = window.webContents;
-      if (!contents.isDestroyed() && new URL(contents.mainFrame.url).origin === origin) contents.send(name, value);
+      if (!contents.isDestroyed() && URL.canParse(contents.mainFrame.url) &&
+          new URL(contents.mainFrame.url).origin === origin) contents.send(name, value);
     }
   }
   async function request(path: string, signal: AbortSignal, method = "GET") {

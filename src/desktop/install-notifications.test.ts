@@ -103,6 +103,9 @@ test("Mini güncel raporu, hesap geçişini ve oturum bitişini alır; yalnız y
     await invoke(main, "sync", plans);
     expect(mini.sent.at(-1)?.name).toBe("pofis:notifications:expired");
     const count = mini.sent.length;
+    mini.mainFrame.url = "";
+    expect(() => notification.pause()).not.toThrow();
+    expect(mini.sent).toHaveLength(count);
     mini.mainFrame.url = "https://example.invalid/mini";
     notification.pause();
     expect(mini.sent).toHaveLength(count);

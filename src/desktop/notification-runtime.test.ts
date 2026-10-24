@@ -98,6 +98,36 @@ function fixture() {
     identity: (value: NotificationSession | null) => { identity = value; }, reports: () => reports };
 }
 
+test.each(["NETWORK_ERROR", "SESSION_EXPIRED"])("geciken eski plan hatası yeni planı veya oturumu bozamaz (%s)", async code => {
+  const f = fixture(); await f.runtime.sync(plans); await f.runtime.refresh();
+  const read = f.deps.readSession;
+  let rejectOld!: (error: Error) => void;
+  f.deps.readSession = () => new Promise((_resolve, reject) => { rejectOld = reject; });
+  const old = f.runtime.sync(plans).catch(error => error);
+  let sessionReads = 0;
+  f.deps.readSession = async () => { sessionReads++; return read(); };
+  const nextPlans = JSON.stringify({ defaultPlan: [480, 480, 540, 480, 480, 0, 0], weekOverrides: {} });
+  await f.runtime.sync(nextPlans);
+  rejectOld(Object.assign(new Error("offline"), { code })); await old;
+  f.time("16:40:31"); await f.runtime.tick(); await Bun.sleep(0);
+  expect(f.goals.at(-1)?.at).toBe(at("18:00:00"));
+  expect(f.runtime.status().active).toBe(true);
+  expect(sessionReads).toBe(1);
+});
+
+test("eski senkronizasyonun bağlantısız yanıtı yeni doğrulanmış oturumu kapatamaz", async () => {
+  const f = fixture(); await f.runtime.sync(plans); await f.runtime.refresh();
+  const read = f.deps.readSession;
+  let release!: (value: NotificationSession | null) => void;
+  f.deps.readSession = () => new Promise(resolve => { release = resolve; });
+  const old = f.runtime.sync(plans);
+  f.deps.readSession = read;
+  await f.runtime.sync(plans);
+  release(null); await old;
+  expect(f.runtime.status().active).toBe(true);
+  expect(f.goals.at(-1)?.at).toBe(at("17:00:00"));
+});
+
 test("Keychain şifrelemeyi reddederse Telegram bağlantısı veya açık token kaydedilmez", async () => {
   const f = fixture(); await f.runtime.sync(plans);
   f.deps.seal = () => { throw new Error("Keychain access denied"); };

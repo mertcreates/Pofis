@@ -13,6 +13,7 @@ function miniPosition(bounds, area, width, height, platform) {
 function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, showMain, isQuitting, icon }) {
   let mini = null;
   let loading = null;
+  let loaded = false;
   let pinned = false;
   let visible = false;
   let anchorBounds;
@@ -36,14 +37,18 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
     const anchor = movedBounds || anchorBounds;
     const point = { x: anchor.x + anchor.width / 2, y: anchor.y + anchor.height / 2 };
     const { workArea } = screen.getDisplayNearestPoint(point);
+    const fittedWidth = Math.min(width, Math.max(1, workArea.width - 16));
     const fittedHeight = Math.min(height, 600, Math.max(1, workArea.height - 16));
     const position = movedBounds ? {
-      x: Math.max(workArea.x, Math.min(workArea.x + workArea.width - width, movedBounds.x)),
+      x: Math.max(workArea.x, Math.min(workArea.x + workArea.width - fittedWidth, movedBounds.x)),
       y: Math.max(workArea.y, Math.min(workArea.y + workArea.height - fittedHeight, movedBounds.y)),
-    } : miniPosition(anchorBounds, workArea, width, fittedHeight, platform);
-    mini.setSize(width, fittedHeight);
+    } : miniPosition(anchorBounds, workArea, fittedWidth, fittedHeight, platform);
+    mini.setSize(fittedWidth, fittedHeight);
     mini.setPosition(position.x, position.y);
   }
+  const refit = () => { if (valid() && visible) fit(); };
+  screen.on("display-metrics-changed", refit);
+  screen.on("display-removed", refit);
   ipcMain.handle("pofis:mini:resize", (event, nextHeight) => {
     authorize(event);
     if (!Number.isFinite(nextHeight) || nextHeight <= 0) throw new Error("Pofi Mini boyutu geçersiz.");
@@ -78,6 +83,7 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
       webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, preload },
     });
     mini.setAlwaysOnTop(pinned, "floating");
+    if (platform === "darwin") mini.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
     mini.on("will-move", (_event, bounds) => { movedBounds = bounds; });
     mini.on("blur", () => { if (!pinned && !isQuitting()) hide(); });
     mini.on("close", event => {
@@ -85,7 +91,8 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
       event.preventDefault();
       hide();
     });
-    mini.on("closed", () => { mini = null; visible = false; });
+    mini.on("closed", () => { mini = null; visible = false; loaded = false; loading = null; });
+    mini.webContents.on("render-process-gone", () => { if (valid()) mini.destroy(); });
     mini.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
     mini.webContents.on("will-navigate", (event, url) => {
       if (new URL(url).origin !== ORIGIN) event.preventDefault();
@@ -107,20 +114,30 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
     movedBounds = null;
     if (loading) return loading;
     ensure();
-    // One navigation per opening; concurrent toggles only change the desired visibility.
-    loading = mini.loadURL(`${ORIGIN}/mini`);
+    if (loaded) {
+      fit();
+      mini.show();
+      mini.focus();
+      return;
+    }
+    const openingWindow = mini;
+    const pending = openingWindow.loadURL(`${ORIGIN}/mini`);
+    loading = pending;
     try {
-      await loading;
-      if (!valid() || !visible || stopped || isQuitting()) return;
+      await pending;
+      if (mini !== openingWindow || !valid()) return;
+      loaded = true;
+      if (!visible || stopped || isQuitting()) return;
       fit();
       mini.show();
       mini.focus();
     } catch (error) {
+      if (mini !== openingWindow || stopped) return;
       hide();
       if (valid()) mini.destroy();
       throw error;
     } finally {
-      loading = null;
+      if (loading === pending) loading = null;
     }
   }
 
@@ -131,6 +148,8 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
     stop: () => {
       stopped = true;
       visible = false;
+      screen.removeListener("display-metrics-changed", refit);
+      screen.removeListener("display-removed", refit);
       ipcMain.removeHandler("pofis:mini:get");
       ipcMain.removeHandler("pofis:mini:pin");
       ipcMain.removeHandler("pofis:mini:open-main");

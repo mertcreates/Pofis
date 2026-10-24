@@ -14,8 +14,9 @@ export function startClock(onTick: (now: number) => void, cadence: ClockCadence,
   function wake() {
     if (stopped) return;
     clearTimer(timer);
+    if (!isVisible()) return;
     const at = now();
-    if (isVisible()) onTick(at);
+    onTick(at);
     const delay = cadence === "second" ? 1000
       : sourceTimestamp(addDays(dateKey(at), 1), "00:00:00")! - at;
     timer = setTimer(wake, delay);

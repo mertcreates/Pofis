@@ -57,6 +57,7 @@ export function createNotificationRuntime(deps: Dependencies) {
   let mutations: Promise<unknown> = Promise.resolve();
   let pendingSync: string | null = null;
   let lastSyncAttempt = 0;
+  let syncVersion = 0;
   let telegramVersion = 0;
 
   function status(): NotificationStatus {
@@ -97,17 +98,19 @@ export function createNotificationRuntime(deps: Dependencies) {
   async function sync(rawPlans: string) {
     if (typeof rawPlans !== "string" || rawPlans.length > 1_000_000) throw new Error(ui.notificationErrors.plansUnreadable);
     plans = readStoredPlans(rawPlans);
+    const attempt = ++syncVersion;
+    pendingSync = null;
     const version = generation;
     lastSyncAttempt = now();
     let next;
     try { next = await deps.readSession(controller.signal); }
     catch (error) {
-      if (version !== generation) return status();
+      if (version !== generation || attempt !== syncVersion) return status();
       if ((error as { code?: string }).code === "SESSION_EXPIRED") { expire(); return status(); }
       pendingSync = rawPlans;
       throw error;
     }
-    if (version !== generation) return status();
+    if (version !== generation || attempt !== syncVersion) return status();
     pendingSync = null;
     if (!next) { pause(); return status(); }
     const verified = readNotificationSession(next);
@@ -116,7 +119,7 @@ export function createNotificationRuntime(deps: Dependencies) {
       pause();
       const loadingGeneration = generation;
       const loaded = await deps.store.load(verified.accountId);
-      if (loadingGeneration !== generation) return status();
+      if (loadingGeneration !== generation || attempt !== syncVersion) return status();
       account = loaded; session = verified;
       if (loaded.telegram) {
         try { credentials = deps.unseal(loaded.telegram); }

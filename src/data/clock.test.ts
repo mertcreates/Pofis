@@ -38,6 +38,8 @@ test("day clock schedules Istanbul midnight and catches up after a hidden tab", 
   expect(f.ticks.at(-1)).toBe(Date.parse("2026-10-19T00:00:00+03:00"));
   expect(f.delay).toBe(24 * 60 * 60 * 1000);
   f.visible(false);
+  f.clock.wake();
+  expect(f.pending).toBe(false);
   f.at("2026-10-20T00:00:00+03:00");
   f.fire();
   expect(f.ticks).toHaveLength(2);
@@ -59,6 +61,13 @@ test("second clock reads elapsed wall time, pauses hidden output and cleans up",
   f.visible(false);
   f.fire();
   expect(f.ticks).toHaveLength(2);
+  expect(f.pending).toBe(false);
+  const hiddenCount = f.scheduled;
+  for (let index = 0; index < 60; index++) f.fire();
+  expect(f.scheduled).toBe(hiddenCount);
+  f.visible(true);
+  f.clock.wake();
+  expect(f.pending).toBe(true);
   f.clock.stop();
   const count = f.scheduled;
   f.clock.wake();
