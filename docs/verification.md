@@ -31,6 +31,10 @@ Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron
 | Dağıtım | [Kurum ortamı kabulü](deployment.md#dağıtım-kabulü) |
 | Belge | Diff, yerel bağlantılar, kod sahibiyle tutarlılık ve `bun test src/domain/rules/rules.test.ts` |
 
+### Buton ve bağlantı etkileşimleri
+
+Giriş → footer sürüm numarası → **Girişe dön** zincirini ve güncelleme modalındaki metin eylemlerini açık/koyu temada, masaüstü ve dar ekranda kontrol edin. Hover sırasında kontrolün ölçüsü ve iç boşluğu değişmemeli; zemin, [tasarım sözleşmesindeki](../DESIGN.md#etkileşim-ve-formlar) boşluğu korumalıdır. Tab/Shift+Tab ile odak görünürlüğünü ve Enter/Space ile butonun beklenen eylemini doğrulayın. Bildirim ekranındaki etkin ve devre dışı kontrolleri de karşılaştırın; sayfa yatay taşmamalıdır.
+
 ### Ortak kural ve adaptör testleri
 
 | Test | Kanıtladığı davranış |

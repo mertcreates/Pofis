@@ -370,24 +370,6 @@
 .chart-foot > span:last-child {
   text-align: right;
 }
-.text-button {
-  border: none;
-  background: transparent;
-  display: flex;
-  gap: 4px;
-  align-items: center;
-  color: var(--accent);
-  font-weight: 500;
-  padding: 8px 0;
-  font-size: 12px;
-}
-.text-button .ui-icon {
-  width: 14px;
-  height: 14px;
-}
-.text-button:hover {
-  text-decoration: underline;
-}
 .record-counts { margin: 4px 0 0; color: var(--secondary); font-size: 12px; line-height: 1.5; }
 .record-intervals { list-style: none; padding: 0; margin: 16px 0 0; }
 .record-intervals > li { padding: 12px 0; }
@@ -1268,15 +1250,6 @@ body {
   font-size: 12px;
   margin-top: 12px;
   gap: 12px;
-}
-.dashboard-card .text-button {
-  border: 0;
-  min-height: 40px;
-  font-size: 12px;
-  padding: 8px 0;
-}
-.dashboard-card .text-button:hover:not(:disabled) {
-  background: transparent;
 }
 .connection {
   margin: 65px auto;

@@ -219,9 +219,22 @@ small {
 }
 b, strong { font-weight: 600; }
 .text-button {
-  border-color: transparent;
-  padding-inline: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  max-width: 100%;
+  border: 0;
+  padding: 8px 12px;
   background: transparent;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+}
+.text-button .ui-icon {
+  width: 14px;
+  height: 14px;
 }
 .connection {
   max-width: 980px;

@@ -14,7 +14,8 @@
   font-size: 14px;
 }
 .app-footer .desktop-update-trigger {
-  padding: 0 4px;
+  min-height: var(--control-sm);
+  padding: 4px 8px;
   font-size: inherit;
 }
 .desktop-update-content {
@@ -26,7 +27,6 @@
 }
 .desktop-update-history {
   justify-self: start;
-  padding-inline: 0;
   color: var(--accent);
   font-size: 14px;
 }
