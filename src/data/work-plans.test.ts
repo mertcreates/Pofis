@@ -1,4 +1,20 @@
 import { expect, test } from "bun:test";
+import { initializeScenarioPlans } from "./work-plans";
+import { createScenarioRuntime } from "@/desktop/scenario-runtime";
+
+test("senaryo planı revizyon başına bir kez kurulur; ikinci pencere kullanıcı düzenlemesini ezmez", () => {
+  const values = new Map<string, string>();
+  const storage = { getItem: (key: string) => values.get(key) ?? null, setItem: (key: string, value: string) => { values.set(key, value); } };
+  const runtime = createScenarioRuntime({ realNow: () => Date.parse("2026-10-24T10:00:00+03:00") });
+  initializeScenarioPlans(storage, runtime.snapshot());
+  storage.setItem("pofis:work-plans:v1", "user edit");
+  initializeScenarioPlans(storage, runtime.snapshot());
+  expect(storage.getItem("pofis:work-plans:v1")).toBe("user edit");
+  runtime.select("leave");
+  initializeScenarioPlans(storage, runtime.snapshot());
+  expect(JSON.parse(storage.getItem("pofis:work-plans:v1")!).weekLeaves).toEqual({ "2026-10-19": [2] });
+  expect(storage.getItem("demo:pofis:work-plans:v1")).toBeNull();
+});
 import { subscribeWorkPlans, workPlanStorage } from "./work-plans";
 import type { WorkPlans } from "@/domain/rules/work-plan";
 import { emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveWeekTimes, changeWeekTime, changeWeekPlan, changeDefaultPlan, readDayPlan, readWeekPlan, resolveWeekPlan } from "@/domain/rules/work-plan";

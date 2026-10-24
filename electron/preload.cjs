@@ -1,6 +1,19 @@
 const { ui } = require("../src/lib/ui-text.js");
 const { contextBridge, ipcRenderer } = require("electron");
 
+if (process.argv.includes("--pofis-scenarios")) {
+  const seed = ipcRenderer.sendSync("pofis:scenario:clock");
+  if (!seed) throw new Error("Senaryo saati alınamadı.");
+  contextBridge.exposeInMainWorld("pofisScenario", {
+    seed: { revision: seed.revision, clock: seed.clock, plans: seed.plans },
+    onRefresh: callback => {
+      const listener = () => callback();
+      ipcRenderer.on("pofis:scenario:refresh", listener);
+      return () => ipcRenderer.removeListener("pofis:scenario:refresh", listener);
+    },
+  });
+}
+
 const invokeNotification = async (name, input) => {
   const result = await ipcRenderer.invoke(`pofis:notifications:${name}`, input);
   if (!result?.ok) throw new Error(result?.error || ui.notificationErrors.bridgeFailed);

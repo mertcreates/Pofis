@@ -10,16 +10,19 @@ function showWindow({ app, window, platform }) {
 
 function installBackground({ app, window, Tray, Menu, nativeImage, icon, platform, showWindow,
   toggleMini = showWindow, isQuitting, login = null, menuClock = null, now = Date.now,
-  interval = setInterval, cancelInterval = clearInterval }) {
+  interval = setInterval, cancelInterval = clearInterval, extraMenu = () => [] }) {
   const image = nativeImage.createFromPath(icon).resize({ width: platform === "darwin" ? 18 : 24 });
   if (platform === "darwin") image.setTemplateImage(true);
   const tray = new Tray(image);
   tray.setToolTip(ui.desktop.trayTooltip);
   let goal = null;
+  let lastTitle;
   function updateTitle() {
     if (platform !== "darwin") return;
     const title = menuClock?.get() === false ? "" : formatTrayCountdown(goal, now());
+    if (title === lastTitle) return;
     tray.setTitle(title, { fontType: "monospacedDigit" });
+    lastTitle = title;
   }
   const timer = platform === "darwin" ? interval(updateTitle, 15000) : null;
   timer?.unref?.();
@@ -40,6 +43,7 @@ function installBackground({ app, window, Tray, Menu, nativeImage, icon, platfor
       { label: ui.desktop.startAtLogin, type: "checkbox", checked: login.get(),
         click: item => { login.set(item.checked); tray.setToolTip(ui.desktop.trayTooltip); } },
     ] : []),
+    ...extraMenu(),
     { type: "separator" },
     { label: ui.desktop.quit, click: () => app.quit() },
   ]);
@@ -56,6 +60,10 @@ function installBackground({ app, window, Tray, Menu, nativeImage, icon, platfor
   window.on("query-session-end", () => app.quit());
   updateTitle();
   return {
+    getBounds() {
+      const bounds = tray.getBounds();
+      return bounds.width > 0 && bounds.height > 0 ? bounds : undefined;
+    },
     setGoal(value) { goal = value; updateTitle(); },
     stop() {
       if (timer !== null) cancelInterval(timer);

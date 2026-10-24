@@ -195,6 +195,7 @@ async function run() {
     console.log("PASS: paketli görsel aynı baytlarla sunuluyor; görseller doğrudan yükleniyor.");
     await until(() => evaluate("!!document.querySelector('input[name=username]') && !document.querySelector('input[name=username]').disabled"));
     assert.equal(await evaluate("typeof require + ':' + typeof process"), "undefined:undefined");
+    assert.equal(await evaluate("typeof window.pofisScenario"), "undefined");
     assert.equal(await evaluate("typeof window.pofisUpdates"), "object");
     assert.equal(await evaluate("typeof window.pofisNotifications"), "object");
     assert.equal((await evaluate("window.pofisNotifications.get()")).active, false);
@@ -299,7 +300,7 @@ async function run() {
         nodeId: miniOpenNode.nodeId, forcedPseudoClasses: [],
       });
       const pinBefore = await miniPage.send("Runtime.evaluate", {
-        expression: "(() => { const button = document.querySelector('.pofi-mini-pin'); return !button?.classList.contains('is-pinned') && button?.textContent?.trim() === 'Sabitle'; })()",
+        expression: "(() => { const button = document.querySelector('.pofi-mini-pin'); return !button?.classList.contains('is-pinned') && button?.getAttribute('aria-label') === 'Sabitle' && button?.getAttribute('aria-pressed') === 'false' && !!button?.querySelector('svg') && button.textContent.trim() === ''; })()",
         returnByValue: true,
       });
       assert.equal(pinBefore.result.value, true);
@@ -310,7 +311,7 @@ async function run() {
       assert.equal(pinClick.exceptionDetails, undefined);
       await until(async () => {
         const state = await miniPage.send("Runtime.evaluate", {
-          expression: "(() => { const button = document.querySelector('.pofi-mini-pin'); return button?.classList.contains('is-pinned') && button?.textContent?.trim() === 'Sabitlemeyi kaldır'; })()",
+          expression: "(() => { const button = document.querySelector('.pofi-mini-pin'); return button?.classList.contains('is-pinned') && button?.getAttribute('aria-label') === 'Sabitlemeyi kaldır' && button?.getAttribute('aria-pressed') === 'true' && !!button?.querySelector('svg') && button.textContent.trim() === ''; })()",
           returnByValue: true,
         });
         return state.result?.value === true;

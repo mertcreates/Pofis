@@ -10,7 +10,7 @@ function miniPosition(bounds, area, width, height, platform) {
   return { x, y };
 }
 
-function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, showMain, isQuitting, icon }) {
+function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, showMain, isQuitting, icon, additionalArguments = [], getAnchorBounds = () => undefined }) {
   let mini = null;
   let loading = null;
   let loaded = false;
@@ -34,6 +34,7 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
     }
   }
   function fit() {
+    if (!movedBounds) anchorBounds = getAnchorBounds() || anchorBounds;
     const anchor = movedBounds || anchorBounds;
     const point = { x: anchor.x + anchor.width / 2, y: anchor.y + anchor.height / 2 };
     const { workArea } = screen.getDisplayNearestPoint(point);
@@ -80,7 +81,7 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
       maximizable: false, fullscreenable: false, skipTaskbar: true,
       backgroundColor: "#FAF9FD",
       ...(platform === "darwin" ? { type: "panel" } : {}),
-      webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, preload },
+      webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, preload, additionalArguments },
     });
     mini.setAlwaysOnTop(pinned, "floating");
     if (platform === "darwin") mini.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
@@ -109,8 +110,9 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
     if (stopped || isQuitting()) return;
     if (visible) { hide(); return; }
     visible = true;
-    const point = bounds ? null : screen.getCursorScreenPoint();
-    anchorBounds = bounds || { ...point, width: 0, height: 0 };
+    const anchor = bounds || getAnchorBounds();
+    const point = anchor ? null : screen.getCursorScreenPoint();
+    anchorBounds = anchor || { ...point, width: 0, height: 0 };
     movedBounds = null;
     if (loading) return loading;
     ensure();

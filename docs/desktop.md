@@ -120,6 +120,29 @@ Aynı veya eski sürüm bildirim açmaz. Ağ, HTTP, JSON veya doğrulama hatası
 
 Kabul betiği arayüz ve IPC sonuçlarını koşul gerçekleşene kadar bekler; her durum için 10 saniye, tüm Electron kabulü için 90 saniye sınırı vardır. Kopyalama hatası senaryosunda ana süreçte görünen **Test pano hatası** kaydı beklenen test girdisidir. `--capture` görsel çıktıları kabul zincirinin sonunda `work/update-preview/` altına alır; incelemeden sonra temizle.
 
+## Paketli senaryo modu
+
+Güncel kaynaklarla `bun run desktop:package` çalıştır; ardından `bun run desktop:scenarios` son üretilen yerel paketi ayrı profilde açar. Belirli paket için `bun run desktop:scenarios <paket-klasörü>` kullan. macOS'ta hedef, içinde `Pofis.app` bulunan paket klasörüdür. Kurulu bir `.app` doğrudan `open -n /Applications/Pofis.app --args --pofis-scenarios` ile de açılabilir. Normal açılış gerçek profili kullanır; senaryo modu yalnız açıkça verilen bu bayrakla etkinleşir.
+
+Pofis simgesine sağ tık → **Senaryo modu** üzerinden durum seç. macOS uygulama menüsünde de aynı kontroller bulunur; Windows'ta uygulama menüsüne Alt ile ulaşılır. Senaryo seçimi ana pencereyi yeniden yükler; Mini sonraki açılışta aynı senaryoyu alır. **Senaryoyu sıfırla**, seçili senaryonun saatini ve planını başlangıca döndürür.
+
+| Durum | Başlangıç girdisi |
+| --- | --- |
+| Mesai sürüyor | Çarşamba 14:30; 09:00 açık giriş |
+| Hedefe 1 dakika kaldı | Çarşamba 16:59; 09:00 açık giriş |
+| Hedef aşıldı | Çarşamba 17:30; 09:00 açık giriş |
+| Mesai tamamlandı | Çarşamba 09:00 giriş, 17:00 çıkış |
+| İzinli gün | Çarşamba izin planı, hareket yok |
+| Hafta sonu | Cumartesi, hareket yok |
+| Henüz giriş yok | Çarşamba 09:30, hareket yok |
+| Belirsiz geçişler | Çarşamba iki eşleşmeyen çıkış |
+
+Günler uygulamanın açıldığı İstanbul haftasından seçilir. Ortak sanal saat gerçek geçen saniyelerle ilerler ve gün sonunda durur; işletim sistemi saati değişmez. Ana pencere, Mini ve menü çubuğu mevcut rapor, plan ve bildirim hesaplarını aynı girdilerle kullanır. **Bağlantı kesildi**, rapor isteğine hata verir. Ana ekran son raporu güncel değil olarak korur; Mini hata durumunu gösterir. İşareti kaldırmak ortak masaüstü runtime'ı üzerinden yenilemeyi başlatır. **Oturum sona erdi**, örnek oturumu bitirir; işareti kaldırmak bağlantıyı yeniden kurar. **Yavaş yanıt (2,5 sn)**, yüklenme ve yenileme durumlarını denemek içindir. Koşullar senaryo seçiminde sıfırlanır.
+
+Senaryo profili `appData/Pofis-Scenarios` altındadır; normal profil okunmaz. `--user-data-dir` verilirse senaryo profili bu klasörün `Pofis-Scenarios` alt dizinini kullanır. Plan başlangıcı revizyon başına bir kez yazılır; ikinci pencere açıldığında kullanıcının örnek plan düzenlemesi korunur. Kapanışta örnek tercihler bu ayrı profilde kalır; sonraki başlangıç senaryo planını yeniden kurar. PDKS API istekleri örnek adaptörde sonlanır. Electron oturumu yalnız kendi loopback sunucusuna erişir; Telegram gönderimi, otomatik sürüm kontrolü ve oturum açılışında başlatma kontrolü senaryo modunda kapalıdır. Gerçek PDKS, Telegram ve kurum erişimi kabulü bu modla kanıtlanmaz.
+
+Veri girdilerinin sahibi [demo senaryoları](../src/demo/desktop-scenarios.ts), geçiş ve saat sahibi [senaryo runtime'ı](../src/desktop/scenario-runtime.ts), native menü/IPC/HTTP adaptörü [Electron senaryo modülüdür](../electron/scenarios.cjs). Raporun kişi ve tarih sınırları [merkezi erişim kuralından](rules/report-access.md), izin planı [mesai planı sahibinden](rules/work-plan.md) gelir. [Mesaim demosu](demo.md) mevcut web önizlemesini sürdürür; paketli senaryolar aynı iş kurallarının ayrı bir test girdisidir.
+
 ## Yerel dağıtımı hazırlama
 
 Uygulama simgesinin tek kaynağı [pofi-mark-256.png](../public/pofi/pofi-mark-256.png) dosyasıdır. Pencere ve macOS Dock aynı PNG'yi kullanır. Paketleme, görseli değiştirmeden `dist/electron/icons/` altında ICO ve ICNS üretir; Windows EXE/kısayol simgesine ve macOS uygulama paketine işler.
@@ -326,13 +349,15 @@ Panel, Pofis ana sayfasının oturumunu ve `http://127.0.0.1:3210` origin'ini pa
 
 Panel gizliyken de ana sürecin rapor, bildirim durumu ve oturum bitişi olaylarını alır. Arka plan oturumu askıya alındığında önceki rapor temizlenir; yeniden etkinleştiğinde paylaşılan sunucu oturumu doğrulanır. Geciken eski istekler temizlenen raporu geri getiremez. Rapor yarışları ve hata sonrası tazelik [ortak istek sahibinde](pdks-errors.md#kullanıcı-davranışı), gizli saatin durması [saat adaptöründe](rules/calendar.md#kullanan-yerler) yönetilir. Diğer pencerenin plan değişikliği mevcut [plan depolama sahibinden](../src/data/work-plans.ts) okunur; demo ve canlı anahtarları ayrıdır. Plan okuma veya rapor hatası yükleniyor durumundan ayrı gösterilir. Hedef saat ve hedefe kalan/aşan süre saniyeleri korur.
 
+Açık panel, ana pencerenin tema değişikliklerini ve sistem temasını mevcut [tema sahibi](../src/data/use-appearance.ts) üzerinden izler; yeniden açmak gerekmez.
+
 Panelin günlük yerleşimi mesai durumuna göre değişir; görsel sözleşme [DESIGN](../DESIGN.md#pofi-mini) belgesindedir. Planlı mesai olmayan günde boş hedef alanları kaldırılır; varsa gerçekleşen çalışma korunur. Günlük hedef tamamlanma özeti yalnız güncel ve belirsiz olmayan veride gösterilir. Haftalık toplam ve ana pencereyi açma eylemi her günlük durumda korunur.
 
 - Pencere çerçevesiz ve 356 px genişliğindedir. Renderer içeriğin yüksekliğini `ResizeObserver` ile yalnız değiştiğinde bildirir; ana süreç geçerli sayısal yüksekliği 160–600 px ve ekranın çalışma alanıyla sınırlar. Uzun içerik gerektiğinde kayar. Yükseklik değişirken menü çubuğu/tepsiye göre konum korunur; elle taşınmış panel mevcut konumundan, ekran dışına taşmadan büyür. Yeniden açılış menü çubuğu/tepsi konumunu kullanır. Başlık alanı sürüklenebilir, sabitleme düğmesi bu sürükleme alanının dışındadır. Pencere normalde odağı kaybettiğinde gizlenir. Sabitlenirse odağı kaybettiğinde açık kalır. Sabitleme yalnız mevcut oturum için geçerlidir.
 - Menüden veya panel içinden ana pencere açılabilir. Ana pencere kapatıldığında arka plan süreci ve tray yaşamaya devam eder. Açık "Pofis'ten Çık" ve Command-Q uygulamayı ve yerel sunucuyu kapatır.
 - Konum ve boyut Electron `screen` API'sinin DIP değerlerini kullanır; ekran ölçeği tekrar uygulanmaz. Ekran kaldırıldığında veya çalışma alanı/ölçeği değiştiğinde görünür panel yeniden sınırlandırılır; dar çalışma alanında genişlik de küçülür. Dinleyiciler kapanışta kaldırılır. macOS `panel` penceresi oluşturulurken `setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true })` uygulanır; diğer platformlarda çağrılmaz. Bu seçeneklerin gerçek Spaces/tam ekran sonucu cihaz kabulü gerektirir. [Electron 43.8.1 pencere API'si](https://github.com/electron/electron/blob/v43.8.1/docs/api/browser-window.md#winsetvisibleonallworkspacesvisible-options-macos-linux).
-- `CommandOrControl+Shift+P` Pofi Mini'yi açıp kapatır. macOS Dock sağ tık menüsünde Pofi Mini ve ana pencere eylemleri vardır.
-- macOS menü çubuğunda güvenilir açık giriş varsa hedef çıkışa kalan süre `H:DD` biçiminde, hedef aşıldıysa `+H:DD` olarak görünür. Hedef yoksa, çıkış işlendiyse veya İstanbul takviminde gün değiştiyse süre gizlenir. Hedef saatini [bildirim çalışma zamanı](../src/desktop/notification-runtime.ts) ve [ortak hedef hesabı](../src/desktop/notification-report.ts) sağlar. Tray yalnız sonucu biçimlendirir; etiket macOS'ta 15 saniyede bir yenilenir.
+- `CommandOrControl+Shift+P` Pofi Mini'yi açıp kapatır. macOS Dock sağ tık menüsünde Pofi Mini ve ana pencere eylemleri vardır. Kısayol ve Dock açılışı da güncel `Tray.getBounds()` konumunu kullanır; tray geçerli bir alan bildirmezse imleç konumuna dönülür. Ekran değişiminde simge konumu yeniden okunur; kullanıcı paneli elle taşıdıysa mevcut konumu sınırlar içinde korunur.
+- macOS menü çubuğunda güvenilir açık giriş varsa hedef çıkışa kalan süre `H:DD` biçiminde, hedef aşıldıysa `+H:DD` olarak görünür. Hedef yoksa, çıkış işlendiyse veya İstanbul takviminde gün değiştiyse süre gizlenir. Hedef saatini [bildirim çalışma zamanı](../src/desktop/notification-runtime.ts) ve [ortak hedef hesabı](../src/desktop/notification-report.ts) sağlar. Tray yalnız sonucu biçimlendirir; etiket macOS'ta 15 saniyede bir kontrol edilir, native `setTitle` yalnız metin değiştiğinde çağrılır.
 - Menüdeki "Hedefe kalan süreyi göster" seçeneği sürenin görüntülenmesini açıp kapatır, varsayılan açıktır. Tercih kullanıcı profilindeki `menu-clock.json` içinde saklanır, PDKS bilgisi kaydedilmez.
 - macOS'ta paketli uygulamada "Oturum açılışında başlat" menüsü kullanıcının açık tercihiyle `app.setLoginItemSettings` değerini değiştirir. Varsayılan otomatik başlatma açılmaz.
 - Mini IPC köprüsü istekleri yalnız panelin kendi ana frame'inden ve Pofis origin'inden kabul eder. Dış bağlantılar ve origin dışına yönlenme panelde engellenir. Bildirim köprüsünde Mini yalnız rapor yenilemesini çağırabilir; tercih, kanal, gönderim ve arka plan oturumu işlemleri ana pencereye aittir.

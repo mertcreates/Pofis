@@ -5,6 +5,7 @@ import { ArrowUpRight, CircleCheck, Coffee, Pin, PinOff } from "lucide-react";
 import { useClock } from "@/data/use-clock";
 import { usePdks } from "@/data/use-pdks";
 import { useWorkPlans } from "@/data/use-work-plans";
+import { useAppearance } from "@/data/use-appearance";
 import { prepareReport } from "@/domain/report";
 import { dateKey, weekStart } from "@/domain/rules/calendar";
 import { targetExitAt } from "@/domain/rules/work-plan";
@@ -26,6 +27,7 @@ declare global {
 }
 
 export function MiniDashboard({ initialNow }: { initialNow: number }) {
+  useAppearance();
   const panel = useRef<HTMLElement>(null);
   useEffect(() => {
     const bridge = window.pofisMini;
@@ -91,9 +93,8 @@ export function MiniDashboard({ initialNow }: { initialNow: number }) {
           <span><strong>{product.name}</strong><small>{product.tagline}</small></span>
         </div>
         <button className={`pofi-mini-pin${pinned ? " is-pinned" : ""}`} type="button"
-          onClick={togglePin} title={pinLabel} aria-pressed={pinned}>
-          {pinned ? <PinOff size={14} aria-hidden="true" /> : <Pin size={14} aria-hidden="true" />}
-          <span>{pinLabel}</span>
+          onClick={togglePin} title={pinLabel} aria-label={pinLabel} aria-pressed={pinned}>
+          {pinned ? <PinOff size={16} aria-hidden="true" /> : <Pin size={16} aria-hidden="true" />}
         </button>
       </header>
 

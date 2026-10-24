@@ -90,10 +90,17 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   event.senderFrame.url = "https://example.com/mini";
   expect(() => handlers.get("pofis:mini:resize")(event, 300)).toThrow();
   event.senderFrame.url = "http://127.0.0.1:3210/mini";
+  let escapes = 0;
+  instances[0].webContents.emit("before-input-event", { preventDefault: () => escapes++ }, { key: "Escape" });
+  expect(instances[0].visible).toBe(false);
+  await mini.toggle();
   expect(handlers.get("pofis:mini:pin")(event)).toEqual({ pinned: true });
   expect(instances[0].alwaysOnTop).toBe(true);
   instances[0].emit("blur");
   expect(instances[0].visible).toBe(true);
+  instances[0].webContents.emit("before-input-event", { preventDefault: () => escapes++ }, { key: "Escape" });
+  expect(instances[0].visible).toBe(true);
+  expect(escapes).toBe(1);
   handlers.get("pofis:mini:open-main")(event);
   expect([instances[0].visible, mainOpened]).toEqual([false, 1]);
   await mini.toggle();
@@ -107,7 +114,7 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   expect(displays.listenerCount("display-removed")).toBe(0);
 });
 
-function loadingFixture(load) {
+function loadingFixture(load, options = {}) {
   const windows = [];
   class BrowserWindow extends EventEmitter {
     constructor() {
@@ -118,21 +125,40 @@ function loadingFixture(load) {
       windows.push(this);
     }
     loadURL() { this.loads++; return load(windows.length); }
-    setAlwaysOnTop() {} setVisibleOnAllWorkspaces() {} setPosition() {} setSize() {} focus() {}
+    setAlwaysOnTop() {} setVisibleOnAllWorkspaces() {} setSize() {} focus() {}
+    setPosition(x, y) { this.position = { x, y }; }
     show() { this.visible = true; }
     hide() { this.visible = false; }
     isVisible() { return this.visible; }
     isDestroyed() { return this.destroyed; }
     destroy() { this.destroyed = true; this.emit("closed"); }
   }
-  const mini = createMiniWindow({ BrowserWindow,
-    screen: Object.assign(new EventEmitter(), { getCursorScreenPoint: () => ({ x: 100, y: 20 }),
-      getDisplayNearestPoint: () => ({ workArea: { x: 0, y: 0, width: 1000, height: 800 } }) }),
+  const screen = Object.assign(new EventEmitter(), { getCursorScreenPoint: () => ({ x: 100, y: 20 }),
+    getDisplayNearestPoint: () => ({ workArea: { x: 0, y: 0, width: 1000, height: 800 } }) });
+  const mini = createMiniWindow({ BrowserWindow, screen,
     ipcMain: { handle() {}, removeHandler() {} }, platform: "darwin",
-    isQuitting: () => false, showMain() {},
+    isQuitting: () => false, showMain() {}, ...options,
   });
-  return { mini, windows };
+  return { mini, windows, screen };
 }
+
+test("kısayol ve ekran değişimi güncel tray konumunu kullanır; elle taşınan panel yerini korur", async () => {
+  let anchor = { x: 900, y: 0, width: 18, height: 20 };
+  const f = loadingFixture(() => Promise.resolve(), { getAnchorBounds: () => anchor });
+  try {
+    await f.mini.toggle();
+    expect(f.windows[0].position).toEqual({ x: 644, y: 28 });
+    anchor = { x: 500, y: 0, width: 18, height: 20 };
+    f.screen.emit("display-metrics-changed");
+    expect(f.windows[0].position).toEqual({ x: 331, y: 28 });
+    f.windows[0].emit("will-move", {}, { x: 80, y: 90, width: 356, height: 240 });
+    anchor = { x: 800, y: 0, width: 18, height: 20 };
+    f.screen.emit("display-removed");
+    expect(f.windows[0].position).toEqual({ x: 80, y: 90 });
+    f.mini.hide(); await f.mini.toggle();
+    expect(f.windows[0].position).toEqual({ x: 631, y: 28 });
+  } finally { f.mini.stop(); }
+});
 
 test("ilk açılış tek yükleme yapar; tekrar açılış aynı renderer'ı anında kullanır", async () => {
   const f = loadingFixture(() => Promise.resolve());

@@ -20,10 +20,11 @@ test.each(["win32", "darwin", "linux"])("%s Pofi Mini sol tıkta, ana uygulama m
   let hidden = 0, prevented = 0, quit = 0, shown = 0, mini = 0, destroyed = 0, quitting = false;
   window.hide = () => hidden++;
   let menu, tray;
+  let bounds = { x: 1, y: 2, width: 18, height: 18 };
   class Tray extends EventEmitter {
     constructor() { super(); tray = this; }
     setToolTip() {} setTitle() {}
-    getBounds() { return { x: 1, y: 2, width: 18, height: 18 }; }
+    getBounds() { return bounds; }
     setContextMenu(value) { menu = value; }
     popUpContextMenu(value) { menu = value; }
     destroy() { destroyed++; }
@@ -31,6 +32,9 @@ test.each(["win32", "darwin", "linux"])("%s Pofi Mini sol tıkta, ana uygulama m
   const background = installBackground({ app: { quit() { quit++; quitting = true; } }, window, Tray,
     Menu: { buildFromTemplate: value => value }, nativeImage: { createFromPath: () => ({ resize() { return this; }, setTemplateImage() {} }) },
     icon: "fixture", platform, showWindow: () => shown++, toggleMini: () => mini++, isQuitting: () => quitting });
+  expect(background.getBounds()).toEqual(bounds);
+  bounds = { x: 0, y: 0, width: 0, height: 0 };
+  expect(background.getBounds()).toBeUndefined();
   tray.emit("click");
   expect(mini).toBe(1);
   if (platform === "darwin") tray.emit("right-click");
@@ -91,6 +95,18 @@ test("macOS menü çubuğu canlı süreyi günceller, tercih kaydedilir ve çık
     cancelInterval: () => cleaned++ });
   background.setGoal({ date: "2026-10-23", at: Date.parse("2026-10-23T17:00:00+03:00") });
   expect(titles.at(-1)).toEqual(["1:00", { fontType: "monospacedDigit" }]);
+  const before = titles.length;
+  // Model both 15-second owners: countdown timer and notification goal publication.
+  for (let second = 15; second <= 60; second += 15) {
+    now += 15_000;
+    clockTick();
+    background.setGoal({ date: "2026-10-23", at: Date.parse("2026-10-23T17:00:00+03:00") });
+  }
+  expect(titles.length - before).toBe(1);
+  const afterMinute = titles.length;
+  clockTick(); background.setGoal({ date: "2026-10-23", at: Date.parse("2026-10-23T17:00:00+03:00") });
+  expect(titles.length).toBe(afterMinute);
+  now = Date.parse("2026-10-23T16:00:00+03:00");
   now += 61_000; clockTick();
   expect(titles.at(-1)[0]).toBe("0:59");
   tray.emit("right-click");
@@ -103,6 +119,9 @@ test("macOS menü çubuğu canlı süreyi günceller, tercih kaydedilir ve çık
   expect(titles.at(-1)[0]).toBe("0:59");
   background.setGoal(null);
   expect(titles.at(-1)[0]).toBe("");
+  const withoutGoal = titles.length;
+  clockTick(); background.setGoal(null);
+  expect(titles.length).toBe(withoutGoal);
   background.stop();
   expect(cleaned).toBe(1);
 });

@@ -15,6 +15,7 @@ test("standalone build aynı Bun mimarisini korur ve eski çıktıyı temizleyer
     await copyFile(join(__dirname, "build-notifications.cjs"), join(root, "scripts/electron/build-notifications.cjs"));
     await mkdir(join(root, "src/desktop"), { recursive: true });
     await writeFile(join(root, "src/desktop/install-notifications.ts"), "export const installDesktopNotifications = () => 'fixture-notifications';");
+    await writeFile(join(root, "src/desktop/scenario-runtime.ts"), "export const createScenarioRuntime = () => 'fixture-scenarios';");
     await writeFile(join(root, "src/lib/ui-text.js"), "export const ui = { title: 'fixture-copy' };");
     await writeFile(join(root, "electron/preload.cjs"), 'const { ui } = require("../src/lib/ui-text.js"); module.exports = ui.title;');
     await writeFile(join(root, "public/asset.txt"), "public asset");
@@ -38,6 +39,7 @@ test("standalone build aynı Bun mimarisini korur ve eski çıktıyı temizleyer
       .toEqual({ arch: process.arch, bun: process.versions.bun });
     expect(await readFile(join(root, ".next/standalone/public/asset.txt"), "utf8")).toBe("public asset");
     expect((await import(join(root, ".next/standalone/pofis-notifications.cjs"))).installDesktopNotifications()).toBe("fixture-notifications");
+    expect(require(join(root, ".next/standalone/pofis-scenarios.cjs")).createScenarioRuntime()).toBe("fixture-scenarios");
     expect(require(join(root, ".next/standalone/preload.cjs"))).toBe("fixture-copy");
     expect(require(join(root, ".next/standalone/ui-text.cjs")).ui.title).toBe("fixture-copy");
     expect(await readFile(join(root, ".next/standalone/.next/static/chunk.js"), "utf8")).toBe("static asset");

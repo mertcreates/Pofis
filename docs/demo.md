@@ -1,5 +1,7 @@
 # Mesaim demosu
 
+Paketli uygulamada ana pencere, Pofi Mini ve menü çubuğunu birlikte denemek için [paketli senaryo modunu](desktop.md#paketli-senaryo-modu) kullan. Bu sayfadaki web demosu kendi kontrollerini ve kayıtlarını kullanmayı sürdürür.
+
 Yerel adres: http://127.0.0.1:3000/demo. Sayfa giriş gerektirmeden Mesaim'i yakalanmış kayıtlarla açar. Canlı ekranla aynı [bileşenleri](architecture/ui-components.md) ve [ürün kurallarını](rules/README.md) kullanır. Yerleşim ve etkileşimlerin sahibi [DESIGN](../DESIGN.md) belgesidir.
 
 ## Demo kontrolleri

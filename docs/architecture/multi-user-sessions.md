@@ -39,6 +39,8 @@ Yerel üretim önizlemesi standart `next start`, Docker dağıtımı standalone 
 
 ## İşletim sınırları
 
+[Paketli senaryo modu](../desktop.md#paketli-senaryo-modu) ayrı Chromium profili ve örnek oturum adaptörü kullanır; normal kullanıcı profiline ve PDKS kaynağına bağlanmaz. Bu doğrulama modunun yaşam döngüsü ve sınırları masaüstü rehberindedir.
+
 [Masaüstü kabuğu](../desktop.md#yaşam-döngüsü-ve-sorumluluklar) aynı oturum yöneticisini Node UtilityProcess ile kullanır. Kullanıcı profili dış tarayıcıdan ve kurum sunucusundan ayrıdır. Ana pencere ve [Pofi Mini](../desktop.md#pofi-mini-ve-macos-menü-çubuğu) aynı oturumu paylaşır; arka plan oturumu askıya alındığında Mini önceki raporu ve bekleyen isteği temizler. Yeniden etkinleşme sunucu oturumunun doğrulanmasını başlatır. Port, arka plan ve kapanış davranışı masaüstü rehberinde; heartbeat ve hesaba özgü işler [bildirim sözleşmesinde](../rules/notifications.md) yönetilir.
 
 Bellek kullanımı yüklenen oturum sayısıyla büyür; oturum dizininin sahibi tek uygulama sürecidir. Replica, kalıcı volume, TLS ve kurum kabulünü [dağıtım rehberine](../deployment.md) göre yönetin.

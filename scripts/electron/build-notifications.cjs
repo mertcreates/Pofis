@@ -7,6 +7,11 @@ async function buildNotifications(directory = resolve(__dirname, "../../.next/st
     external: ["electron"],
   });
   if (!result.success) throw new Error(result.logs.map(log => log.message).join("\n"));
+  const scenarios = await Bun.build({
+    entrypoints: [resolve(__dirname, "../../src/desktop/scenario-runtime.ts")],
+    outdir: directory, naming: "pofis-scenarios.cjs", target: "node", format: "cjs",
+  });
+  if (!scenarios.success) throw new Error(scenarios.logs.map(log => log.message).join("\n"));
   // Bundle shared copy into the sandboxed preload; it cannot require local files.
   const shared = await Bun.build({
     entrypoints: [resolve(__dirname, "../../src/lib/ui-text.js"), resolve(__dirname, "../../electron/preload.cjs")],

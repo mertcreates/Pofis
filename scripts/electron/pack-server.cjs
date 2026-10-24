@@ -11,7 +11,7 @@ async function packServer(directory) {
   }
   // Electron can read ASAR paths; keep the real cwd supplied by utilityProcess.
   await writeFile(join(directory, "server.js"), entry.replace(changeDirectory, ""));
-  const external = await Promise.all(["preload.cjs", "pofis-notifications.cjs", "ui-text.cjs"].map(async name =>
+  const external = await Promise.all(["preload.cjs", "pofis-notifications.cjs", "pofis-scenarios.cjs", "ui-text.cjs"].map(async name =>
     [name, await readFile(join(directory, name))]));
   await createPackage(directory, join(dirname(directory), "server.asar"));
   await rm(directory, { recursive: true });

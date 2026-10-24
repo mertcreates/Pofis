@@ -146,6 +146,15 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
     };
   }, [load, requests, refreshVersion]);
 
+  const refreshScenario = useEffectEvent(async () => {
+    // Mini follows the shared desktop runtime; only the main window drives fixture refreshes.
+    if (connected) await load();
+    else await checkSession();
+  });
+  useEffect(() => {
+    if (!observeDesktopSession) return window.pofisScenario?.onRefresh(refreshScenario);
+  }, [observeDesktopSession]);
+
   const connect = useCallback(async (form: HTMLFormElement) => {
     if (mutationInFlight.current) return;
     mutationInFlight.current = true;

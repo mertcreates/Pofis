@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { usePdks } from "../use-pdks";
 import type { NotificationStatus, NotificationReport } from "@/desktop/notification-contract";
 import { defaultNotificationPreferences } from "@/domain/rules/notifications";
+import { emptyWorkPlans } from "@/domain/rules/work-plan";
 
 const week = "2026-10-19";
 const report = (name: string, at: number): NotificationReport => ({
@@ -19,6 +20,11 @@ Object.defineProperty(document, "visibilityState", { get: () => visible ? "visib
 const statusListeners = new Set<(value: NotificationStatus) => void>();
 const reportListeners = new Set<(value: NotificationReport) => void>();
 const expiryListeners = new Set<() => void>();
+const scenarioListeners = new Set<() => void>();
+window.pofisScenario = {
+  seed: { revision: "fixture", clock: { at: 0, end: 1, startedAt: 0 }, plans: emptyWorkPlans() },
+  onRefresh: fn => { scenarioListeners.add(fn); return () => { scenarioListeners.delete(fn); }; },
+};
 const bridge = {
   refresh: async () => { refreshes++; },
   subscribe: (fn: (value: NotificationStatus) => void) => { statusListeners.add(fn); return () => { statusListeners.delete(fn); }; },
@@ -65,6 +71,12 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 30));
   push(report("older", 1500)); await settle();
   check(state.report?.person.name === "pushed", "Older report event overwrote newer data");
   check(refreshes === 0, "Mini triggered a redundant background report request");
+
+  const beforeScenario = { sessions, reports };
+  for (const fn of scenarioListeners) fn();
+  await settle();
+  check(sessions === beforeScenario.sessions && reports === beforeScenario.reports,
+    "Mini started an independent scenario refresh instead of following the desktop runtime");
 
   source = report("current", 3000);
   emitStatus(true);
@@ -121,7 +133,7 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 30));
   release!(); await pending; await settle();
   check(state.report === null, "Expired session revived a delayed report");
   root.unmount();
-  check(statusListeners.size + reportListeners.size + expiryListeners.size === 0, "Bridge listeners leaked");
+  check(statusListeners.size + reportListeners.size + expiryListeners.size + scenarioListeners.size === 0, "Bridge listeners leaked");
   return { reportRace: true, olderPush: true, backgroundFailureRecovery: true, revalidateOnShow: true,
     weekChange: true, accountSwitch: true, lateExpiry: true, cleanup: true, redundantRefreshes: refreshes };
 };
