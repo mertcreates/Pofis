@@ -10,7 +10,7 @@ PDKS kayıtlarından günlük ve haftalık mesaiyi takip eden web ve masaüstü 
 
 > Sadece kaçta çıkabileceğimi görmek istiyordum.
 
-Pofis bu cümleyle başladı. Birkaç gün sonra [mesai planı kuralları](docs/rules/work-plan.md) 22 KB'lık bir belge olmuştu.
+Pofis bu cümleyle başladı. Birkaç gün sonra [mesai planı kuralları](docs/rules/work-plan.md) 28 KB'lık bir belge olmuştu.
 
 Çıkış saatini artık görebiliyorum.
 
