@@ -46,6 +46,8 @@ Installer sürüm düşürmez. Daha yüksek sürümlü bir geliştirme paketinde
 
 Yeni sürüm hazırlanırken `package.json` ile kataloğun ilk kaydı aynı sürüm olmalıdır. Tarih `YYYY-MM-DD` biçiminde geçerli bir takvim günüdür; hazırlıkta planlanan tarih yazılır ve yayın başka güne kalırsa yayımdan önce güncellenir. Geçmiş kayıtlar Git geçmişi ve gerçek yayın bilgileriyle karşılaştırılarak elle düzenlenir; küçük değişiklikler kullanıcıya etkisine göre birleştirilir.
 
+Yeni özellik yayımlanmadan önce yapılan düzeltmeleri özelliğin son hâliyle birlikte anlat. Düzeltmeler bölümüne önceki yayımlanmış deneyimdeki sorunları al; iç test araçlarını ve uygulama ayrıntılarını kullanıcıya etkisi yoksa kataloğa ekleme.
+
 Begin sürüm eşleşmesini ve katalog biçimini taslak oluşturmadan önce doğrular. Prepare kataloğu `public/releases/changelog.json` yoluna kopyalar; publish hazırlanan dosyanın kaynakla tam eşleşmesini sürümü yayımlamadan önce kontrol eder. Canlı HTTPS kabulü de aynı içerikle birlikte yukarıdaki başlıkları doğrular.
 
 Sürüm geçmişini destekleyen uygulamalar `/api/changelog` üzerinden public kataloğu okur. Public kataloğun ilk sürümü paket kataloğundaki ilk sürümle aynı veya daha yeniyse public içerik kullanılır. Daha eski katalog, ağ veya içerik hatasında paketle gelen geçmiş korunur. Menü en yeni kayıttan, footer uygulamanın kendi sürümünden, güncelleme modalı hedef sürümden açılır; hedef kaydı bulunamazsa geçmişin başı gösterilir.

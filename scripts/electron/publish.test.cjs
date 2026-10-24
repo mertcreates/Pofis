@@ -117,8 +117,8 @@ test("yeni taslak en son yayımlanan kararlı sürümü baz alır; tekrar çalı
   const { stdout } = await promisify(execFile)("git", ["rev-parse", "HEAD"], { cwd: join(__dirname, "../.."), windowsHide: true });
   process.env.GH_TOKEN = "isolated-test-token";
   process.env.GITHUB_SHA = stdout.trim();
-  const valid = { tag_name: "v1.0.0", draft: false, prerelease: false,
-    published_at: "2026-10-20T00:00:00Z", body: releaseBody("1.0.0") };
+  const valid = { tag_name: "v0.0.0", draft: false, prerelease: false,
+    published_at: "2026-10-20T00:00:00Z", body: releaseBody("0.0.0") };
   let releases = [
     ...Array.from({ length: 100 }, () => ({ ...valid, published_at: "2026-10-19T00:00:00Z", body: "older release without source" })),
     { ...valid, draft: true, published_at: "2026-10-21T00:00:00Z", body: "draft is not a base" },
