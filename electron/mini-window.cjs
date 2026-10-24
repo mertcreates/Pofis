@@ -78,7 +78,7 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
     if (valid()) return;
     mini = new BrowserWindow({
       icon, width, height, show: false, frame: false, resizable: false,
-      maximizable: false, fullscreenable: false, skipTaskbar: true,
+      minimizable: false, maximizable: false, fullscreenable: false, skipTaskbar: true,
       backgroundColor: "#FAF9FD",
       ...(platform === "darwin" ? { type: "panel" } : {}),
       webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, preload, additionalArguments },

@@ -208,7 +208,14 @@ export const ui = {
     credits: "https://pofis.app",
     about: "Pofis Hakkında",
     hide: "Pofis’i Gizle",
+    hideOthers: "Diğerlerini Gizle",
+    services: "Hizmetler",
     showAll: "Tümünü Göster",
+    window: "Pencere",
+    closeWindow: "Pencereyi Kapat",
+    minimize: "Simge Durumuna Küçült",
+    zoom: "Büyüt",
+    bringAllToFront: "Tümünü Öne Getir",
     menuQuit: "Pofis’ten Çık",
     edit: "Düzenle",
     undo: "Geri Al",
@@ -237,6 +244,7 @@ export const ui = {
     terminal: "Terminal’e"
   },
   diagnostics: {
+    miniShortcutUnavailable: "Pofi Mini global kısayolu kaydedilemedi. Pofi Mini’yi menüden açabilirsin.",
     changelogLoadFailed: "Sürüm geçmişi yenilenemedi; paketle gelen kayıtlar kullanılıyor.",
     notificationCleanupFailed: "Pofis bildirim geçici dosyası temizlenemedi.",
     notificationTickFailed: "Pofis bildirim döngüsü tamamlanamadı.",

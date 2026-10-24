@@ -1,6 +1,36 @@
 const { expect, test } = require("bun:test");
 const { EventEmitter } = require("node:events");
-const { installBackground, showWindow } = require("./background.cjs");
+const { installBackground, showWindow, registerMiniShortcut } = require("./background.cjs");
+
+const fixtureImage = () => ({ resize() { return this; }, toPNG() { return Buffer.alloc(0); },
+  addRepresentation() {}, setTemplateImage() {} });
+
+test.each([false, "throw"])("global kısayol kaydı %s sonucunda açılışı kesmez ve tanı yazılır", result => {
+  const warnings = [];
+  let toggles = 0;
+  const registered = registerMiniShortcut({ register() {
+    if (result === "throw") throw new Error("Platform registration failed");
+    return result;
+  } }, () => toggles++, warning => warnings.push(warning));
+  expect(registered).toBe(false);
+  expect(toggles).toBe(0);
+  expect(warnings).toEqual(["Pofi Mini global kısayolu kaydedilemedi. Pofi Mini’yi menüden açabilirsin."]);
+});
+
+test("global kısayol başarıyla kaydolduğunda Mini eylemini çalıştırır", () => {
+  let callback, toggles = 0;
+  const warnings = [];
+  const registered = registerMiniShortcut({ register(accelerator, action) {
+    expect(accelerator).toBe("CommandOrControl+Shift+P");
+    callback = action;
+    return true;
+  } }, () => toggles++, warning => warnings.push(warning));
+  expect(registered).toBe(true);
+  expect(toggles).toBe(0);
+  callback();
+  expect(toggles).toBe(1);
+  expect(warnings).toEqual([]);
+});
 
 test.each(["win32", "darwin", "linux"])("%s açılış isteği gizli/küçültülmüş pencereyi gösterir ve odaklar", platform => {
   let appHidden = platform === "darwin", minimized = true, visible = false, focused = false;
@@ -30,7 +60,7 @@ test.each(["win32", "darwin", "linux"])("%s Pofi Mini sol tıkta, ana uygulama m
     destroy() { destroyed++; }
   }
   const background = installBackground({ app: { quit() { quit++; quitting = true; } }, window, Tray,
-    Menu: { buildFromTemplate: value => value }, nativeImage: { createFromPath: () => ({ resize() { return this; }, setTemplateImage() {} }) },
+    Menu: { buildFromTemplate: value => value }, nativeImage: { createFromPath: fixtureImage },
     icon: "fixture", platform, showWindow: () => shown++, toggleMini: () => mini++, isQuitting: () => quitting });
   expect(background.getBounds()).toEqual(bounds);
   bounds = { x: 0, y: 0, width: 0, height: 0 };
@@ -60,7 +90,7 @@ test("macOS oturum açılışında başlatma kullanıcı tercihiyle değişir", 
   }
   installBackground({ app: { quit() {} }, window, Tray,
     Menu: { buildFromTemplate: value => value },
-    nativeImage: { createFromPath: () => ({ resize() { return this; }, setTemplateImage() {} }) },
+    nativeImage: { createFromPath: fixtureImage },
     icon: "fixture", platform: "darwin", showWindow() {}, toggleMini() {},
     isQuitting: () => false, login: { get: () => enabled, set: value => { enabled = value; } } });
   expect(enabled).toBe(false);
@@ -88,7 +118,7 @@ test("macOS menü çubuğu canlı süreyi günceller, tercih kaydedilir ve çık
   }
   const background = installBackground({ app: { quit() {} }, window, Tray,
     Menu: { buildFromTemplate: value => value },
-    nativeImage: { createFromPath: () => ({ resize() { return this; }, setTemplateImage() {} }) },
+    nativeImage: { createFromPath: fixtureImage },
     icon: "fixture", platform: "darwin", showWindow() {}, toggleMini() {},
     isQuitting: () => false, menuClock: { get: () => enabled, set: value => { enabled = value; } },
     now: () => now, interval: fn => { clockTick = fn; return { unref() {} }; },

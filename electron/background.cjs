@@ -11,8 +11,12 @@ function showWindow({ app, window, platform }) {
 function installBackground({ app, window, Tray, Menu, nativeImage, icon, platform, showWindow,
   toggleMini = showWindow, isQuitting, login = null, menuClock = null, now = Date.now,
   interval = setInterval, cancelInterval = clearInterval, extraMenu = () => [] }) {
-  const image = nativeImage.createFromPath(icon).resize({ width: platform === "darwin" ? 18 : 24 });
-  if (platform === "darwin") image.setTemplateImage(true);
+  const source = nativeImage.createFromPath(icon);
+  const image = platform === "win32" ? source : source.resize({ width: platform === "darwin" ? 18 : 24 });
+  if (platform === "darwin") {
+    image.addRepresentation({ scaleFactor: 2, buffer: source.resize({ width: 36 }).toPNG() });
+    image.setTemplateImage(true);
+  }
   const tray = new Tray(image);
   tray.setToolTip(ui.desktop.trayTooltip);
   let goal = null;
@@ -72,4 +76,14 @@ function installBackground({ app, window, Tray, Menu, nativeImage, icon, platfor
   };
 }
 
-module.exports = { installBackground, showWindow };
+function registerMiniShortcut(globalShortcut, toggleMini, warn = console.warn) {
+  try {
+    if (globalShortcut.register("CommandOrControl+Shift+P", () => void toggleMini())) return true;
+  } catch {
+    // A shortcut is optional; a platform registration error must not abort startup.
+  }
+  warn(ui.diagnostics.miniShortcutUnavailable);
+  return false;
+}
+
+module.exports = { installBackground, showWindow, registerMiniShortcut };

@@ -9,7 +9,7 @@ const { installUpdateBridge } = require("./update-bridge.cjs");
 const { createWindowOpenHandler } = require("./external-links.cjs");
 const { installPermissions } = require("./permissions.cjs");
 const { isolateAcceptanceAnalytics } = require("./acceptance-network.cjs");
-const { installBackground, showWindow: showNativeWindow } = require("./background.cjs");
+const { installBackground, showWindow: showNativeWindow, registerMiniShortcut } = require("./background.cjs");
 const { createDesktopTransport } = require("./transport.cjs");
 const { createMiniWindow } = require("./mini-window.cjs");
 const { createMenuClockPreference } = require("./menu-clock.cjs");
@@ -121,13 +121,23 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     const applicationMenu = target.platform === "darwin" ? [
       { label: product.name, submenu: [
         { label: ui.desktop.about, role: "about" }, { type: "separator" },
-        { label: ui.desktop.hide, role: "hide" }, { label: ui.desktop.showAll, role: "unhide" },
+        { label: ui.desktop.services, role: "services", submenu: [] }, { type: "separator" },
+        { label: ui.desktop.hide, role: "hide" }, { label: ui.desktop.hideOthers, role: "hideOthers" },
+        { label: ui.desktop.showAll, role: "unhide" },
         { type: "separator" }, { label: ui.desktop.menuQuit, role: "quit" },
       ] },
       { label: ui.desktop.edit, submenu: [
         { label: ui.desktop.undo, role: "undo" }, { label: ui.desktop.redo, role: "redo" },
         { type: "separator" }, { label: ui.desktop.cut, role: "cut" }, { label: ui.desktop.copy, role: "copy" },
         { label: ui.desktop.paste, role: "paste" }, { label: ui.desktop.selectAll, role: "selectAll" },
+      ] },
+      { label: ui.desktop.window, role: "windowMenu", submenu: [
+        { label: ui.desktop.minimize, role: "minimize" }, { label: ui.desktop.zoom, role: "zoom" },
+        { label: ui.desktop.closeWindow, role: "close" },
+        { type: "separator" },
+        { label: ui.desktop.mini, click: () => void toggleMini() },
+        { label: ui.desktop.open, click: () => showWindow() },
+        { type: "separator" }, { label: ui.desktop.bringAllToFront, role: "front" },
       ] },
     ] : [];
     installPermissions(session.defaultSession, () => window?.webContents);
@@ -200,11 +210,11 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     }) : [];
     const rebuildApplicationMenu = () => Menu.setApplicationMenu(applicationMenu.length || scenario
       ? Menu.buildFromTemplate([...applicationMenu, ...buildScenarioMenu()]) : null);
-    rebuildApplicationMenu();
     const toggleMini = bounds => mini.toggle(bounds).catch(error => {
       console.error("Pofi Mini açılamadı:", error);
       showWindow();
     });
+    rebuildApplicationMenu();
     // The native menu title uses the same verified goal as notifications.
     background = installBackground({ app, window, Tray, Menu, nativeImage, icon,
       platform: target.platform, showWindow, toggleMini, isQuitting: () => quitting,
@@ -215,7 +225,7 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
         get: () => app.getLoginItemSettings().openAtLogin,
         set: enabled => app.setLoginItemSettings({ openAtLogin: enabled }),
       } : null });
-    globalShortcut.register("CommandOrControl+Shift+P", () => void toggleMini());
+    registerMiniShortcut(globalShortcut, toggleMini);
     // The packaged-app smoke test drives the real menu action through the main inspector.
     if (process.env.POFIS_TEST_BLOCK_ANALYTICS === "1")
       app.on("pofis:acceptance:mini", () => void toggleMini());
