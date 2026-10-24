@@ -10,13 +10,21 @@ function miniPosition(bounds, area, width, height, platform) {
   return { x, y };
 }
 
-function createMiniWindow({ BrowserWindow, screen, ipcMain, app, preload, platform, showMain, isQuitting, icon }) {
+function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, showMain, isQuitting, icon }) {
   let mini = null;
   let loading = null;
   let pinned = false;
+  let visible = false;
+  let anchorBounds;
+  let movedBounds = null;
+  let stopped = false;
   const width = 356;
-  const height = 468;
+  let height = 240;
   const valid = () => mini && !mini.isDestroyed();
+  function hide() {
+    visible = false;
+    if (valid()) mini.hide();
+  }
   function authorize(event) {
     if (!valid() || event.sender !== mini.webContents ||
       event.senderFrame !== mini.webContents.mainFrame ||
@@ -24,6 +32,26 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, app, preload, platfo
       throw new Error("Pofi Mini isteğine izin verilmedi.");
     }
   }
+  function fit() {
+    const anchor = movedBounds || anchorBounds;
+    const point = { x: anchor.x + anchor.width / 2, y: anchor.y + anchor.height / 2 };
+    const { workArea } = screen.getDisplayNearestPoint(point);
+    const fittedHeight = Math.min(height, 600, Math.max(1, workArea.height - 16));
+    const position = movedBounds ? {
+      x: Math.max(workArea.x, Math.min(workArea.x + workArea.width - width, movedBounds.x)),
+      y: Math.max(workArea.y, Math.min(workArea.y + workArea.height - fittedHeight, movedBounds.y)),
+    } : miniPosition(anchorBounds, workArea, width, fittedHeight, platform);
+    mini.setSize(width, fittedHeight);
+    mini.setPosition(position.x, position.y);
+  }
+  ipcMain.handle("pofis:mini:resize", (event, nextHeight) => {
+    authorize(event);
+    if (!Number.isFinite(nextHeight) || nextHeight <= 0) throw new Error("Pofi Mini boyutu geçersiz.");
+    const next = Math.max(160, Math.ceil(nextHeight));
+    if (height === next) return;
+    height = next;
+    fit();
+  });
   ipcMain.handle("pofis:mini:get", event => {
     authorize(event);
     return { pinned };
@@ -36,12 +64,12 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, app, preload, platfo
   });
   ipcMain.handle("pofis:mini:open-main", event => {
     authorize(event);
-    mini.hide();
+    hide();
     showMain();
   });
 
   function ensure() {
-    if (valid()) return loading;
+    if (valid()) return;
     mini = new BrowserWindow({
       icon, width, height, show: false, frame: false, resizable: false,
       maximizable: false, fullscreenable: false, skipTaskbar: true,
@@ -49,48 +77,64 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, app, preload, platfo
       ...(platform === "darwin" ? { type: "panel" } : {}),
       webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true, preload },
     });
-    mini.on("blur", () => { if (!pinned && !isQuitting()) mini.hide(); });
+    mini.setAlwaysOnTop(pinned, "floating");
+    mini.on("will-move", (_event, bounds) => { movedBounds = bounds; });
+    mini.on("blur", () => { if (!pinned && !isQuitting()) hide(); });
     mini.on("close", event => {
       if (isQuitting()) return;
       event.preventDefault();
-      mini.hide();
+      hide();
     });
-    mini.on("closed", () => { mini = null; loading = null; });
+    mini.on("closed", () => { mini = null; visible = false; });
     mini.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
     mini.webContents.on("will-navigate", (event, url) => {
       if (new URL(url).origin !== ORIGIN) event.preventDefault();
     });
-    mini.webContents.on("before-input-event", (event, input) => {
-      if (input.key === "Escape" && !pinned) { event.preventDefault(); mini.hide(); }
+    mini.webContents.on("will-redirect", (event, url) => {
+      if (new URL(url).origin !== ORIGIN) event.preventDefault();
     });
-    loading = mini.loadURL(`${ORIGIN}/mini`);
-    return loading;
+    mini.webContents.on("before-input-event", (event, input) => {
+      if (input.key === "Escape" && !pinned) { event.preventDefault(); hide(); }
+    });
   }
 
   async function toggle(bounds) {
-    if (valid() && mini.isVisible()) { mini.hide(); return; }
-    await ensure();
-    if (!valid() || isQuitting()) return;
-    const point = bounds
-      ? { x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }
-      : screen.getCursorScreenPoint();
-    const display = screen.getDisplayNearestPoint(point);
-    const anchor = bounds || { x: point.x, y: point.y, width: 0, height: 0 };
-    const position = miniPosition(anchor, display.workArea, width, height, platform);
-    mini.setPosition(position.x, position.y);
-    // Re-open on fresh report and storage state, including changes made in the main window.
-    mini.webContents.reload();
-    mini.show();
-    mini.focus();
+    if (stopped || isQuitting()) return;
+    if (visible) { hide(); return; }
+    visible = true;
+    const point = bounds ? null : screen.getCursorScreenPoint();
+    anchorBounds = bounds || { ...point, width: 0, height: 0 };
+    movedBounds = null;
+    if (loading) return loading;
+    ensure();
+    // One navigation per opening; concurrent toggles only change the desired visibility.
+    loading = mini.loadURL(`${ORIGIN}/mini`);
+    try {
+      await loading;
+      if (!valid() || !visible || stopped || isQuitting()) return;
+      fit();
+      mini.show();
+      mini.focus();
+    } catch (error) {
+      hide();
+      if (valid()) mini.destroy();
+      throw error;
+    } finally {
+      loading = null;
+    }
   }
 
   return {
     toggle,
-    hide: () => { if (valid()) mini.hide(); },
+    hide,
+    getWindow: () => valid() ? mini : undefined,
     stop: () => {
+      stopped = true;
+      visible = false;
       ipcMain.removeHandler("pofis:mini:get");
       ipcMain.removeHandler("pofis:mini:pin");
       ipcMain.removeHandler("pofis:mini:open-main");
+      ipcMain.removeHandler("pofis:mini:resize");
       if (valid()) mini.destroy();
     },
   };

@@ -11,10 +11,11 @@ import { createTelegram, readTelegramInput, DeliveryError, type TelegramCredenti
 import { NOTIFICATION_POLICY, type NotificationChannel, type NotificationGoal } from "@/domain/rules/notifications";
 import type { NotificationPreferences } from "@/domain/rules/notifications";
 
-export function installDesktopNotifications({ app, ipcMain, session, safeStorage, Notification, powerMonitor, getWindow, origin, showWindow, onGoal, telegramFetch }: {
+export function installDesktopNotifications({ app, ipcMain, session, safeStorage, Notification, powerMonitor, getWindow, getMiniWindow, origin, showWindow, onGoal, telegramFetch }: {
   app: App; ipcMain: IpcMain; session: Session; safeStorage: SafeStorage;
   Notification: typeof ElectronNotification; powerMonitor: PowerMonitor;
   getWindow(): BrowserWindow | undefined; origin: string; showWindow(): void;
+  getMiniWindow?(): BrowserWindow | undefined;
   onGoal?: (goal: NotificationGoal | null) => void;
   telegramFetch?: Parameters<typeof createTelegram>[0];
 }) {
@@ -28,8 +29,12 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
     return window.webContents;
   }
   function emit(name: string, value: unknown) {
-    const contents = applicationContents();
-    if (contents && !contents.isDestroyed()) contents.send(name, value);
+    if (stopped) return;
+    for (const window of [getWindow(), getMiniWindow?.()]) {
+      if (!window || window.isDestroyed()) continue;
+      const contents = window.webContents;
+      if (!contents.isDestroyed() && new URL(contents.mainFrame.url).origin === origin) contents.send(name, value);
+    }
   }
   async function request(path: string, signal: AbortSignal, method = "GET") {
     const response = await session.fetch(`${origin}${path}`, {
@@ -94,7 +99,10 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
   for (const [name, operation] of Object.entries(operations)) {
     ipcMain.handle(`pofis:notifications:${name}`, async (event, input) => {
       const contents = applicationContents();
-      if (!contents || contents.isDestroyed() || event.sender !== contents || event.senderFrame !== contents.mainFrame ||
+      const mini = !stopped && name === "refresh" ? getMiniWindow?.() : undefined;
+      const miniContents = mini && !mini.isDestroyed() ? mini.webContents : undefined;
+      const sender = event.sender === contents ? contents : event.sender === miniContents ? miniContents : undefined;
+      if (!sender || sender.isDestroyed() || event.senderFrame !== sender.mainFrame ||
           new URL(event.senderFrame.url).origin !== origin) return { ok: false, error: ui.notificationErrors.forbidden };
       try { return { ok: true, value: await (operation as (input: unknown) => unknown)(input) }; }
       catch (error) {

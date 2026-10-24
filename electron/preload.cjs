@@ -30,6 +30,7 @@ contextBridge.exposeInMainWorld("pofisMini", {
   get: () => ipcRenderer.invoke("pofis:mini:get"),
   pin: () => ipcRenderer.invoke("pofis:mini:pin"),
   openMain: () => ipcRenderer.invoke("pofis:mini:open-main"),
+  resize: height => ipcRenderer.invoke("pofis:mini:resize", height),
 });
 
 contextBridge.exposeInMainWorld("pofisUpdates", {

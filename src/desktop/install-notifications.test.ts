@@ -4,6 +4,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { installDesktopNotifications } from "./install-notifications";
+import { emptyWorkPlans } from "@/domain/rules/work-plan";
 
 test("bildirim sahibi canlı pencereye durum gönderir; yok edilmiş pencere ve durdurulmuş köprüye erişmez", async () => {
   const directory = await mkdtemp(join(tmpdir(), "pofis-notification-lifecycle-"));
@@ -39,6 +40,78 @@ test("bildirim sahibi canlı pencereye durum gönderir; yok edilmiş pencere ve 
     expect(await handlers.get("pofis:notifications:get")!(event)).toEqual({ ok: false, error: "Bildirim isteğine izin verilmedi." });
   } finally {
     destroyed = false;
+    notification.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
+test("Mini güncel raporu, hesap geçişini ve oturum bitişini alır; yalnız yenileme çağırabilir", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-mini-session-"));
+  const origin = "http://127.0.0.1:3210";
+  const makeContents = (path: string) => ({
+    mainFrame: { url: `${origin}${path}` }, isDestroyed: () => false,
+    sent: [] as { name: string; value: any }[],
+    send(name: string, value: unknown) { this.sent.push({ name, value }); },
+  });
+  const main = makeContents("/"), mini = makeContents("/mini");
+  let miniDestroyed = false;
+  const miniWindow = { isDestroyed: () => miniDestroyed, get webContents() {
+    if (miniDestroyed) throw new Error("destroyed mini");
+    return mini;
+  } };
+  let identity = { accountId: "a".repeat(64), expiresAt: Date.now() + 60_000 };
+  let reportVersion = 0;
+  const handlers = new Map<string, (event: unknown, value?: unknown) => Promise<any>>();
+  const notification = installDesktopNotifications({
+    app: { getPath: () => directory },
+    ipcMain: { handle: (name: string, handler: (event: unknown, value?: unknown) => Promise<unknown>) => handlers.set(name, handler) },
+    session: { async fetch(path: string) {
+      const url = new URL(path);
+      return Response.json(url.pathname === "/api/session" ? { connected: true, notificationSession: identity }
+        : { person: { id: "self", name: `Fixture ${reportVersion}`, unit: "", title: "" },
+          from: url.searchParams.get("from"), to: url.searchParams.get("to"),
+          fetchedAt: new Date().toISOString(), passages: [], notificationSession: identity });
+    } },
+    safeStorage: { isEncryptionAvailable: () => true, getSelectedStorageBackend: () => "gnome_libsecret" },
+    Notification: { isSupported: () => true }, powerMonitor: new EventEmitter(),
+    getWindow: () => ({ isDestroyed: () => false, webContents: main }), getMiniWindow: () => miniWindow,
+    origin, showWindow() {},
+  } as unknown as Parameters<typeof installDesktopNotifications>[0]);
+  const invoke = (contents: typeof main, name: string, value?: unknown, frame = contents.mainFrame) =>
+    handlers.get(`pofis:notifications:${name}`)!({ sender: contents, senderFrame: frame }, value);
+  const plans = JSON.stringify(emptyWorkPlans());
+  try {
+    expect((await invoke(main, "sync", plans)).ok).toBe(true);
+    expect((await invoke(main, "refresh")).ok).toBe(true);
+    expect(mini.sent.filter(item => item.name === "pofis:notifications:report").at(-1)?.value.person.name).toBe("Fixture 0");
+    reportVersion++;
+    expect((await invoke(mini, "refresh")).ok).toBe(true);
+    expect(mini.sent.filter(item => item.name === "pofis:notifications:report").at(-1)?.value.person.name).toBe("Fixture 1");
+    for (const operation of ["get", "sync", "pause", "save", "connectTelegram", "disconnectTelegram", "test", "telegramChats"]) {
+      expect((await invoke(mini, operation, plans)).ok).toBe(false);
+    }
+    expect((await invoke(mini, "refresh", undefined, { url: `${origin}/mini` })).ok).toBe(false);
+    const before = mini.sent.length;
+    identity = { ...identity, accountId: "b".repeat(64) };
+    await invoke(main, "sync", plans); await invoke(main, "refresh");
+    const transition = mini.sent.slice(before);
+    expect(transition.filter(item => item.name === "pofis:notifications:status").map(item => item.value.active)).toEqual([false, true, true]);
+    expect(transition.find(item => item.name === "pofis:notifications:report")?.value.notificationSession.accountId).toBe("b".repeat(64));
+    await invoke(main, "pause");
+    expect(mini.sent.at(-1)?.value.active).toBe(false);
+    identity.expiresAt = Date.now() - 1;
+    await invoke(main, "sync", plans);
+    expect(mini.sent.at(-1)?.name).toBe("pofis:notifications:expired");
+    const count = mini.sent.length;
+    mini.mainFrame.url = "https://example.invalid/mini";
+    notification.pause();
+    expect(mini.sent).toHaveLength(count);
+    expect((await invoke(mini, "refresh")).ok).toBe(false);
+    miniDestroyed = true;
+    expect(() => notification.pause()).not.toThrow();
+    notification.stop();
+    expect((await invoke(mini, "refresh")).ok).toBe(false);
+  } finally {
     notification.stop();
     await rm(directory, { recursive: true, force: true });
   }

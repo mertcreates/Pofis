@@ -12,14 +12,15 @@ import { readReportResponse } from "./report-response";
 import { initialPdksState, pdksReducer } from "./pdks-state";
 import { setAnalyticsUserId } from "@/lib/analytics";
 import { readAnalyticsUserId } from "@/lib/analytics-identity";
-import type { NotificationReport } from "@/desktop/notification-contract";
+import type { NotificationReport, NotificationStatus } from "@/desktop/notification-contract";
 
-export function usePdks(week: string) {
+export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   const [state, dispatch] = useReducer(pdksReducer, initialPdksState);
   const { connected, report } = state;
   const [requests] = useState(createLatestRequest);
   const generation = useRef(0);
   const mutationInFlight = useRef(false);
+  const desktopActive = useRef<boolean | null>(null);
 
   const fail = useCallback((error: unknown, operation: PdksOperation) => {
     const failure = toRequestFailure(error, operation);
@@ -33,6 +34,7 @@ export function usePdks(week: string) {
 
   const onExpired = useEffectEvent((error: unknown) => fail(error, "session"));
   const onDesktopReport = useEffectEvent((value: NotificationReport) => {
+    if (observeDesktopSession && desktopActive.current === false) return;
     if (!connected || state.busy || mutationInFlight.current || value.from !== week) return;
     try {
       const next = readReportResponse(value, week, addDays(week, 6));
@@ -45,6 +47,7 @@ export function usePdks(week: string) {
     if (!bridge) return;
     const stopReport = bridge.onReport(onDesktopReport);
     const stopExpiry = bridge.onExpired(() => {
+      desktopActive.current = false;
       setAnalyticsUserId(null); requests.cancel(); generation.current++;
       dispatch({ type: "session-checked", connected: false });
     });
@@ -69,6 +72,21 @@ export function usePdks(week: string) {
       if (!signal?.aborted && id === generation.current) fail(error, "session");
     }
   }, [fail]);
+
+  const onDesktopStatus = useEffectEvent((status: NotificationStatus) => {
+    if (desktopActive.current === status.active) return;
+    desktopActive.current = status.active;
+    requests.cancel();
+    generation.current++;
+    // Clear the previous account before checking the shared session again.
+    dispatch({ type: "disconnected" });
+    setAnalyticsUserId(null);
+    if (status.active) void checkSession();
+  });
+  useEffect(() => {
+    if (!observeDesktopSession || !window.pofisNotifications) return;
+    return window.pofisNotifications.subscribe(onDesktopStatus);
+  }, [observeDesktopSession]);
 
   useEffect(() => {
     const controller = new AbortController();

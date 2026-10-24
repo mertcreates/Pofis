@@ -350,6 +350,16 @@ Sürüm geçmişi menüden, footer sürümünden ve güncelleme modalından aç�
 
 Her durakta sürüm numarası ana başlık, yayın tarihi ikincil bilgi olur. İçerik yalnız dolu **Yenilikler**, **Düzeltmeler** ve **Bakım** gruplarını gösterir; masaüstünde grup adı ile maddeler iki sütunda, 600 px altında tek sütunda akar. Kurulu sürüm katalogda bulunuyorsa küçük **Bu sürüm** işareti taşır. Menü ekranın başına, footer kurulu sürümün durağına, güncelleme modalı yeni sürümün durağına odaklanır. Hedef public katalogda da bulunamazsa en yeni bilinen sürüm açılır. Giriş ekranından footer ile açıldığında **Girişe dön** eylemi görünür.
 
+### Pofi Mini
+
+Panel başlığında ürün adı **Pofis** bulunur; özellik adı menülerde **Pofi Mini** olarak kalır. Günlük içerik mevcut rapor ve plan sonuçlarına göre biçim değiştirir:
+
+- Planlı mesai yoksa **Bugün planlı mesai yok.** özeti görünür; boş mesai/hedef kutuları gösterilmez. O gün çalışma varsa süre, kayıt belirsizse uyarı özette korunur.
+- Mesai gününde bugünkü süre, kayıt durumu, hedef çıkış ve hedef farkı görünür. Bugünkü süre bütün günlük görünümlerde `7 sa 59 dk 43 sn` biçiminde yazılır; sıfır birimler atlanır. Hedef çıkış günün saati olarak `16:00:17` biçimini korur. Bu alanlar ek kartlara bölünmez.
+- Güncel ve belirsiz olmayan veride günlük hedefe ulaşıldığında **Bugünkü hedef tamamlandı.** ve bugünkü süre görünür; hedef çıkış/fark alanları kaldırılır. Güncel olmayan veya belirsiz kayıtta normal metrikler ve kayıt durumu korunur.
+
+Haftalık toplam, ilerleme ve **Pofis’i aç** eylemi bütün günlük görünümlerde kalır. Haftalık toplam hedefe ulaşmış ve kayıtlar eksiksizse **Haftalık hedef tamamlandı** görünür; eksik kayıtta öncelik kayıt uyarısındadır. İçerik tek yüzeyde akar; günlük ve haftalık bilgiler kart zemini, çevre çerçevesi veya yuvarlatılmış kapsayıcı kullanmaz. Başlık ve haftalık bölüm ince ayraçlarla ayrılır; renkler ve tipografi mevcut tema tokenlarını kullanır. Ana eylem içeriği izler, pencerenin altına itilmez. Pencere genişliği sabit, yüksekliği içeriğe bağlıdır; [boyut sınırları](docs/desktop.md#pofi-mini-ve-macos-menü-çubuğu) ana süreçte uygulanır.
+
 ## Bileşen kabulü
 
 ### Bileşen kalitesi ve tutarlılık

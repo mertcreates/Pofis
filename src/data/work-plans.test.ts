@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test";
-import { workPlanStorage } from "./work-plans";
+import { subscribeWorkPlans, workPlanStorage } from "./work-plans";
+import type { WorkPlans } from "@/domain/rules/work-plan";
 import { emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveWeekTimes, changeWeekTime, changeWeekPlan, changeDefaultPlan, readDayPlan, readWeekPlan, resolveWeekPlan } from "@/domain/rules/work-plan";
 import { loadPlans, savePlans, PLAN_STORAGE_KEY } from "@/lib/plan-storage.js";
 
@@ -13,6 +14,52 @@ function storage(initial: Record<string, string> = {}) {
     values,
   };
 }
+
+test("diğer pencerenin planını kapsamına göre okur; bozuk kaydı korur ve düzeltildiğinde toparlanır", () => {
+  const store = storage();
+  const listeners = new Set<(event: StorageEvent) => void>();
+  const events = {
+    addEventListener: (_: string, listener: (event: StorageEvent) => void) => { listeners.add(listener); },
+    removeEventListener: (_: string, listener: (event: StorageEvent) => void) => { listeners.delete(listener); },
+  } as unknown as Pick<Window, "addEventListener" | "removeEventListener">;
+  const live: WorkPlans[] = [], demo: WorkPlans[] = [], errors: unknown[] = [];
+  const stopLive = subscribeWorkPlans("live", value => live.push(value), error => errors.push(error), { storage: store, events });
+  const stopDemo = subscribeWorkPlans("demo", value => demo.push(value), error => errors.push(error), { storage: store, events });
+  const changed = { ...emptyWorkPlans(), defaultPlan: readDayPlan([420,420,420,420,420,0,0])! };
+  const emit = (key: string | null, storageArea: unknown = store) => {
+    for (const listener of listeners) listener({ key, storageArea } as StorageEvent);
+  };
+  savePlans(store, changed); emit(PLAN_STORAGE_KEY);
+  expect(live.at(-1)?.defaultPlan).toEqual([420,420,420,420,420,0,0]);
+  expect(demo).toHaveLength(1);
+  savePlans(workPlanStorage(store, "demo"), changed); emit(`demo:${PLAN_STORAGE_KEY}`);
+  expect(demo.at(-1)).toEqual(changed);
+  expect(live).toHaveLength(2);
+  emit("unrelated"); emit(PLAN_STORAGE_KEY, {});
+  expect(live).toHaveLength(2);
+  store.setItem(PLAN_STORAGE_KEY, "{broken"); emit(PLAN_STORAGE_KEY);
+  expect(errors).toHaveLength(1);
+  expect(store.getItem(PLAN_STORAGE_KEY)).toBe("{broken");
+  savePlans(store, changed); emit(PLAN_STORAGE_KEY);
+  expect(live).toHaveLength(3);
+  store.values.clear(); emit(null);
+  expect(live.at(-1)).toEqual(emptyWorkPlans());
+  expect(demo.at(-1)).toEqual(emptyWorkPlans());
+  stopLive(); stopDemo();
+  expect(listeners.size).toBe(0);
+});
+
+test("plan depolamasına erişilemezse abonelik hata bildirir ve yazmaz", () => {
+  const errors: unknown[] = [];
+  let received = false;
+  const stop = subscribeWorkPlans("live", () => { received = true; }, error => errors.push(error), {
+    storage: { getItem() { throw new Error("access denied"); }, setItem() { throw new Error("must not write"); } },
+    events: { addEventListener() {}, removeEventListener() {} },
+  });
+  expect(received).toBe(false);
+  expect(errors).toHaveLength(1);
+  stop();
+});
 
 test("plan saatleri gün, hafta ve demo kapsamları arasında ayrılır; şablon ve süre düzenlemesi seçimi korur", () => {
   const week = "2026-10-12", other = "2026-10-19";

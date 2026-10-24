@@ -151,7 +151,7 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     };
     const preload = app.isPackaged ? join(__dirname, "..", "server", "preload.cjs")
       : join(__dirname, "..", ".next", "standalone", "preload.cjs");
-    mini = createMiniWindow({ BrowserWindow, screen, ipcMain, app, preload,
+    mini = createMiniWindow({ BrowserWindow, screen, ipcMain, preload,
       platform: target.platform, icon, showMain: showWindow, isQuitting: () => quitting });
     const toggleMini = bounds => mini.toggle(bounds).catch(error => {
       console.error("Pofi Mini açılamadı:", error);
@@ -177,7 +177,7 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     const runtimePath = app.isPackaged ? join(__dirname, "..", "server", "pofis-notifications.cjs")
       : join(__dirname, "..", ".next", "standalone", "pofis-notifications.cjs");
     notifications = require(runtimePath).installDesktopNotifications({ app, ipcMain, session: session.defaultSession,
-      Notification, safeStorage, powerMonitor, getWindow: () => window, origin: ORIGIN, showWindow,
+      Notification, safeStorage, powerMonitor, getWindow: () => window, getMiniWindow: () => mini.getWindow(), origin: ORIGIN, showWindow,
       onGoal: goal => background?.setGoal(goal) });
     window.webContents.on("did-start-navigation", (_event, _url, isInPlace, isMainFrame) => {
       if (isMainFrame && !isInPlace) notifications.pause();

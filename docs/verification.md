@@ -8,7 +8,7 @@ Kontrolü değişen davranışa göre seçin. Beklenen sonucu ürün sözleşmes
 
 ## Yerel kontroller
 
-Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta paket yayını için elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama) bulunur; Pofi Mini PR'ları ayrıca [üç hedefli kabul akışını](../.github/workflows/pofi-mini-check.yml) otomatik çalıştırır. Sürüm akışı tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
+Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta paket yayını için elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama) bulunur. Otomatik Pofi Mini PR workflow'u mevcut değildir. Sürüm akışı tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
 
 ```powershell
 bun test
@@ -149,11 +149,19 @@ Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulam
 
 ## Pofi Mini kabulü
 
-[Mini pencere davranış testleri](../electron/mini-window.test.cjs) konum sınırlamasını, tek pencere kullanımını, sabitlemeyi, kapanışı ve IPC gönderen doğrulamasını sınar. [Arka plan testleri](../electron/background.test.cjs) sol/sağ tıklama, ana pencereyi gösterme ve gerçek çıkış ayrımını doğrular. [PR Apple Silicon/Intel Mac ve Windows kabul akışı](../.github/workflows/pofi-mini-check.yml) bunlara ek olarak hedef zamanı güncellemeyi, tür kontrolünü, Apple Silicon ve Intel macOS ile Windows'ta paket üretimini, gerçek Pofi Mini penceresinin açılışını, sabitleme düğmesinin durumunu, IPC köprüsünü ve ana ekrana dönüşü sınar. Doğrulanan üç platformun `Pofis-*.zip` deneme paketleri ile giriş/demo ekran görüntüleri ve desteklenen runner'larda mini ekran görüntüsü, PR'ın Actions > Artifacts alanında 30 gün saklanır. Mac ZIP'leri `ditto` ile imzayı ve dosya izinlerini koruyacak şekilde oluşturulur. Bu test gerçek menü çubuğu görüntüsünün görsel kabulünün yerine geçmez.
+[Mini pencere davranış testleri](../electron/mini-window.test.cjs) konum, tek pencere, sabitleme, kapanış ve IPC gönderen doğrulamasını sınar. İlk açılışta tek yükleme, yükleme hatasından sonra toparlanma, hızlı aç/kapat, yüklemede gizleme ve durdurma da kapsanır. [Arka plan testleri](../electron/background.test.cjs) sol/sağ tıklama, ana pencereyi gösterme ve gerçek çıkış ayrımını doğrular.
+
+[Bildirim adaptörü testleri](../src/desktop/install-notifications.test.ts) rapor, hesap geçişi ve oturum bitişinin Mini'ye iletilmesini ve Mini'nin yalnız yenileme çağırabilmesini doğrular. [Plan depolama testleri](../src/data/work-plans.test.ts) diğer pencerenin değişikliğini, canlı/demo ayrımını, temizleme olayını, bozuk kaydın korunmasını ve abonelik temizliğini sınar. [Mini sunum testleri](../src/components/mini/mini-dashboard.test.tsx) saniyeli hedef/kalan/aşan süreyi ve yükleniyor/bağlantısız/hata ayrımını gerçek bileşeni statik sunarak kontrol eder; React effect yaşam döngüsünü ve CSS yerleşimini kanıtlamaz.
+
+Paketli [smoke testi](../scripts/electron/smoke.cjs) gerçek Mini penceresinin açılışını, sabitleme düğmesini, IPC köprüsünü ve ana ekrana dönüşü sınar. Paket kabulleri elle başlatılan [sürüm akışının](../.github/workflows/desktop-release.yml) parçasıdır. Bu kontroller gerçek menü çubuğu görüntüsünün görsel kabulünün yerine geçmez.
 
 - Windows'ta tray sol tık → Pofi Mini, sağ tık → seçenekler; ana uygulama kapatılıp yeniden açıldığında mesai/planın güncellenmesi.
 - macOS'ta menü çubuğu sol tık → Pofi Mini, sağ tık → eylem menüsü; başlıktan sürükleme, dışarı tıklama → gizlenme, sabitleme → görünür kalma, Dock eylemleri ve `CommandOrControl+Shift+P`.
 - macOS'ta hedef çıkışa geri sayım, hedef aşıldığında `+` işareti, çıkış kaydında/oturum kapanışında silinme, gün değişiminde silinme ve "Hedefe kalan süreyi göster" seçeneğinin kapatılıp yeniden başlatılınca korunması.
 - PDKS girişi yok, rapor hatası, belirsiz kayıt, mesai öncesi, canlı mesai, çıkış sonrası, hedef aşımı ve hafta değişimi → panelin mevcut iş kurallarıyla aynı bilgiyi sunması.
+- Mini sabit açıkken ana pencerede plan değiştir → hedef ve haftalık toplam yeniden açmadan güncellenir. Yeni turnike raporu → Mini aynı kaydı gösterir. Çıkış/hesap değişimi veya oturum bitişi → eski rapor temizlenir; geciken yanıt geri getiremez. Yeni giriş → yeni hesabın raporu gösterilir.
+- Bozuk plan kaydı veya erişilemeyen depolama → yükleniyor yerine hata ve ana pencereye dönüş görünür. Hedef `16:00:17`, saat `16:00:00` → kalan `17 sn` görünür. Günlük hedefe ulaşıldığında tamamlanma özeti ve süre görünür; belirsiz veya güncel olmayan kayıt tamamlanmış sayılmaz.
+- İzinli/kapalı gün → planlı mesai yok özeti ve haftalık toplam görünür; boş günlük hedef alanları gösterilmez. Plan dışı çalışma varsa süre korunur. Haftalık hedefe eksiksiz kayıtlarla ulaşıldığında tamamlanma metni görünür.
+- Mesai → hedef tamamlandı → izin → hata/bağlantısız geçişlerinde panel içeriği ölçülür; pencere büyür/küçülür, ana eylemin altında gereksiz boşluk kalmaz. Açık/koyu temada günlük ve haftalık alanlar kart çerçevesi olmadan görünür. Sabit açık paneli sürükle → içerik yüksekliği değişince konumu korunur; ekran sınırında büyürse çalışma alanına alınır. Kısa ekranda yükseklik sınırlanır ve uzun içerik kaydırılarak okunur. Yabancı pencere/alt frame/origin ve geçersiz yükseklik IPC'de reddedilir.
 - Oturum açılışında başlatma varsayılan kapalı kalır, menüyle açılıp kapatılır, gerçek macOS oturum açılışıyla doğrulanır.
 23 Ekim 2026 itibarıyla [PR #1'in son tam kabul koşusu](https://github.com/bugjardotdev/Pofis/actions/runs/39967421826) Apple Silicon, Intel macOS ve Windows'ta başarılıdır. Bu koşudan sonraki ana dala uyarlama ve dokümantasyon güncellemesi, Actions kotasını korumak için `[skip ci]` ile taşınır; yeni PR başının ayrıca CI'da doğrulandığı anlamına gelmez. Gerçek Mac'te menü çubuğu ve Spaces gibi görsel/işletim sistemi kabulleri henüz yapılmamıştır.

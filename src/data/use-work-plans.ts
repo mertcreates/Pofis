@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { loadPlans, savePlans, serializePlans } from "@/lib/plan-storage.js";
-import { workPlanStorage, type PlanScope } from "./work-plans";
+import { savePlans, serializePlans } from "@/lib/plan-storage.js";
+import { subscribeWorkPlans, workPlanStorage, type PlanScope } from "./work-plans";
 import {
   emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, resolveUserLockedDays, resolveWeekTimes, changeWeekTime, changeWeekLockedDays, changeWeekPlan, changeDefaultPlan,
   type WorkPlan, type WorkPlans, type PlanTime,
@@ -17,15 +17,15 @@ export function useWorkPlans(week: string, scope: PlanScope = "live") {
   const serialized = useMemo(() => serializePlans(plans), [plans]);
   useEffect(() => {
     setReady(false);
-    try {
-      const loaded = loadPlans(workPlanStorage(localStorage, scope));
+    return subscribeWorkPlans(scope, loaded => {
       latest.current = loaded;
       setPlans(loaded);
       setReady(true);
       setError("");
-    } catch (error) {
+    }, error => {
+      setReady(false);
       setError(error instanceof Error && error.message.includes("korunuyor") ? error.message : ui.storageReadError);
-    }
+    });
   }, [scope]);
   function persist(update: (current: WorkPlans) => WorkPlans) {
     if (!ready) return false;
