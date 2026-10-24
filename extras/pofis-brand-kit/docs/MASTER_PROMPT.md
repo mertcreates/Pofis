@@ -30,11 +30,8 @@ soft matte gradient, simple forms and a calm expression. Match Image A's eye
 spacing, ear angles, curl silhouette, face proportions and material.
 
 Pose and prop placement: keep Pofi balanced on both hind feet. Describe each
-scene object's position relative to Pofi. For an open umbrella, place the canopy
-high above and to one side of the head, leaving a clear margin around the face,
-ears and curl. Run the shaft through open space beside the head and cheek
-silhouette to the paw holding it near shoulder height. Keep the full face and
-badge visible.
+scene object's position relative to Pofi and the paw interacting with it.
+Keep the face, ears, curl and badge clearly visible.
 
 Task-specific change: [DESCRIBE THE REQUESTED SCENE AND ITS SPATIAL LAYOUT]
 
@@ -55,7 +52,6 @@ Uygulamada kullanılacak mevcut dosyalar [görsel kaynaklar](../../../docs/brand
 - Pofi iki arka ayağı üzerinde dengeli ve doğal biçimde duruyor mu?
 - İki kısa ön pati, kısa tombul gövdeye bağlı mı ve toplam dört uzuv okunuyor mu?
 - Yüz, kulaklar, alın kıvrımı ve kart sahne nesnelerinden tamamen görünür mü?
-- Şemsiye başın üstünde ve yanında mı; şaft baş ve yanak siluetinin dışından mı geçiyor?
 - Krem-lavanta renk sistemi tutarlı mı?
 - Kart ve gerçek tabii işareti doğru mu?
 - 64, 128, 160 px'de silüet ve yüz okunuyor mu?

@@ -18,6 +18,7 @@ RUN apt-get update \
     && chown -R bun:bun /var/lib/pofis
 WORKDIR /app
 COPY --from=build --chown=bun:bun /app/.next/standalone ./
+COPY --from=build --chown=bun:bun /app/LICENSE /app/ASSET-LICENSE.md ./
 COPY --from=build --chown=bun:bun /app/public ./public
 COPY --from=build --chown=bun:bun /app/.next/static ./.next/static
 USER bun

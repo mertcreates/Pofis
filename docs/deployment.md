@@ -36,6 +36,8 @@ Yerel üretim önizlemesi [README'deki](../README.md#doğrulama-ve-üretim-çal�
 
 Dockerfile derleme sırasında `POFIS_STANDALONE=1` ayarlar. Çalışma imajına standalone sunucuyu, `public` ve `.next/static` dizinlerini ayrı ayrı kopyalar; sunucu `bun server.js` ile başlar.
 
+Çalışma imajı, `/app` altında [LICENSE](../LICENSE) ve [görsel lisans bildirimi](../ASSET-LICENSE.md) dosyalarını da içerir.
+
 Oturumsuz erişilen statik `/demo` aynı derlemeye dahildir. Veri kapsamı ve erişim sınırı [demo rehberindedir](demo.md#veri-ve-zaman).
 
 ```sh

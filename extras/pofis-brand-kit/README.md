@@ -2,6 +2,8 @@
 
 Bu klasör özgün karakter dosyalarını, üretim referanslarını ve karakter kontrol sayfasını içerir. Ürün kapsamı [PRODUCT](../../PRODUCT.md), tasarım kararları [DESIGN](../../DESIGN.md), dil ve slogan [ton rehberi](../../docs/brand/pofi-tone-guide.md) sahibindedir. Etkin uygulama görselleri [görsel kaynaklarda](../../docs/brand/assets.md) listelenir.
 
+Görsellerin lisans kapsamı ve tabii logosu [görsel lisans bildiriminde](../../ASSET-LICENSE.md) açıklanır.
+
 ## Başlangıç
 
 [character-sheet.html](character-sheet.html) dosyasını tarayıcıda açarak karakteri inceleyin. Güncel uygulama ekranları ve örnek kayıtlar [Mesaim demosundadır](../../docs/demo.md).

@@ -44,7 +44,7 @@ Yeni sahnede ana referans görsel ve [üretim promptunu](MASTER_PROMPT.md) birli
 - Pofi tam gövdede iki arka ayağı üzerinde dengeli biçimde durur; gövde kısa ve tombul kalır.
 - İki ön pati kısa, yuvarlak ve vücuda doğal biçimde bağlı görünür.
 - Yüz, kulaklar, alın kıvrımı ve kart sahne nesnelerinden tamamen okunur kalır.
-- Şemsiye kanopisi başın üstünde ve yanında durur; şaft baş ve yanak siluetinin dışından ilerleyerek tutan patiye ulaşır.
+- Sahne nesnesinin konumu ve onu tutan pati, istenen sahnenin üretim tarifinde belirtilir.
 
 ## Uygulamada kullanım
 
@@ -54,4 +54,4 @@ Resimler `object-fit: contain` ile, özgün en/boy oranı korunarak gösterilir.
 
 ## tabii kartı hakkında
 
-`references/tabii-logo-provided.png`, kullanıcı tarafından verilen orijinal logo referansıdır. Karakter illüstrasyonundaki küçük logo görsel üretimi sonucunda oluşmuştur. Kurumsal kullanımda birebir geometrik doğruluk gerekiyorsa badge alanı orijinal logoya göre ayrıca son kez doğrulanmalıdır. Marka hakkı ve şirket içi kullanım onayı yayınlayan ekip tarafından değerlendirilir. **Ürün adı Pofis, personel kartındaki işaret tabii logosudur.**
+`references/tabii-logo-provided.png`, TRT'nin tabii logosunun referansıdır. Personel kartındaki işaretin geometrisi gerektiğinde bu referansla karşılaştırılır. Logo ve Pofi görsellerinin lisans kapsamı [görsel lisans bildiriminde](../../../ASSET-LICENSE.md) açıklanır.

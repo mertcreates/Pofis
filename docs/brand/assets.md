@@ -2,6 +2,8 @@
 
 Kullanıcının paylaştığı [marka kiti](../../extras/pofis-brand-kit/README.md) özgün karakter kaynağıdır. Aşağıdaki tablo etkin uygulama dosyalarını ve korunmuş referansları ayırır.
 
+Görsellerin lisans kapsamı ve üçüncü taraf bildirimleri [görsel lisans bildiriminde](../../ASSET-LICENSE.md) tanımlıdır.
+
 | Uygulama dosyası | Kaynak ve kullanım |
 | --- | --- |
 | `public/pofi/pofi-mark-256.png` | Üst marka, favicon, Apple simgesi ve Electron pencere/uygulama simgesinin kaynağı |

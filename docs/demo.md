@@ -55,7 +55,7 @@ Yerel modal ve örnek plan senaryo/sekme değişiminde sıfırlanır. Bu örnekl
 
 ## Veri ve zaman
 
-[Yakalanan turnike verisi](../src/demo/passages.json) 21 Eylül–16 Ekim 2026 aralığındaki 297 hareketi içerir. Her hareket yalnız `date`, `time`, `direction` taşır; gerçek tarih ve saatler korunmuştur. Ekranda “Örnek kullanıcı” görünür. Veri paylaşımında bu zamanların kaynak kişiyi tanımlama olasılığı dikkate alınır.
+[Yakalanan turnike verisi](../src/demo/passages.json), geliştiricinin public paylaşımını onayladığı 21 Eylül–16 Ekim 2026 aralığındaki 297 hareketi içerir. Her hareket yalnız `date`, `time`, `direction` taşır; gerçek tarih ve saatler korunmuştur. Ekranda “Örnek kullanıcı” görünür.
 
 Başlangıç günü 16 Ekim 2026, saati 11:24 Europe/Istanbul'dur. Bir gün seçildiğinde demo o günü “bugün” kabul eder. Normal görünümde önceki günler İstanbul saatinde 23:59:59, yakalama günü özgün yakalama saatiyle gösterilir. Anlık ek süre seçildiğinde yalnız seçili günün sanal saati, o günün son geçerli hareketinden seçilen süre kadar sonrasına alınır. Son hareket çıkışsa aynı saniyeye demo amaçlı açık giriş eklenir; yakalanmış hareketler ve kayıtlı toplam değişmez. Süre 15 dakika adımlıdır, gün sonunu aşamaz ve seçili gün değişince sıfırlanır. Hareketi olmayan veya güvenilir açık giriş kurulamayan günlerde kontrol kapalıdır. Önceki eşleşmeyen çıkış güvenilir son girişi engellemez. Bilgisayarın tarihi sonucu etkilemez. Seçilen tarihten sonraki hareketler ve Pofi notları önizleme girdisine katılmaz; fixture korunur. Böylece haftalık toplam yalnız seçilen güne kadarki gerçek kayıtlardan oluşur.
 

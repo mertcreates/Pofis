@@ -2,6 +2,7 @@
   "name": "pofis",
   "version": "1.0.0",
   "private": true,
+  "license": "SEE LICENSE IN LICENSE",
   "packageManager": "bun@1.4.3",
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",

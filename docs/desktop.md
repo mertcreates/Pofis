@@ -14,6 +14,8 @@ Tek dağıtım kanalı ve hedef başına manifest kullanılır. Profil yolu, `ap
 
 Üretim ölçümü ve ağ sınırları [GA4 sözleşmesindedir](analytics.md).
 
+Her platform paketi, uygulama kaynaklarının yanında kökteki [LICENSE](../LICENSE) ve [görsel lisans bildirimi](../ASSET-LICENSE.md) dosyalarını taşır.
+
 [Platform tanımı](../electron/platform.cjs) desteklenen işletim sistemi/mimariyi, executable adlarını, kaynak yollarını, çıktı dizinini ve `metadataFile` meta veri yolunu belirler. Hazırlama, Electron hedefini ve sürümünü doğrular; uyuşmazlıkta kopyalamadan durur. `release.json` yolu `metadataFile` üzerinden yönetilir. CI runner'ları, ortak derleme ve hedeflerin dinamik/statik kabulü [yayın rehberindedir](release.md#bir-sürüm-yayımlama).
 
 | Hedef | Uygulama | Paket çıktısı | Dağıtım manifesti |
@@ -199,7 +201,7 @@ Yerel release üretildikten sonra bu depoda:
 ```powershell
 bun scripts/electron/prepare-site.cjs
 # Farklı landing konumu:
-bun scripts/electron/prepare-site.cjs --site C:\Projeler\Mert\pofis-landing
+bun scripts/electron/prepare-site.cjs --site ../pofis-landing
 bun test ./scripts/electron/prepare-site.test.cjs
 ```
 
@@ -373,4 +375,4 @@ Panelin günlük yerleşimi mesai durumuna göre değişir; görsel sözleşme [
 - macOS'ta paketli uygulamada "Oturum açılışında başlat" menüsü kullanıcının açık tercihiyle `app.setLoginItemSettings` değerini değiştirir. Varsayılan otomatik başlatma açılmaz.
 - Mini IPC köprüsü istekleri yalnız panelin kendi ana frame'inden ve Pofis origin'inden kabul eder. Dış bağlantılar ve origin dışına yönlenme panelde engellenir. Bildirim köprüsünde Mini yalnız rapor yenilemesini çağırabilir; tercih, kanal, gönderim ve arka plan oturumu işlemleri ana pencereye aittir.
 
-[Menü testleri](../electron/background.test.cjs), [pencere testleri](../electron/mini-window.test.cjs), [bildirim adaptörü testleri](../src/desktop/install-notifications.test.ts) ve [Mini sunum testleri](../src/components/mini/mini-dashboard.test.tsx) yerel davranış kanıtını sağlar. Paket kabulünü elle başlatılan [sürüm akışı](../.github/workflows/desktop-release.yml) yönetir; otomatik Pofi Mini PR workflow'u mevcut değildir. Gerçek cihazda menü çubuğu yerleşimi, macOS Spaces, başlatma izni ve çoklu monitör konumu ayrıca kontrol edilir; [kabul rehberi](verification.md#pofi-mini-kabulü).
+[Menü testleri](../electron/background.test.cjs), [pencere testleri](../electron/mini-window.test.cjs), [bildirim adaptörü testleri](../src/desktop/install-notifications.test.ts) ve [Mini sunum testleri](../src/components/mini/mini-dashboard.test.tsx) yerel davranış kanıtını sağlar. Paket kabulünü elle başlatılan [sürüm akışı](../.github/workflows/desktop-release.yml) yönetir. Gerçek cihazda menü çubuğu yerleşimi, macOS Spaces, başlatma izni ve çoklu monitör konumu ayrıca kontrol edilir; [kabul rehberi](verification.md#pofi-mini-kabulü).

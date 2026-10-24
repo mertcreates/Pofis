@@ -1,6 +1,6 @@
 # Pofis sürüm yayını
 
-Ana uygulama deposu private kalır. [Release workflow'u](../.github/workflows/desktop-release.yml), public `mertcreates/pofis-landing` deposunun GitHub Releases bölümüne paketleri aktarır; installer, manifest ve manuel sürüm geçmişini bu deponun `main` dalına gönderir. Cloudflare Workers Git entegrasyonu siteyi yayımlar. Uygulama kaynak deposu Cloudflare'a bağlanmaz.
+[Release workflow'u](../.github/workflows/desktop-release.yml), `mertcreates/pofis-landing` deposunun GitHub Releases bölümüne paketleri aktarır; installer, manifest ve manuel sürüm geçmişini bu deponun `main` dalına gönderir. Cloudflare Workers Git entegrasyonu landing sitesini yayımlar. Kaynak kodun görünürlüğü bu dağıtım düzeninden bağımsızdır.
 
 Linux hedefi için ortak macOS / Ubuntu sekmesi ve güncel doğrulama betiği landing kaynaklarında bulunmalıdır. Begin işi, paket üretiminden ve taslak oluşturmadan önce ortak Unix/Windows komut sözleşmesini kontrol eder. Landing kaynakları eskiyse önce bunların kullanıcı yetkisiyle yayımlanması gerekir; release yalnız aşağıda tanımlanan public dağıtım dosyalarını günceller.
 
@@ -9,9 +9,9 @@ Begin işi landing `main` dalının güncel commit'ini seçip tüm işlere sabit
 ## Bir kez yapılacak kurulum
 
 1. Bağımsız landing projesinin incelenmiş içeriğini `mertcreates/pofis-landing` public deposunun `main` dalına yayımla. Paket arşivlerini GitHub Releases varlıklarında tut.
-2. GitHub'da yalnız bu public depoya erişen, **Contents: read and write** yetkili fine-grained PAT oluştur. Private uygulama deposunda Settings → Secrets and variables → Actions → Repository secrets altında **POFIS_RELEASE_TOKEN** adıyla secret ekle. Workflow token'ı bu repository secret üzerinden okur. Yayın workflow'u ve betik yalnız `master` dalında elle başlatılan çalıştırmayı kabul eder; token süresi veya depo koruma kuralları yayını durdurabilir.
+2. GitHub'da yalnız bu public depoya erişen, **Contents: read and write** yetkili fine-grained PAT oluştur. Uygulama deposunda Settings → Secrets and variables → Actions → Repository secrets altında **POFIS_RELEASE_TOKEN** adıyla secret ekle. Workflow token'ı bu repository secret üzerinden okur. Yayın workflow'u ve betik yalnız `master` dalında elle başlatılan çalıştırmayı kabul eder; token süresi veya depo koruma kuralları yayını durdurabilir.
 3. [Cloudflare Workers bağlantısı](#cloudflare-workers-bağlantısı) yalnız public landing deposunu yayımlar. `pofis.app` bağlantısı hazırdır; release mevcut Git entegrasyonunu kullanır.
-4. Private depoda GitHub Actions kullanımını aç. Ücretli kullanımı engelleyen bütçe sınırını yapılandır. Actions kotasını ve macOS runner tüketimini GitHub kullanım ekranından izle. Paketleri sürüm varlıklarında sakla.
+4. Uygulama deposunda GitHub Actions kullanımını aç; hesap bütçesini ve runner kullanımını GitHub kullanım ekranından izle. Paketleri sürüm varlıklarında sakla.
 5. Bu depodaki incelenmiş workflow ve betikleri `master` dalına gönder. Bu kurulum adımlarını ilgili GitHub ve Cloudflare hesaplarında tamamla.
 
 ## Landing geliştirme ve dağıtım hazırlığı

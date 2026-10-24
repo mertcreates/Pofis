@@ -77,6 +77,9 @@ async function prepare(arch = process.arch, platform = process.platform) {
         "-Executable", join(output, target.executable), "-Icon", icons.windows], { windowsHide: true });
   }
   await mkdir(join(payload, "electron"), { recursive: true });
+  for (const file of ["LICENSE", "ASSET-LICENSE.md"]) {
+    await copyFile(join(root, file), join(payload, file));
+  }
   for (const file of ["main.cjs", "scenarios.cjs", "ui-text.cjs", "background.cjs", "mini-window.cjs", "menu-clock.cjs", "transport.cjs", "server.cjs", "server-entry.cjs", "startup.cjs", "platform.cjs", "updates.cjs", "update-bridge.cjs", "external-links.cjs", "permissions.cjs", "acceptance-network.cjs"]) {
     await copyFile(join(root, "electron", file), join(payload, "electron", file));
   }
@@ -90,7 +93,7 @@ async function prepare(arch = process.arch, platform = process.platform) {
   await copyFile(join(root, "public", "pofi", "pofi-mark-256.png"), join(payload, "public", "pofi", "pofi-mark-256.png"));
   await writeFile(join(payload, "package.json"), JSON.stringify({
     name: "pofis", productName: "Pofis", version: manifest.version,
-    private: true, main: "electron/main.cjs",
+    private: true, license: manifest.license, main: "electron/main.cjs",
   }, null, 2));
   const release = { schemaVersion: 1, version: manifest.version, platform: target.platform, arch: target.arch };
   await writeFile(join(output, target.metadataFile), JSON.stringify(release, null, 2));

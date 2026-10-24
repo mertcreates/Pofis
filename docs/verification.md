@@ -4,11 +4,11 @@ Kontrolü değişen davranışa göre seçin. Beklenen sonucu ürün sözleşmes
 
 ## Kabul durumu
 
-22 Ekim 2026'da kullanıcı, görev listesindeki “Sonraki işler” dışındaki test ve kabullerin tamamlandığını bildirdi. Bu kabul; platform/kurulum/güncelleme, yayın performansı ve GA4, gerçek PDKS/hesap ayrımı ve arayüz kontrollerini kapsar. Aşağıdaki yöntemler değişen yolların tekrar doğrulanması için korunur; açık geliştirme işleri [görev listesindedir](../tasks/todo.md).
+22 Ekim 2026'da platform/kurulum/güncelleme, yayın performansı, GA4, gerçek PDKS/hesap ayrımı ve arayüz kontrolleri kullanıcı tarafından kabul edildi. Pofi Mini'nin 23 Ekim'deki paket kabul koşusu Apple Silicon, Intel macOS ve Windows'ta başarılıydı; gerçek Mac'te menü çubuğu ve Spaces kabulü açık kalıyor. Bu kayıtlar ilgili sürümlere aittir. Değişen yolları aşağıdaki yöntemlerle yeniden doğrulayın; açık işler [görev listesindedir](../tasks/todo.md).
 
 ## Yerel kontroller
 
-Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta paket yayını için elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama) bulunur. Otomatik Pofi Mini PR workflow'u mevcut değildir. Sürüm akışı tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
+Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama), tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
 
 ```powershell
 bun test ./src ./electron ./scripts/electron
@@ -18,7 +18,7 @@ bun run build
 
 Önce etkilenen test dosyalarını çalıştırın. Hesap ve ortak politika değişikliklerinde ilgili bağımlı davranışları da kontrol edin. Üretim derlemesi, derleme veya çalışma zamanı etkisi olan değişikliklerin son kontrolüdür; görsel iterasyon `bun run dev` ile yapılır.
 
-`bunfig.toml` test kökü `src` olduğundan yalın `bun test` yalnız bu dizini kapsar. Tam paket için yukarıdaki üç dizinli komutu kullanın. Test seçme ve sadeleştirme kararları [test değeri denetimindedir](test-value.md).
+`bunfig.toml` test kökü `src` olduğundan yalın `bun test` yalnız bu dizini kapsar. Tam paket için yukarıdaki üç dizinli komutu kullanın. Test seçme ve sadeleştirme ölçütleri [test bakım rehberindedir](test-value.md).
 
 Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron ./src/desktop` kullanılır. İptal/alt süreç temizliği, yayın kaynağı ve paket sınırları izole testlerle; macOS süreç seçimi ve Keychain reddi adaptörlerle sınanır. Süreç sözleşmesi [yayın rehberinde](release.md#yayın-sırası-ve-hata-davranışı), cihaz kontrolleri aşağıdaki masaüstü kabul bölümlerindedir.
 
@@ -178,4 +178,3 @@ Paketli [smoke testi](../scripts/electron/smoke.cjs) gerçek Mini penceresinin a
 - İzinli/kapalı gün → planlı mesai yok özeti ve haftalık toplam görünür; boş günlük hedef alanları gösterilmez. Plan dışı çalışma varsa süre korunur. Haftalık hedefe eksiksiz kayıtlarla ulaşıldığında tamamlanma metni görünür.
 - Mesai → hedef tamamlandı → izin → hata/bağlantısız geçişlerinde panel içeriği ölçülür; pencere büyür/küçülür, ana eylemin altında gereksiz boşluk kalmaz. Açık/koyu temada günlük ve haftalık alanlar kart çerçevesi olmadan görünür. Sabit açık paneli sürükle → içerik yüksekliği değişince konumu korunur; ekran sınırında büyürse çalışma alanına alınır. Kısa ekranda yükseklik sınırlanır ve uzun içerik kaydırılarak okunur. Yabancı pencere/alt frame/origin ve geçersiz yükseklik IPC'de reddedilir.
 - Oturum açılışında başlatma varsayılan kapalı kalır, menüyle açılıp kapatılır, gerçek macOS oturum açılışıyla doğrulanır.
-23 Ekim 2026 itibarıyla [PR #1'in son tam kabul koşusu](https://github.com/bugjardotdev/Pofis/actions/runs/39967421826) Apple Silicon, Intel macOS ve Windows'ta başarılıdır. Bu koşudan sonraki ana dala uyarlama ve dokümantasyon güncellemesi, Actions kotasını korumak için `[skip ci]` ile taşınır; yeni PR başının ayrıca CI'da doğrulandığı anlamına gelmez. Gerçek Mac'te menü çubuğu ve Spaces gibi görsel/işletim sistemi kabulleri henüz yapılmamıştır.

@@ -4,6 +4,7 @@ Davranış sözleşmeleri [kural haritasında](../docs/rules/README.md), kabul d
 
 ## Sonraki işler
 
+- [ ] Referans dosyası ve Pofi görsellerindeki tabii logosunun public dağıtım koşullarını TRT ile netleştir. [Lisans kapsamı](../ASSET-LICENSE.md#tabii-logosu).
 - [ ] Pofi Mini ve canlı geri sayım için gerçek macOS cihazında menü çubuğu hizalaması, çoklu monitör, Spaces, Dock ve oturum açılışında başlatma kabulünü tamamla. [Kontrol rehberi](../docs/verification.md#pofi-mini-kabulü).
 - [ ] [Mevcut Pofi görsel setlerinin](../docs/brand/pofi-review-2026-10-15/README.md) uygulamaya alınacak dosyalarını kullanıcıyla belirle; yeni üretim ihtiyacını bu seçime göre netleştir.
 
