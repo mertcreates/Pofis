@@ -358,6 +358,8 @@ Panel başlığında ürün adı **Pofis** bulunur; özellik adı menülerde **P
 - Mesai gününde bugünkü süre, kayıt durumu, hedef çıkış ve hedef farkı görünür. Bugünkü süre bütün günlük görünümlerde `7 sa 59 dk 43 sn` biçiminde yazılır; sıfır birimler atlanır. Hedef çıkış günün saati olarak `16:00:17` biçimini korur. Bu alanlar ek kartlara bölünmez.
 - Güncel ve belirsiz olmayan veride günlük hedefe ulaşıldığında **Bugünkü hedef tamamlandı.** ve bugünkü süre görünür; hedef çıkış/fark alanları kaldırılır. Güncel olmayan veya belirsiz kayıtta normal metrikler ve kayıt durumu korunur.
 
+Başlıktaki sabitleme düğmesi yalnız ikondur; kalıcı çerçeve veya zemin kullanmaz. Üzerine gelindiğinde hafif vurgu zemini görünür, sabitlenmiş durumda ikon vurgu rengini alır. 32 px tıklama alanı, açıklama balonu, erişilebilir ad, basılı durum ve görünür klavye odağı korunur.
+
 Haftalık toplam, ilerleme ve **Pofis’i aç** eylemi bütün günlük görünümlerde kalır. Haftalık toplam hedefe ulaşmış ve kayıtlar eksiksizse **Haftalık hedef tamamlandı** görünür; eksik kayıtta öncelik kayıt uyarısındadır. İçerik tek yüzeyde akar; günlük ve haftalık bilgiler kart zemini, çevre çerçevesi veya yuvarlatılmış kapsayıcı kullanmaz. Başlık ve haftalık bölüm ince ayraçlarla ayrılır; renkler ve tipografi mevcut tema tokenlarını kullanır. Ana eylem içeriği izler, pencerenin altına itilmez. Pencere genişliği sabit, yüksekliği içeriğe bağlıdır; [boyut sınırları](docs/desktop.md#pofi-mini-ve-macos-menü-çubuğu) ana süreçte uygulanır.
 
 ## Bileşen kabulü

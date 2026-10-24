@@ -36,7 +36,7 @@ Kaldırılan dört no-op plan vakası, yalnız bellekte `completeWeekPlan` tamam
 
 ## Dosya ve grup envanteri
 
-Yollar depo köküne göredir. Noktalı virgülle ayrılan davranışlar dosyanın değerlendirilen senaryo gruplarıdır. “Koru” kararı tüm bu grupları kapsar; yukarıdaki tabloda belirtilen alt gruplar istisnadır. Yerel envanter, Git tarafından dışlanan `scripts/electron/lan-dev.test.cjs` dosyasını da içerir; bu dosya commit kapsamına alınmamıştır. Bu nedenle başka bir checkout'un test sayısı farklı olabilir.
+Yollar depo köküne göredir. Noktalı virgülle ayrılan davranışlar dosyanın değerlendirilen senaryo gruplarıdır. “Koru” kararı tüm bu grupları kapsar; yukarıdaki tabloda belirtilen alt gruplar istisnadır. Test sayıları denetim ortamına aittir; başka bir checkout'ta farklı olabilir.
 
 ### Alan kuralları ve rapor
 
@@ -163,7 +163,6 @@ Fixture dosyaları/geçici depolar ve kontrollü alt süreçler gerçek script f
 | `scripts/electron/install-download.test.cjs` | K; sürüm/manifest/indirme doğrulama, hata ve bozuk paket reddi. Fixture HTTP/disk, gerçek indirme kodu; koru. |
 | `scripts/electron/install-linux.test.cjs` | K/E; Linux platform seçimi, kurulum sözleşmesi ve Python installer test köprüsü. Gerçek script, izole fixture; koru. |
 | `scripts/electron/install-macos.test.cjs` | K/E; macOS kurulum/güncelleme, hata/geri alma ve profil. Sistem adaptörleri taklit; koru. |
-| `scripts/electron/lan-dev.test.cjs` | E; LAN geliştirme adresi/erişim sınırı ve yanlış yapılandırma. Gerçek araç; koru. |
 | `scripts/electron/linux-installer.test.py` | K/E; gerçek installer'ın çıkarılmış Python kodunda transaction/rollback, profil/yol/hash/mimari ve onay. 19 alt test; Windows'ta fcntl/sandbox/Popen sınırları taklit, native flock atlanır. Koru. |
 | `scripts/electron/linux-static-check.test.cjs` | K/E; Linux helper/preload/sunucu/mimari/izin sözleşmesi. Gerçek paket fixture'ı; native izin grubu Windows'ta atlanır, koru. |
 | `scripts/electron/macos-static-check.test.cjs` | K/E; uygulama paketi/mimari ve eksik/yanlış dosya reddi. Statik gerçek doğrulayıcı; koru. |
