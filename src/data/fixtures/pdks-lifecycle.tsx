@@ -15,7 +15,9 @@ let connected = true;
 let hold = true;
 let release: (() => void) | undefined;
 let sessions = 0, reports = 0, refreshes = 0;
-let visible = true;
+let visible = false;
+let holdSession = false;
+const sessionReleases: (() => void)[] = [];
 Object.defineProperty(document, "visibilityState", { get: () => visible ? "visible" : "hidden" });
 const statusListeners = new Set<(value: NotificationStatus) => void>();
 const reportListeners = new Set<(value: NotificationReport) => void>();
@@ -32,8 +34,15 @@ const bridge = {
   onExpired: (fn: () => void) => { expiryListeners.add(fn); return () => { expiryListeners.delete(fn); }; },
 };
 window.pofisNotifications = bridge as typeof window.pofisNotifications;
-window.fetch = (async (input: RequestInfo | URL) => {
-  if (String(input).startsWith("/api/session")) { sessions++; return Response.json({ connected }); }
+window.fetch = (async (input: RequestInfo | URL, options?: RequestInit) => {
+  if (String(input).startsWith("/api/session")) {
+    sessions++;
+    if (options?.method === "POST") connected = true;
+    if (options?.method === "DELETE") connected = false;
+    const snapshot = connected;
+    if (holdSession) await new Promise<void>(resolve => { sessionReleases.push(resolve); });
+    return Response.json({ connected: snapshot });
+  }
   reports++;
   const snapshot = source;
   // Deliberately ignore AbortSignal to prove generation/cancellation also rejects a late response.
@@ -62,6 +71,10 @@ const push = (value: NotificationReport) => { for (const fn of reportListeners) 
 const settle = () => new Promise(resolve => setTimeout(resolve, 30));
 
 (window as any).runLifecycle = async () => {
+  await wait(() => statusListeners.size === 1);
+  emitStatus(true); await settle();
+  check(sessions === 0 && reports === 0, "Hidden preload requested session/report data");
+  visible = true; document.dispatchEvent(new Event("visibilitychange"));
   await wait(() => !!release && state?.busy === "report");
   push(report("pushed", 2000));
   await wait(() => state.report?.person.name === "pushed");
@@ -79,6 +92,7 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 30));
     "Mini started an independent scenario refresh instead of following the desktop runtime");
 
   source = report("current", 3000);
+  emitStatus(false);
   emitStatus(true);
   await wait(() => state.report?.person.name === "current");
   emitStatus(true, "temporary network error");
@@ -86,12 +100,29 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 30));
   push(report("recovered", 4000));
   await wait(() => !state.stale && !state.failure);
 
+  holdSession = true;
+  const sessionsBefore = sessions;
+  const checks = [state.checkSession(), state.checkSession()];
+  await wait(() => sessionReleases.length === 1);
+  visible = false; document.dispatchEvent(new Event("visibilitychange"));
+  visible = true; document.dispatchEvent(new Event("visibilitychange"));
+  document.dispatchEvent(new Event("visibilitychange"));
+  await settle();
+  check(sessions === sessionsBefore + 1, "Concurrent session checks did not share one request");
+  sessionReleases.shift()!(); holdSession = false;
+  await Promise.all(checks);
+  await wait(() => !state.busy);
+  check(state.report?.person.name === "recovered", "Session revalidation cleared the current report");
+
   source = report("manual refresh", 4500); hold = true; release = undefined;
+  const reportsBefore = reports;
   const manual = state.refresh();
+  const duplicate = state.refresh();
   await wait(() => !!release && state.busy === "report");
+  check(reports === reportsBefore + 1, "Concurrent report refreshes did not share one request");
   push(report("same cached response", 4000)); await settle();
   check(state.busy === "report", "Equal cached report cancelled a newer refresh");
-  release!(); hold = false; await manual;
+  release!(); hold = false; await Promise.all([manual, duplicate]);
   await wait(() => state.report?.person.name === "manual refresh");
 
   const before = { sessions, reports };
@@ -132,8 +163,27 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 30));
   await wait(() => state.connected === false);
   release!(); await pending; await settle();
   check(state.report === null, "Expired session revived a delayed report");
+
+  holdSession = true;
+  const lateSession = state.checkSession();
+  await wait(() => sessionReleases.length === 1);
+  for (const fn of expiryListeners) fn();
+  sessionReleases.shift()!(); holdSession = false;
+  await lateSession; await settle();
+  check(state.connected === false && state.report === null, "Expired session revived a delayed session check");
+
+  const form = document.createElement("form");
+  hold = false;
+  form.innerHTML = '<input name="username" value="fixture"><input name="password" value="fixture">';
+  source = report("signed in", 8000);
+  await state.connect(form);
+  await wait(() => state.report?.person.name === "signed in");
+  check((form.elements.namedItem("password") as HTMLInputElement).value === "", "Password was not cleared");
+  await state.disconnect();
+  await wait(() => state.connected === false && state.report === null);
   root.unmount();
   check(statusListeners.size + reportListeners.size + expiryListeners.size + scenarioListeners.size === 0, "Bridge listeners leaked");
   return { reportRace: true, olderPush: true, backgroundFailureRecovery: true, revalidateOnShow: true,
-    weekChange: true, accountSwitch: true, lateExpiry: true, cleanup: true, redundantRefreshes: refreshes };
+    weekChange: true, accountSwitch: true, lateExpiry: true, cleanup: true, redundantRefreshes: refreshes,
+    hiddenPreload: true, sharedRequests: true, lateSession: true, connectDisconnect: true };
 };

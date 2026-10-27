@@ -148,7 +148,7 @@ Final yayın tüm hedeflerin başarıyla tamamlanmasına bağlıdır. Release ya
 
 ## Kanıt sınırı
 
-Yerel birim testleri sürüm/manifest, public dosya sınırı, kaynak commit eşleşmesi ve bozuk indirme reddini doğrular. Native paketler CI'da, yayımlanan dosyalar anonim indirme ve Workers HTTPS adımlarında doğrulanır. Cihaz kapsamı [masaüstü rehberinde](desktop.md), [kabul durumu](verification.md#kabul-durumu) doğrulama rehberindedir.
+Yerel birim testleri sürüm/manifest, public dosya sınırı, kaynak commit eşleşmesi ve bozuk indirme reddini doğrular. Native paketler CI'da, yayımlanan dosyalar anonim indirme ve Workers HTTPS adımlarında doğrulanır. Cihaz kapsamı [masaüstü rehberinde](desktop.md), kontrol yöntemleri [doğrulama rehberindedir](verification.md#masaüstü-kabulü).
 
 ## Kaynaklar
 

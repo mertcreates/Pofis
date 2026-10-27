@@ -35,8 +35,8 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
       instances.push(this);
     }
     loadURL(url) { this.url = url; return Promise.resolve(); }
-    setPosition(x, y) { this.position = { x, y }; }
-    setSize(width, height) { this.size = { width, height }; }
+    getBounds() { return { ...this.position, ...this.size }; }
+    setBounds({ x, y, width, height }) { this.position = { x, y }; this.size = { width, height }; }
     show() { this.visible = true; }
     focus() { this.focuses++; }
     hide() { this.visible = false; }
@@ -57,6 +57,7 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   expect(instances[0].visible).toBe(true);
   expect(instances[0].url).toBe("http://127.0.0.1:3210/mini");
   expect(instances[0].options.webPreferences.sandbox).toBe(true);
+  expect(instances[0].options.paintWhenInitiallyHidden).toBe(false);
   expect(instances[0].spaces).toEqual({ value: true, options: { visibleOnFullScreen: true, skipTransformProcessType: true } });
   const event = { sender: instances[0].webContents, senderFrame: instances[0].webContents.mainFrame };
   expect(handlers.get("pofis:mini:get")(event)).toEqual({ pinned: false });
@@ -131,15 +132,16 @@ function loadingFixture(load, options = {}) {
   const windows = [];
   class BrowserWindow extends EventEmitter {
     constructor() {
-      super(); this.visible = false; this.destroyed = false; this.loads = 0;
+      super(); this.visible = false; this.destroyed = false; this.loads = 0; this.boundsChanges = 0;
       this.webContents = new EventEmitter();
       this.webContents.setWindowOpenHandler = () => {};
       this.webContents.reload = () => { throw new Error("An opening must not load twice"); };
       windows.push(this);
     }
     loadURL() { this.loads++; return load(windows.length); }
-    setAlwaysOnTop() {} setVisibleOnAllWorkspaces() {} setSize() {} focus() {}
-    setPosition(x, y) { this.position = { x, y }; }
+    setAlwaysOnTop() {} setVisibleOnAllWorkspaces() {} focus() {}
+    getBounds() { return this.bounds || {}; }
+    setBounds(bounds) { this.bounds = bounds; this.position = { x: bounds.x, y: bounds.y }; this.boundsChanges++; }
     show() { this.visible = true; }
     hide() { this.visible = false; }
     isVisible() { return this.visible; }
@@ -186,6 +188,62 @@ test("ilk açılış tek yükleme yapar; tekrar açılış aynı renderer'ı an�
     await opening;
     expect(f.windows[0].loads).toBe(1);
     expect(f.windows[0].visible).toBe(true);
+  } finally { f.mini.stop(); }
+});
+
+test("değişmeyen konum/boyut tekrar uygulanmaz; ekran değişimi tek bounds çağrısı yapar", async () => {
+  const f = loadingFixture(() => Promise.resolve());
+  try {
+    await f.mini.toggle();
+    expect(f.windows[0].boundsChanges).toBe(1);
+    f.mini.hide(); await f.mini.toggle();
+    f.screen.emit("display-metrics-changed");
+    expect(f.windows[0].boundsChanges).toBe(1);
+    f.screen.getDisplayNearestPoint = () => ({ workArea: { x: 0, y: 0, width: 300, height: 200 } });
+    f.screen.emit("display-metrics-changed");
+    expect(f.windows[0].boundsChanges).toBe(2);
+    expect(f.windows[0].getBounds()).toEqual({ x: 0, y: 16, width: 284, height: 184 });
+  } finally { f.mini.stop(); }
+});
+
+test("ön yükleme gizli kalır; ilk tık hazır pencereyi yeni yükleme olmadan gösterir", async () => {
+  const f = loadingFixture(() => Promise.resolve());
+  try {
+    await f.mini.prepare();
+    await f.mini.prepare();
+    expect(f.windows).toHaveLength(1);
+    expect(f.windows[0].loads).toBe(1);
+    expect(f.windows[0].visible).toBe(false);
+    const opening = f.mini.toggle();
+    expect(f.windows[0].visible).toBe(true);
+    await opening;
+    expect(f.windows[0].loads).toBe(1);
+  } finally { f.mini.stop(); }
+});
+
+test.each([0, 1, 2, 3])("ön yükleme sürerken %i tıklama son görünürlük isteğini korur", async clicks => {
+  let release;
+  const f = loadingFixture(() => new Promise(resolve => { release = resolve; }));
+  try {
+    const pending = [f.mini.prepare(), ...Array.from({ length: clicks }, () => f.mini.toggle())];
+    expect(f.windows[0].loads).toBe(1);
+    expect(f.windows[0].visible).toBe(false);
+    release(); await Promise.all(pending);
+    expect(f.windows[0].visible).toBe(clicks % 2 === 1);
+  } finally { f.mini.stop(); }
+});
+
+test("ön yükleme hatası sonraki kullanıcı açılışında toparlanır; durdurma yeniden pencere oluşturmaz", async () => {
+  const f = loadingFixture(attempt => attempt === 1 ? Promise.reject(new Error("offline")) : Promise.resolve());
+  try {
+    await expect(f.mini.prepare()).rejects.toThrow("offline");
+    expect(f.windows[0].destroyed).toBe(true);
+    await f.mini.toggle();
+    expect(f.windows).toHaveLength(2);
+    expect(f.windows[1].visible).toBe(true);
+    f.mini.stop();
+    await f.mini.prepare(); await f.mini.toggle();
+    expect(f.windows).toHaveLength(2);
   } finally { f.mini.stop(); }
 });
 

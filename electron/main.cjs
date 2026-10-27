@@ -263,6 +263,9 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     // Show the loaded page without waiting for a paint from an initially hidden window.
     ready = true;
     await focusAndReport();
+    setImmediate(() => {
+      void mini.prepare().catch(error => console.warn("Pofi Mini ön yüklenemedi:", error.message));
+    });
     if (app.isPackaged && !scenarioMode) {
       updateTimer = setTimeout(() => {
         checkForUpdates({

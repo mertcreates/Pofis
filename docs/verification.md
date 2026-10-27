@@ -2,12 +2,6 @@
 
 Kontrolü değişen davranışa göre seçin. Beklenen sonucu ürün sözleşmesinden alın; otomatik test, fixture tarayıcı kabulü ve gerçek kaynak kabulünün kapsamlarını ayrı belirtin.
 
-## Kabul durumu
-
-22 Ekim 2026'da platform/kurulum/güncelleme, yayın performansı, GA4, gerçek PDKS/hesap ayrımı ve arayüz kontrolleri kullanıcı tarafından kabul edildi. Pofi Mini'nin 23 Ekim'deki paket kabul koşusu Apple Silicon, Intel macOS ve Windows'ta başarılıydı. Bu kayıtlar ilgili sürümlere aittir. Değişen yolları aşağıdaki yöntemlerle yeniden doğrulayın; açık işler [görev listesindedir](../tasks/todo.md).
-
-24 Ekim 2026'da `16022e0` kaynaklarının macOS Sonoma Intel VM'deki paketli senaryo ve smoke kabulleri geçti. Menü çubuğu, sabitleme, kısayol, Dock, tam ekran geçişi ve geri sayım davranışları elle doğrulandı.
-
 ## Yerel kontroller
 
 Geliştirme kontrolleri yerelde çalıştırılır. GitHub Actions'ta elle başlatılan [sürüm akışı](release.md#bir-sürüm-yayımlama), tür kontrolünü, davranış testlerini ve platform paket kabullerini çalıştırır.
@@ -156,30 +150,45 @@ Her sonucu kullanılan kaynak, paket ve ortamla birlikte bildirin. Motor geçiş
 
 Sonucu ve kanıtın sınırlarını kullanıcıya bildirin. Tamamlanan doğrulamaların rapor, ekran görüntüsü ve ölçüm çıktılarını temizleyin. Geçerli ürün kararlarını ilgili sözleşmeye, açık bulguları görev listesine taşıyın. Davranış testleri ve demo üzerinden elle tarayıcı kabulü doğrulama yönteminin parçasıdır.
 
-
 ## Pofi Mini kabulü
 
-Paketli senaryo kabulü, açık Mini'de diğer pencerenin tema ve plan değişikliğini, odak göstergesini ve yatay taşma sınırını doğrular. Sabitlenmiş panel art arda üç kez çağrıldığında görünür, odakta ve aynı konumda kalmalıdır. macOS paketinde ana pencere, Mini ilk açılışı ve tekrar açılışları boyunca Pofis Dock simgesinin görünürlüğü de denetlenir. İlk açılışın native `show` süresini, aynı pencerenin beş tekrar açılış çağrısını ve gizli renderer'ın iki saniyelik `app.getAppMetrics()` CPU/working-set örneğini yazdırır. Tekrar açılış ölçümünde dış odak değişimlerini ayırmak için panel geçici sabitlenir; her örnekten önce native kapatma isteğiyle gizlenir. Bu ölçümler boyanmış ilk kareyi, uzun süreli bellek kararlılığını veya başka bir işletim sisteminin performansını kanıtlamaz. Aynı paket klasöründen sonra `--capture` eklemek açık/koyu Mini görüntülerini `dist/electron/checks/preview` altına alır; inceleme sonunda temizle.
+Davranışın sahibi [masaüstü rehberi](desktop.md#pofi-mini-ve-macos-menü-çubuğu), oturum ve rapor yarışlarının sahibi [PDKS hata sözleşmesidir](pdks-errors.md#kullanıcı-davranışı).
 
-[Paketli senaryo modu](desktop.md#paketli-senaryo-modu), mesai gününü beklemeden native kabul girdisi sağlar. `bun test ./src/desktop/scenario-runtime.test.ts ./electron/scenarios.test.cjs ./src/data/work-plans.test.ts` ortak saat, gerçek hesaplara verilen girdiler, plan revizyonu, HTTP izolasyonu, geç yanıt, native menü ve IPC yetkisini sınar. Güncel paket sonrasında `bun scripts/electron/scenario-acceptance.cjs <paket-klasörü>` ayrı geçici profilde gerçek Electron/standalone ana pencere ve Mini zincirini çalıştırır; fixture dışı API ile dış HTTP erişimini, sekiz senaryonun seçimini, bağlantı/oturum toparlanmasını ve kapanışı doğrular. Senaryo hesabı ve profili gerçek PDKS'e erişmez; geçici profil kabul sonunda temizlenir.
+### Otomatik kontroller
 
-[Mini pencere davranış testleri](../electron/mini-window.test.cjs) konum, tek pencere, sabitleme, kapanış ve IPC gönderen doğrulamasını sınar. İlk açılışta tek yükleme, tekrar açılışta gezinmeden gösterme, yükleme/renderer hatasından sonra toparlanma, hızlı aç/kapat, ekran değişiminde sınırlandırma, dinleyici temizliği, yüklemede gizleme ve durdurma da kapsanır. macOS Spaces API çağrısı taklit adaptörle denetlenir. [Arka plan testleri](../electron/background.test.cjs) sol/sağ tıklama, ana pencereyi gösterme ve gerçek çıkış ayrımını doğrular.
+| Kontrol | Kapsam |
+| --- | --- |
+| [Pencere](../electron/mini-window.test.cjs) | Gizli hazırlık, tek yükleme/pencere, hızlı aç/kapat, sabitleme, sınırlar, yükleme/renderer hatasından toparlanma, IPC yetkisi ve kapanış |
+| [Tray ve menü](../electron/background.test.cjs) | macOS hızlı tıklama adaptörü, sağ tık, ana pencereye dönüş ve çıkış |
+| [PDKS yaşam döngüsü](../src/data/pdks-lifecycle.test.ts) | İzole React/Electron ortamında gizli hazırlıkta sıfır HTTP isteği, çakışan isteklerin paylaşılması, rapor/olay yarışı, hafta/hesap değişimi, oturum bitişi ve dinleyici temizliği |
+| [Bildirim adaptörü](../src/desktop/install-notifications.test.ts), [plan depolama](../src/data/work-plans.test.ts), [saat](../src/data/clock.test.ts) | Pencereler arası rapor/plan aktarımı, oturum olayları ve görünürlüğe bağlı saat |
+| [Mini sunumu](../src/components/mini/mini-dashboard.test.tsx) | Saniyeli hedef/kalan/aşan süre, günlük durumlar ve yükleniyor/bağlantısız/hata ayrımı |
+| [Senaryo kabulü](../scripts/electron/scenario-acceptance.cjs) | Gerçek Electron'da gizli hazırlık ve aynı pencerenin gösterilmesi, tema/plan senkronizasyonu, sekiz mesai senaryosu, bağlantı/oturum toparlanması, native menü, sandbox ve kapanış |
+| [Smoke](../scripts/electron/smoke.cjs) | Mini açılışı, sabitleme, IPC köprüsü ve ana pencereye dönüş |
 
-Arka plan testindeki macOS tray adaptörü, Electron 43.8.1'in native `clickCount` ayrımını taklit eder: hızlı beş fiziksel tıklamanın her biri Mini eylemine bir kez ulaşmalı, sağ tıklama yalnız menüyü açmalıdır. Bu test native olay teslimi veya cihaz gecikmesi ölçümü değildir. Gerçek Intel ve Apple Silicon macOS'ta panel gizliyken iki, üç ve beş hızlı sol tıklamayı dene → sabitlenmemiş panel her tıklamada açılır/kapanır, çift sayıda gizli ve tek sayıda görünür kalır. İlk yükleme sırasında aynı diziyi dene → son görünürlük isteği korunur. Paneli sabitleyip taşı → hızlı tıklamalar paneli gizlemeden aynı konumda odaklar. Dışarı tıklama, sağ tık menüsü ve kısayol davranışlarını da kontrol et.
+Güncel paketle senaryo kabulünü çalıştırın:
 
-[PDKS yaşam döngüsü testi](../src/data/pdks-lifecycle.test.ts), gerçek React hook'unu izole Electron renderer'ında sahte HTTP/köprü yanıtlarıyla çalıştırır. HTTP/olay yarışı, eski/eşit zamanlı rapor, arka plan hatası ve toparlanma, tekrar görünürken tek doğrulama, hafta/hesap değişimi, gecikmiş oturum yanıtı ve abonelik temizliği denetlenir. Gerçek PDKS veya kullanıcı profili kullanılmaz. [Saat testleri](../src/data/clock.test.ts) gizliyken timer kurulmadığını ve görünürlük dönüşünde gerçek zamana geçildiğini doğrular.
+```sh
+bun scripts/electron/scenario-acceptance.cjs <paket-klasörü>
+```
 
-İlk yükleme sırasında çöken Mini'nin geciken yükleme sonucu yeni pencereyi gösteremez, kapatamaz veya yükleme durumunu temizleyemez. [Pencere testi](../electron/mini-window.test.cjs) eski yüklemenin başarı ve hata sonuçlarını yeni açılış ve hızlı tıklamalarla birlikte sınar.
+Kaynak kabuğunu güncel standalone ile sınamak için:
 
-[Bildirim adaptörü testleri](../src/desktop/install-notifications.test.ts) rapor, hesap geçişi ve oturum bitişinin Mini'ye iletilmesini ve Mini'nin yalnız yenileme çağırabilmesini doğrular. [Plan depolama testleri](../src/data/work-plans.test.ts) diğer pencerenin değişikliğini, canlı/demo ayrımını, temizleme olayını, bozuk kaydın korunmasını ve abonelik temizliğini sınar. [Mini sunum testleri](../src/components/mini/mini-dashboard.test.tsx) saniyeli hedef/kalan/aşan süreyi ve yükleniyor/bağlantısız/hata ayrımını gerçek bileşeni statik sunarak kontrol eder; React effect yaşam döngüsünü ve CSS yerleşimini kanıtlamaz.
+```sh
+bun scripts/electron/build.cjs
+bun scripts/electron/scenario-acceptance.cjs --source
+```
 
-Paketli [smoke testi](../scripts/electron/smoke.cjs) gerçek Mini penceresinin açılışını, sabitleme düğmesini, IPC köprüsünü ve ana ekrana dönüşü sınar. Paket kabulleri elle başlatılan [sürüm akışının](../.github/workflows/desktop-release.yml) parçasıdır. Bu kontroller gerçek menü çubuğu görüntüsünün görsel kabulünün yerine geçmez.
+Senaryo modu geçici profil ve örnek HTTP yanıtları kullanır; profil koşu sonunda temizlenir. Paket kabulleri [sürüm akışında](../.github/workflows/desktop-release.yml) çalışır.
 
-- Windows'ta tray sol tık → Pofi Mini, sağ tık → seçenekler; ana uygulama kapatılıp yeniden açıldığında mesai/planın güncellenmesi.
-- macOS'ta menü çubuğu sol tık → Pofi Mini, sağ tık → eylem menüsü; başlıktan sürükleme, dışarı tıklama → gizlenme, sabitleme → görünür kalma, Dock eylemleri ve `CommandOrControl+Shift+P`. Sabitlenmiş paneli taşıyıp simgeye art arda tıkla → panel konumunu koruyarak açık kalır ve odaklanır; kısayol ve menü eylemi aynı sonucu verir. Sabitlemeyi kaldır → simge ve kısayol paneli açıp kapatır.
-- macOS'ta hedef çıkışa geri sayım, hedef aşıldığında `+` işareti, çıkış kaydında/oturum kapanışında silinme, gün değişiminde silinme ve "Hedefe kalan süreyi göster" seçeneğinin kapatılıp yeniden başlatılınca korunması.
-- PDKS girişi yok, rapor hatası, belirsiz kayıt, mesai öncesi, canlı mesai, çıkış sonrası, hedef aşımı ve hafta değişimi → panelin mevcut iş kurallarıyla aynı bilgiyi sunması.
-- Mini sabit açıkken ana pencerede plan değiştir → hedef ve haftalık toplam yeniden açmadan güncellenir. Yeni turnike raporu → Mini aynı kaydı gösterir. Çıkış/hesap değişimi veya oturum bitişi → eski rapor temizlenir; geciken yanıt geri getiremez. Yeni giriş → yeni hesabın raporu gösterilir.
-- Bozuk plan kaydı veya erişilemeyen depolama → yükleniyor yerine hata ve ana pencereye dönüş görünür. Hedef `16:00:17`, saat `16:00:00` → kalan `17 sn` görünür. Günlük hedefe ulaşıldığında tamamlanma özeti ve süre görünür; belirsiz veya güncel olmayan kayıt tamamlanmış sayılmaz.
-- İzinli/kapalı gün → planlı mesai yok özeti ve haftalık toplam görünür; boş günlük hedef alanları gösterilmez. Plan dışı çalışma varsa süre korunur. Haftalık hedefe eksiksiz kayıtlarla ulaşıldığında tamamlanma metni görünür.
-- Mesai → hedef tamamlandı → izin → hata/bağlantısız geçişlerinde panel içeriği ölçülür; pencere büyür/küçülür, ana eylemin altında gereksiz boşluk kalmaz. Açık/koyu temada günlük ve haftalık alanlar kart çerçevesi olmadan görünür. Sabit açık paneli sürükle → içerik yüksekliği değişince konumu korunur; ekran sınırında büyürse çalışma alanına alınır. Kısa ekranda yükseklik sınırlanır ve uzun içerik kaydırılarak okunur. Yabancı pencere/alt frame/origin ve geçersiz yükseklik IPC'de reddedilir.
+### Performans ölçümü
+
+Senaryo kabulü, hazır pencerenin ilk native `show` süresini, beş tekrar açılışı ve gizli renderer'ın kullanım öncesi/sonrası iki saniyelik CPU/working-set örneklerini yazdırır (`preloadedIdle`/`idle`). Tekrar ölçümlerinde panel sabitlenir ve her örnekten önce gizlenir. Sonuçları kullanılan kaynak/paket ve işletim sistemiyle birlikte değerlendirin; fiziksel tıklama ile ilk boyanmış kare arasındaki gecikmeyi cihazda ölçün.
+
+### Cihazda etkileşim ve görünüm
+
+- Intel ve Apple Silicon macOS'ta gizli panelden başlayarak iki, üç ve beş hızlı sol tıklamayı deneyin → çift sayıda panel gizli, tek sayıda görünür kalır. Hazırlık sürerken de son görünürlük tercihi korunur. Sabitlenmiş paneli taşıyıp yeniden çağırın → aynı konumda odaklanır. Dışarı tıklama, sağ tık, kısayol, Dock ve tam ekran/Spaces geçişlerini kontrol edin. Windows'ta tray sol/sağ tık ve ana pencereye dönüşü deneyin.
+- Ana pencerede tema veya plan değiştirin → açık Mini güncellenir. Çıkış/hesap değişimi ve oturum bitişinde eski rapor temizlenir; yeni girişte yeni hesabın raporu gelir.
+- Canlı mesai, hedefe ulaşma/aşma, izin, kayıtsız gün, belirsiz kayıt ve hata durumlarını kontrol edin. Hedef `16:00:17`, saat `16:00:00` → kalan `17 sn` görünür. Bozuk plan kaydı hata durumuna geçer.
+- Açık/koyu tema, kısa ekran ve içerik geçişlerinde pencere içeriğe uyar, çalışma alanında kalır ve yatay taşmaz. Klavye odağı görünürdür. `--capture` seçeneği açık/koyu görüntüleri `dist/electron/checks/preview` altına kaydeder; inceleme sonunda temizleyin.
+- macOS geri sayımını hedef öncesi/sonrası, çıkış kaydı ve gün değişiminde kontrol edin. “Hedefe kalan süreyi göster” tercihini değiştirip uygulamayı yeniden başlatın → tercih korunur.

@@ -19,19 +19,31 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   const { connected, report } = state;
   const [requests] = useState(createLatestRequest);
   const generation = useRef(0);
+  const pendingSession = useRef<{ id: number; signal: AbortSignal; controller: AbortController; promise: Promise<boolean | undefined> } | null>(null);
+  const pendingReport = useRef<{ id: number; week: string; promise: Promise<void> } | null>(null);
   const mutationInFlight = useRef(false);
   const desktopActive = useRef<boolean | null>(null);
   const [refreshVersion, requestRefresh] = useReducer((value: number) => value + 1, 0);
+
+  const cancelReport = useCallback(() => {
+    requests.cancel();
+    pendingReport.current = null;
+  }, [requests]);
+  const invalidate = useCallback(() => {
+    cancelReport();
+    pendingSession.current?.controller.abort();
+    pendingSession.current = null;
+    generation.current++;
+  }, [cancelReport]);
 
   const fail = useCallback((error: unknown, operation: PdksOperation) => {
     const failure = toRequestFailure(error, operation);
     if (failure.kind === "session-expired") {
       setAnalyticsUserId(null);
-      requests.cancel();
-      generation.current++;
+      invalidate();
     }
     dispatch({ type: "failed", failure });
-  }, [requests]);
+  }, [invalidate]);
 
   const onExpired = useEffectEvent((error: unknown) => fail(error, "session"));
   const onDesktopReport = useEffectEvent((value: NotificationReport) => {
@@ -43,8 +55,7 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
         const difference = Date.parse(next.fetchedAt) - Date.parse(report.fetchedAt);
         if (difference < 0 || (difference === 0 && state.busy === "report")) return;
       }
-      requests.cancel();
-      generation.current++;
+      invalidate();
       setAnalyticsUserId(readAnalyticsUserId(value));
       dispatch({ type: "report-loaded", report: next });
     } catch (error) { fail(error, "report"); }
@@ -55,30 +66,40 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
     const stopReport = bridge.onReport(onDesktopReport);
     const stopExpiry = bridge.onExpired(() => {
       desktopActive.current = false;
-      setAnalyticsUserId(null); requests.cancel(); generation.current++;
+      setAnalyticsUserId(null); invalidate();
       dispatch({ type: "session-checked", connected: false });
     });
     return () => { stopReport(); stopExpiry(); };
-  }, [requests]);
+  }, [invalidate]);
   useEffect(() => {
     if (!connected) return;
     if (window.pofisNotifications) return;
     return startSessionHeartbeat(onExpired);
   }, [connected]);
 
-  const checkSession = useCallback(async (signal?: AbortSignal) => {
+  const checkSession = useCallback((externalSignal?: AbortSignal) => {
+    const current = pendingSession.current;
+    if (current?.id === generation.current && !current.signal.aborted) return current.promise;
+    const controller = new AbortController();
+    const signal = externalSignal ? AbortSignal.any([externalSignal, controller.signal]) : controller.signal;
     const id = ++generation.current;
     dispatch({ type: "started", operation: "session" });
-    try {
-      const result = await api("/api/session", { signal });
-      if (signal?.aborted || id !== generation.current) return;
-      const sessionConnected = readSessionResponse(result, "/api/session", "GET");
-      if (!sessionConnected) setAnalyticsUserId(null);
-      dispatch({ type: "session-checked", connected: sessionConnected });
-      return sessionConnected;
-    } catch (error) {
-      if (!signal?.aborted && id === generation.current) fail(error, "session");
-    }
+    const promise = (async () => {
+      try {
+        const result = await api("/api/session", { signal });
+        if (signal.aborted || id !== generation.current) return;
+        const sessionConnected = readSessionResponse(result, "/api/session", "GET");
+        if (!sessionConnected) setAnalyticsUserId(null);
+        dispatch({ type: "session-checked", connected: sessionConnected });
+        return sessionConnected;
+      } catch (error) {
+        if (!signal.aborted && id === generation.current) fail(error, "session");
+      } finally {
+        if (pendingSession.current?.id === id) pendingSession.current = null;
+      }
+    })();
+    pendingSession.current = { id, signal, controller, promise };
+    return promise;
   }, [fail]);
 
   const onDesktopStatus = useEffectEvent((status: NotificationStatus) => {
@@ -87,12 +108,11 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
       return;
     }
     desktopActive.current = status.active;
-    requests.cancel();
-    generation.current++;
+    invalidate();
     // Clear the previous account before checking the shared session again.
     dispatch({ type: "disconnected" });
     setAnalyticsUserId(null);
-    if (status.active) void checkSession();
+    if (status.active && document.visibilityState === "visible") void checkSession();
   });
   useEffect(() => {
     if (!observeDesktopSession || !window.pofisNotifications) return;
@@ -100,7 +120,8 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   }, [observeDesktopSession]);
 
   const onVisible = useEffectEvent(async () => {
-    if (document.visibilityState !== "visible" || state.busy || mutationInFlight.current) return;
+    if (document.visibilityState !== "visible" || mutationInFlight.current || pendingSession.current ||
+        pendingReport.current || (state.busy && connected !== null)) return;
     const wasConnected = connected;
     if (await checkSession() && wasConnected) requestRefresh();
   });
@@ -112,39 +133,44 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
 
   useEffect(() => {
     const controller = new AbortController();
-    void checkSession(controller.signal);
+    if (!observeDesktopSession || document.visibilityState === "visible") void checkSession(controller.signal);
     return () => {
       controller.abort();
-      requests.cancel();
-      generation.current++;
+      invalidate();
       setAnalyticsUserId(null);
     };
-  }, [checkSession, requests]);
+  }, [checkSession, invalidate, observeDesktopSession]);
 
-  const load = useCallback(async () => {
-    if (!connected || mutationInFlight.current) return;
+  const load = useCallback(() => {
+    if (!connected || mutationInFlight.current) return Promise.resolve();
+    const current = pendingReport.current;
+    if (current?.id === generation.current && current.week === week) return current.promise;
     const id = ++generation.current;
     dispatch({ type: "started", operation: "report" });
-    try {
-      const result = await requests.run(
-        `/api/report?${new URLSearchParams({ person: REPORT_ACCESS.person, from: week, to: addDays(week, 6) })}`,
-      );
-      if (!result || id !== generation.current) return;
-      const nextReport = readReportResponse(result, week, addDays(week, 6));
-      setAnalyticsUserId(readAnalyticsUserId(result));
-      dispatch({ type: "report-loaded", report: nextReport });
-      if (!observeDesktopSession) void window.pofisNotifications?.refresh().catch(() => console.warn(ui.serverDiagnostics.backgroundRefreshFailed));
-    } catch (error) {
-      if (id === generation.current) fail(error, "report");
-    }
+    const promise = (async () => {
+      try {
+        const result = await requests.run(
+          `/api/report?${new URLSearchParams({ person: REPORT_ACCESS.person, from: week, to: addDays(week, 6) })}`,
+        );
+        if (!result || id !== generation.current) return;
+        const nextReport = readReportResponse(result, week, addDays(week, 6));
+        setAnalyticsUserId(readAnalyticsUserId(result));
+        dispatch({ type: "report-loaded", report: nextReport });
+        if (!observeDesktopSession) void window.pofisNotifications?.refresh().catch(() => console.warn(ui.serverDiagnostics.backgroundRefreshFailed));
+      } catch (error) {
+        if (id === generation.current) fail(error, "report");
+      } finally {
+        if (pendingReport.current?.id === id) pendingReport.current = null;
+      }
+    })();
+    pendingReport.current = { id, week, promise };
+    return promise;
   }, [connected, week, requests, fail, observeDesktopSession]);
 
   useEffect(() => {
     void load();
-    return () => {
-      requests.cancel();
-    };
-  }, [load, requests, refreshVersion]);
+    return cancelReport;
+  }, [load, cancelReport, refreshVersion]);
 
   const refreshScenario = useEffectEvent(async () => {
     // Mini follows the shared desktop runtime; only the main window drives fixture refreshes.
@@ -159,8 +185,8 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
     if (mutationInFlight.current) return;
     mutationInFlight.current = true;
     const values = new FormData(form);
-    const id = ++generation.current;
-    requests.cancel();
+    invalidate();
+    const id = generation.current;
     dispatch({ type: "started", operation: "connect" });
     try {
       const result = await api("/api/session", {
@@ -180,13 +206,13 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
       (form.elements.namedItem("password") as HTMLInputElement).value = "";
       mutationInFlight.current = false;
     }
-  }, [fail, requests]);
+  }, [fail, invalidate]);
 
   const disconnect = useCallback(async () => {
     if (mutationInFlight.current) return;
     mutationInFlight.current = true;
-    const id = ++generation.current;
-    requests.cancel();
+    invalidate();
+    const id = generation.current;
     const previousUserId = readAnalyticsUserId(report);
     setAnalyticsUserId(null);
     dispatch({ type: "started", operation: "disconnect" });
@@ -204,7 +230,7 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
     } finally {
       mutationInFlight.current = false;
     }
-  }, [fail, requests, report]);
+  }, [fail, invalidate, report]);
 
   const retryFailure = useCallback(() => {
     if (!state.failure || state.failure.recovery !== "retry") return;

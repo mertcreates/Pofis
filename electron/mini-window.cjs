@@ -44,8 +44,9 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
       x: Math.max(workArea.x, Math.min(workArea.x + workArea.width - fittedWidth, movedBounds.x)),
       y: Math.max(workArea.y, Math.min(workArea.y + workArea.height - fittedHeight, movedBounds.y)),
     } : miniPosition(anchorBounds, workArea, fittedWidth, fittedHeight, platform);
-    mini.setSize(fittedWidth, fittedHeight);
-    mini.setPosition(position.x, position.y);
+    const next = { ...position, width: fittedWidth, height: fittedHeight };
+    const current = mini.getBounds();
+    if (Object.keys(next).some(key => current[key] !== next[key])) mini.setBounds(next);
   }
   const refit = () => { if (valid() && visible) fit(); };
   screen.on("display-metrics-changed", refit);
@@ -77,7 +78,7 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
   function ensure() {
     if (valid()) return;
     mini = new BrowserWindow({
-      icon, width, height, show: false, frame: false, resizable: false,
+      icon, width, height, show: false, paintWhenInitiallyHidden: false, frame: false, resizable: false,
       minimizable: false, maximizable: false, fullscreenable: false, skipTaskbar: true,
       backgroundColor: "#FAF9FD",
       ...(platform === "darwin" ? { type: "panel" } : {}),
@@ -107,6 +108,34 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
     });
   }
 
+  async function prepare() {
+    if (stopped || isQuitting() || loaded) return;
+    if (loading) return loading;
+    if (!anchorBounds) {
+      const anchor = getAnchorBounds();
+      anchorBounds = anchor || { ...screen.getCursorScreenPoint(), width: 0, height: 0 };
+    }
+    ensure();
+    const openingWindow = mini;
+    const pending = openingWindow.loadURL(`${ORIGIN}/mini`).then(() => {
+      if (mini !== openingWindow || !valid()) return;
+      loaded = true;
+      if (!visible || stopped || isQuitting()) return;
+      fit();
+      mini.show();
+      mini.focus();
+    }).catch(error => {
+      if (mini !== openingWindow || stopped) return;
+      hide();
+      if (valid()) mini.destroy();
+      throw error;
+    }).finally(() => {
+      if (loading === pending) loading = null;
+    });
+    loading = pending;
+    return pending;
+  }
+
   async function toggle(bounds) {
     if (stopped || isQuitting()) return;
     if (visible) {
@@ -123,37 +152,18 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
     const point = anchor ? null : screen.getCursorScreenPoint();
     anchorBounds = anchor || { ...point, width: 0, height: 0 };
     movedBounds = null;
-    if (loading) return loading;
-    ensure();
     if (loaded) {
       fit();
       mini.show();
       mini.focus();
       return;
     }
-    const openingWindow = mini;
-    const pending = openingWindow.loadURL(`${ORIGIN}/mini`);
-    loading = pending;
-    try {
-      await pending;
-      if (mini !== openingWindow || !valid()) return;
-      loaded = true;
-      if (!visible || stopped || isQuitting()) return;
-      fit();
-      mini.show();
-      mini.focus();
-    } catch (error) {
-      if (mini !== openingWindow || stopped) return;
-      hide();
-      if (valid()) mini.destroy();
-      throw error;
-    } finally {
-      if (loading === pending) loading = null;
-    }
+    return prepare();
   }
 
   return {
     toggle,
+    prepare,
     hide,
     getWindow: () => valid() ? mini : undefined,
     stop: () => {

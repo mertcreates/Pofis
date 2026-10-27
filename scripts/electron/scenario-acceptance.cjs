@@ -1,4 +1,4 @@
-// Uses the same native package, inspector and bounded DOM polling as smoke.cjs.
+// Uses the same native Electron runtime, inspector and bounded DOM polling as smoke.cjs.
 const { spawn } = require("node:child_process");
 const { mkdtemp, rm, readdir, readFile, mkdir, writeFile } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
@@ -15,8 +15,11 @@ async function run() {
   const root = resolve(__dirname, "../..");
   const target = platformTarget();
   const packages = join(root, "dist", target.outputDirectory);
+  const sourceMode = process.argv[2] === "--source";
   const names = process.argv[2] ? [] : (await readdir(packages)).filter(name => name.startsWith(`Pofis-${target.id}-`)).sort();
-  const folder = process.argv[2] ? resolve(process.argv[2]) : join(packages, names.at(-1));
+  const folder = sourceMode ? join(root, "node_modules", "electron", "dist")
+    : process.argv[2] ? resolve(process.argv[2]) : join(packages, names.at(-1));
+  const executable = join(folder, sourceMode ? target.electronExecutable : target.executable);
   const profileRoot = await mkdtemp(join(tmpdir(), "pofis-scenario-acceptance-"));
   const profile = join(profileRoot, "Pofis-Scenarios");
   const id = randomBytes(16).toString("hex");
@@ -24,7 +27,7 @@ async function run() {
   let child, debuggerConnection;
   let phase = "başlatma", output = "";
   try {
-    child = spawn(join(folder, target.executable), ["--pofis-scenarios", `--user-data-dir=${profileRoot}`,
+    child = spawn(executable, [...(sourceMode ? [join(root, "electron")] : []), "--pofis-scenarios", `--user-data-dir=${profileRoot}`,
       `--startup-id=${id}`, "--inspect=127.0.0.1:0"], { env, windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
     child.stderr.on("data", chunk => { output += chunk; });
     child.on("error", error => { output += error.message; });
@@ -63,6 +66,27 @@ async function run() {
     await until(() => renderer("document.querySelector('.dashboard-person')?.textContent.includes('Mesai sürüyor')"));
     assert.equal(await renderer("typeof require + ':' + typeof process"), "undefined:undefined");
     assert.equal(await renderer("typeof window.pofisScenario"), "object");
+    phase = "gizli Mini ön yüklemesi";
+    await until(() => renderer("document.readyState === 'complete'", true));
+    const preloadedId = await main(`(() => {
+      const { BrowserWindow } = process.mainModule.require('electron');
+      const mini = BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/mini'));
+      if (mini.isVisible()) throw new Error('Ön yüklenen Mini görünür olmamalı');
+      return mini.id;
+    })()`);
+    assert.equal(await renderer("document.visibilityState", true), "hidden");
+    assert.equal(await renderer("performance.getEntriesByType('resource').filter(e => new URL(e.name).pathname.startsWith('/api/')).length", true), 0,
+      "Gizli ön yükleme bağımsız oturum/rapor isteği başlatmamalı");
+    const sampleHidden = () => main(`(async () => {
+      const { app, BrowserWindow } = process.mainModule.require('electron');
+      const mini = BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/mini'));
+      const pid = mini.webContents.getOSProcessId();
+      app.getAppMetrics();
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const metric = app.getAppMetrics().find(value => value.pid === pid);
+      return { cpuPercent: metric.cpu.percentCPUUsage, workingSetKB: metric.memory.workingSetSize };
+    })()`);
+    const preloadedIdle = await sampleHidden();
     if (target.platform === "darwin") assert.equal(await main("process.mainModule.require('electron').app.dock.isVisible()"), true, "Ana pencere açıkken Dock simgesi görünür olmalı");
     const measureOpen = () => main(`new Promise(resolve => {
       const { app, BrowserWindow } = process.mainModule.require('electron');
@@ -71,9 +95,9 @@ async function run() {
       const existing = BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/mini'));
       if (existing) {
         if (existing.isVisible()) throw new Error('Mini must be hidden before the warm sample');
+        opened(existing);
         app.emit('pofis:acceptance:mini');
-        if (!existing.isVisible()) throw new Error('Warm Mini did not become visible');
-        resolve(performance.now() - started); return;
+        return;
       }
       app.once('browser-window-created', (_event, window) => opened(window));
       app.emit('pofis:acceptance:mini');
@@ -81,6 +105,7 @@ async function run() {
     const firstOpenMs = await measureOpen();
     phase = "Mini ilk açılış";
     await until(() => renderer("!!document.querySelector('.pofi-mini-duration')", true));
+    assert.equal(await main(`process.mainModule.require('electron').BrowserWindow.getAllWindows().find(w=>w.webContents.getURL().endsWith('/mini')).id`), preloadedId);
     if (target.platform === "darwin") assert.equal(await main("process.mainModule.require('electron').app.dock.isVisible()"), true, "Mini açıldığında Pofis Dock simgesi görünür kalmalı");
     const mainSeed = await renderer("window.pofisScenario.seed");
     assert.deepEqual(await renderer("window.pofisScenario.seed", true), mainSeed);
@@ -107,16 +132,9 @@ async function run() {
     }
     await hideMini();
     await until(() => renderer("document.visibilityState === 'hidden'", true));
-    const idle = await main(`(async () => {
-      const { app, BrowserWindow } = process.mainModule.require('electron');
-      const mini = BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/mini'));
-      const pid = mini.webContents.getOSProcessId();
-      app.getAppMetrics();
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      const metric = app.getAppMetrics().find(value => value.pid === pid);
-      return { cpuPercent: metric.cpu.percentCPUUsage, workingSetKB: metric.memory.workingSetSize };
-    })()`);
-    console.log(JSON.stringify({ platform: target.id, firstOpenMs, warmOpenMs, hiddenSampleMs: 2000, idle }));
+    const idle = await sampleHidden();
+    console.log(JSON.stringify({ platform: target.id, sourceMode, preloaded: true, firstOpenMs, warmOpenMs,
+      hiddenSampleMs: 2000, preloadedIdle, idle }));
     await measureOpen();
     if (target.platform === "darwin") assert.equal(await main("process.mainModule.require('electron').app.dock.isVisible()"), true, "Mini tekrar açılışları Dock simgesini korumalı");
     assert.equal((await renderer("window.pofisMini.pin()", true)).pinned, false);
@@ -141,14 +159,25 @@ async function run() {
     assert.equal(await renderer("document.body.scrollWidth <= document.documentElement.clientWidth", true), true);
     await until(() => renderer("window.pofisNotifications.get().then(value => value.active)"));
     phase = "seçili haftanın planını açma";
+    // Scenario fixtures follow the current Istanbul week, including month/year boundaries.
+    const expectedWeek = await renderer(`(() => {
+      const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/Istanbul' }).format(window.pofisScenario.seed.clock.at);
+      const start = new Date(today + 'T12:00:00Z');
+      start.setUTCDate(start.getUTCDate() - (start.getUTCDay() + 6) % 7 - 7);
+      const end = new Date(start); end.setUTCDate(end.getUTCDate() + 6);
+      const label = month => new Intl.DateTimeFormat('tr-TR', { timeZone: 'Europe/Istanbul', day: 'numeric', month,
+        ...(start.getUTCFullYear() !== Number(today.slice(0, 4)) || end.getUTCFullYear() !== Number(today.slice(0, 4)) ? { year: 'numeric' } : {})
+      }).formatRange(start, end).replace(/\\s+/g, ' ');
+      return { heading: label('long'), tab: 'Seçili hafta · ' + label('short') };
+    })()`);
     const currentHeading = await renderer("document.querySelector('h1').textContent");
     await renderer("document.querySelector('button[aria-label=\"Önceki hafta\"]').click()");
     await until(() => renderer("document.querySelector('h1').textContent !== " + JSON.stringify(currentHeading)));
     const selectedHeading = await renderer("document.querySelector('h1').textContent");
-    assert.equal(selectedHeading, "12 – 18 Ekim");
+    assert.equal(selectedHeading, expectedWeek.heading);
     await renderer("[...document.querySelectorAll('button')].find(b => b.textContent.trim() === 'Mesai planı').click()");
     await until(() => renderer("!!document.querySelector('dialog[open]')"));
-    assert.equal(await renderer("document.querySelector('dialog[open] .work-plan-tabs').textContent.includes('Seçili hafta · 12 – 18 Eki')"), true,
+    assert.equal(await renderer("document.querySelector('dialog[open] .work-plan-tabs').textContent.includes(" + JSON.stringify(expectedWeek.tab) + ")"), true,
       "Plan sekmesi raporda seçili haftayı göstermeli");
     await renderer("document.querySelector('dialog[open] button[aria-label=\"Kapat\"]').click()");
     await until(() => renderer("!document.querySelector('dialog[open]')"));
