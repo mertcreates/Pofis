@@ -18,6 +18,8 @@ function installBackground({ app, window, Tray, Menu, nativeImage, icon, platfor
     image.setTemplateImage(true);
   }
   const tray = new Tray(image);
+  // Deliver every macOS click, including those AppKit groups as a double/triple click.
+  if (platform === "darwin") tray.setIgnoreDoubleClickEvents(true);
   tray.setToolTip(ui.desktop.trayTooltip);
   let goal = null;
   let lastTitle;

@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.0.1",
+    "publishedOn": "2026-10-27",
+    "fixes": [
+      "macOS menü çubuğundaki Pofi simgesine hızlıca art arda tıklandığında bazı tıklamaların yanıtsız kalması düzeltildi."
+    ]
+  },
+  {
     "version": "1.0.0",
     "publishedOn": "2026-10-24",
     "features": [

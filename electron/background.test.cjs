@@ -54,6 +54,7 @@ test.each(["win32", "darwin", "linux"])("%s Pofi Mini sol tıkta, ana uygulama m
   class Tray extends EventEmitter {
     constructor() { super(); tray = this; }
     setToolTip() {} setTitle() {}
+    setIgnoreDoubleClickEvents(ignore) { expect(platform).toBe("darwin"); expect(ignore).toBe(true); }
     getBounds() { return bounds; }
     setContextMenu(value) { menu = value; }
     popUpContextMenu(value) { menu = value; }
@@ -79,11 +80,49 @@ test.each(["win32", "darwin", "linux"])("%s Pofi Mini sol tıkta, ana uygulama m
   background.stop(); expect(destroyed).toBe(1);
 });
 
+test("macOS hızlı tıklamaların her birini Mini'ye bir kez iletir; sağ tık yalnız menüyü açar", () => {
+  const window = new EventEmitter();
+  const bounds = { x: 900, y: 0, width: 18, height: 20 };
+  let tray, menu;
+  const anchors = [];
+  class Tray extends EventEmitter {
+    constructor() { super(); tray = this; this.ignoreDoubleClicks = false; }
+    setToolTip() {} setTitle() {} destroy() {}
+    setIgnoreDoubleClickEvents(ignore) { this.ignoreDoubleClicks = ignore; }
+    getBounds() { return bounds; }
+    popUpContextMenu(value) { menu = value; }
+    physicalClick(count) {
+      // Electron 43.8.1 TrayIconCocoa::handleClickNotifications uses AppKit's clickCount.
+      if (count === 1 || this.ignoreDoubleClicks) this.emit("click", {}, bounds);
+      else if (count === 2) this.emit("double-click", {}, bounds);
+    }
+  }
+  const background = installBackground({ app: { quit() {} }, window, Tray,
+    Menu: { buildFromTemplate: value => value }, nativeImage: { createFromPath: fixtureImage },
+    icon: "fixture", platform: "darwin", showWindow() {}, isQuitting: () => false,
+    toggleMini: anchor => anchors.push(anchor) });
+  try {
+    for (let count = 1; count <= 5; count++) {
+      tray.physicalClick(count);
+      expect(anchors).toHaveLength(count);
+      expect(anchors.at(-1)).toEqual(bounds);
+    }
+    tray.emit("right-click");
+    expect(menu[0].label).toBe("Pofi Mini");
+    expect(anchors).toHaveLength(5);
+    // The event bounds may be absent; use the tray's current position.
+    tray.emit("click");
+    expect(anchors).toHaveLength(6);
+    expect(anchors.at(-1)).toEqual(bounds);
+  } finally { background.stop(); }
+});
+
 test("macOS oturum açılışında başlatma kullanıcı tercihiyle değişir", () => {
   const window = new EventEmitter(); window.hide = () => {};
   let menu; let enabled = false; let tray;
   class Tray extends EventEmitter {
     constructor() { super(); tray = this; }
+    setIgnoreDoubleClickEvents() {}
     setToolTip() {} setTitle() {} popUpContextMenu(value) { menu = value; }
     getBounds() { return { x: 0, y: 0, width: 16, height: 16 }; }
     destroy() {}
@@ -110,6 +149,7 @@ test("macOS menü çubuğu canlı süreyi günceller, tercih kaydedilir ve çık
   const titles = [];
   class Tray extends EventEmitter {
     constructor() { super(); tray = this; }
+    setIgnoreDoubleClickEvents() {}
     setToolTip() {}
     setTitle(title, options) { titles.push([title, options]); }
     popUpContextMenu(value) { menu = value; }
