@@ -416,7 +416,16 @@ export const ui = {
     switchToLight: "Açık görünüme geç",
     switchToDark: "Koyu görünüme geç",
   },
-  pofiCall: ["Beni mi çağırdın?", "Buradayım."],
+  pofiCall: [
+    ["Beni mi çağırdın?", "Buradayım."],
+    ["Daha uzağa gitmemiştim."],
+    ["Bir şey mi diyecektin?"],
+    ["Ben beklerim."],
+  ],
+  pofiMeow: {
+    standalone: "Efendim?",
+    afterCall: "Ben de tam onu diyecektim.",
+  },
   pofiWrongDoor: "Ben de yanlış kapıyı açmışım.",
   about: {
     title: "Pofis hakkında",
@@ -592,7 +601,17 @@ export const ui = {
   unmatchedRecord: "Eşleşmeyen kayıt",
   noPassageYet: "Eşleşen çıkış kaydı yok",
   pofi: {
-    clockSurprise: "12:34. Her şey sırayla.",
+    clockSurprises: {
+      dateTime: "Takvimde bugünün tarihini yuvarlak içine aldım. Saate baktım. Onu da yanına yazdım.",
+      fourSame: "Saate baktım. Aynı rakamdan dört tane vardı. Defterime dört çizgi çizdim.",
+      sequence: (clock) => `${clock}. Her şey sırayla.`,
+      mirror: "Saati tersten okudum. Yine aynı saatti. Düz okuyup kontrol ettim.",
+      matching: "Saatle dakikayı karıştırdım. İkisi de aynıymış.",
+      pairs: "Saatteki rakamları ikişer ikişer okumaya başladım. Nerede kaldığımı unutunca baştan başladım.",
+      double: "Saati bir kâğıda yazdım. İlk sayıyı iki kere topladım. Sonucu zaten yazmışım.",
+      consecutive: "Saate baktım. İki sayıyı sırayla saydım. Sonra biraz daha saydım.",
+    },
+    recordMirror: "Giriş saatinin saniyelerini patimle örttüm. Tersten de aynı okundu. Çıkışta da öyle.",
     nonWorkingTitle: "Planlı mesai yok.",
     nonWorking: "Bugün pencere kenarındayım.",
     staying: "Ben biraz daha oturuyorum.",

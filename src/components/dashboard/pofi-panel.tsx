@@ -1,8 +1,8 @@
-import { specialMinuteRemaining } from "@/domain/rules/pofi-surprises";
+import { clockSurpriseAt } from "@/domain/rules/pofi-surprises";
 import Icon from "../ui-icon.js";
 import { product, ui } from "@/lib/ui-text.js";
 import { type DayReport } from "@/domain/attendance";
-import { useEffect, useState } from "react";
+import { formatClock } from "@/domain/time";
 type Props = {
   day: DayReport;
   now: number;
@@ -10,22 +10,14 @@ type Props = {
 };
 export function PofiPanel({ day, now, onOpen }: Props) {
   const pofiText = day.source.pofi;
-  const [openedAt] = useState(now);
-  const [specialTime, setSpecialTime] = useState(false);
-  useEffect(() => {
-    const remaining = specialMinuteRemaining(openedAt);
-    if (remaining === 0) return;
-    setSpecialTime(true);
-    const timer = setTimeout(() => setSpecialTime(false), remaining);
-    return () => clearTimeout(timer);
-  }, [openedAt]);
-
-  const message =
-    specialTime && pofiText.state !== "error"
-      ? ui.pofi.clockSurprise
-      : pofiText.basis === "live" && pofiText.title
-        ? `${pofiText.title} ${pofiText.message}`
-        : pofiText.message;
+  const surprise = clockSurpriseAt(now);
+  const surpriseMessage = surprise === "sequence"
+    ? ui.pofi.clockSurprises.sequence(formatClock(now, false))
+    : surprise ? ui.pofi.clockSurprises[surprise] : null;
+  const pofiMessage = surpriseMessage && pofiText.state !== "error"
+    ? surpriseMessage : pofiText.message;
+  const message = pofiText.basis === "live" && pofiText.title
+    ? `${pofiText.title} ${pofiMessage}` : pofiMessage;
   return (
     <section className="dashboard-card pofi-panel" data-state={pofiText.state}>
       <header className="panel-heading">

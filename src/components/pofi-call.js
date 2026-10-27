@@ -14,21 +14,37 @@ function isEditable(element) {
   );
 }
 
+function nextMatch(word, matched, key) {
+  return key === word[matched] ? matched + 1 : Number(key === word[0]);
+}
+
 export default function PofiCall() {
   const messageRef = useRef(null);
-  const [visible, setVisible] = useState(false);
+  const [lines, setLines] = useState(null);
 
   useEffect(() => {
     const message = messageRef.current;
-    let matched = 0;
+    let callMatched = 0;
+    let meowMatched = 0;
+    let nextCall = 0;
+    let activeMessage = null;
     let timer;
     const reset = () => {
-      matched = 0;
+      callMatched = 0;
+      meowMatched = 0;
     };
     function closeMessage() {
       clearTimeout(timer);
       message.hidePopover();
-      setVisible(false);
+      activeMessage = null;
+      setLines(null);
+    }
+    function showMessage(nextLines, source) {
+      if (activeMessage === null) message.showPopover();
+      activeMessage = source;
+      setLines(nextLines);
+      clearTimeout(timer);
+      timer = setTimeout(closeMessage, POFI_SURPRISES.callVisibleMs);
     }
     function onKeyDown(event) {
       if (event.key === "Escape") {
@@ -51,14 +67,19 @@ export default function PofiCall() {
         return;
       }
       const key = event.key.toLowerCase();
-      if (key === POFI_SURPRISES.callWord[matched]) matched++;
-      else matched = key === POFI_SURPRISES.callWord[0] ? 1 : 0;
-      if (matched !== POFI_SURPRISES.callWord.length) return;
-      reset();
-      message.showPopover();
-      setVisible(true);
-      clearTimeout(timer);
-      timer = setTimeout(closeMessage, POFI_SURPRISES.callVisibleMs);
+      callMatched = nextMatch(POFI_SURPRISES.callWord, callMatched, key);
+      meowMatched = nextMatch(POFI_SURPRISES.meowWord, meowMatched, key);
+      if (callMatched === POFI_SURPRISES.callWord.length) {
+        reset();
+        showMessage(ui.pofiCall[nextCall], "call");
+        nextCall = Math.min(nextCall + 1, ui.pofiCall.length - 1);
+      } else if (meowMatched === POFI_SURPRISES.meowWord.length) {
+        reset();
+        showMessage(
+          [activeMessage === "call" ? ui.pofiMeow.afterCall : ui.pofiMeow.standalone],
+          "meow",
+        );
+      }
     }
     document.addEventListener("keydown", onKeyDown);
     document.addEventListener("focusin", reset);
@@ -82,7 +103,7 @@ export default function PofiCall() {
       role="status"
       aria-atomic="true"
     >
-      {visible && ui.pofiCall.map((line) => <p key={line}>{line}</p>)}
+      {lines?.map((line) => <p key={line}>{line}</p>)}
     </div>
   );
 }
