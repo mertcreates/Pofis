@@ -5,7 +5,7 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { promisify } from "node:util";
 
-test("gerçek Electron'da hatırla, arka plan ve rapor yenileme, yeniden açılış, parola hatası ve çıkış", async () => {
+test("gerçek Electron'da hatırla, geçici giriş hatası, arka plan yenileme, yeniden açılış, parola hatası ve çıkış", async () => {
   const directory = await mkdtemp(join(tmpdir(), "pofis-remember-electron-"));
   try {
     const build = await Bun.build({ entrypoints: [resolve(import.meta.dir, "fixtures/remembered-electron.tsx")],
@@ -21,7 +21,7 @@ test("gerçek Electron'da hatırla, arka plan ve rapor yenileme, yeniden açıl�
     { env, windowsHide: true, timeout: 30000 });
     const firstLine = first.stdout.split(/\r?\n/).find(line => line.startsWith("RESULT:"));
     expect(firstLine, first.stderr).toBeDefined();
-    expect(JSON.parse(firstLine!.slice(7))).toEqual({ stage: "first", logins: 4, connected: true });
+    expect(JSON.parse(firstLine!.slice(7))).toEqual({ stage: "first", logins: 5, connected: true });
     const second = await promisify(execFile)(require("electron"), [...args, "--stage=second"],
       { env, windowsHide: true, timeout: 30000 });
     const secondLine = second.stdout.split(/\r?\n/).find(line => line.startsWith("RESULT:"));

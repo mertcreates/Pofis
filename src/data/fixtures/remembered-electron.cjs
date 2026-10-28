@@ -14,7 +14,7 @@ app.setPath("userData", profile);
 app.commandLine.appendSwitch("user-data-dir", profile);
 
 const credentials = { username: "fixture-user", password: "fixture-password" };
-let authenticated = false, invalid = false, reportUnavailable = false, logins = 0, expiresAt = 0;
+let authenticated = false, invalid = false, loginUnavailable = false, reportUnavailable = false, logins = 0, expiresAt = 0;
 const trace = [];
 const json = (response, value, status = 200, headers = {}) => {
   response.writeHead(status, { "content-type": "application/json", "cache-control": "no-store", ...headers });
@@ -44,6 +44,7 @@ const server = createServer(async (request, response) => {
   if (url.pathname === "/api/session" && request.method === "POST") {
     const chunks = []; for await (const chunk of request) chunks.push(chunk);
     const body = JSON.parse(Buffer.concat(chunks).toString());
+    if (loginUnavailable) return json(response, { error: "fixture timeout", code: "CONNECTION_FAILED" }, 502);
     if (invalid || body.username !== credentials.username || body.password !== credentials.password)
       return json(response, { error: "fixture rejected", code: "AUTH_FAILED" }, 401);
     logins++; authenticated = true; expiresAt = Date.now() + 3_600_000 + logins * 1000;
@@ -97,10 +98,20 @@ app.whenReady().then(async () => {
   session.defaultSession.protocol.handle("http", transport);
   const window = new BrowserWindow({ show: false, width: 1000, height: 800,
     webPreferences: { sandbox: true, contextIsolation: true, nodeIntegration: false, preload: join(directory, "preload.cjs") } });
-  const notifications = require(join(directory, "pofis-notifications.cjs")).installDesktopNotifications({
-    app, ipcMain, session: session.defaultSession, safeStorage, Notification, powerMonitor,
-    getWindow: () => window, origin: ORIGIN, showWindow() {}, rememberEnabled: true,
-  });
+  const retryTimers = [];
+  const originalSetTimeout = global.setTimeout;
+  global.setTimeout = (callback, delay, ...args) => {
+    const timer = originalSetTimeout(callback, delay, ...args);
+    if (delay === 30_000) retryTimers.push(() => { clearTimeout(timer); callback(...args); });
+    return timer;
+  };
+  let notifications;
+  try {
+    notifications = require(join(directory, "pofis-notifications.cjs")).installDesktopNotifications({
+      app, ipcMain, session: session.defaultSession, safeStorage, Notification, powerMonitor,
+      getWindow: () => window, origin: ORIGIN, showWindow() {}, rememberEnabled: true,
+    });
+  } finally { global.setTimeout = originalSetTimeout; }
   await window.loadURL(ORIGIN);
   const execute = code => window.webContents.executeJavaScript(code);
   const connected = () => execute("!!window.rememberFixture?.state.connected && !!window.rememberFixture.state.report");
@@ -144,6 +155,15 @@ app.whenReady().then(async () => {
     authenticated = false;
     await execute("window.rememberFixture.state.refresh()");
     await wait(async () => logins === 4 && await connected());
+    loginUnavailable = true; authenticated = false;
+    await execute("window.rememberFixture.state.refresh()");
+    await wait(() => retryTimers.length === 1);
+    await input();
+    await wait(() => retryTimers.length === 2);
+    await wait(() => execute('window.rememberFixture.state.failure?.kind === "unavailable" && !window.rememberFixture.state.busy'));
+    loginUnavailable = false;
+    retryTimers[1]();
+    await wait(async () => logins === 5 && await connected());
   } else {
     await wait(async () => logins === 1 && await connected());
     invalid = true; authenticated = false;

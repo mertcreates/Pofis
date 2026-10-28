@@ -26,6 +26,7 @@ async function fixture() {
   let holdLogin: Promise<void> | null = null;
   let loginStarted = () => {};
   const methods: string[] = [];
+  const logins: { username: string; password: string }[] = [];
   const events: string[] = [];
   const timers: { callback: () => void; delay: number }[] = [];
   const setTimer = ((callback: () => void, delay: number) => {
@@ -41,18 +42,21 @@ async function fixture() {
       expect(path).toBe("/api/session");
       const method = options.method!; methods.push(method);
       if (method === "POST") {
-        expect(JSON.parse(options.body as string)).toEqual(credentials);
+        logins.push(JSON.parse(options.body as string));
         loginStarted();
         if (holdLogin) await holdLogin;
         if (failure === "credentials") return Response.json({ error: "bad credentials", code: "AUTH_FAILED" }, { status: 401 });
+        if (failure === "unconfirmed-credentials") return Response.json({ error: "upstream error", code: "AUTH_FAILED" }, { status: 502 });
         if (failure === "network") return Response.json({ error: "offline", code: "CONNECTION_FAILED" }, { status: 502 });
+        if (failure === "transport") throw new Error("fixture network error");
+        if (failure === "rate-limit") return Response.json({ error: "wait", code: "SOURCE_ERROR", details: { retryAfterMs: 90_000 } }, { status: 502 });
         connected = true;
       }
       if (method === "DELETE") connected = false;
       return Response.json({ connected });
     },
   });
-  return { directory, store, runtime, methods, events, timers,
+  return { directory, store, runtime, methods, logins, events, timers,
     setConnected: (value: boolean) => { connected = value; },
     connected: () => connected,
     fail: (value: string) => { failure = value; },
@@ -74,6 +78,7 @@ test("yalnız seçilen bilgiler şifreli dosyaya yazılır, yeniden başlatmada 
     f.setConnected(false);
     expect(await f.runtime.recover()).toBe(true);
     expect(f.methods).toEqual(["POST", "POST", "GET", "POST"]);
+    expect(f.logins).toEqual([credentials, credentials, credentials]);
     expect(f.events).toEqual(["recovered"]);
     await f.runtime.disconnect();
     expect(f.connected()).toBe(false);
@@ -154,6 +159,166 @@ test("geçici kaynak hatası aralıklı denenir; açık oturumdaki zaman aşım�
     expect(f.methods).toEqual(["POST", "POST", "POST"]);
     expect(f.timers).toHaveLength(0);
   } finally { await f.cleanup(); }
+});
+
+test.each([
+  { failure: "network", code: "CONNECTION_FAILED", delay: 30_000 },
+  { failure: "transport", code: "NETWORK_ERROR", delay: 30_000 },
+  { failure: "rate-limit", code: "SOURCE_ERROR", delay: 90_000 },
+  { failure: "unconfirmed-credentials", code: "AUTH_FAILED", delay: 30_000 },
+])("aynı bilgilerle elle girişte $failure sonrasında otomatik deneme sürer", async ({ failure, code, delay }) => {
+  const f = await fixture();
+  try {
+    await f.runtime.connect(credentials, true);
+    f.setConnected(false); f.fail(failure);
+    await expect(f.runtime.recover(true)).rejects.toMatchObject({ code });
+    await Bun.sleep(0);
+    expect(f.timers).toHaveLength(1);
+    await expect(f.runtime.connect(credentials, true)).rejects.toMatchObject({ code });
+    expect(f.timers.map(timer => timer.delay)).toEqual([delay]);
+    expect(await f.store.load()).toEqual(credentials);
+    f.fail("");
+    f.timers.shift()!.callback();
+    expect(await f.runtime.recover(true)).toBe(true);
+    expect(f.logins).toEqual([credentials, credentials, credentials, credentials]);
+    expect(f.events).toEqual(["recovered"]);
+  } finally { await f.cleanup(); }
+});
+
+test.each([
+  { username: "other-user", password: credentials.password },
+  { username: credentials.username, password: "other-password" },
+])("farklı bilgilerle başarısız elle giriş eski hesabı otomatik açmaz", async changed => {
+  const f = await fixture();
+  try {
+    await f.runtime.connect(credentials, true);
+    f.setConnected(false); f.fail("network");
+    await expect(f.runtime.recover(true)).rejects.toMatchObject({ code: "CONNECTION_FAILED" });
+    await Bun.sleep(0);
+    await expect(f.runtime.connect(changed, true)).rejects.toMatchObject({ code: "CONNECTION_FAILED" });
+    expect(f.timers).toHaveLength(0);
+    expect(await f.runtime.recover(true)).toBe(false);
+    expect(f.logins).toEqual([credentials, credentials, changed]);
+    expect(await f.store.load()).toEqual(credentials);
+  } finally { await f.cleanup(); }
+});
+
+test("aynı bilgilerle elle girişte şifre hatası otomatik denemeyi durdurur", async () => {
+  const f = await fixture();
+  try {
+    await f.runtime.connect(credentials, true);
+    f.setConnected(false); f.fail("credentials");
+    await expect(f.runtime.connect(credentials, true)).rejects.toMatchObject({ code: "AUTH_FAILED", status: 401 });
+    expect(f.timers).toHaveLength(0);
+    expect(await f.runtime.recover(true)).toBe(false);
+    expect(f.logins).toEqual([credentials, credentials]);
+    expect(await f.store.load()).toEqual(credentials);
+  } finally { await f.cleanup(); }
+});
+
+test("kayıt olmadan ilk girişteki geçici hata otomatik giriş başlatmaz", async () => {
+  const f = await fixture();
+  try {
+    f.fail("network");
+    await expect(f.runtime.connect(credentials, true)).rejects.toMatchObject({ code: "CONNECTION_FAILED" });
+    expect(f.timers).toHaveLength(0);
+    expect(await f.store.load()).toBeNull();
+    expect(await f.runtime.recover(true)).toBe(false);
+  } finally { await f.cleanup(); }
+});
+
+test("elle girişte geçici hatadan sonra etkin oturum olsa da kaynak bağlantısı yenilenir ve bekleme artar", async () => {
+  const f = await fixture();
+  try {
+    await f.runtime.connect(credentials, true);
+    f.fail("network");
+    await expect(f.runtime.connect(credentials, true)).rejects.toMatchObject({ code: "CONNECTION_FAILED" });
+    expect(f.connected()).toBe(true);
+    expect(f.timers.map(timer => timer.delay)).toEqual([30_000]);
+    f.timers.shift()!.callback();
+    await expect(f.runtime.recover(true)).rejects.toMatchObject({ code: "CONNECTION_FAILED" });
+    await Bun.sleep(0);
+    expect(f.timers.map(timer => timer.delay)).toEqual([60_000]);
+    f.fail("");
+    f.timers.shift()!.callback();
+    expect(await f.runtime.recover(true)).toBe(true);
+    expect(f.methods).toEqual(["POST", "POST", "POST", "POST"]);
+    expect(f.events).toEqual(["recovered"]);
+  } finally { await f.cleanup(); }
+});
+
+test("hatırlama kapatılarak başarısız giriş eski hesabı yeniden denemez", async () => {
+  const f = await fixture();
+  try {
+    await f.runtime.connect(credentials, true);
+    f.fail("network");
+    await expect(f.runtime.connect(credentials, false)).rejects.toMatchObject({ code: "CONNECTION_FAILED" });
+    expect(f.timers).toHaveLength(0);
+    expect(await f.store.load()).toBeNull();
+    expect(await f.runtime.recover(true)).toBe(false);
+  } finally { await f.cleanup(); }
+});
+
+test("eşleşme için kayıt okunamazsa özgün giriş hatası korunur ve yeniden deneme açılmaz", async () => {
+  const f = await fixture();
+  try {
+    await f.runtime.connect(credentials, true);
+    const load = f.store.load.bind(f.store);
+    f.store.load = async () => { throw new Error("fixture read denied"); };
+    f.fail("network");
+    await expect(f.runtime.connect(credentials, true)).rejects.toMatchObject({ code: "CONNECTION_FAILED" });
+    expect(f.timers).toHaveLength(0);
+    expect(await f.runtime.recover(true)).toBe(false);
+    expect(await load()).toEqual(credentials);
+  } finally { await f.cleanup(); }
+});
+
+test.each(["disconnect", "connect", "stop"] as const)("kayıt okunurken %s eski denemeyi açmaz", async action => {
+  const f = await fixture();
+  let release!: () => void, started!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const reading = new Promise<void>(resolve => { started = resolve; });
+  try {
+    await f.runtime.connect(credentials, true);
+    const load = f.store.load.bind(f.store);
+    f.store.load = async () => { started(); await gate; return load(); };
+    f.fail("network");
+    const first = f.runtime.connect(credentials, true);
+    await reading;
+    const changed = { username: "other-user", password: "other-password" };
+    f.fail("");
+    const next = action === "disconnect" ? f.runtime.disconnect()
+      : action === "connect" ? f.runtime.connect(changed, true) : (f.runtime.stop(), null);
+    release();
+    await expect(first).rejects.toMatchObject({ code: "CONNECTION_FAILED" });
+    if (next) await next;
+    expect(f.timers).toHaveLength(0);
+    if (action === "disconnect") expect(await load()).toBeNull();
+    if (action === "connect") expect(await load()).toEqual(changed);
+    if (action === "stop") expect(await f.runtime.recover(true)).toBe(false);
+    expect(f.events).toEqual([]);
+  } finally { release(); await f.cleanup(); }
+});
+
+test("bekleyen giriş başarılı olsa da başarısız çıkış otomatik girişe izin vermez", async () => {
+  const f = await fixture();
+  let release!: () => void, started!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const requested = new Promise<void>(resolve => { started = resolve; });
+  try {
+    await f.runtime.connect(credentials, true);
+    f.hold(gate, started);
+    const login = f.runtime.connect(credentials, true);
+    await requested;
+    f.store.clear = async () => { throw new Error("fixture delete denied"); };
+    const logout = f.runtime.disconnect();
+    f.releaseHold(); release();
+    expect(await login).toEqual({ remembered: true });
+    await expect(logout).rejects.toThrow("fixture delete denied");
+    expect(await f.store.load()).toEqual(credentials);
+    expect(await f.runtime.recover(true)).toBe(false);
+    expect(f.logins).toEqual([credentials, credentials]);
+  } finally { release(); await f.cleanup(); }
 });
 
 test("yalnız doğrulanmış parola hatası tekrarları durdurup kayıtlı bilgileri siler", async () => {

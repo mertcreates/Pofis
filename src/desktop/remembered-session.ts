@@ -15,6 +15,10 @@ function storageError() {
   return new ApiError(ui.connectionFields.rememberUnavailable, 0, "REMEMBER_UNAVAILABLE", {});
 }
 
+function isCredentialFailure(error: unknown) {
+  return error instanceof ApiError && error.code === "AUTH_FAILED" && error.status === 401;
+}
+
 function readCredentials(value: unknown): Credentials {
   if (!value || typeof value !== "object" || Array.isArray(value))
     throw new ApiError(ui.apiErrors.credentialsRequired, 400, "INVALID_INPUT", {});
@@ -124,6 +128,13 @@ export function createRememberedSession({ store, fetch, onRecovered, onInvalid, 
     }, (input, options) => fetch(String(input), options ?? {}));
     return readSessionResponse(result, "/api/session", method);
   }
+  function scheduleRetry(error: unknown, force: boolean) {
+    failures++;
+    const retryAfter = error instanceof ApiError && typeof error.details?.retryAfterMs === "number"
+      ? Math.min(Math.max(error.details.retryAfterMs, 0), 2_147_483_647) : 0;
+    const delay = Math.max(Math.min(30_000 * 2 ** Math.min(failures - 1, 4), 300_000), retryAfter);
+    timer = setTimer(() => { timer = undefined; void recover(force).catch(() => {}); }, delay);
+  }
   function recover(force = false): Promise<boolean> {
     if (stopped || disabled) return Promise.resolve(false);
     if (recovering) return recovering;
@@ -139,7 +150,7 @@ export function createRememberedSession({ store, fetch, onRecovered, onInvalid, 
         await request("POST", credentials);
       } catch (error) {
         if (version !== generation || stopped) return false;
-        if (error instanceof ApiError && error.code === "AUTH_FAILED" && error.status === 401) {
+        if (isCredentialFailure(error)) {
           disabled = true;
           let cleanupFailed = false;
           try { await store.clear(); } catch { cleanupFailed = true; }
@@ -156,11 +167,7 @@ export function createRememberedSession({ store, fetch, onRecovered, onInvalid, 
     recovering = run;
     void run.catch(error => {
       if (version !== generation || stopped || disabled) return;
-      failures++;
-      const retryAfter = error instanceof ApiError && typeof error.details?.retryAfterMs === "number"
-        ? Math.min(Math.max(error.details.retryAfterMs, 0), 2_147_483_647) : 0;
-      const delay = Math.max(Math.min(30_000 * 2 ** Math.min(failures - 1, 4), 300_000), retryAfter);
-      timer = setTimer(() => { timer = undefined; void recover(force).catch(() => {}); }, delay);
+      scheduleRetry(error, force);
       // Errors are returned to the caller; a later attempt handles temporary failures.
     }).finally(() => { if (recovering === run) recovering = null; });
     return run;
@@ -169,13 +176,28 @@ export function createRememberedSession({ store, fetch, onRecovered, onInvalid, 
     recover,
     connect(input: unknown, remember: boolean) {
       invalidate();
+      const version = generation;
       disabled = true;
       return enqueue(async () => {
         const credentials = readCredentials(input);
         const prepared = remember ? await store.prepare(credentials) : null;
         if (!remember) await store.clear();
         try {
-          await request("POST", credentials);
+          try {
+            await request("POST", credentials);
+          } catch (error) {
+            if (remember && version === generation && !stopped && !isCredentialFailure(error)) {
+              let saved: Credentials | null = null;
+              try { saved = await store.load(); }
+              catch { /* Preserve the original login error when the saved credentials cannot be read. */ }
+              if (version === generation && !stopped &&
+                  saved?.username === credentials.username && saved.password === credentials.password) {
+                disabled = false;
+                scheduleRetry(error, true);
+              }
+            }
+            throw error;
+          }
           if (prepared) {
             try { await prepared.commit(); }
             catch {
@@ -184,7 +206,7 @@ export function createRememberedSession({ store, fetch, onRecovered, onInvalid, 
               catch { return { remembered: false, cleanupFailed: true }; }
             }
           }
-          disabled = false;
+          if (version === generation && !stopped) disabled = false;
           return { remembered: remember };
         } finally {
           if (prepared) await prepared.discard().catch(() => console.warn(ui.diagnostics.rememberCleanupFailed));
