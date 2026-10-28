@@ -7,7 +7,8 @@
     ],
     "fixes": [
       "macOS’ta başka bir uygulama öndeyken Pofi Mini’nin odaklanmaması düzeltildi.",
-      "Sürüm geçmişini açtığında sayfanın başı gösteriliyor. Geçmiş, giriş ekranıyla aynı genişlikte."
+      "Sürüm geçmişini açtığında sayfanın başı gösteriliyor. Geçmiş, giriş ekranıyla aynı genişlikte.",
+      "Pofi panelindeki durum bilgisi sadeleştirildi; başlıktaki rozet kaldırıldı."
     ]
   },
   {

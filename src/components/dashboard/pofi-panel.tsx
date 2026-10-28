@@ -1,5 +1,4 @@
 import { clockSurpriseAt } from "@/domain/rules/pofi-surprises";
-import Icon from "../ui-icon.js";
 import { product, ui } from "@/lib/ui-text.js";
 import { type DayReport } from "@/domain/attendance";
 import { formatClock } from "@/domain/time";
@@ -22,12 +21,6 @@ export function PofiPanel({ day, now, onOpen }: Props) {
     <section className="dashboard-card pofi-panel" data-state={pofiText.state}>
       <header className="panel-heading">
         <h2>{product.mascotName}</h2>
-        {pofiText.percentage === undefined && pofiText.badge !== ui.awaitingEntry && (
-          <span className="small-label pofi-badge">
-            <Icon name="spark" className="pofi-spark" />
-            <span>{pofiText.badge}</span>
-          </span>
-        )}
       </header>
       <div className="pofi-content">
         <div className="pofi-stage">

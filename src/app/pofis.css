@@ -1191,17 +1191,6 @@ body {
   flex-direction: column;
   overflow: hidden;
 }
-.pofi-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-.pofi-spark {
-  width: 14px;
-  height: 14px;
-  color: var(--accent);
-  margin: 0;
-}
 .pofi-content {
   display: flex;
   flex-direction: column;
