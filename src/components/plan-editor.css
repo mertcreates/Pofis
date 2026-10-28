@@ -246,7 +246,7 @@
 .work-plan-actions .work-plan-completion-options button { width: 100%; height: auto; min-height: 36px; padding: 4px 8px; border: 0; background: transparent; color: var(--ink); font-weight: 400; text-align: left; }
 .work-plan-actions .work-plan-completion-options button:is(:hover, :focus-visible):not(:disabled) { background: var(--accent-soft); }
 .work-plan-actions .work-plan-reset:hover:not(:disabled) { background: var(--accent-soft); }
-.work-plan-capacity { margin: 12px 0 0; font-size: 14px; color: var(--secondary); }
+.work-plan-capacity { margin: 12px 0 0; font-size: 14px; color: var(--secondary); text-align: right; }
 .work-plan-stepper button:focus-visible:not(:disabled) { border: 1px solid var(--accent); background: var(--accent-soft); color: var(--accent-text); }
 .work-plan-actions .work-plan-completion-options button:focus-visible:not(:disabled) { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
 .work-plan-actions .work-plan-complete:focus-visible:not(:disabled) { border-color: var(--accent-content); }

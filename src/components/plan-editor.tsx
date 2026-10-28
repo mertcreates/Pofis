@@ -26,7 +26,8 @@ function DurationInput({ value, label, disabled, onCommit }: { value: number; la
     const parsed = parsePlanDuration(draft);
     if (parsed === null) { setInvalid(true); return; }
     setInvalid(false);
-    setDraft(hours(parsed));
+    // Redistribution can resolve the saved plan back to the current value.
+    setDraft(hours(value));
     if (parsed !== value) onCommit(parsed);
   }
   return <><input className="work-plan-duration-input" type="text" inputMode="text" value={draft} disabled={disabled}

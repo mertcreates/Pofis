@@ -27,7 +27,7 @@ Gereken süre ve hedefe kalan fark, dakika gösteriminde `ceil(saniye / 60)` ile
 
 Tamamla hesabı ve kaydedilen hafta planı saniye hassasiyetini korur. Örneğin Tamamla sonucu 6 sa 50 dk 43 sn ise günlük kart ve süre alanı `6 sa 51 dk` gösterir; bu gösterimi izleyen kullanıcı 17 saniye tampon bırakır. Bu, gereken günlük süre başına en fazla 59 saniyedir. Gerçekleşen kayıt korunur ve beklenen toplam kaynak hassasiyetiyle hesaplanır.
 
-Süre alanına yalnız odaklanıp çıkmak, yuvarlanmış gösterimi plana kaydetmez. Artı/eksi görünür dakikayı baz alır; gereken 7 sa 59 dk 59 sn ekranda 8 sa görünür ve artı 8 sa 30 dk'ya gider. Kilitleme ve açık günlere uygulama görünür gereken dakikayı kullanır. Elle yeni süre seçilmesi normal düzenleme akışıyla haftalık hedefi seçilen değişim kadar günceller.
+Süre alanına yalnız odaklanıp çıkmak, yuvarlanmış gösterimi plana kaydetmez. Artı/eksi görünür dakikayı baz alır; gereken 7 sa 59 dk 59 sn ekranda 8 sa görünür ve artı 8 sa 30 dk'ya gider. Kilitleme ve açık günlere uygulama görünür gereken dakikayı kullanır. Elle yeni süre seçilmesi normal düzenleme akışıyla haftalık hedefi seçilen değişim kadar günceller. Alan, işlemden sonra hesaplanan gereken süreyi gösterir; kayıt başarısızsa son başarılı değere döner.
 
 [Davranış testleri](../../src/domain/rules/plan-duration.test.ts) giriş biçimlerini, geçersiz değerleri ve adım sınırlarını doğrular.
 

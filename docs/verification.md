@@ -60,7 +60,7 @@ Tarayıcı kabulü:
 
 Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut senaryolardan alınır.
 
-[Paketli senaryo kabulü](../scripts/electron/scenario-acceptance.cjs), gerçek arayüzde önceki haftaya geçer; Mesai planını açıp sekmedeki tarih aralığını, kapatınca rapor haftasının korunduğunu ve Mesaim ile güncel haftaya dönüşü doğrular. Tarayıcıda ayrıca Çalışma düzeni → haftalık plan geçişini ve düzenlemeyi kaydedip yeniden açmayı kontrol edin; kayıt ve yükleme beklentileri [plan sözleşmesindedir](rules/work-plan.md#kalıcılık-ve-navigasyon).
+[Paketli senaryo kabulü](../scripts/electron/scenario-acceptance.cjs), gerçek arayüzde önceki haftaya geçer; Mesai planını açıp sekmedeki tarih aralığını, kapatınca rapor haftasının korunduğunu ve Mesaim ile güncel haftaya dönüşü doğrular. Tarayıcıda ayrıca Çalışma düzeni → haftalık plan geçişini ve düzenlemeyi kaydedip yeniden açmayı kontrol edin; kayıt ve yükleme beklentileri [plan sözleşmesindedir](rules/work-plan.md#kalıcılık-ve-navigasyon). [Kapasite örneğinde](rules/work-plan.md#elle-haftalık-düzenleme-ve-sıfırlama) süre alanının ve gün kartının hesaplanan sonuçla eşleştiğini kontrol edin.
 
 | Otomatik test | Kapsam |
 | --- | --- |
