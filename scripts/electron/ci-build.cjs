@@ -130,7 +130,8 @@ async function preflight(target, acceptance, execute, summary) {
   }
 }
 
-async function build(version, siteDirectory, { execute = run, summary = process.env.GITHUB_STEP_SUMMARY, distribution = true } = {}) {
+async function build(version, siteDirectory, { execute = run, summary = process.env.GITHUB_STEP_SUMMARY, distribution = true,
+  isolatedDesktop = process.env.POFIS_ISOLATED_DESKTOP === "1" } = {}) {
   await checkVersion(version);
   const [platform, arch] = process.env.RELEASE_TARGET?.split("-") || [process.platform, process.arch];
   const target = platformTarget(platform, arch);
@@ -145,6 +146,8 @@ async function build(version, siteDirectory, { execute = run, summary = process.
   if (!siteDirectory) throw new Error("CI kurulum testi için tanıtım sitesinin klasörü gerekli.");
   // Foreign runtimes are inspected statically; native targets retain full acceptance.
   const acceptance = target.id !== "darwin-x64" && !crossLinux;
+  if (acceptance && isolatedDesktop !== true)
+    throw new Error("Pano kabulü sistem panosunu değiştirir; izole CI/VM masaüstünde POFIS_ISOLATED_DESKTOP=1 ile çalıştır.");
   const stage = (label, task) => timed(label, task, summary);
   if (summary) await appendFile(summary,
     `\n## ${target.id} aşama süreleri\n\n| Aşama | Sonuç | Saniye |\n| --- | --- | --- |\n`);

@@ -92,6 +92,8 @@ Electron sürümü değiştiğinde workflow öncesinde [motor geçişi kabulün�
 
 Dört hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Windows ve ARM64'te pano, gerçek paket/pencere/süreç ve görsel/font kabulü; Windows'ta ayrıca gerçek ZIP ve landing komutuyla installer kabulü çalışır. Intel ve Linux statik kontrolleri aşağıda açıklanır. Paketleyicinin stdout'a yazdığı tam klasör yolu sonraki aşamalara aktarılır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
 
+Pano kabulü içeren `build` ve `package` işlemlerini izole CI/VM masaüstünde `POFIS_ISOLATED_DESKTOP=1` ile çalıştırın; workflow bu değeri kendi runner'ında tanımlar.
+
 Paket içeriği, macOS imzalama ve installer davranışı [masaüstü rehberinde](desktop.md#ortak-platform-sözleşmesi) yönetilir. ARM64 installer kabulü gerçek ZIP ile çalışır; Gatekeeper temiz hedef cihazda doğrulanır.
 
 ## Cache ve süre ölçümü

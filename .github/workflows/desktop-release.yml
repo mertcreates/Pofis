@@ -65,6 +65,7 @@ jobs:
       RELEASE_TARGET: ${{ matrix.target }}
       SITE_COMMIT: ${{ needs.begin.outputs.site_commit }}
       CI: 'true'
+      POFIS_ISOLATED_DESKTOP: '1'
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:

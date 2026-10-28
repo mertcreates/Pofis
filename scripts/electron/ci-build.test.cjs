@@ -83,12 +83,31 @@ test("CI komutunun zaman sınırı bekleyen komutu sonlandırır", async () => {
     { timeoutMs: 50 })).rejects.toThrow("tamamlanmadı");
 });
 
+test.skipIf(intel)("CI derlemesi pano kabulü için açık masaüstü izolasyonu ister", async () => {
+  const calls = [];
+  await expect(build(version, "unused-site", { summary: null, isolatedDesktop: false,
+    execute: async (_command, args) => { calls.push(args); throw new Error("İzolasyon olmadan komut başlamamalı."); },
+  })).rejects.toThrow("POFIS_ISOLATED_DESKTOP=1");
+  expect(calls).toEqual([]);
+
+  const stop = new Error("pano sınırında dur");
+  await expect(build(version, "unused-site", { summary: null, isolatedDesktop: true,
+    execute: async (_command, args) => {
+      if (basename(args[0]) === "clipboard-smoke.cjs") {
+        calls.push(args);
+        throw stop;
+      }
+    },
+  })).rejects.toBe(stop);
+  expect(calls).toEqual([[join(__dirname, "clipboard-smoke.cjs"), "--isolated-desktop"]]);
+});
+
 test("gerçek CI build'i kontrol veya Next hatasında paketleme başlatmaz", async () => {
   for (const failedStep of intel ? ["desktop:install"] : ["desktop:install", "application-tests", "desktop-tests", "clipboard-smoke.cjs", "build.cjs"]) {
     const commands = [];
     const failure = new Error(`${failedStep} başarısız`);
     await expect(build(version, "unused-site", {
-      summary: null,
+      summary: null, isolatedDesktop: true,
       execute: async (_command, args) => {
         const step = args[0] === "run" ? args[1] : args[0] === "test"
           ? args.includes("./src") ? "application-tests" : "desktop-tests" : basename(args[0]);
@@ -114,7 +133,7 @@ test("derleme iki test grubunu bekler; test hatası panoyu ve paketlemeyi durdur
     let finishApplication, finishDesktop, gatesStarted;
     const ready = new Promise(done => { gatesStarted = done; });
     let settled = false;
-    const pending = build(version, "unused-site", { summary: null,
+    const pending = build(version, "unused-site", { summary: null, isolatedDesktop: true,
       execute: async (_command, args) => {
         calls.push(args);
         if (args[0] === "test" && args.includes("./src")) {
@@ -146,7 +165,7 @@ test.skipIf(process.platform !== "win32")("Windows testleri bitse de Next tamaml
   let finishNext;
   const next = new Promise(done => { finishNext = done; });
   const stop = new Error("pano sınırı");
-  const pending = build(version, "unused-site", { summary: null,
+  const pending = build(version, "unused-site", { summary: null, isolatedDesktop: true,
     execute: async (_command, args) => {
       calls.push(args);
       if (basename(args[0]) === "build.cjs") await next;
@@ -366,6 +385,7 @@ test("yayınsız workflow ölçümü sürümü doğrulayıp paketleri üretir; y
   expect(workflow.jobs.build.strategy.matrix.include).toEqual([
     { target: "win32-x64", runner: "windows-2022" }, { target: "darwin-arm64", runner: "macos-15" },
   ]);
+  expect(workflow.jobs.build.env.POFIS_ISOLATED_DESKTOP).toBe("1");
   const steps = workflow.jobs.build.steps;
   const cache = steps.find(step => step.with?.path?.includes("pofis-downloads"));
   const nextCache = steps.find(step => step.with?.path === ".next/cache");
