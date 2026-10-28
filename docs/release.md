@@ -52,25 +52,11 @@ Begin sürüm eşleşmesini ve katalog biçimini taslak oluşturmadan önce doğ
 
 Sürüm geçmişini destekleyen uygulamalar `/api/changelog` üzerinden public kataloğu okur. Public kataloğun ilk sürümü paket kataloğundaki ilk sürümle aynı veya daha yeniyse public içerik kullanılır. Daha eski katalog, ağ veya içerik hatasında paketle gelen geçmiş korunur. Görünüm ve gezinme [tasarım rehberindedir](../DESIGN.md#sürüm-geçmişi).
 
-Bu katalog uygulama içindeki kalıcı geçmişi yönetir. Public GitHub sürüm sayfasında aşağıdaki otomatik notlar kullanılır; geçmiş karşılaştırılamadığında katalogdaki ilgili sürüm kaydı kullanılır.
+### GitHub sürüm notları
 
-### Otomatik sürüm notları
+Sürüm taslağı oluşturulurken [yayın betiği](../scripts/electron/publish.cjs), doğrulanmış kataloğun ilk kaydını [not biçimlendiricisiyle](../scripts/electron/release-notes.cjs) GitHub sürüm açıklamasına aktarır. Uygulamadakiyle aynı **Yenilikler**, **Düzeltmeler** ve **Bakım** başlıkları kullanılır; boş bölümler gösterilmez ve metin Markdown için kaçışlanır. Commit başlıkları ve gövdeleri sürüm notu olarak okunmaz.
 
-Sürüm taslağı oluşturulurken [not üreticisi](../scripts/electron/release-notes.cjs), public depoda en son yayımlanan kararlı sürümün `Kaynak commit` değeri ile çalıştırılan `GITHUB_SHA` arasındaki Git geçmişini okur. Begin işi bu karşılaştırma için tam kaynak geçmişini alır; diğer işler mevcut checkout kapsamını korur. İlk yayında mevcut geçmiş kullanılır. Önceki sürümün kaynak kimliği yoksa, commit erişilemiyorsa veya yeni commit'in atası değilse durum loga yazılır ve doğrulanmış manuel kataloğun yeni sürüm kaydı GitHub notlarında kullanılır. Mevcut kaynak commit erişilemiyorsa veya Git geçmişi okunamıyorsa hazırlık durur.
-
-Notlar **Yenilikler**, **Düzeltmeler**, **Performans ve bakım** başlıklarında toplanır; boş bölümler gösterilmez. Ayrıştırıcı mevcut geçmişteki `feat(pofi): …`, `fix: …`, `perf: …`, `refactor: …` biçimlerini ve `Add …`, `Support …`, `Fix …`, `Refine …`, `Improve …` gibi serbest başlıkları tanır. Conventional önekleri kaldırılır; `!` uyumluluk değişikliği olarak belirtilir. Tekrarlar bölüm içinde tekilleştirilir. CI, test, dokümantasyon, sürüm artırma ve iç paketleme/runtime başlıkları elenir; tanınmayan başlıklar otomatik aktarılmaz. Başlıklar çevrilmez veya anlamları yeniden yazılmaz; commit gövdeleri public notlara eklenmez.
-
-Bir commit için Türkçe, kullanıcıya yönelik metin vermek veya otomatik sınıflandırmayı değiştirmek için commit gövdesine şu satırları ekle. Bu satırlar o commit'in başlığının yerini alır; birden fazla not eklenebilir. `chore` notları performans ve bakım bölümüne gider.
-
-```text
-Release-note: feat: Masaüstü ve Telegram için isteğe bağlı mesai hatırlatıcıları eklendi.
-Release-note: fix: Haftalık plan toplamları düzeltildi.
-Release-note: perf: Uygulamanın açılışı hızlandırıldı.
-```
-
-Bir başlığı sürüm notlarından çıkarmak için tek satır `Release-note: skip` kullan. Git geçmişinden not üretildiğinde hatalı `Release-note:` biçimi hazırlığı durdurur. Metin düz Markdown metni olarak kaçışlanır. Geçmişte uygun not yoksa ilk yayında başlangıç metni, sonraki sürümlerde ayrıca not eklenmediğini söyleyen kısa metin kullanılır.
-
-Notlar taslakta bir kez üretilir. Aynı sürüm ve kaynak commit ile tekrar çalıştırmak mevcut notları korur. Kaynak doğrulaması sürüm etiketi ve otomasyonun kaynak commit alt bilgisi üzerinden yapılır; açıklamanın kullanıcıya yönelik kısmı düzenlenebilir. Alt bilgiyi koru. Not üretimi yerel Git kullanır; ek servis veya token gerektirmez.
+Yeni taslakta `GITHUB_SHA` ile checkout'un kaynak commit'i eşleşmelidir. Aynı sürüm ve kaynak commit ile tekrar çalıştırmak mevcut taslağın notlarını korur. Kaynak doğrulaması sürüm etiketi ve otomasyonun kaynak commit alt bilgisi üzerinden yapılır; açıklamanın kullanıcıya yönelik kısmı düzenlenebilir. Alt bilgiyi koru.
 
 ## Yayın sonrası HTTPS kabulü
 
@@ -142,7 +128,7 @@ macOS koordinatörü ilk hedef hatasında kardeş üretimleri iptal eder, yeni a
 
 Yerel kabul polling'i bekleyen kontrolü de süre sonunda reddeder; HTTP başlık/gövde okumaları iptal edilebilir. CI alt komutları en fazla 10 dakika, paket açılış kabulü 2 dakika, kurulum/güncelleme kabulü 5 dakika çalışır; kapanış süresi bu sınırlara eklenebilir. Native build/koordinasyon adımı ayrıca 12 dakika ile sınırlıdır. macOS installer kabulü beklenen açılışı alamazsa yalnız kendi geçici Pofis sürecinin kısa yığın örneğini loga yazar; başarılı koşuda örnek alınmaz.
 
-Taslağın korunduğu diğer hata durumlarında yeniden deneme aynı **sürüm ve kaynak commit'i** ile devam eder: tamamlanmış platform paketleri hash doğrulanarak draft/yayımlanmış release'den alınır ve aynı doğrulanmış paketlerle devam edilir. Platform kurtarma adımı yalnız otomasyonun kendi draft'ında ilgili platformun eksik dosyalarını temizler. Son birleştirme aşaması ve yayımlanmış release mevcut dosyaları korur. Yeni kaynak içeriği yeni sürüm numarasıyla yayımlanır. Release gövdesi [otomatik sürüm notlarını](#otomatik-sürüm-notları), kurulum bağlantısını, platformları ve kaynak commit alt bilgisini içerir.
+Taslağın korunduğu diğer hata durumlarında yeniden deneme aynı **sürüm ve kaynak commit'i** ile devam eder: tamamlanmış platform paketleri hash doğrulanarak draft/yayımlanmış release'den alınır ve aynı doğrulanmış paketlerle devam edilir. Platform kurtarma adımı yalnız otomasyonun kendi draft'ında ilgili platformun eksik dosyalarını temizler. Son birleştirme aşaması ve yayımlanmış release mevcut dosyaları korur. Yeni kaynak içeriği yeni sürüm numarasıyla yayımlanır. Release gövdesi [katalogdaki sürüm notlarını](#github-sürüm-notları), kurulum bağlantısını, platformları ve kaynak commit alt bilgisini içerir.
 
 Final yayın tüm hedeflerin başarıyla tamamlanmasına bağlıdır. Release yayımlandıktan sonra anonim indirme veya Workers/push başarısız olursa önceki canlı manifest korunur; son adımlardan sonra Workers gecikirse workflow başarısız raporlanır. Aynı sürümle yeniden çalıştırma yayımlanmış paketleri kullanıp kalan yayın adımlarını tamamlar. Branch koruması, yetki hatası veya çakışmada akış durur ve çözüm için açık hata verir.
 

@@ -6,7 +6,7 @@ const { prepareSite, prepareChangelog, readChangelog, verifyPreparedChangelog, v
 const { checkVersion, run } = require("./ci-build.cjs");
 const { assertSiteCommands, readSiteContent } = require("./install-command.cjs");
 const { unixInstaller } = require("./unix-installer.cjs");
-const { sourceCommit, readReleaseNotes, changelogNotes, releaseBody } = require("./release-notes.cjs");
+const { sourceCommit, changelogNotes, releaseBody } = require("./release-notes.cjs");
 
 const REPOSITORY = "mertcreates/pofis-landing";
 const TARGETS = ["win32-x64", "darwin-arm64", "darwin-x64", "linux-x64"];
@@ -88,18 +88,6 @@ async function getRelease(version) {
     if (releases.length < 100) return null;
   }
 }
-async function previousRelease() {
-  let previous;
-  for (let page = 1; ; page++) {
-    const releases = await api(`releases?per_page=100&page=${page}`);
-    for (const release of releases) {
-      if (!release.draft && !release.prerelease &&
-          (!previous || Date.parse(release.published_at) > Date.parse(previous.published_at))) previous = release;
-    }
-    if (releases.length < 100) return previous;
-  }
-}
-
 async function beginRelease(version) {
   const changelog = await readChangelog(version);
   const release = await getRelease(version);
@@ -107,12 +95,11 @@ async function beginRelease(version) {
     assertRelease(release, version);
     return;
   }
-  const previous = await previousRelease();
-  let notes = await readReleaseNotes(previous, process.env.GITHUB_SHA);
-  if (notes === null) {
-    console.warn("Önceki sürümün kaynak geçmişi karşılaştırılamadı; doğrulanmış sürüm geçmişi kaydı kullanılıyor.");
-    notes = changelogNotes(changelog[0]);
+  if (!/^[a-f0-9]{40}$/.test(process.env.GITHUB_SHA || "") ||
+      await run("git", ["rev-parse", "HEAD"], root) !== process.env.GITHUB_SHA) {
+    throw new Error("Sürümün kaynak commit'i checkout ile eşleşmiyor.");
   }
+  const notes = changelogNotes(changelog[0]);
   await api("releases", { method: "POST", body: { tag_name: `v${version}`,
     target_commitish: "main", name: `Pofis ${version}`, body: releaseBody(version, notes), draft: true } });
 }
