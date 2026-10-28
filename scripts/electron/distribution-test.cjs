@@ -42,6 +42,14 @@ async function run() {
   const checks = join(root, "dist/electron/checks");
   await mkdir(checks, { recursive: true });
   const directory = await mkdtemp(join(checks, "distribution test-"));
+  try {
+    await runFixture(directory, { startupOnly, group });
+  } finally {
+    await rm(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
+  }
+}
+
+async function runFixture(directory, { startupOnly, group }) {
   const install = join(directory, "installed");
   const profile = join(directory, "profile");
   const shortcut = join(directory, "Pofis.lnk");
@@ -365,8 +373,6 @@ async function run() {
     await ps(`Get-Process | Where-Object { $_.Path -like ${quote(install + "\\versions\\*")} } | Stop-Process -Force`).done;
     await ps(`if (Test-Path -LiteralPath ${quote(registry)}) { Remove-Item -LiteralPath ${quote(registry)} -Recurse -Force }`).done;
     host.stop(true);
-    // Only this test's generated install/profile/archives are removed.
-    await rm(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 300 });
   }
 }
 async function runAll() {
