@@ -170,7 +170,7 @@ Davranışın sahibi [masaüstü rehberi](desktop.md#pofi-mini-ve-macos-menü-ç
 | [PDKS yaşam döngüsü](../src/data/pdks-lifecycle.test.ts) | İzole React/Electron ortamında gizli hazırlıkta sıfır HTTP isteği, çakışan isteklerin paylaşılması, rapor/olay yarışı, hafta/hesap değişimi, oturum bitişi ve dinleyici temizliği |
 | [Bildirim adaptörü](../src/desktop/install-notifications.test.ts), [plan depolama](../src/data/work-plans.test.ts), [saat](../src/data/clock.test.ts) | Pencereler arası rapor/plan aktarımı, oturum olayları ve görünürlüğe bağlı saat |
 | [Mini sunumu](../src/components/mini/mini-dashboard.test.tsx) | Saniyeli hedef/kalan/aşan süre, günlük durumlar ve yükleniyor/bağlantısız/hata ayrımı |
-| [Senaryo kabulü](../scripts/electron/scenario-acceptance.cjs) | Gerçek Electron'da gizli hazırlık ve aynı pencerenin gösterilmesi, tema/plan senkronizasyonu, sekiz mesai senaryosu, bağlantı/oturum toparlanması, native menü, sandbox ve kapanış |
+| [Senaryo kabulü](../scripts/electron/scenario-acceptance.cjs) | Gerçek Electron'da sürüm, uygulama kökü ve simge; gizli hazırlık ve aynı pencerenin gösterilmesi, tema/plan senkronizasyonu, sekiz mesai senaryosu, bağlantı/oturum toparlanması, native menü, sandbox ve kapanış |
 | [Smoke](../scripts/electron/smoke.cjs) | Mini açılışı, sabitleme, IPC köprüsü ve ana pencereye dönüş |
 
 Güncel paketle senaryo kabulünü çalıştırın:

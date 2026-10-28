@@ -22,7 +22,7 @@ async function run() {
     : process.argv[2] ? resolve(process.argv[2])
     : join(packages, (await readdir(packages)).filter(name => name.startsWith(`Pofis-${target.id}-`)).sort().at(-1));
   const executable = join(folder, sourceMode ? target.electronExecutable : target.executable);
-  const appArgs = sourceMode ? [join(root, "electron")] : [];
+  const appArgs = sourceMode ? [root] : [];
   const env = { ...process.env, PATH: target.platform === "win32" ? join(process.env.SystemRoot, "System32") : "/usr/bin:/bin:/usr/sbin:/sbin" };
   env.POFIS_TEST_BLOCK_ANALYTICS = "1";
   delete env.ELECTRON_RUN_AS_NODE;
@@ -371,7 +371,7 @@ async function run() {
         ["--verify", "--deep", "--strict", "--verbose=3", join(folder, "Pofis.app")]);
       console.log("PASS: açılış, demo ve yeniden başlatma sonrasında uygulama imzası geçerli.");
     }
-    console.log(`PASS: ${target.id}; ${sourceMode ? "Kaynak electron/" : "Pofis paketi"}; Node/Bun içermeyen PATH; giriş ekranı/API doğrulaması; demo; tek örnek; gezinme sınırı; kalıcı profil; üç açılış/kapanışta port temizliği.`);
+    console.log(`PASS: ${target.id}; ${sourceMode ? "Kaynak" : "Pofis paketi"}; Node/Bun içermeyen PATH; giriş ekranı/API doğrulaması; demo; tek örnek; gezinme sınırı; kalıcı profil; üç açılış/kapanışta port temizliği.`);
     console.log(`PASS: başka uygulama 3210'da kalırken boş port; portlar arasında kalıcı ayarlar; alternatif portta tek örnek; HTTP POST ve HttpOnly çerez temizleme.\nGeçici görsel inceleme: ${artifactDirectory}`);
   } finally {
     cdp?.close();

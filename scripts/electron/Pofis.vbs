@@ -10,4 +10,4 @@ If Not files.FileExists(electron) Then
 End If
 shell.Environment("Process").Remove "ELECTRON_RUN_AS_NODE"
 shell.CurrentDirectory = root
-shell.Run """" & electron & """ """ & root & "\electron" & """", 1, False
+shell.Run """" & electron & """ """ & root & """", 1, False

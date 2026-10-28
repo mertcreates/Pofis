@@ -27,7 +27,7 @@ async function run() {
   let child, debuggerConnection;
   let phase = "başlatma", output = "";
   try {
-    child = spawn(executable, [...(sourceMode ? [join(root, "electron")] : []), "--pofis-scenarios", `--user-data-dir=${profileRoot}`,
+    child = spawn(executable, [...(sourceMode ? [root] : []), "--pofis-scenarios", `--user-data-dir=${profileRoot}`,
       `--startup-id=${id}`, "--inspect=127.0.0.1:0"], { env, windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
     child.stderr.on("data", chunk => { output += chunk; });
     child.on("error", error => { output += error.message; });
@@ -40,7 +40,17 @@ async function run() {
     };
     const receipt = await until(() => readFile(join(profile, "launch-results", `${id}.json`), "utf8").then(JSON.parse, () => false));
     assert.equal(receipt.status, "ready", receipt.message);
+    phase = "uygulama kimliği";
+    const appPath = sourceMode ? root : join(folder, target.resources, "app");
+    const { version } = JSON.parse(await readFile(join(appPath, "package.json"), "utf8"));
+    assert.equal(receipt.version, version);
+    assert.equal(await main("process.mainModule.require('electron').app.getAppPath()"), appPath);
     assert.equal(await main("process.mainModule.require('electron').app.getPath('userData')"), profile);
+    assert.equal(await main(`(() => {
+      const { app, nativeImage } = process.mainModule.require('electron');
+      const { join } = process.mainModule.require('node:path');
+      return nativeImage.createFromPath(join(app.getAppPath(), 'public', 'pofi', 'pofi-mark-256.png')).isEmpty();
+    })()`), false);
     const renderer = (expression, mini = false) => main(`(() => {
       const window = process.mainModule.require('electron').BrowserWindow.getAllWindows().find(window =>
         ${mini ? "window.webContents.getURL().endsWith('/mini')" : "window.webContents.getURL() === " + JSON.stringify(ORIGIN + "/")});
