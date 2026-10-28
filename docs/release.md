@@ -34,9 +34,9 @@ Paketli Electron uygulaması açılışta bu manifestlerden kendi hedefine ait o
 
 ## Sürüm ve manifest
 
-Uygulama sürümünün sahibi [package.json](../package.json) dosyasıdır. Yeni paket içeriği yeni bir `x.y.z` sürümüyle yayımlanır; landing projesinin paket sürümü bundan bağımsızdır.
+Uygulama sürümünün sahibi [package.json](../package.json) dosyasıdır; footer bu sürümü gösterir. Yeni paket içeriği yeni bir `x.y.z` sürümüyle yayımlanır; landing projesinin paket sürümü bundan bağımsızdır.
 
-Public `latest.json` dosyaları ve footer'daki uygulama sürümü yayımlanmış paketlerden üretilir. İlk yayın manifesti oluşturur; sonraki yayınlarda mevcut manifest üzerinden sürüm düşürme koruması uygulanır. Otomasyon dört doğrulanmış paketten gerçek manifestleri üretir; bu dosyalar yalnız paketler anonim indirilebildikten sonra canlıya gönderilir.
+Otomasyon dört doğrulanmış paketten `latest.json` manifestlerini üretir; dosyalar paketler anonim indirilebildikten sonra canlıya gönderilir. İlk yayın manifesti oluşturur; sonraki yayınlarda mevcut manifest üzerinden sürüm düşürme koruması uygulanır.
 
 Installer sürüm düşürmez. Daha yüksek sürümlü bir geliştirme paketinden düşük sürüme geçiş gerekiyorsa önce normal kaldırma yolu kullanılır; kullanıcı profili korunur.
 
