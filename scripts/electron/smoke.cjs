@@ -36,6 +36,7 @@ async function run() {
   let cdp;
   let debugOrigin;
   let mainDebugUrl;
+  let mainWindowId;
   let serverOrigin;
   let occupied;
   const launch = async (packageFolder = folder) => {
@@ -51,7 +52,7 @@ async function run() {
     debugOrigin = address.replace(/^ws:/, "http:").split("/devtools/")[0];
     const pageTarget = await until(async signal => {
       const targets = await (await fetch(`${debugOrigin}/json/list`, { signal })).json();
-      return targets.find(target => target.type === "page" && target.url.startsWith(ORIGIN));
+      return targets.find(target => target.type === "page" && target.url === `${ORIGIN}/`);
     });
     cdp = await connect(pageTarget.webSocketDebuggerUrl);
     // A CDP target URL can be assigned while its document is still about:blank.
@@ -67,16 +68,16 @@ async function run() {
     serverOrigin = receipt.origin;
     const mainDebugger = await connect(mainDebugUrl);
     try {
-      await until(async () => {
+      mainWindowId = await until(async () => {
         const state = await mainDebugger.send("Runtime.evaluate", {
           expression: `(() => {
             const { app, BrowserWindow } = process.mainModule.require('electron');
-            const window = BrowserWindow.getAllWindows()[0];
-            return !!window && window.isVisible() && !window.isMinimized() && (process.platform !== 'darwin' || !app.isHidden());
+            const window = BrowserWindow.getAllWindows().find(w => w.webContents.getURL() === ${JSON.stringify(`${ORIGIN}/`)});
+            return window && window.isVisible() && !window.isMinimized() && (process.platform !== 'darwin' || !app.isHidden()) ? window.id : false;
           })()`, returnByValue: true,
         });
         assert.equal(state.exceptionDetails, undefined);
-        return state.result.value === true;
+        return state.result.value;
       }, 30000, "Pofis açılışında pencere gizli veya küçültülmüş kaldı.");
     } finally { mainDebugger.close(); }
   };
@@ -95,13 +96,8 @@ async function run() {
         assert.equal(result.exceptionDetails, undefined);
         return result.result.value;
       };
-      const windowId = await evaluateMain(`(() => {
-          const windows = process.mainModule.require('electron').BrowserWindow.getAllWindows();
-          if (windows.length !== 1) throw new Error('Kapatılacak tek Pofis penceresi gerekli.');
-          const window = windows[0];
-          window.show();
-          return window.id;
-        })()`);
+      const windowId = mainWindowId;
+      await evaluateMain(`process.mainModule.require('electron').BrowserWindow.fromId(${windowId}).show()`);
       await until(async () => (await evaluateMain(
         `process.mainModule.require('electron').BrowserWindow.fromId(${windowId}).isVisible()`)) === true,
       30000, "Pofis native penceresi kapatma kabulü öncesinde gösterilemedi.");
@@ -220,7 +216,7 @@ async function run() {
     assert.equal(child.exitCode, null);
     assert.equal((await fetch(`${ORIGIN}/api/health`)).headers.get("X-Pofis-Desktop"), identity);
     const targets = await (await fetch(`${debugOrigin}/json/list`)).json();
-    assert.equal(targets.filter(target => target.type === "page").length, 1);
+    assert.equal(targets.filter(target => target.type === "page" && target.url === `${ORIGIN}/`).length, 1);
     await evaluate("window.open('https://example.invalid'); true");
     await evaluate("location.href = 'https://example.invalid'; true");
     await Bun.sleep(200);
@@ -260,6 +256,13 @@ async function run() {
         });
         return result.result?.value === true;
       }, 30000, "Pofi Mini arayüzü veya güvenli IPC köprüsü yüklenmedi.");
+      await until(async () => {
+        const state = await miniMain.send("Runtime.evaluate", {
+          expression: `process.mainModule.require('electron').BrowserWindow.getAllWindows().find(w => w.webContents.getURL() === ${JSON.stringify(`${ORIGIN}/mini`)})?.isVisible()`,
+          returnByValue: true,
+        });
+        return state.result?.value === true;
+      }, 30000, "Pofi Mini penceresi açılmadı.");
       // Intel macOS CI can load the renderer without a composited window surface.
       // Keep the native UI/IPC acceptance mandatory; capture a preview where supported.
       if (target.id !== "darwin-x64") {
@@ -328,23 +331,18 @@ async function run() {
       assert.equal(opened.result.value, true);
       await until(async () => {
         const state = await miniMain.send("Runtime.evaluate", {
-          expression: "(() => { const windows = process.mainModule.require('electron').BrowserWindow.getAllWindows(); return windows.length === 2 && windows.filter(w => w.isVisible()).length === 1; })()",
+          expression: `(() => {
+            const { BrowserWindow } = process.mainModule.require('electron');
+            const main = BrowserWindow.fromId(${mainWindowId});
+            const mini = BrowserWindow.getAllWindows().find(w => w.webContents.getURL() === ${JSON.stringify(`${ORIGIN}/mini`)});
+            return !!main && main.isVisible() && !!mini && !mini.isVisible();
+          })()`,
           returnByValue: true,
         });
         return state.result?.value === true;
       }, 30000, "Mini ana pencereye döndüğünde gizlenmedi.");
       console.log("PASS: gerçek Pofi Mini penceresi, UI/IPC, sabitleme ve ana pencereye dönüş.");
     } finally { miniPage?.close(); miniMain.close(); }
-    // The mini is a live hidden native window; close() checks the main window contract.
-    const cleanupMini = await connect(mainDebugUrl);
-    try {
-      const result = await cleanupMini.send("Runtime.evaluate", {
-        expression: "(() => { const windows = process.mainModule.require('electron').BrowserWindow.getAllWindows(); const mini = windows.find(w => w.getURL().endsWith('/mini')); mini?.destroy(); return windows.length === 2; })()",
-        returnByValue: true,
-      });
-      assert.equal(result.exceptionDetails, undefined);
-      assert.equal(result.result.value, true);
-    } finally { cleanupMini.close(); }
     await close();
     occupied = Bun.serve({ hostname: "127.0.0.1", port: 3210, fetch: () => new Response("another app") });
     await launch();
