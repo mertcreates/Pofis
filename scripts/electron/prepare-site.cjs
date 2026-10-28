@@ -3,8 +3,8 @@ const { createReadStream } = require("node:fs");
 const { readFile, writeFile, mkdir, stat } = require("node:fs/promises");
 const { resolve, join } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
+const { parseChangelog } = require("../../src/domain/changelog.ts");
 const { unixInstaller } = require("./unix-installer.cjs");
-const CHANGELOG_GROUPS = ["features", "fixes", "maintenance"];
 
 function normalizeInstaller(text) {
   return text.replace(/^\uFEFF/, "").replaceAll("\r\n", "\n");
@@ -16,34 +16,8 @@ async function readChangelog(version) {
   if (!Array.isArray(changelog) || !changelog.length || changelog[0]?.version !== version) {
     throw new Error(`Sürüm geçmişinin ilk kaydı ${version} olmalı.`);
   }
-  const versions = new Set();
-  let previous;
-  for (const release of changelog) {
-    if (!release || typeof release !== "object" || typeof release.version !== "string" || release.version.trim() !== release.version ||
-        !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(release.version) ||
-        !release.version.split(".").map(Number).every(Number.isSafeInteger) ||
-        typeof release.publishedOn !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(release.publishedOn) ||
-        !Number.isFinite(Date.parse(`${release.publishedOn}T00:00:00Z`)) ||
-        new Date(`${release.publishedOn}T00:00:00Z`).toISOString().slice(0, 10) !== release.publishedOn ||
-        versions.has(release.version)) {
-      throw new Error("Sürüm geçmişi kaydı geçersiz.");
-    }
-    if (previous) {
-      const currentParts = release.version.split(".").map(Number);
-      const previousParts = previous.split(".").map(Number);
-      const firstDifference = previousParts.findIndex((part, index) => part !== currentParts[index]);
-      if (firstDifference === -1 || previousParts[firstDifference] < currentParts[firstDifference]) {
-        throw new Error("Sürüm geçmişi yeniden eskiye sıralanmalı.");
-      }
-    }
-    versions.add(release.version);
-    previous = release.version;
-    const groups = CHANGELOG_GROUPS.filter(group => release[group] !== undefined);
-    if (!groups.length || groups.some(group => !Array.isArray(release[group]) || !release[group].length ||
-        release[group].some(item => typeof item !== "string" || !item.trim()))) {
-      throw new Error(`Sürüm geçmişi içeriği geçersiz: ${release.version}`);
-    }
-  }
+  // The UI uses normalized entries; the public file must retain the source content.
+  parseChangelog(changelog);
   return changelog;
 }
 

@@ -48,7 +48,7 @@ Yeni sürüm hazırlanırken `package.json` ile kataloğun ilk kaydı aynı sür
 
 Yeni özellik yayımlanmadan önce yapılan düzeltmeleri özelliğin son hâliyle birlikte anlat. Düzeltmeler bölümüne önceki yayımlanmış deneyimdeki sorunları al; iç test araçlarını ve uygulama ayrıntılarını kullanıcıya etkisi yoksa kataloğa ekleme.
 
-Begin sürüm eşleşmesini ve katalog biçimini taslak oluşturmadan önce doğrular. Prepare kataloğu `public/releases/changelog.json` yoluna kopyalar; publish hazırlanan dosyanın kaynakla tam eşleşmesini sürümü yayımlamadan önce kontrol eder. Canlı HTTPS kabulü de aynı içerikle birlikte yukarıdaki başlıkları doğrular.
+Begin sürüm eşleşmesini ve katalog biçimini taslak oluşturmadan önce doğrular. Uygulama ve yayın hazırlığı aynı [katalog doğrulayıcısını](../src/domain/changelog.ts) kullanır. Uygulama gösterim için madde metinlerinin çevresindeki boşluğu temizler; prepare özgün kataloğu `public/releases/changelog.json` yoluna kopyalar. Publish hazırlanan dosyanın kaynakla tam eşleşmesini sürümü yayımlamadan önce kontrol eder. Canlı HTTPS kabulü de aynı içerikle birlikte yukarıdaki başlıkları doğrular.
 
 Sürüm geçmişini destekleyen uygulamalar `/api/changelog` üzerinden public kataloğu okur. Public kataloğun ilk sürümü paket kataloğundaki ilk sürümle aynı veya daha yeniyse public içerik kullanılır. Daha eski katalog, ağ veya içerik hatasında paketle gelen geçmiş korunur. Görünüm ve gezinme [tasarım rehberindedir](../DESIGN.md#sürüm-geçmişi).
 

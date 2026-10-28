@@ -1,8 +1,7 @@
 import { ui } from "../lib/ui-text.js";
 import { SESSION_POLICY } from "@/domain/rules/session-policy";
 import { REPORT_ACCESS } from "@/domain/rules/report-access";
-import { isSessionExpired } from "@/lib/pdks-failure";
-import { readDiagnosticDetails } from "@/lib/pdks-failure";
+import { isSessionExpired, readDiagnosticDetails } from "@/lib/pdks-failure";
 import { ApiError } from "@/lib/api-client.js";
 import { join } from "node:path";
 import type { App, IpcMain, Session, BrowserWindow, PowerMonitor, SafeStorage, Notification as ElectronNotification } from "electron";

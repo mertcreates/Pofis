@@ -375,7 +375,7 @@ export class PdksClient {
     this.jar = new CookieJar();
     this.self = null;
     this.queue = Promise.resolve();
-    this.lastRequestAt = Date.now();
+    this.lastRequestAt = this.clock();
   }
 
   run(action) {
@@ -422,7 +422,7 @@ export class PdksClient {
       let html;
       const cookie = await this.jar.getCookieString(url.href);
       signal?.throwIfAborted();
-      this.lastRequestAt = Date.now();
+      this.lastRequestAt = this.clock();
       this.onRequest?.();
       try {
         response = await this.fetchImpl(url, {
@@ -539,7 +539,7 @@ export class PdksClient {
         if (retryAfter !== null) {
           const delay = /^\d+$/.test(retryAfter)
             ? Number(retryAfter) * 1000
-            : Date.parse(retryAfter) - Date.now();
+            : Date.parse(retryAfter) - this.clock();
           details.retryAfterMs = Number.isFinite(delay)
             ? Math.max(0, delay)
             : 0;
@@ -621,10 +621,10 @@ export class PdksClient {
         error.details.method !== "GET" ||
         error.details.sessionCheck !== "active" ||
         error.details.retryAfterMs !== undefined ||
-        Date.now() < (this.reportRecoveryAfter || 0)
+        this.clock() < (this.reportRecoveryAfter || 0)
       )
         throw error;
-      this.reportRecoveryAfter = Date.now() + REPORT_RECOVERY_COOLDOWN_MS;
+      this.reportRecoveryAfter = this.clock() + REPORT_RECOVERY_COOLDOWN_MS;
       try {
         return await this.request(path, undefined, { probeSession: false });
       } catch (retryError) {

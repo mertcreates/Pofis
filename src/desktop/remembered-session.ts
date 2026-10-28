@@ -6,6 +6,7 @@ import { SESSION_POLICY } from "@/domain/rules/session-policy";
 import { ApiError, api } from "@/lib/api-client.js";
 import { readSessionResponse } from "@/lib/session-response.js";
 import { ui } from "@/lib/ui-text.js";
+import { hasSecureStorageBackend } from "./secure-storage";
 
 type Credentials = { username: string; password: string };
 type Store = ReturnType<typeof createRememberedStore>;
@@ -27,8 +28,7 @@ function readCredentials(value: unknown): Credentials {
 export function createRememberedStore(directory: string, storage: SafeStorage, platform = process.platform) {
   const destination = join(directory, "remembered-session.bin");
   async function available() {
-    // Linux's basic_text backend uses a public, hardcoded password.
-    if (platform === "linux" && ["basic_text", "unknown"].includes(storage.getSelectedStorageBackend())) throw storageError();
+    if (!hasSecureStorageBackend(storage, platform)) throw storageError();
     if (!await storage.isAsyncEncryptionAvailable()) throw storageError();
   }
   return {

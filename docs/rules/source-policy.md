@@ -33,7 +33,7 @@ Farklı oturumların kaynak istekleri bağımsız başlar. Aynı oturumdaki WebF
 
 Kaynak HTTP hatası, bağlantı hatası, oturum bitişi, iptal ve bozuk kaynak yapısının sınıflandırması [ortak hata sözleşmesindedir](../pdks-errors.md).
 
-Oturuma ait PDKS istemcisi son başarılı raporu `reportCacheMs` boyunca süreç belleğinde tutar. Anahtar kişi kapsamı, tarih aralığı ve İstanbul gününü içerir. Aynı anahtarın eşzamanlı çağrıları tek işe birleşir. Özgün alınma zamanı korunur; dönen nesneler bağımsız kopyadır. Aralık/gün değişimi ve süre dolumu yeni kaynak işi başlatır. HTTP yanıtı `Cache-Control: no-store` taşır.
+Oturuma ait PDKS istemcisi son başarılı raporu `reportCacheMs` boyunca süreç belleğinde tutar. Anahtar kişi kapsamı, tarih aralığı ve İstanbul gününü içerir. Aynı anahtarın eşzamanlı çağrıları tek işe birleşir. Özgün alınma zamanı korunur; dönen nesneler bağımsız kopyadır. Aralık/gün değişimi ve süre dolumu yeni kaynak işi başlatır. İstemcinin rapor önbelleği, son istek zamanı ve kurtarma beklemesi aynı saat kaynağını kullanır. HTTP yanıtı `Cache-Control: no-store` taşır.
 
 Giriş, heartbeat ve çıkış uçları Origin/Sec-Fetch-Site değerlerinden bağımsız çalışır. Kimlik doğrulama ve kişi kapsamı [oturum politikasına](session-policy.md) aittir. HTTPS çerezinin proxy protokolüne uyarlanması [dağıtım rehberinde](../deployment.md) açıklanır.
 

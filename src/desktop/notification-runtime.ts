@@ -31,6 +31,8 @@ type Dependencies = {
   onGoal?(goal: NotificationGoal | null): void;
 };
 
+class NotificationAccountChanged extends Error {}
+
 export function readNotificationSession(value: unknown): NotificationSession {
   const session = value as NotificationSession | null;
   if (!session || !/^[a-f0-9]{64}$/.test(session.accountId) || !Number.isSafeInteger(session.expiresAt))
@@ -88,10 +90,10 @@ export function createNotificationRuntime(deps: Dependencies) {
   }
   function persist(update: (value: NotificationAccount) => NotificationAccount, current = requireAccount()) {
     const task = mutations.then(async () => {
-      if (current.generation !== generation || !account) throw new Error(ui.notificationErrors.accountChanged);
+      if (current.generation !== generation || !account) throw new NotificationAccountChanged(ui.notificationErrors.accountChanged);
       const next = update(account);
       await deps.store.save(current.session.accountId, next);
-      if (current.generation !== generation) throw new Error(ui.notificationErrors.accountChanged);
+      if (current.generation !== generation) throw new NotificationAccountChanged(ui.notificationErrors.accountChanged);
       account = next;
     });
     mutations = task.catch(() => {});
@@ -181,6 +183,7 @@ export function createNotificationRuntime(deps: Dependencies) {
     if (syncing || ticking || !session) return;
     if (session.expiresAt <= now()) { expire(); return; }
     ticking = true;
+    const tickGeneration = generation;
     try {
       if (deps.heartbeat && now() - lastHeartbeatAt >= SESSION_POLICY.heartbeatMs) {
         lastHeartbeatAt = now();
@@ -248,7 +251,12 @@ export function createNotificationRuntime(deps: Dependencies) {
         }
         publish();
       }
-    } catch {
+    } catch (error) {
+      if (tickGeneration !== generation) {
+        // A cancelled old account cannot set the current account's error state.
+        if (!(error instanceof NotificationAccountChanged)) console.warn(ui.diagnostics.notificationTickFailed);
+        return;
+      }
       refreshError = ui.notificationErrors.recordWriteFailed;
       publish();
     } finally { ticking = false; }
