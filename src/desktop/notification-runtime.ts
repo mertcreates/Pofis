@@ -54,6 +54,7 @@ export function createNotificationRuntime(deps: Dependencies) {
   let lastAttemptAt = 0;
   let lastHeartbeatAt = 0;
   let refreshError = "";
+  let recordError = "";
   let deliveryErrors: NotificationStatus["deliveryErrors"] = {};
   let refreshing: Promise<void> | null = null;
   let ticking = false;
@@ -67,7 +68,7 @@ export function createNotificationRuntime(deps: Dependencies) {
   function status(): NotificationStatus {
     return { active: session !== null, preferences: account?.preferences ?? defaultNotificationPreferences(),
       telegram: { connected: !!credentials, label: credentials?.label ?? "" }, nativeSupported: deps.nativeSupported,
-      secureStorageAvailable: deps.secureStorageAvailable(), lastRefreshAt, refreshError, deliveryErrors: { ...deliveryErrors } };
+      secureStorageAvailable: deps.secureStorageAvailable(), lastRefreshAt, refreshError, recordError, deliveryErrors: { ...deliveryErrors } };
   }
   const publishGoal = (goal = notificationGoal(report, plans, now())) => deps.onGoal?.(goal);
   const publish = () => { deps.onChange(status()); publishGoal(); };
@@ -79,7 +80,7 @@ export function createNotificationRuntime(deps: Dependencies) {
     controller.abort();
     controller = new AbortController();
     session = null; account = null; report = null; credentials = null;
-    refreshing = null; lastRefreshAt = null; lastAttemptAt = 0; lastHeartbeatAt = 0; refreshError = ""; deliveryErrors = {};
+    refreshing = null; lastRefreshAt = null; lastAttemptAt = 0; lastHeartbeatAt = 0; refreshError = ""; recordError = ""; deliveryErrors = {};
     eligibleSince = now();
     publish();
   }
@@ -95,6 +96,7 @@ export function createNotificationRuntime(deps: Dependencies) {
       await deps.store.save(current.session.accountId, next);
       if (current.generation !== generation) throw new NotificationAccountChanged(ui.notificationErrors.accountChanged);
       account = next;
+      recordError = "";
     });
     mutations = task.catch(() => {});
     return task;
@@ -184,6 +186,7 @@ export function createNotificationRuntime(deps: Dependencies) {
     if (session.expiresAt <= now()) { expire(); return; }
     ticking = true;
     const tickGeneration = generation;
+    const recordErrorAtStart = recordError;
     try {
       if (deps.heartbeat && now() - lastHeartbeatAt >= SESSION_POLICY.heartbeatMs) {
         lastHeartbeatAt = now();
@@ -257,9 +260,11 @@ export function createNotificationRuntime(deps: Dependencies) {
         if (!(error instanceof NotificationAccountChanged)) console.warn(ui.diagnostics.notificationTickFailed);
         return;
       }
-      refreshError = ui.notificationErrors.recordWriteFailed;
-      publish();
-    } finally { ticking = false; }
+      recordError = ui.notificationErrors.recordWriteFailed;
+    } finally {
+      ticking = false;
+      if (tickGeneration === generation && recordError !== recordErrorAtStart) publish();
+    }
   }
   const implementation = {
     status, sync, pause, refresh, tick,

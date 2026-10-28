@@ -18,7 +18,7 @@ export type NotificationSettingsSource = {
 const webStatus: NotificationStatus = {
   active: true, preferences: defaultNotificationPreferences(),
   telegram: { connected: false, label: "" }, nativeSupported: false,
-  secureStorageAvailable: false, lastRefreshAt: null, refreshError: "", deliveryErrors: {},
+  secureStorageAvailable: false, lastRefreshAt: null, refreshError: "", recordError: "", deliveryErrors: {},
 };
 
 type FeedbackTarget = "save" | NotificationChannel;
@@ -119,6 +119,7 @@ function NotificationForm({ status, connectionError, actions, mode, visible }: {
   }
   return <div className="notification-settings" aria-busy={!!busy}>
     <p className="notification-error notification-connection-feedback" role="status">{connectionError}</p>
+    <p className="notification-error notification-connection-feedback" role="status">{status.recordError}</p>
     <div className="notification-layout">
       <form className="notification-reminders-form" onSubmit={event => {
         event.preventDefault();

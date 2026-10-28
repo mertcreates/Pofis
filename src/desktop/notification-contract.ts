@@ -11,6 +11,7 @@ export type NotificationStatus = {
   secureStorageAvailable: boolean;
   lastRefreshAt: number | null;
   refreshError: string;
+  recordError: string;
   deliveryErrors: Partial<Record<NotificationChannel, string>>;
 };
 export type DesktopNotificationBridge = {

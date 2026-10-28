@@ -3,6 +3,7 @@ import { usePdks } from "../use-pdks";
 import type { NotificationStatus, NotificationReport } from "@/desktop/notification-contract";
 import { defaultNotificationPreferences } from "@/domain/rules/notifications";
 import { emptyWorkPlans } from "@/domain/rules/work-plan";
+import { NotificationSettings } from "@/components/notifications/settings";
 
 const week = "2026-10-19";
 const report = (name: string, at: number): NotificationReport => ({
@@ -51,7 +52,12 @@ window.fetch = (async (input: RequestInfo | URL, options?: RequestInit) => {
 }) as typeof window.fetch;
 let state: ReturnType<typeof usePdks>;
 let selectedWeek = week;
-function Harness() { state = usePdks(selectedWeek, { observeDesktopSession: true }); return null; }
+let notificationStatus: NotificationStatus | null = null;
+let notificationConnectionError = "";
+function Harness() {
+  state = usePdks(selectedWeek, { observeDesktopSession: true });
+  return <NotificationSettings visible source={{ mode: "desktop", status: notificationStatus, actions: null, error: notificationConnectionError }} />;
+}
 const root = createRoot(document.getElementById("root")!);
 root.render(<Harness />);
 const wait = async (condition: () => boolean) => {
@@ -62,10 +68,12 @@ const wait = async (condition: () => boolean) => {
   }
 };
 const check = (condition: boolean, message: string) => { if (!condition) throw new Error(message); };
-const emitStatus = (active: boolean, refreshError = "") => {
-  for (const fn of statusListeners) fn({ active, refreshError, preferences: defaultNotificationPreferences(),
+const emitStatus = (active: boolean, refreshError = "", recordError = "") => {
+  notificationStatus = { active, refreshError, preferences: defaultNotificationPreferences(),
     telegram: { connected: false, label: "" }, nativeSupported: true, secureStorageAvailable: true,
-    lastRefreshAt: null, deliveryErrors: {} });
+    lastRefreshAt: null, recordError, deliveryErrors: {} };
+  for (const fn of statusListeners) fn(notificationStatus);
+  root.render(<Harness />);
 };
 const push = (value: NotificationReport) => { for (const fn of reportListeners) fn(value); };
 const settle = () => new Promise(resolve => setTimeout(resolve, 30));
@@ -95,6 +103,15 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 30));
   emitStatus(false);
   emitStatus(true);
   await wait(() => state.report?.person.name === "current");
+  const recordWarning = "Bildirim kaydı yazılamadı. Dosya erişimini kontrol edip yeniden dene.";
+  notificationConnectionError = "Bağlantı hatası örneği";
+  emitStatus(true, "", recordWarning);
+  await wait(() => document.body.textContent?.includes(recordWarning) === true);
+  check(document.body.textContent?.includes(notificationConnectionError) === true, "Record error hid the connection error");
+  check(!state.stale && !state.failure && state.report?.person.name === "current", "Record error changed the Mini report");
+  notificationConnectionError = "";
+  emitStatus(true);
+  await wait(() => document.body.textContent?.includes(recordWarning) === false);
   emitStatus(true, "temporary network error");
   await wait(() => state.stale && !!state.failure);
   push(report("recovered", 4000));
@@ -185,5 +202,5 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 30));
   check(statusListeners.size + reportListeners.size + expiryListeners.size + scenarioListeners.size === 0, "Bridge listeners leaked");
   return { reportRace: true, olderPush: true, backgroundFailureRecovery: true, revalidateOnShow: true,
     weekChange: true, accountSwitch: true, lateExpiry: true, cleanup: true, redundantRefreshes: refreshes,
-    hiddenPreload: true, sharedRequests: true, lateSession: true, connectDisconnect: true };
+    hiddenPreload: true, sharedRequests: true, lateSession: true, connectDisconnect: true, recordFailureIsolated: true };
 };

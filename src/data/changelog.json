@@ -6,6 +6,7 @@
       "Masaüstünde “Beni hatırla”yı seçerek kullanıcı adını ve şifreni bu cihazda şifreli saklayabilirsin. Oturumun sona erdiğinde veya PDKS’ye ulaşılamadığında Pofis yeniden bağlanmayı dener. Bağlantıyı kestiğinde kayıtlı bilgiler silinir."
     ],
     "fixes": [
+      "Bildirim kaydı yazılamadığında Pofi Mini’nin hata ekranına geçmesi düzeltildi; uyarı Bildirimler’de gösteriliyor.",
       "Hesap değiştirirken önceki bildirim işleminin hatasının yeni oturumda görünmesi düzeltildi.",
       "macOS’ta başka bir uygulama öndeyken Pofi Mini’nin odaklanmaması düzeltildi.",
       "Sürüm geçmişini açtığında sayfanın başı gösteriliyor. Geçmiş, giriş ekranıyla aynı genişlikte.",

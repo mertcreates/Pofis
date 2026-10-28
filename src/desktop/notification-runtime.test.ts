@@ -79,6 +79,7 @@ function fixture() {
   const records = new Map<string, NotificationAccount>();
   const sent: string[] = [];
   const goals: (NotificationGoal | null)[] = [];
+  const changes: NotificationStatus[] = [];
   let reports = 0;
   const report: NotificationReport = {
     person: { id: "self", name: "Fixture", title: "", unit: "" }, from: "2026-10-19", to: "2026-10-25",
@@ -104,11 +105,11 @@ function fixture() {
     async verifyTelegram() { return { token: "fixture", chatId: "12345", label: "@fixture" }; },
     async sendNative() { sent.push("native"); },
     async sendTelegram() { sent.push("telegram"); },
-    onChange() {}, onReport() {}, onGoal(goal: NotificationGoal | null) { goals.push(goal); },
+    onChange(status: NotificationStatus) { changes.push(status); }, onReport() {}, onGoal(goal: NotificationGoal | null) { goals.push(goal); },
   };
   const runtime = createNotificationRuntime(deps);
   const enable = async () => runtime.save({ ...defaultNotificationPreferences(), approaching: { native: true, telegram: true }, reached: { native: true, telegram: true } });
-  return { runtime, deps, report, records, sent, goals, enable,
+  return { runtime, deps, report, records, sent, goals, changes, enable,
     time: (value: string) => { clock = at(value); }, offline: () => { offline = true; },
     identity: (value: NotificationSession | null) => { identity = value; }, reports: () => reports };
 }
@@ -385,11 +386,23 @@ test("hız sınırında bekleme ve üç deneme sınırı bildirim geçerliliği 
   expect(f.sent).toEqual(["native", "attempt", "attempt", "attempt"]);
 });
 
-test("kalıcı kayıt yazılamıyorsa göndermez ve kullanıcıya hatayı gösterir", async () => {
-  const f = fixture(); await f.runtime.sync(plans); await f.enable();
+test("bildirim kaydı yazılamıyorsa göndermez; rapor yenilemesi hatayı gizlemez ve başarılı kayıt temizler", async () => {
+  const f = fixture(); await f.runtime.sync(plans); await f.runtime.refresh(); await f.enable();
+  const save = f.deps.store.save;
   f.deps.store.save = async () => { throw new Error("disk"); };
-  f.time("16:50:00"); await f.runtime.tick(); expect(f.sent).toEqual([]);
-  expect(f.runtime.status().refreshError).toContain("yazılamadı");
+  f.time("16:50:00"); await f.runtime.tick();
+  expect(f.sent).toEqual([]);
+  expect(f.runtime.status().refreshError).toBe("");
+  expect(f.runtime.status().recordError).toContain("yazılamadı");
+  expect(f.changes.at(-1)?.recordError).toContain("yazılamadı");
+
+  await f.runtime.refresh();
+  expect(f.runtime.status().recordError).toContain("yazılamadı");
+  f.deps.store.save = save;
+  await f.runtime.tick();
+  expect(f.sent).toEqual(["native"]);
+  expect(f.runtime.status().recordError).toBe("");
+  expect(f.changes.at(-1)?.recordError).toBe("");
 });
 
 test.each(["başarısız", "tamamlanan"])("hesap değişirken %s eski kayıt yeni oturumu etkilemez", async outcome => {
@@ -419,7 +432,8 @@ test.each(["başarısız", "tamamlanan"])("hesap değişirken %s eski kayıt yen
     await tick;
     expect(runtime.status().active).toBe(true);
     expect(runtime.status().refreshError).toBe("");
-    expect(changes.slice(newSessionChanges).every(status => status.refreshError === "")).toBe(true);
+    expect(runtime.status().recordError).toBe("");
+    expect(changes.slice(newSessionChanges).every(status => status.refreshError === "" && status.recordError === "")).toBe(true);
     expect(f.sent).toEqual([]);
     expect(warn).toHaveBeenCalledTimes(outcome === "başarısız" ? 1 : 0);
     await runtime.save({ ...defaultNotificationPreferences(), reached: { native: true, telegram: false } });

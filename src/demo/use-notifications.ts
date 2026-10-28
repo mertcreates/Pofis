@@ -16,6 +16,7 @@ export function useDemoNotifications(): NotificationSettingsSource {
     secureStorageAvailable: true,
     lastRefreshAt: null,
     refreshError: "",
+    recordError: "",
     deliveryErrors: {},
   }));
 
