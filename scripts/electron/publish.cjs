@@ -6,7 +6,7 @@ const { prepareSite, prepareChangelog, readChangelog, verifyPreparedChangelog, v
 const { checkVersion, run } = require("./ci-build.cjs");
 const { assertSiteCommands, readSiteContent } = require("./install-command.cjs");
 const { unixInstaller } = require("./unix-installer.cjs");
-const { sourceCommit, readReleaseNotes, releaseBody } = require("./release-notes.cjs");
+const { sourceCommit, readReleaseNotes, changelogNotes, releaseBody } = require("./release-notes.cjs");
 
 const REPOSITORY = "mertcreates/pofis-landing";
 const TARGETS = ["win32-x64", "darwin-arm64", "darwin-x64", "linux-x64"];
@@ -101,14 +101,18 @@ async function previousRelease() {
 }
 
 async function beginRelease(version) {
-  await readChangelog(version);
+  const changelog = await readChangelog(version);
   const release = await getRelease(version);
   if (release) {
     assertRelease(release, version);
     return;
   }
   const previous = await previousRelease();
-  const notes = await readReleaseNotes(previous, process.env.GITHUB_SHA);
+  let notes = await readReleaseNotes(previous, process.env.GITHUB_SHA);
+  if (notes === null) {
+    console.warn("Önceki sürümün kaynak geçmişi karşılaştırılamadı; doğrulanmış sürüm geçmişi kaydı kullanılıyor.");
+    notes = changelogNotes(changelog[0]);
+  }
   await api("releases", { method: "POST", body: { tag_name: `v${version}`,
     target_commitish: "main", name: `Pofis ${version}`, body: releaseBody(version, notes), draft: true } });
 }

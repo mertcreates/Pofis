@@ -4,7 +4,7 @@ const { promisify } = require("node:util");
 const { mkdtemp, rm } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
 const { join } = require("node:path");
-const { publicNotes, readReleaseNotes, sourceCommit } = require("./release-notes.cjs");
+const { publicNotes, changelogNotes, readReleaseNotes, sourceCommit } = require("./release-notes.cjs");
 const execute = promisify(execFile);
 
 test("mevcut conventional ve serbest başlıklar kullanıcı değişikliklerini gruplar; teknik gövdeler aktarılmaz", () => {
@@ -52,12 +52,26 @@ test("açık not başlığı geçersiz kılar; skip dışlar; düz metin korunur
   expect(publicNotes("feat(api)!: Change public contract", false)).toContain("- Uyumluluk değişikliği: Change public contract");
 });
 
-test("gerçek Git aralığı önceki sürümü ve sonraki commit'i dışlar; eksik veya ayrışmış geçmiş reddedilir", async () => {
+test("katalog notları Türkçe metni ve bölümleri korur, Markdown işaretlerini kaçışlar", () => {
+  expect(changelogNotes({
+    features: ["Yeni & <güvenli> özellik"],
+    fixes: ["[Plan] düzeltildi\nYeni satır"],
+    maintenance: ["Açılış hızlandı"],
+  })).toBe([
+    "## Yenilikler", "", "- Yeni &amp; &lt;güvenli&gt; özellik", "",
+    "## Düzeltmeler", "", "- \\[Plan\\] düzeltildi Yeni satır", "",
+    "## Performans ve bakım", "", "- Açılış hızlandı",
+  ].join("\n"));
+  expect(changelogNotes({ fixes: ["Düzeltildi"] })).toBe("## Düzeltmeler\n\n- Düzeltildi");
+});
+
+test("gerçek Git aralığı önceki sürümü ve sonraki commit'i dışlar; eksik veya ayrışmış geçmiş katalog için bırakılır", async () => {
   const cwd = await mkdtemp(join(tmpdir(), "pofis-release-notes-"));
   const git = async (...args) => (await execute("git", args, { cwd, windowsHide: true })).stdout.trim();
   const commit = async message => { await git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
     "commit", "--allow-empty", "-m", message); return git("rev-parse", "HEAD"); };
   try {
+    await expect(readReleaseNotes({ body: "no source" }, "f".repeat(40), cwd)).rejects.toThrow("Git geçmişi okunamadı");
     await git("init");
     const base = await commit("feat: Old feature");
     await commit("feat: Current feature\n\nPrivate body");
@@ -70,10 +84,11 @@ test("gerçek Git aralığı önceki sürümü ve sonraki commit'i dışlar; eks
     expect(notes).toContain("- Fix current issue");
     expect(notes).not.toMatch(/Old feature|Future feature|Private body/);
     expect(await readReleaseNotes(null, base, cwd)).toContain("- Old feature");
-    await expect(readReleaseNotes({ body: "no source" }, current, cwd)).rejects.toThrow("kaynak commit");
-    await expect(readReleaseNotes(previous, "f".repeat(40), cwd)).rejects.toThrow("geçmişi okunamadı");
+    expect(await readReleaseNotes({ body: "no source" }, current, cwd)).toBeNull();
+    expect(await readReleaseNotes({ body: previous.body.replace(base, "f".repeat(40)) }, current, cwd)).toBeNull();
+    await expect(readReleaseNotes(previous, "f".repeat(40), cwd)).rejects.toThrow("mevcut kaynak commit");
     await git("checkout", "--orphan", "unrelated");
     const unrelated = await commit("feat: Other history");
-    await expect(readReleaseNotes(previous, unrelated, cwd)).rejects.toThrow("atası olmalı");
+    expect(await readReleaseNotes(previous, unrelated, cwd)).toBeNull();
   } finally { await rm(cwd, { recursive: true, force: true }); }
 });

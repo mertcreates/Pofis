@@ -52,11 +52,11 @@ Begin sürüm eşleşmesini ve katalog biçimini taslak oluşturmadan önce doğ
 
 Sürüm geçmişini destekleyen uygulamalar `/api/changelog` üzerinden public kataloğu okur. Public kataloğun ilk sürümü paket kataloğundaki ilk sürümle aynı veya daha yeniyse public içerik kullanılır. Daha eski katalog, ağ veya içerik hatasında paketle gelen geçmiş korunur. Footer uygulamanın kendi sürümünden, güncelleme modalı hedef sürümden açılır; hedef kaydı bulunamazsa geçmişin başı gösterilir.
 
-Bu katalog GitHub Release açıklamasından ayrıdır. Aşağıdaki otomatik notlar public GitHub sürüm sayfasını; manuel katalog uygulama içindeki kalıcı geçmişi yönetir.
+Bu katalog uygulama içindeki kalıcı geçmişi yönetir. Public GitHub sürüm sayfasında aşağıdaki otomatik notlar kullanılır; geçmiş karşılaştırılamadığında katalogdaki ilgili sürüm kaydı kullanılır.
 
 ### Otomatik sürüm notları
 
-Sürüm taslağı oluşturulurken [not üreticisi](../scripts/electron/release-notes.cjs), public depoda en son yayımlanan kararlı sürümün `Kaynak commit` değeri ile çalıştırılan `GITHUB_SHA` arasındaki Git geçmişini okur. Begin işi bu karşılaştırma için tam kaynak geçmişini alır; diğer işler mevcut checkout kapsamını korur. İlk yayında mevcut geçmiş kullanılır. Önceki sürümün kaynak kimliği yoksa, commit erişilemiyorsa veya yeni commit'in atası değilse yayın hazırlığı açıklayıcı hatayla durur.
+Sürüm taslağı oluşturulurken [not üreticisi](../scripts/electron/release-notes.cjs), public depoda en son yayımlanan kararlı sürümün `Kaynak commit` değeri ile çalıştırılan `GITHUB_SHA` arasındaki Git geçmişini okur. Begin işi bu karşılaştırma için tam kaynak geçmişini alır; diğer işler mevcut checkout kapsamını korur. İlk yayında mevcut geçmiş kullanılır. Önceki sürümün kaynak kimliği yoksa, commit erişilemiyorsa veya yeni commit'in atası değilse durum loga yazılır ve doğrulanmış manuel kataloğun yeni sürüm kaydı GitHub notlarında kullanılır. Mevcut kaynak commit erişilemiyorsa veya Git geçmişi okunamıyorsa hazırlık durur.
 
 Notlar **Yenilikler**, **Düzeltmeler**, **Performans ve bakım** başlıklarında toplanır; boş bölümler gösterilmez. Ayrıştırıcı mevcut geçmişteki `feat(pofi): …`, `fix: …`, `perf: …`, `refactor: …` biçimlerini ve `Add …`, `Support …`, `Fix …`, `Refine …`, `Improve …` gibi serbest başlıkları tanır. Conventional önekleri kaldırılır; `!` uyumluluk değişikliği olarak belirtilir. Tekrarlar bölüm içinde tekilleştirilir. CI, test, dokümantasyon, sürüm artırma ve iç paketleme/runtime başlıkları elenir; tanınmayan başlıklar otomatik aktarılmaz. Başlıklar çevrilmez veya anlamları yeniden yazılmaz; commit gövdeleri public notlara eklenmez.
 
@@ -68,7 +68,7 @@ Release-note: fix: Haftalık plan toplamları düzeltildi.
 Release-note: perf: Uygulamanın açılışı hızlandırıldı.
 ```
 
-Bir başlığı sürüm notlarından çıkarmak için tek satır `Release-note: skip` kullan. Hatalı `Release-note:` biçimi hazırlığı durdurur. Metin düz Markdown metni olarak kaçışlanır. Uygun not yoksa ilk yayında başlangıç metni, sonraki sürümlerde ayrıca not eklenmediğini söyleyen kısa metin kullanılır.
+Bir başlığı sürüm notlarından çıkarmak için tek satır `Release-note: skip` kullan. Git geçmişinden not üretildiğinde hatalı `Release-note:` biçimi hazırlığı durdurur. Metin düz Markdown metni olarak kaçışlanır. Geçmişte uygun not yoksa ilk yayında başlangıç metni, sonraki sürümlerde ayrıca not eklenmediğini söyleyen kısa metin kullanılır.
 
 Notlar taslakta bir kez üretilir. Aynı sürüm ve kaynak commit ile tekrar çalıştırmak mevcut notları korur. Kaynak doğrulaması sürüm etiketi ve otomasyonun kaynak commit alt bilgisi üzerinden yapılır; açıklamanın kullanıcıya yönelik kısmı düzenlenebilir. Alt bilgiyi koru. Not üretimi yerel Git kullanır; ek servis veya token gerektirmez.
 

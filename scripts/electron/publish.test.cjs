@@ -155,6 +155,56 @@ test("yeni taslak en son yayımlanan kararlı sürümü baz alır; tekrar çalı
   }
 });
 
+test("önceki kaynak erişilemezse taslak doğrulanmış katalog notlarıyla hazırlanır", async () => {
+  const previousFetch = globalThis.fetch;
+  const previousWarn = console.warn;
+  const token = process.env.GH_TOKEN;
+  const sha = process.env.GITHUB_SHA;
+  const { stdout } = await promisify(execFile)("git", ["rev-parse", "HEAD"], { cwd: join(__dirname, "../.."), windowsHide: true });
+  process.env.GH_TOKEN = "isolated-test-token";
+  process.env.GITHUB_SHA = stdout.trim();
+  const previous = { tag_name: "v0.0.0", draft: false, prerelease: false,
+    published_at: "2026-10-20T00:00:00Z",
+    body: `Pofis ortak sürüm otomasyonu.\nKaynak commit: ${"f".repeat(40)}` };
+  let draft;
+  const warnings = [];
+  try {
+    console.warn = message => warnings.push(message);
+    globalThis.fetch = async (url, options) => {
+      expect(new URL(url).origin).toBe("https://api.github.com");
+      if (options.method === "GET") return Response.json([previous]);
+      expect(options.method).toBe("POST");
+      draft = JSON.parse(options.body);
+      return Response.json(draft);
+    };
+    await beginRelease(version);
+    const entry = (await readChangelog(version))[0];
+    for (const [group, title] of [["features", "Yenilikler"], ["fixes", "Düzeltmeler"], ["maintenance", "Performans ve bakım"]]) {
+      if (!entry[group]) continue;
+      expect(draft.body).toContain(`## ${title}\n\n`);
+      for (const note of entry[group]) {
+        const text = note.trim().replace(/\s*\r?\n\s*/g, " ").replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;").replaceAll(">", "&gt;").replace(/[\\`*_[\]()!#]/g, "\\$&");
+        expect(draft.body).toContain(`- ${text}`);
+      }
+    }
+    expect(draft.tag_name).toBe(`v${version}`);
+    expect(draft.draft).toBe(true);
+    expect(draft.body).toEndWith(`Kaynak commit: ${process.env.GITHUB_SHA}`);
+    expect(warnings).toHaveLength(1);
+
+    draft = undefined;
+    process.env.GITHUB_SHA = "f".repeat(40);
+    await expect(beginRelease(version)).rejects.toThrow("mevcut kaynak commit");
+    expect(draft).toBeUndefined();
+  } finally {
+    globalThis.fetch = previousFetch;
+    console.warn = previousWarn;
+    if (token === undefined) delete process.env.GH_TOKEN; else process.env.GH_TOKEN = token;
+    if (sha === undefined) delete process.env.GITHUB_SHA; else process.env.GITHUB_SHA = sha;
+  }
+});
+
 test("eksik draft temizliği yalnız ilgili platformun asset'ini siler", async () => {
   const previousFetch = globalThis.fetch;
   const token = process.env.GH_TOKEN;
