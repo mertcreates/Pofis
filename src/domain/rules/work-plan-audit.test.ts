@@ -16,6 +16,32 @@ function source(offset: number): PlanDay[] {
   }));
 }
 
+test.each([
+  { name: "eksik", offset: -17, plan: [480,480,480,360,480,0,0],
+    expected: { equal: [25200,32417], last: [21600,36017] } },
+  { name: "fazla", offset: 3617, plan: [480,480,480,480,480,0,0],
+    expected: { equal: [26983,27000], last: [28800,25183] } },
+])("$name saniyeli süre iki seçenekte dağıtılır", ({ offset, plan: values, expected }) => {
+  const plan = readDayPlan(values)!;
+  const resolved = resolveWeekPlan(source(offset), plan, today);
+  for (const mode of ["equal", "last"] as const) {
+    const next = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, mode)!;
+    expect(next.slice(3, 5).map(minutes => Math.round(minutes * 60))).toEqual([...expected[mode]]);
+  }
+  expect(plan).toEqual(values);
+});
+
+test("iki dağıtım günlük kapasite sınırına farklı sırayla ulaşır", () => {
+  const plan = readDayPlan([950,960,480,480,480,0,0])!;
+  const reference = readDayPlan([960,960,510,510,510,0,0])!;
+  const days = source(0).map(day => ({ ...day, state: "awaiting-entry" as const, recordedSeconds: null }));
+  const resolved = resolveWeekPlan(days, plan, week);
+  expect(completeWeekPlan(plan, reference, resolved, "equal"))
+    .toEqual([960,960,510,510,510,0,0]);
+  expect(completeWeekPlan(plan, reference, resolved, "last"))
+    .toEqual([950,960,480,480,580,0,0]);
+});
+
 for (const mode of ["equal", "last"] as const) {
   for (const arrangement of ["normal", "leave", "manual-lock"] as const) {
     test(`${mode}/${arrangement}: saniyeli eksik ve fazla süre kaydetme sonrası hedefe tam ulaşır`, () => {
@@ -30,7 +56,7 @@ for (const mode of ["equal", "last"] as const) {
         let initial = changeWeekPlan(emptyWorkPlans(), week, plan, markers, target, leaves);
         if (locks.length) initial = changeWeekLockedDays(initial, week, locks, plan);
         const before = resolveWeekPlan(days, plan, today, false, target, [], false, locks);
-        const next = completeWeekPlan(plan, DEFAULT_WORK_PLAN, before, 3, leaves, mode)!;
+        const next = completeWeekPlan(plan, DEFAULT_WORK_PLAN, before, mode, leaves)!;
         expect(next).not.toBeNull();
         // Independent arithmetic: 24 hours + offset have elapsed; the rest must reach the reference.
         expect(86400 + offset + Math.round(next[3] * 60) + Math.round(next[4] * 60)).toBe(target);
@@ -46,7 +72,7 @@ for (const mode of ["equal", "last"] as const) {
         expect(after.completed.slice(0, 3)).toEqual([28800,28800,28800 + offset]);
         expect(resolveLeaveDays(stored, week)).toEqual(leaves);
         expect(resolveUserLockedDays(stored, week)).toEqual(locks);
-        expect(completeWeekPlan(savedPlan, DEFAULT_WORK_PLAN, after, 3, leaves, mode)).toEqual(savedPlan);
+        expect(completeWeekPlan(savedPlan, DEFAULT_WORK_PLAN, after, mode, leaves)).toEqual(savedPlan);
         const displayedRemaining = after.displaySeconds.slice(3, 5)
           .reduce((sum, seconds) => sum + planDisplayMinutes(seconds, "required") * 60, 0);
         expect(86400 + offset + displayedRemaining).toBeGreaterThanOrEqual(target);
@@ -60,7 +86,7 @@ for (const mode of ["equal", "last"] as const) {
 test("saniyeli Tamamla sonucunu tam dakikaya düzenleme hedefi yalnız fark kadar değiştirir", () => {
   const days = source(17);
   const before = resolveWeekPlan(days, DEFAULT_WORK_PLAN, today);
-  const plan = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, before, 3, [], "last")!;
+  const plan = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, before, "last")!;
   expect(Math.round(plan[4] * 60)).toBe(28783);
   const resolved = resolveWeekPlan(days, plan, today, false, 144000);
   const edit = editRequiredMinutes(plan, resolved, [{ day: 4, minutes: 480 }]);

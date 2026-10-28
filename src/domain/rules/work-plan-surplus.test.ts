@@ -64,7 +64,7 @@ test("elle süre düzenleme ve yeniden yükleme fazla süreyi plana işlemez", (
 test("kullanıcının Tamamla eylemi fazla süreyi açıkça azaltabilir; kaydetme sonucu korunur", () => {
   const days = source([9,8,8,null,null,null,null]);
   const before = resolveWeekPlan(days, DEFAULT_WORK_PLAN, today, false, 41 * 3600);
-  const next = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, before, 3)!;
+  const next = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, before, "last")!;
   expect(next).toEqual([480,480,480,480,420,0,0]);
   const saved = changeWeekPlan(emptyWorkPlans(), week, next, before.completed, 144000);
   const after = resolveWeekPlan(days, resolveStoredPlan(saved, week), today, false, resolveStoredTarget(saved, week));

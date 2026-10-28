@@ -98,7 +98,7 @@ test("Tamamla sonrası saniyeli gereken gün yukarı, geçmiş gerçekleşen gü
   }));
   for (const mode of ["equal", "last"] as const) {
     const resolved = resolveWeekPlan(days, DEFAULT_WORK_PLAN, "2026-10-15");
-    const plan = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, resolved, 3, [], mode)!;
+    const plan = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, resolved, mode)!;
     const $ = render(days.slice(0, 3).map(day => day.recordedSeconds! / 3600), "2026-10-15", 144000, plan);
     const required = mode === "last" ? "8 sa" : "7 sa 21 dk";
     expect($('.work-plan-duration-input').attr("value")).toBe(required);

@@ -137,7 +137,7 @@ Kapasite örneği: hedef 40 sa, Pzt–Çar gerçekleşeni 6 sa, Per/Cum gereken 
 
 ## İzin sonrası referans hedefe tamamlama
 
-`completeWeekPlan`, beklenen toplamı izin sonrası referans hedefe getirir. Haftalık hedef veya beklenen toplam bu referanstan farklıysa modal Tamamla eylemini gösterir; standart 40 saatlik plandaki fazla süre de bu kapsamdadır. Eylem aşağıdaki iki dağıtımı sunar. Her ikisi ekleme ve azaltmada uygulanır. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır. Kilitli, izinli, kapalı, geçmiş veya belirsiz günler uygunluk kuralıyla korunur.
+`completeWeekPlan`, seçilen dağıtımla beklenen toplamı izin sonrası referans hedefe getirir. Haftalık hedef veya beklenen toplam bu referanstan farklıysa modal Tamamla eylemini gösterir; standart 40 saatlik plandaki fazla süre de bu kapsamdadır. Eylem aşağıdaki iki dağıtımı sunar. Her ikisi ekleme ve azaltmada uygulanır. Hesap otomatik devirdeki uygun günleri ve onların güncel gereken sürelerini kullanır. Kilitli, izinli, kapalı, geçmiş veya belirsiz günler uygunluk kuralıyla korunur.
 
 | Seçenek | Dağıtım |
 | --- | --- |
@@ -150,8 +150,9 @@ Otomatik devir, mevcut haftalık hedefe göre kendiliğinden hesaplanır. Tamaml
 
 | Senaryo | Sonuç |
 | --- | --- |
-| Pzt–Çar 25 sa 9 dk 17 sn kayıt, Per/Cum 8’er saat gereken, Cuma seçili, hedef 41 sa 9 dk 17 sn | Per 8 sa, Cum 6 sa 50 dk 43 sn, hedef 40 sa |
-| Pzt–Per 30 sa 1 dk kayıt, yalnız Cuma açık/seçili ve gereken 8 sa, hedef 38 sa 1 dk | Cum 9 sa 59 dk, hedef 40 sa |
+| Pzt–Sal 8’er saat kayıt, Çar 4 sa, Per/Cum 8’er saat gereken; Günlere eşit dağıt | Çar 5 sa 30 dk, Per 9 sa 30 dk, Cum 9 sa, hedef 40 sa |
+| Pzt–Çar 25 sa 9 dk 17 sn kayıt, Per/Cum 8’er saat gereken, hedef 41 sa 9 dk 17 sn; Son mesai gününe dağıt | Per 8 sa, Cum 6 sa 50 dk 43 sn, hedef 40 sa |
+| Pzt–Per 30 sa 1 dk kayıt, yalnız Cuma açık ve gereken 8 sa, hedef 38 sa 1 dk | Cum 9 sa 59 dk, hedef 40 sa |
 | Standart şablonda Cuma izinli, Pzt–Çar 26 sa 40 dk kayıt; Per elle 8 saate çıkarılmış | Tamamla Per’i 5 sa 20 dk’ya indirir, hedef 32 sa; Per ilk girişi 08.00 ise hedef çıkış 13.20 |
 
 ## Rapor ve arayüzün kullandığı sonuçlar

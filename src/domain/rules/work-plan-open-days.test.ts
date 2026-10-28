@@ -41,7 +41,7 @@ test("Tamamla ile sıfıra indirilen gün açık kalır ve sonraki gün yeniden 
   const initial = changeWeekPlan(emptyWorkPlans(), week, DEFAULT_WORK_PLAN, [], 45 * 3600);
   const days = source([12,12,10,null,null,null,null]);
   const before = resolve(initial, days);
-  const completed = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, before, 4)!;
+  const completed = completeWeekPlan(DEFAULT_WORK_PLAN, DEFAULT_WORK_PLAN, before, "last")!;
   const saved = readStoredPlans(serializePlans(changeWeekPlan(initial, week, completed, before.completed, 144000)));
   expect(resolve(saved, days).displaySeconds.slice(3,5)).toEqual([21600,0]);
   expect(resolve(saved, days).eligible[4]).toBe(true);

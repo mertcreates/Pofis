@@ -34,13 +34,13 @@ test("kullanıcı kilidi kaydedilir; otomatik devir korur, Sıfırla kilidi ve �
 
 test("tamamla eşit tur ve son uygun gün seçeneklerinde kilidi atlar", () => {
   const resolved = resolveWeekPlan([], plan, week, false, 39 * 3600, [], false, [4]);
-  const equal = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, 3, [], "equal");
-  const last = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, 3, [], "last");
+  const equal = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, "equal");
+  const last = completeWeekPlan(plan, DEFAULT_WORK_PLAN, resolved, "last");
   expect(equal).toEqual([510, 510, 480, 480, 420, 0, 0]);
   expect(last).toEqual([480, 480, 480, 540, 420, 0, 0]);
   const noCapacity = resolveWeekPlan([], plan, week, false, 39 * 3600, [], false, [0, 1, 2, 3, 4]);
-  expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, noCapacity, 3, [], "equal")).toBeNull();
-  expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, noCapacity, 3, [], "last")).toBeNull();
+  expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, noCapacity, "equal")).toBeNull();
+  expect(completeWeekPlan(plan, DEFAULT_WORK_PLAN, noCapacity, "last")).toBeNull();
 });
 
 test("varsayılan süreli günün kilidi yeniden yüklemede ve sonraki şablonda korunur", () => {

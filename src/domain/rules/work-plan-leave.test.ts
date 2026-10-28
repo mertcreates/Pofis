@@ -73,7 +73,7 @@ test("Tamamla izinleri korur ve 32 saate ulaşır", () => {
   plans = edit(plans, 3, 480);
   expect(resolveStoredTarget(plans, week)).toBe(124800);
   const resolved = resolve(plans);
-  const next = completeWeekPlan(resolveStoredPlan(plans, week), plans.defaultPlan, resolved, 3, [4])!;
+  const next = completeWeekPlan(resolveStoredPlan(plans, week), plans.defaultPlan, resolved, "last", [4])!;
   expect(next[4]).toBe(0);
   expect(Math.round(next[3] * 60)).toBe(19200);
   const saved = changeWeekPlan(plans, week, next, resolved.completed, referenceWeekTarget(plans.defaultPlan, [4]), [4]);
@@ -157,25 +157,25 @@ test("dağıtılamayan fazla süre elle artırılan güne yeniden uygulanır", (
   expect(result.unallocatedSeconds).toBe(-27000);
 });
 
-test("Tamamla diğer günlerin kapasitesi tükenince seçili güne de ekler", () => {
+test.each(["equal", "last"] as const)("Tamamla %s dağıtımında dolu günleri atlar", mode => {
   const plan = readDayPlan([480,480,240,960,960,0,0])!;
   const template = readDayPlan([480,480,480,960,960,0,0])!;
   const resolved = resolveWeekPlan(source([28800,28800,null,null,null,null,null]), plan, "2026-10-14");
-  expect(completeWeekPlan(plan, template, resolved, 2)).toEqual(template);
+  expect(completeWeekPlan(plan, template, resolved, mode)).toEqual(template);
 });
 
-test("Tamamla azaltmada seçili Cuma'dan başlar; gerçek kapasite açığında sonuç üretmez", () => {
+test("Tamamla son güne dağıtımda Cuma'dan başlar; gerçek kapasite açığında sonuç üretmez", () => {
   const plan = readDayPlan([480,480,480,60,480,0,0])!;
   const records = source([28800,28800,28800,null,null,null,null]);
   const resolved = resolveWeekPlan(records, plan, today, false, 33 * 3600);
   const template = readDayPlan([360,360,360,360,360,0,0])!;
-  const next = completeWeekPlan(plan, template, resolved, 4)!;
+  const next = completeWeekPlan(plan, template, resolved, "last")!;
   expect(next.slice(3,5)).toEqual([60,300]);
   expect(resolveWeekPlan(records, next, today, false, 30 * 3600).projectedWeeklySeconds).toBe(30 * 3600);
-  const impossible = completeWeekPlan(plan, readDayPlan([240,240,240,240,240,0,0])!, resolved, 4);
+  const impossible = completeWeekPlan(plan, readDayPlan([240,240,240,240,240,0,0])!, resolved, "last");
   expect(impossible).toBeNull();
   expect(plan).toEqual([480,480,480,60,480,0,0]);
-  expect(completeWeekPlan(plan, readDayPlan([960,960,960,960,960,0,0])!, resolved, 4)).toBeNull();
+  expect(completeWeekPlan(plan, readDayPlan([960,960,960,960,960,0,0])!, resolved, "last")).toBeNull();
 });
 
 test("sıfırda korunan özel hedef yeni izin karşılığında tekrar tekrar artmaz", () => {

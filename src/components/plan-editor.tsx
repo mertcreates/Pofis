@@ -94,8 +94,8 @@ export function PlanEditor({
   const different = scope === "week" && differenceSeconds !== 0;
   const needsCompletion = scope === "week" && (targetDifferent || different);
   const selectedDifferent = scope === "week" && plan[selectedDay] !== defaultPlan[selectedDay];
-  const equalPlan = needsCompletion ? completeWeekPlan(plan, defaultPlan, resolved, selectedDay, leaveDays, "equal") : null;
-  const lastPlan = needsCompletion ? completeWeekPlan(plan, defaultPlan, resolved, selectedDay, leaveDays, "last") : null;
+  const equalPlan = needsCompletion ? completeWeekPlan(plan, defaultPlan, resolved, "equal", leaveDays) : null;
+  const lastPlan = needsCompletion ? completeWeekPlan(plan, defaultPlan, resolved, "last", leaveDays) : null;
   const canApplyToOtherDays = activePlan.some((minutes, day) => day !== selectedDay &&
     (scope === "week" ? resolved.eligible[day] : minutes > 0) &&
     (scope === "week" ? resolved.displaySeconds[day] / 60 : minutes) !== value);

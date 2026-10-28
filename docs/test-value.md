@@ -28,7 +28,7 @@ Test kapsamını risk ve davranış üzerinden değerlendirin. Aynı yardımcıy
 ## Sadeleştirme örnekleri
 
 - Fazla süre azaltımı, 41:09:17 toplamı ve kalan günlerin beklenen süreleriyle sınanır.
-- Seçili günün korunması ve seçim olmadan dağıtım aynı kurulumda, iki bağımsız sonuçla karşılaştırılabilir. Her iki durumda girdinin değişmediği de doğrulanır.
+- Eşit ve son güne dağıtım, aynı saniyeli eksik/fazla süre ve kapasite senaryolarında beklenen gün sonuçlarıyla sınanır; izin, kilit ve kaydetme ayrıca doğrulanır.
 - Rapor testi seçilen notun rapora taşınmasını doğrular; haftalık tekrar ve özel gün davranışı not defteri sahibinde sınanır.
 - Kilidin erişilebilir adı, basılı durumu ve korunan süresi; saat alanının değeri, tek seçimi ve gün geçişi; cetvelin kayıt uyarısı ve gezinmesi doğrulanır.
 

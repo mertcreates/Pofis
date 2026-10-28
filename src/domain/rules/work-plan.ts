@@ -350,32 +350,25 @@ export function editRequiredMinutes(plan: WorkPlan, resolved: ReturnType<typeof 
   return { plan: next, targetSeconds: Math.max(0, targetSeconds), leaveDays: [...leaves].sort((left, right) => left - right) };
 }
 
-export function completeWeekPlan(plan: WorkPlan, defaultPlan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, selectedDay: number | null = null, leaveDays: readonly number[] = [], mode: "equal" | "last" | "legacy" = "legacy"): WorkPlan | null {
+export function completeWeekPlan(plan: WorkPlan, defaultPlan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, mode: "equal" | "last", leaveDays: readonly number[] = []): WorkPlan | null {
   const next = [...resolved.displaySeconds];
   let difference = referenceWeekTarget(defaultPlan, leaveDays) - resolved.projectedWeeklySeconds;
-  const reducing = difference < 0;
-  const eligible = plan.flatMap((_, day) => resolved.eligible[day] && !leaveDays.includes(day) ? [day] : []);
-  const otherDays = eligible.filter(day => day !== selectedDay);
-  let recipients = mode === "last" || (mode === "legacy" && reducing) ? [...eligible].reverse()
-    : mode === "equal" ? eligible : otherDays.length > 0 ? otherDays : eligible;
+  const recipients = plan.flatMap((_, day) => resolved.eligible[day] && !leaveDays.includes(day) ? [day] : []);
+  if (mode === "last") recipients.reverse();
   while (difference !== 0) {
     let changed = false;
     for (const day of recipients) {
       const capacity = difference > 0 ? PLAN_LIMITS.maxDailyMinutes * 60 - next[day] : next[day];
-      const step = difference > 0
-        ? Math.min(difference, mode === "last" ? capacity : PLAN_LIMITS.stepMinutes * 60, capacity)
-        : -Math.min(-difference, mode === "equal" ? PLAN_LIMITS.stepMinutes * 60 : capacity, capacity);
+      const limit = mode === "equal" ? PLAN_LIMITS.stepMinutes * 60 : capacity;
+      const amount = Math.min(Math.abs(difference), capacity, limit);
+      const step = difference > 0 ? amount : -amount;
       if (step === 0) continue;
       next[day] += step;
       difference -= step;
       changed = true;
       if (difference === 0) break;
     }
-    if (!changed) {
-      if (mode === "legacy" && selectedDay !== null && eligible.includes(selectedDay) && !recipients.includes(selectedDay)) {
-        recipients = [selectedDay];
-      } else return null;
-    }
+    if (!changed) return null;
   }
   return readWeekPlan(plan.map((minutes, day) => resolved.locked[day] ? minutes : next[day] / 60));
 }
