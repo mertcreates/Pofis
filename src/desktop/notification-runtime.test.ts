@@ -26,6 +26,21 @@ test("ilk oturum okumasındaki geçici hata ana süreç döngüsünde toparlanı
   expect(f.runtime.status().active).toBe(false);
 });
 
+test("arka plan raporundaki kaynak bağlantı hatası mevcut oturumu koruyup yeniden giriş isteği üretir", async () => {
+  const f = fixture();
+  let unavailable = 0;
+  const runtime = createNotificationRuntime({ ...f.deps,
+    readReport: async () => { throw Object.assign(new Error("fixture offline"), { code: "CONNECTION_FAILED" }); },
+    onUnavailable: () => { unavailable++; },
+  });
+  await runtime.sync(plans);
+  await runtime.refresh();
+  expect(runtime.status().active).toBe(true);
+  expect(unavailable).toBe(1);
+  expect(runtime.status().refreshError).not.toBe("");
+  runtime.pause();
+});
+
 test("bağlantı kaldırılırken süren Telegram doğrulaması bağlantıyı geri getirmez", async () => {
   const f = fixture(); await f.runtime.sync(plans);
   let release!: () => void;
@@ -126,6 +141,57 @@ test("eski senkronizasyonun bağlantısız yanıtı yeni doğrulanmış oturumu 
   release(null); await old;
   expect(f.runtime.status().active).toBe(true);
   expect(f.goals.at(-1)?.at).toBe(at("17:00:00"));
+});
+
+test.each(["önce", "sonra"])("oturum yenilenirken %s başlayan eski rapor yeni bildirim eşitlemesini iptal etmez", async order => {
+  const f = fixture(); await f.runtime.sync(plans); await f.runtime.refresh();
+  const renewed = { accountId: "a".repeat(64), expiresAt: at("23:59:30") };
+  let releaseReport: ((value: NotificationReport) => void) | undefined;
+  f.deps.readReport = () => new Promise(resolve => { releaseReport = resolve; });
+  let pendingReport = order === "önce" ? f.runtime.refresh() : undefined;
+  let releaseSync!: (value: NotificationSession | null) => void;
+  f.deps.readSession = () => new Promise(resolve => { releaseSync = resolve; });
+  const pendingSync = f.runtime.sync(plans);
+  if (order === "sonra") pendingReport = f.runtime.refresh();
+  releaseReport?.({ ...f.report, notificationSession: renewed });
+  await pendingReport;
+  releaseSync(renewed); await pendingSync;
+  expect(f.runtime.status().active).toBe(true);
+  f.runtime.pause();
+});
+
+test("oturum eşitlemesinden önce başlayan heartbeat hatası yeni oturumu kapatmaz", async () => {
+  const f = fixture();
+  let rejectHeartbeat!: (error: Error) => void;
+  let expired = 0;
+  const deps = { ...f.deps,
+    heartbeat: () => new Promise<void>((_resolve, reject) => { rejectHeartbeat = reject; }),
+    onExpired: () => { expired++; },
+  };
+  const runtime = createNotificationRuntime(deps);
+  await runtime.sync(plans); await runtime.refresh(); await runtime.tick();
+  let releaseSync!: (value: NotificationSession | null) => void;
+  deps.readSession = () => new Promise(resolve => { releaseSync = resolve; });
+  const pendingSync = runtime.sync(plans);
+  rejectHeartbeat(Object.assign(new Error("old session"), { code: "SESSION_EXPIRED" }));
+  await Bun.sleep(0);
+  const renewed = { accountId: "a".repeat(64), expiresAt: at("23:59:30") };
+  f.identity(renewed); releaseSync(renewed); await pendingSync;
+  expect(runtime.status().active).toBe(true);
+  expect(expired).toBe(0);
+  runtime.pause();
+});
+
+test("etkin oturum eşitlemede bulunamazsa otomatik giriş için bitiş olayı üretilir", async () => {
+  const f = fixture();
+  let expired = 0;
+  const runtime = createNotificationRuntime({ ...f.deps, onExpired: () => { expired++; } });
+  await runtime.sync(plans); await runtime.refresh();
+  f.identity(null);
+  await runtime.sync(plans);
+  expect(runtime.status().active).toBe(false);
+  expect(expired).toBe(1);
+  runtime.pause();
 });
 
 test("Keychain şifrelemeyi reddederse Telegram bağlantısı veya açık token kaydedilmez", async () => {

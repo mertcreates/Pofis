@@ -39,6 +39,22 @@ contextBridge.exposeInMainWorld("pofisNotifications", {
   onExpired: callback => subscribeNotification("expired", callback),
 });
 
+if (!process.argv.includes("--pofis-scenarios")) {
+  const invokeRemembered = (name, input) => ipcRenderer.invoke(`pofis:remembered:${name}`, input);
+  const subscribeRemembered = (name, callback) => {
+    const listener = (_event, value) => callback(value);
+    ipcRenderer.on(`pofis:remembered:${name}`, listener);
+    return () => ipcRenderer.removeListener(`pofis:remembered:${name}`, listener);
+  };
+  contextBridge.exposeInMainWorld("pofisRememberedSession", {
+    connect: input => invokeRemembered("connect", input),
+    disconnect: () => invokeRemembered("disconnect"),
+    recover: force => invokeRemembered("recover", force),
+    onRecovered: callback => subscribeRemembered("recovered", callback),
+    onInvalid: callback => subscribeRemembered("invalid", callback),
+  });
+}
+
 contextBridge.exposeInMainWorld("pofisMini", {
   get: () => ipcRenderer.invoke("pofis:mini:get"),
   pin: () => ipcRenderer.invoke("pofis:mini:pin"),

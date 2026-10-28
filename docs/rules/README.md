@@ -21,7 +21,7 @@ Her kuralın bir kod sahibi vardır. Görünümler, route'lar ve depolama adapt�
 | [Pofi durum seçimi](pofi.md)                       | [pofi.js](../../src/domain/rules/pofi.js)                           |
 | [Not defteri takvimi](notebook-calendar.md)        | [notebook-calendar.ts](../../src/domain/rules/notebook-calendar.ts) |
 | [Pofi sürprizleri](pofi-surprises.md)              | [pofi-surprises.ts](../../src/domain/rules/pofi-surprises.ts)       |
-| [Oturum politikası](session-policy.md)             | [session-policy.ts](../../src/domain/rules/session-policy.ts)       |
+| [Oturum politikası](session-policy.md)             | [session-policy.ts](../../src/domain/rules/session-policy.ts); masaüstü hatırlama [remembered-session.ts](../../src/desktop/remembered-session.ts) |
 | [Kendi raporu ve tarih aralığı](report-access.md)  | [report-access.ts](../../src/domain/rules/report-access.ts)         |
 | [PDKS erişimi ve HTTP sınırları](source-policy.md) | [source-policy.ts](../../src/domain/rules/source-policy.ts)         |
 

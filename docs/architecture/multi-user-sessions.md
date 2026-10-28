@@ -18,7 +18,7 @@ Kullanıcı adının normalizasyonu, hesap anahtarı gereksinimi ve parola temiz
 
 Bellekteki yönetici `pofis.session-manager:account-key-v1` anahtarıyla tutulur. Bu anahtar geliştirme sunucusundaki yönetici ve giriş istemcisi fabrikasını hesap anahtarı sözleşmesine göre oluşturur.
 
-1. Girişte ayrı istemci oluşturulur; parola yalnız kaynak girişinde kullanılır. Oturum yöneticisi yeni oturumu kaydeder, mevcut oturumu kapatır ve ardından tarayıcıya yeni token verilir. Yeni kimlik doğrulama veya ilk kayıt başarısızsa mevcut oturum korunur. Eski oturumun diskten silinmesi başarısızsa yeni oturum da iptal edilip dosyası silinmeye çalışılır; istek başarısız döner.
+1. Girişte ayrı istemci oluşturulur; sunucu oturum yöneticisi parolayı yalnız kaynak girişinde kullanır. Yeni oturumu kaydeder, mevcut oturumu kapatır ve ardından tarayıcıya yeni token verilir. Yeni kimlik doğrulama veya ilk kayıt başarısızsa mevcut oturum korunur. Eski oturumun diskten silinmesi başarısızsa yeni oturum da iptal edilip dosyası silinmeye çalışılır; istek başarısız döner.
 2. İstek yalnız güncel oturum çerezindeki kimliği arar. Bellekte yoksa v1 biçimindeki ilgili dosya asenkron okunur; aynı kimliğin eşzamanlı okumaları birleştirilir. Desteklenmeyen dosya biçimi yeniden kimlik doğrulama gerektirir.
 3. Kaynak çerezleri değiştiğinde kayıt asenkron yazılır. Oturum başına yazma/silme sırası korunur. Yeniden adlandırma kısmi JSON görünmesini önler; elektrik kesintisine karşı fsync garantisi verilmez. İstek sırasında kayıt hatasının yanıta, önbelleğe ve özgün kaynak hatasına etkisi [oturum politikasında](../rules/session-policy.md) tanımlıdır.
 4. Çıkış bellek kaydını kaldırır, devam eden kaynak isteğini iptal eder, bekleyen yazıların ardından dosyayı siler. Geciken okuma oturumu geri getiremez. Raporun kaynak işi başarıyla tamamlandığında ve hata verdiğinde üyelik ve TTL tekrar doğrulanır. Geçersiz oturum 401 döner ve tarayıcı çerezi temizlenir; aktif oturumun kaynak bağlantı hatası 502 döner.
@@ -41,7 +41,7 @@ Yerel üretim önizlemesi standart `next start`, Docker dağıtımı standalone 
 
 [Paketli senaryo modu](../desktop.md#paketli-senaryo-modu) ayrı Chromium profili ve örnek oturum adaptörü kullanır; normal kullanıcı profiline ve PDKS kaynağına bağlanmaz. Bu doğrulama modunun yaşam döngüsü ve sınırları masaüstü rehberindedir.
 
-[Masaüstü kabuğu](../desktop.md#yaşam-döngüsü-ve-sorumluluklar) aynı oturum yöneticisini Node UtilityProcess ile kullanır. Ana pencere ve Pofi Mini aynı oturumu paylaşır; kullanıcı profili dış tarayıcıdan ve kurum sunucusundan ayrıdır. İstemci isteklerinin paylaşımı ve hesap geçişi [PDKS hata sözleşmesinde](../pdks-errors.md#kullanıcı-davranışı), heartbeat ve hesaba özgü işler [bildirim sözleşmesinde](../rules/notifications.md) yönetilir.
+[Masaüstü kabuğu](../desktop.md#yaşam-döngüsü-ve-sorumluluklar) aynı oturum yöneticisini Node UtilityProcess ile kullanır. Ana pencere ve Pofi Mini aynı oturumu paylaşır; kullanıcı profili dış tarayıcıdan ve kurum sunucusundan ayrıdır. İsteğe bağlı [hatırlama ve otomatik giriş](../rules/session-policy.md#electronda-beni-hatırla) Electron ana sürecindedir; sunucu oturumları parolayı saklamaz. İstemci isteklerinin paylaşımı ve hesap geçişi [PDKS hata sözleşmesinde](../pdks-errors.md#kullanıcı-davranışı), heartbeat ve hesaba özgü işler [bildirim sözleşmesinde](../rules/notifications.md) yönetilir.
 
 Bellek kullanımı yüklenen oturum sayısıyla büyür; oturum dizininin sahibi tek uygulama sürecidir. Replica, kalıcı volume, TLS ve kurum kabulünü [dağıtım rehberine](../deployment.md) göre yönetin.
 

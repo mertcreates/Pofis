@@ -29,11 +29,16 @@ export function useDesktopNotifications(enabled: boolean, connected: boolean | n
     const bridge = window.pofisNotifications;
     if (!enabled || !bridge) return;
     let active = true;
-    const run = !connected || mutating ? bridge.pause() : plans ? bridge.sync(plans) : Promise.resolve();
-    void run.then(() => { if (active) setError(""); }).catch((error: unknown) => {
-      if (active) setError(error instanceof Error ? error.message : ui.notificationErrors.syncFailed);
-    });
-    return () => { active = false; };
+    const sync = () => {
+      const run = !connected || mutating ? bridge.pause() : plans ? bridge.sync(plans) : Promise.resolve();
+      void run.then(() => { if (active) setError(""); }).catch((error: unknown) => {
+        if (active) setError(error instanceof Error ? error.message : ui.notificationErrors.syncFailed);
+      });
+    };
+    sync();
+    const unsubscribe = connected && !mutating && plans
+      ? window.pofisRememberedSession?.onRecovered(sync) : undefined;
+    return () => { active = false; unsubscribe?.(); };
   }, [enabled, connected, mutating, plans]);
   return { available, status, error, actions };
 }

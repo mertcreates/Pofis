@@ -247,6 +247,7 @@ export const ui = {
     miniShortcutUnavailable: "Pofi Mini global kısayolu kaydedilemedi. Pofi Mini’yi menüden açabilirsin.",
     changelogLoadFailed: "Sürüm geçmişi yenilenemedi; paketle gelen kayıtlar kullanılıyor.",
     notificationCleanupFailed: "Pofis bildirim geçici dosyası temizlenemedi.",
+    rememberCleanupFailed: "Şifreli giriş geçici dosyası temizlenemedi.",
     notificationTickFailed: "Pofis bildirim döngüsü tamamlanamadı.",
     resumeRefreshFailed: "Pofis uyku sonrası raporu yenileyemedi.",
     startupReportFailed: "Pofis başlangıç sonucu kaydedilemedi.",
@@ -325,7 +326,13 @@ export const ui = {
   },
   connectionFields: {
     username: "Kullanıcı Adı",
-    password: "Şifre"
+    password: "Şifre",
+    remember: "Beni hatırla (şifrem bu cihazda saklanır)",
+    rememberUnavailable: "Bilgilerin güvenli şekilde saklanamadı. Beni hatırla seçimini kaldırıp yeniden dene.",
+    rememberSaveFailed: "Bağlandın ama bilgilerin kaydedilemedi. Bir sonraki bağlantıda yeniden deneyebilirsin.",
+    rememberCleanupFailed: "Bağlandın ama bilgiler güncellenemedi ve eski kayıt silinemedi. Cihazın saklama alanını kontrol et.",
+    rememberInvalid: "Kaydedilen bilgiler artık geçerli değil. Yeniden bağlanırken bilgilerini güncelleyebilirsin.",
+    rememberInvalidCleanupFailed: "Kaydedilen bilgiler geçerli değil ve silinemedi. Cihazın saklama alanını kontrol et."
   },
   desktopUpdate: {
     available: "Yeni sürüm var",

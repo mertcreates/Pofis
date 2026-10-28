@@ -23,9 +23,12 @@ export const Connection = memo(function Connection({
   const password = useRef<HTMLInputElement>(null);
   const passwordId = useId();
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [rememberAvailable, setRememberAvailable] = useState(false);
   const fieldError = error?.operation === "connect"
     && (error.kind === "credentials" || error.kind === "validation");
-  const systemError = error && !fieldError && error.kind !== "session-expired";
+  const storageError = error?.code === "REMEMBER_UNAVAILABLE";
+  const systemError = error && !fieldError && !storageError && error.kind !== "session-expired";
+  useEffect(() => { setRememberAvailable(!!window.pofisRememberedSession); }, []);
   useEffect(() => {
     if (fieldError) password.current?.focus();
   }, [error, fieldError]);
@@ -106,6 +109,11 @@ export const Connection = memo(function Connection({
             </div>
           </div>
           {fieldError && errorMessage}
+          {rememberAvailable && <label className="connection-remember">
+            <input type="checkbox" name="remember" disabled={busy} />
+            <span>{ui.connectionFields.remember}</span>
+          </label>}
+          {storageError && <p className="connection-field-error" role="alert">{ui.connectionFields.rememberUnavailable}</p>}
           <button className="primary full" disabled={busy}>
             {busy ? ui.verifyingSession : ui.connect}
           </button>

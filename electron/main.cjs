@@ -238,7 +238,7 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
       : join(__dirname, "..", ".next", "standalone", "pofis-notifications.cjs");
     notifications = require(runtimePath).installDesktopNotifications({ app, ipcMain, session: session.defaultSession,
       Notification, safeStorage, powerMonitor, getWindow: () => window, getMiniWindow: () => mini.getWindow(), origin: ORIGIN, showWindow,
-      onGoal: goal => background?.setGoal(goal), now: scenario?.now,
+      onGoal: goal => background?.setGoal(goal), now: scenario?.now, rememberEnabled: !scenarioMode,
       ...(scenario ? { telegramFetch: async () => { throw new Error("Senaryo modunda Telegram gönderilmez."); } } : {}) });
     window.webContents.on("did-start-navigation", (_event, _url, isInPlace, isMainFrame) => {
       if (isMainFrame && !isInPlace) notifications.pause();

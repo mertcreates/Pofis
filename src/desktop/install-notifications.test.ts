@@ -119,3 +119,50 @@ test("Mini güncel raporu, hesap geçişini ve oturum bitişini alır; yalnız y
     await rm(directory, { recursive: true, force: true });
   }
 });
+
+test("hatırlama IPC'si yalnız ana pencereye giriş/çıkış yetkisi verir ve kimlik bilgilerini geri döndürmez", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-remember-ipc-"));
+  const origin = "http://127.0.0.1:3210";
+  const contents = (path: string) => ({ mainFrame: { url: `${origin}${path}` }, isDestroyed: () => false, send() {} });
+  const main = contents("/"), mini = contents("/mini"), foreign = contents("/");
+  const handlers = new Map<string, (event: unknown, value?: unknown) => Promise<any>>();
+  let connected = false, logins = 0;
+  const notification = installDesktopNotifications({
+    app: { getPath: () => directory },
+    ipcMain: { handle: (name: string, handler: (event: unknown, value?: unknown) => Promise<unknown>) => handlers.set(name, handler) },
+    session: { async fetch(_path: string, options: RequestInit) {
+      if (options.method === "POST") { logins++; connected = true; }
+      if (options.method === "DELETE") connected = false;
+      return Response.json({ connected });
+    } },
+    safeStorage: { isEncryptionAvailable: () => true, getSelectedStorageBackend: () => "gnome_libsecret",
+      isAsyncEncryptionAvailable: async () => true,
+      encryptStringAsync: async (value: string) => Buffer.from(`v11${Buffer.from(value).toString("base64")}`),
+      decryptStringAsync: async (value: Buffer) => ({ result: Buffer.from(value.subarray(3).toString(), "base64").toString(), shouldReEncrypt: false }),
+    },
+    Notification: { isSupported: () => true }, powerMonitor: new EventEmitter(),
+    getWindow: () => ({ isDestroyed: () => false, webContents: main }),
+    getMiniWindow: () => ({ isDestroyed: () => false, webContents: mini }),
+    origin, showWindow() {}, rememberEnabled: true,
+  } as unknown as Parameters<typeof installDesktopNotifications>[0]);
+  const invoke = (sender: typeof main, name: string, input?: unknown, frame = sender.mainFrame) =>
+    handlers.get(`pofis:remembered:${name}`)!({ sender, senderFrame: frame }, input);
+  const input = { username: "fixture-user", password: "fixture-password", remember: true };
+  try {
+    expect((await invoke(mini, "connect", input)).ok).toBe(false);
+    expect((await invoke(foreign, "connect", input)).ok).toBe(false);
+    expect((await invoke(main, "connect", input, { url: `${origin}/` })).ok).toBe(false);
+    expect(logins).toBe(0);
+    const result = await invoke(main, "connect", input);
+    expect(result).toEqual({ ok: true, value: { remembered: true } });
+    expect(JSON.stringify(result)).not.toContain(input.password);
+    expect((await invoke(mini, "disconnect")).ok).toBe(false);
+    expect((await invoke(mini, "recover", true)).ok).toBe(true);
+    expect(logins).toBe(2);
+    expect((await invoke(main, "disconnect")).ok).toBe(true);
+    expect(connected).toBe(false);
+  } finally {
+    notification.stop();
+    await rm(directory, { recursive: true, force: true });
+  }
+});

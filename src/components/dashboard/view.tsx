@@ -125,6 +125,7 @@ export function DashboardView({
         {workPlans.error && dialog?.kind !== "plan" && (
           <InlineNotice tone="warning">{workPlans.error}</InlineNotice>
         )}
+        {pdks?.rememberWarning && <InlineNotice tone="warning">{pdks.rememberWarning}</InlineNotice>}
         {pdks?.failure && connected === true && (
           <RequestError
             error={pdks.failure}

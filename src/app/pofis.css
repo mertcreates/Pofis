@@ -1669,6 +1669,20 @@ body {
   font-size: 14px;
   color: var(--ink);
 }
+.connection-form .connection-remember {
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400;
+  cursor: pointer;
+}
+.connection-form .connection-remember input {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  min-height: 16px;
+  padding: 0;
+}
 .connection-password input[type="password"]:not(:placeholder-shown) {
   font-size: 12px;
   letter-spacing: 0.16em;

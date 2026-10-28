@@ -13,6 +13,12 @@ import { initialPdksState, pdksReducer } from "./pdks-state";
 import { setAnalyticsUserId } from "@/lib/analytics";
 import { readAnalyticsUserId } from "@/lib/analytics-identity";
 import type { NotificationReport, NotificationStatus } from "@/desktop/notification-contract";
+import type { RememberedResult } from "@/desktop/remembered-contract";
+
+function readRememberedResult<T>(result: RememberedResult<T>): T {
+  if (!result.ok) throw result.error;
+  return result.value;
+}
 
 export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   const [state, dispatch] = useReducer(pdksReducer, initialPdksState);
@@ -24,6 +30,7 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   const mutationInFlight = useRef(false);
   const desktopActive = useRef<boolean | null>(null);
   const [refreshVersion, requestRefresh] = useReducer((value: number) => value + 1, 0);
+  const [rememberWarning, setRememberWarning] = useState("");
 
   const cancelReport = useCallback(() => {
     requests.cancel();
@@ -43,6 +50,10 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
       invalidate();
     }
     dispatch({ type: "failed", failure });
+    if (!mutationInFlight.current && (failure.kind === "session-expired" ||
+        (failure.kind === "unavailable" && operation === "report"))) {
+      void window.pofisRememberedSession?.recover(failure.kind === "unavailable").then(readRememberedResult).catch(() => {});
+    }
   }, [invalidate]);
 
   const onExpired = useEffectEvent((error: unknown) => fail(error, "session"));
@@ -88,12 +99,17 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
       try {
         const result = await api("/api/session", { signal });
         if (signal.aborted || id !== generation.current) return;
-        const sessionConnected = readSessionResponse(result, "/api/session", "GET");
+        let sessionConnected = readSessionResponse(result, "/api/session", "GET");
+        if (!sessionConnected && window.pofisRememberedSession) {
+          sessionConnected = readRememberedResult(await window.pofisRememberedSession.recover(false));
+          if (signal.aborted || id !== generation.current) return;
+        }
         if (!sessionConnected) setAnalyticsUserId(null);
         dispatch({ type: "session-checked", connected: sessionConnected });
         return sessionConnected;
       } catch (error) {
-        if (!signal.aborted && id === generation.current) fail(error, "session");
+        if (!signal.aborted && id === generation.current)
+          fail(error, toRequestFailure(error, "connect").kind === "credentials" ? "connect" : "session");
       } finally {
         if (pendingSession.current?.id === id) pendingSession.current = null;
       }
@@ -101,6 +117,26 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
     pendingSession.current = { id, signal, controller, promise };
     return promise;
   }, [fail]);
+
+  const onRememberedRecovered = useEffectEvent(() => {
+    if (mutationInFlight.current) return;
+    invalidate();
+    setRememberWarning("");
+    void checkSession().then(active => { if (active) requestRefresh(); });
+  });
+  const onRememberedInvalid = useEffectEvent((cleanupFailed: boolean) => {
+    if (mutationInFlight.current) return;
+    if (connected || cleanupFailed) setRememberWarning(cleanupFailed
+      ? ui.connectionFields.rememberInvalidCleanupFailed : ui.connectionFields.rememberInvalid);
+    if (!connected) fail({ code: "AUTH_FAILED", status: 401 }, "connect");
+  });
+  useEffect(() => {
+    const bridge = window.pofisRememberedSession;
+    if (!bridge) return;
+    const stopRecovered = bridge.onRecovered(onRememberedRecovered);
+    const stopInvalid = bridge.onInvalid(onRememberedInvalid);
+    return () => { stopRecovered(); stopInvalid(); };
+  }, []);
 
   const onDesktopStatus = useEffectEvent((status: NotificationStatus) => {
     if (desktopActive.current === status.active) {
@@ -189,13 +225,21 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
     const id = generation.current;
     dispatch({ type: "started", operation: "connect" });
     try {
-      const result = await api("/api/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: values.get("username"), password: values.get("password") }),
-      });
+      const remember = values.has("remember");
+      const desktop = window.pofisRememberedSession;
+      const result = desktop ? readRememberedResult(await desktop.connect({ username: values.get("username"), password: values.get("password"), remember }))
+        : await api("/api/session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: values.get("username"), password: values.get("password") }),
+        });
       if (id !== generation.current) return;
-      readSessionResponse(result, "/api/session", "POST");
+      if (desktop) {
+        const saved = result as { remembered: boolean; cleanupFailed?: boolean };
+        setRememberWarning(saved.cleanupFailed ? ui.connectionFields.rememberCleanupFailed
+          : remember && !saved.remembered ? ui.connectionFields.rememberSaveFailed : "");
+      }
+      else readSessionResponse(result, "/api/session", "POST");
       setAnalyticsUserId(null);
       dispatch({ type: "connected" });
     } catch (error) {
@@ -217,8 +261,12 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
     setAnalyticsUserId(null);
     dispatch({ type: "started", operation: "disconnect" });
     try {
-      const result = await api("/api/session", { method: "DELETE" });
-      readSessionResponse(result, "/api/session", "DELETE");
+      if (window.pofisRememberedSession) readRememberedResult(await window.pofisRememberedSession.disconnect());
+      else {
+        const result = await api("/api/session", { method: "DELETE" });
+        readSessionResponse(result, "/api/session", "DELETE");
+      }
+      setRememberWarning("");
       if (id === generation.current) dispatch({ type: "disconnected" });
     } catch (error) {
       if (id === generation.current) {
@@ -248,6 +296,6 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   return {
     ...state,
     report: connected && report?.from === week ? report : null,
-    connect, disconnect, refresh: load, checkSession, retryFailure, returnToLogin,
+    connect, disconnect, refresh: load, checkSession, retryFailure, returnToLogin, rememberWarning,
   };
 }

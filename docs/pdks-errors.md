@@ -26,9 +26,9 @@ Kaynak adaptörü Bun'ın doğrudan `error.code` ve Node fetch'in `error.cause.c
 | --- | --- | --- |
 | `AUTH_FAILED` / 401 | Şifre alanının altında kısa açıklama; iki alan hata mesajına bağlanır, odak şifreye döner. Sunum kısa form açıklamasıyla sınırlıdır. | Mevcut oturum korunur. |
 | `INVALID_INPUT` | Girişte bilgileri, raporda hafta seçimini düzeltme. Aynı geçersiz raporu tekrar gönderme düğmesi verilmez. | Korunur. |
-| `SESSION_EXPIRED` / 401 | Yeniden giriş formunda nötr bildirim; alanlar geçersiz işaretlenmez, teknik tanı gösterilmez. | Bekleyen rapor iptal edilir, kişi ve rapor temizlenir. |
+| `SESSION_EXPIRED` / 401 | Yeniden giriş formunda nötr bildirim görünür; masaüstünde hatırlama seçildiyse otomatik giriş de denenir. | Bekleyen rapor iptal edilir, kişi ve rapor temizlenir. |
 | `NETWORK_ERROR` | Uygulamaya erişim sorunu ve ilgili işlemi yeniden deneme. | Rapor isteği başarısızsa eski rapor korunur, anlık tahmin durur. |
-| `CONNECTION_FAILED` | PDKS bağlantısı kurulamadı; kurum ağı/VPN kontrolü ve manuel yeniden deneme. | Oturum korunur. |
+| `CONNECTION_FAILED` | PDKS bağlantısı kurulamadı; kurum ağı/VPN kontrolü ve manuel yeniden deneme. Masaüstünde hatırlama seçildiyse rapor/heartbeat hatası otomatik giriş denemesini de başlatır. | Mevcut oturum ve rapor korunur. |
 | `SOURCE_ERROR` | PDKS bir HTTP hata yanıtı verdi; manuel yeniden deneme. Kaynağın 429 yanıtında bekleme, 403 yanıtında yetki açıklaması. | HTTP hata gövdesindeki giriş formu oturumu bitirmez. |
 | `SOURCE_CHANGED`, `INVALID_RESPONSE`, `INTERNAL_ERROR`, bilinmeyen kod | Güvenli kullanıcı mesajı; teknik ayrıntılar İz kaydı düzeninde sürekli görünür. | Geçerli rapor varsa korunur; başarısız yenilemede tahmin durur. |
 | `TOO_MANY_RESULTS` | Rapor sınırı ve başka hafta seçme açıklaması. | Kısmi rapor başarı gibi gösterilmez. |
@@ -39,7 +39,7 @@ Bu çiftin tek sahibi `isSessionExpired` kontrolüdür; API temizliği, kaynak d
 
 [Masaüstü HTTP adaptörü](../src/desktop/install-notifications.ts) de yanıtın kod/durum çiftini `isSessionExpired` ile doğrular; doğrulanmış sonucu bildirim çalışma zamanına oturum bitişi olarak aktarır.
 
-Toparlanma işlemi hatanın sahibine döner: oturum kontrolü GET `/api/session`, rapor GET `/api/report`, çıkış DELETE `/api/session`. Giriş yalnız formdan POST edilir. Giriş/çıkış sürerken ilgili eylem kilitlenir. Giriş/çıkış sürerken hafta değişse de oturum işleminin sonucu uygulanır; rapor yükleme işlemi oturum işlemi tamamlandıktan sonra başlatılabilir. Yeni durum yalnız güncel rapor isteğinin yanıtıyla güncellenir. İstek sonunda FormData kimlik alanları ve formdaki şifre temizlenir. Kullanıcı adı tekrar deneme için yalnız açık formda korunur.
+Toparlanma işlemi hatanın sahibine döner: oturum kontrolü GET `/api/session`, rapor GET `/api/report`, çıkış DELETE `/api/session`. Web'de giriş formdan POST edilir; masaüstündeki isteğe bağlı otomatik giriş [oturum politikasındadır](rules/session-policy.md#electronda-beni-hatırla). Giriş/çıkış sürerken ilgili eylem kilitlenir. Giriş/çıkış sürerken hafta değişse de oturum işleminin sonucu uygulanır; rapor yükleme işlemi oturum işlemi tamamlandıktan sonra başlatılabilir. Yeni durum yalnız güncel rapor isteğinin yanıtıyla güncellenir. İstek sonunda FormData kimlik alanları ve formdaki şifre temizlenir. Kullanıcı adı tekrar deneme için yalnız açık formda korunur.
 
 Sistem hatası normal hata ekranında sunulur. “Girişe dön” hatayı temizleyip boş formu açar; yeni giriş isteği form gönderildiğinde başlar. Oturum bitişi giriş formunda kutusuz, nötr durum metnidir. Pofi yanlış bilgide normal, sistem hatasında hata duruşunu kullanır; istek sürerken çalışma duruşundadır.
 

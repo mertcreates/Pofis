@@ -2,16 +2,19 @@ import { ui } from "../lib/ui-text.js";
 import { SESSION_POLICY } from "@/domain/rules/session-policy";
 import { REPORT_ACCESS } from "@/domain/rules/report-access";
 import { isSessionExpired } from "@/lib/pdks-failure";
+import { readDiagnosticDetails } from "@/lib/pdks-failure";
+import { ApiError } from "@/lib/api-client.js";
 import { join } from "node:path";
 import type { App, IpcMain, Session, BrowserWindow, PowerMonitor, SafeStorage, Notification as ElectronNotification } from "electron";
 import { createNotificationRuntime } from "./notification-runtime";
 import { createNotificationStore } from "./notification-store";
 import { secureStorageAvailable } from "./secure-storage";
+import { createRememberedSession, createRememberedStore } from "./remembered-session";
 import { createTelegram, readTelegramInput, DeliveryError, type TelegramCredentials } from "./telegram";
 import { NOTIFICATION_POLICY, type NotificationChannel, type NotificationGoal } from "@/domain/rules/notifications";
 import type { NotificationPreferences } from "@/domain/rules/notifications";
 
-export function installDesktopNotifications({ app, ipcMain, session, safeStorage, Notification, powerMonitor, getWindow, getMiniWindow, origin, showWindow, onGoal, telegramFetch, now }: {
+export function installDesktopNotifications({ app, ipcMain, session, safeStorage, Notification, powerMonitor, getWindow, getMiniWindow, origin, showWindow, onGoal, telegramFetch, now, rememberEnabled = false }: {
   app: App; ipcMain: IpcMain; session: Session; safeStorage: SafeStorage;
   Notification: typeof ElectronNotification; powerMonitor: PowerMonitor;
   getWindow(): BrowserWindow | undefined; origin: string; showWindow(): void;
@@ -19,6 +22,7 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
   onGoal?: (goal: NotificationGoal | null) => void;
   telegramFetch?: Parameters<typeof createTelegram>[0];
   now?: () => number;
+  rememberEnabled?: boolean;
 }) {
   const telegram = createTelegram(telegramFetch);
   const shown = new Set<ElectronNotification>();
@@ -47,8 +51,46 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
     const data = await response.json();
     if (isSessionExpired({ status: response.status, code: data?.code }))
       throw Object.assign(new Error(ui.internalErrors.sessionExpired), { code: "SESSION_EXPIRED" });
-    if (!response.ok) throw new Error(ui.notificationErrors.reportFailed);
+    if (!response.ok) {
+      if (response.status === 502 && data?.code === "CONNECTION_FAILED")
+        throw Object.assign(new Error(ui.notificationErrors.reportFailed), { code: "CONNECTION_FAILED" });
+      throw new Error(ui.notificationErrors.reportFailed);
+    }
     return data;
+  }
+  const remembered = rememberEnabled ? createRememberedSession({
+    store: createRememberedStore(app.getPath("userData"), safeStorage),
+    fetch: (path, options) => session.fetch(`${origin}${path}`, {
+      ...options, credentials: "include", cache: "no-store", redirect: "error", signal: AbortSignal.timeout(90_000),
+    }),
+    onRecovered: () => emit("pofis:remembered:recovered", null),
+    onInvalid: cleanupFailed => emit("pofis:remembered:invalid", cleanupFailed),
+  }) : null;
+  if (remembered) {
+    for (const name of ["connect", "disconnect", "recover"] as const) {
+      ipcMain.handle(`pofis:remembered:${name}`, async (event, input) => {
+        const main = applicationContents();
+        const miniWindow = !stopped && name === "recover" ? getMiniWindow?.() : undefined;
+        const mini = miniWindow && !miniWindow.isDestroyed() ? miniWindow.webContents : undefined;
+        const sender = event.sender === main ? main : event.sender === mini ? mini : undefined;
+        if (!sender || sender.isDestroyed() || event.senderFrame !== sender.mainFrame ||
+            !URL.canParse(event.senderFrame.url) || new URL(event.senderFrame.url).origin !== origin)
+          return { ok: false, error: { code: "INTERNAL_ERROR", status: 0, details: {} } };
+        try {
+          if (name === "connect") {
+            if (!input || typeof input !== "object" || typeof input.remember !== "boolean") throw new Error();
+            return { ok: true, value: await remembered.connect({ username: input.username, password: input.password }, input.remember) };
+          }
+          if (name === "disconnect") { await remembered.disconnect(); return { ok: true, value: undefined }; }
+          if (typeof input !== "boolean") throw new Error();
+          return { ok: true, value: await remembered.recover(input) };
+        } catch (error) {
+          return { ok: false, error: error instanceof ApiError
+            ? { code: error.code, status: error.status, details: readDiagnosticDetails(error.details) }
+            : { code: "INTERNAL_ERROR", status: 0, details: {} } };
+        }
+      });
+    }
   }
   const runtime = createNotificationRuntime({
     now,
@@ -67,7 +109,13 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
     },
     readReport: (from, to, signal) => request(`/api/report?${new URLSearchParams({ person: REPORT_ACCESS.person, from, to })}`, signal),
     heartbeat: async signal => { await request("/api/session/heartbeat", signal, "POST"); },
-    onExpired: () => emit("pofis:notifications:expired", null),
+    onExpired: () => {
+      emit("pofis:notifications:expired", null);
+      if (remembered) void remembered.recover().catch(() => {}); // The coordinator retries transient failures.
+    },
+    onUnavailable: () => {
+      if (remembered) void remembered.recover(true).catch(() => {}); // The coordinator retries transient failures.
+    },
     verifyTelegram: (input, signal) => telegram.verify(input, signal),
     sendTelegram: (credentials: TelegramCredentials, title, body, signal) => telegram.send(credentials, title, body, signal),
     sendNative: (title, body) => new Promise<void>((resolve, reject) => {
@@ -133,6 +181,7 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
     stop() {
       if (stopped) return;
       stopped = true;
+      remembered?.stop();
       clearInterval(interval); runtime.pause();
       powerMonitor.removeListener("suspend", suspend); powerMonitor.removeListener("resume", resume);
       for (const notification of shown) notification.close();

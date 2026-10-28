@@ -18,6 +18,7 @@ type Dependencies = {
   readReport(from: string, to: string, signal: AbortSignal): Promise<unknown>;
   heartbeat?(signal: AbortSignal): Promise<void>;
   onExpired?(): void;
+  onUnavailable?(): void;
   nativeSupported: boolean;
   secureStorageAvailable(): boolean;
   seal(value: TelegramCredentials): string;
@@ -58,6 +59,7 @@ export function createNotificationRuntime(deps: Dependencies) {
   let pendingSync: string | null = null;
   let lastSyncAttempt = 0;
   let syncVersion = 0;
+  let syncing = 0;
   let telegramVersion = 0;
 
   function status(): NotificationStatus {
@@ -99,48 +101,60 @@ export function createNotificationRuntime(deps: Dependencies) {
     if (typeof rawPlans !== "string" || rawPlans.length > 1_000_000) throw new Error(ui.notificationErrors.plansUnreadable);
     plans = readStoredPlans(rawPlans);
     const attempt = ++syncVersion;
+    syncing = attempt;
+    // A report from the old session must not cancel or replace this sync.
+    refreshing = null;
     pendingSync = null;
     const version = generation;
     lastSyncAttempt = now();
-    let next;
-    try { next = await deps.readSession(controller.signal); }
-    catch (error) {
+    let refreshAfterSync = false;
+    try {
+      let next;
+      try { next = await deps.readSession(controller.signal); }
+      catch (error) {
+        if (version !== generation || attempt !== syncVersion) return status();
+        if ((error as { code?: string }).code === "SESSION_EXPIRED") { expire(); return status(); }
+        pendingSync = rawPlans;
+        throw error;
+      }
       if (version !== generation || attempt !== syncVersion) return status();
-      if ((error as { code?: string }).code === "SESSION_EXPIRED") { expire(); return status(); }
-      pendingSync = rawPlans;
-      throw error;
-    }
-    if (version !== generation || attempt !== syncVersion) return status();
-    pendingSync = null;
-    if (!next) { pause(); return status(); }
-    const verified = readNotificationSession(next);
-    if (verified.expiresAt <= now()) { expire(); return status(); }
-    if (session?.accountId !== verified.accountId || session?.expiresAt !== verified.expiresAt) {
-      pause();
-      const loadingGeneration = generation;
-      const loaded = await deps.store.load(verified.accountId);
-      if (loadingGeneration !== generation || attempt !== syncVersion) return status();
-      account = loaded; session = verified;
-      if (loaded.telegram) {
-        try { credentials = deps.unseal(loaded.telegram); }
-        catch { deliveryErrors.telegram = ui.notificationErrors.telegramUnreadable; }
+      pendingSync = null;
+      if (!next) { if (session) expire(); else pause(); return status(); }
+      const verified = readNotificationSession(next);
+      if (verified.expiresAt <= now()) { expire(); return status(); }
+      if (session?.accountId !== verified.accountId || session?.expiresAt !== verified.expiresAt) {
+        pause();
+        const loadingGeneration = generation;
+        const loaded = await deps.store.load(verified.accountId);
+        if (loadingGeneration !== generation || attempt !== syncVersion) return status();
+        account = loaded; session = verified;
+        if (loaded.telegram) {
+          try { credentials = deps.unseal(loaded.telegram); }
+          catch { deliveryErrors.telegram = ui.notificationErrors.telegramUnreadable; }
+        }
+      }
+      publish();
+      refreshAfterSync = true;
+      return status();
+    } finally {
+      if (syncing === attempt) {
+        syncing = 0;
+        if (refreshAfterSync) void refresh();
       }
     }
-    publish();
-    void refresh();
-    return status();
   }
   async function refresh() {
-    if (!session) return;
+    if (syncing || !session) return;
     if (session.expiresAt <= now()) { expire(); return; }
     if (refreshing) return refreshing;
     const current = requireAccount();
+    const version = syncVersion;
     const from = weekStart(dateKey(now()));
     lastAttemptAt = now();
     const run = (async () => {
       try {
         const raw = await deps.readReport(from, addDays(from, 6), controller.signal);
-        if (current.generation !== generation) return;
+        if (current.generation !== generation || version !== syncVersion) return;
         if (current.session.expiresAt <= now()) { expire(); return; }
         const parsed = readReportResponse(raw, from, addDays(from, 6)) as NotificationReport;
         const identity = readNotificationSession(parsed.notificationSession);
@@ -148,8 +162,9 @@ export function createNotificationRuntime(deps: Dependencies) {
         report = parsed; lastRefreshAt = now(); refreshError = "";
         deps.onReport(parsed);
       } catch (error) {
-        if (current.generation !== generation) return;
+        if (current.generation !== generation || version !== syncVersion) return;
         if ((error as { code?: string }).code === "SESSION_EXPIRED") { expire(); return; }
+        if ((error as { code?: string }).code === "CONNECTION_FAILED") deps.onUnavailable?.();
         refreshError = ui.notificationErrors.refreshFailed;
       }
       publish();
@@ -163,16 +178,18 @@ export function createNotificationRuntime(deps: Dependencies) {
       pendingSync = null;
       void sync(retry).catch(() => {}); // sync retains transient failures for the next timed attempt.
     }
-    if (ticking || !session) return;
+    if (syncing || ticking || !session) return;
     if (session.expiresAt <= now()) { expire(); return; }
     ticking = true;
     try {
       if (deps.heartbeat && now() - lastHeartbeatAt >= SESSION_POLICY.heartbeatMs) {
         lastHeartbeatAt = now();
         const version = generation;
+        const attempt = syncVersion;
         void deps.heartbeat(controller.signal).catch(error => {
-          if (version !== generation) return;
+          if (version !== generation || attempt !== syncVersion) return;
           if ((error as { code?: string }).code === "SESSION_EXPIRED") { expire(); return; }
+          if ((error as { code?: string }).code === "CONNECTION_FAILED") deps.onUnavailable?.();
           // Temporary transport failures retain the last successful report and fixed TTL.
         });
       }
