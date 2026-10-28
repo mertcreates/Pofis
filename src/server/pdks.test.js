@@ -80,6 +80,61 @@ test("oturum iptali bağlantı hatasına çevrilmez; timeout bağlantı hatasıd
   await expect(timedOut.request("/PizzyKurumWeb/fixture")).rejects.toMatchObject({ code: "CONNECTION_FAILED", status: 502, details: { diagnostic: "PDKS yanıtı 30 saniye içinde gelmedi." } });
 });
 
+test("son istek zamanı istemcinin saatinden alınır", async () => {
+  let now = Date.parse("2026-10-16T12:00:00Z");
+  const client = new PdksClient({ clock: () => now, fetchImpl: async () => new Response("fixture") });
+  expect(client.lastRequestAt).toBe(now);
+  now += 1234;
+  let observed;
+  client.onRequest = () => { observed = client.lastRequestAt; };
+  await client.request("/PizzyKurumWeb/fixture");
+  expect(observed).toBe(Date.parse("2026-10-16T12:00:01.234Z"));
+  expect(client.lastRequestAt).toBe(observed);
+});
+
+test.each([
+  ["Fri, 16 Oct 2026 12:01:15 GMT", 75_000],
+  ["Fri, 16 Oct 2026 11:59:59 GMT", 0],
+  ["invalid", 0],
+  ["2", 2_000],
+])("Retry-After %s istemcinin saatine göre hesaplanır", async (retryAfter, delay) => {
+  const logger = spyOn(console, "error").mockImplementation(() => {});
+  try {
+    const client = new PdksClient({
+      clock: () => Date.parse("2026-10-16T12:00:00Z"),
+      fetchImpl: async () => new Response("fixture", { status: 503, headers: { "Retry-After": retryAfter } }),
+    });
+    await expect(client.request(PASSAGES_PATH)).rejects.toMatchObject({ code: "SOURCE_ERROR", details: { retryAfterMs: delay } });
+  } finally { logger.mockRestore(); }
+});
+
+test("rapor kurtarma denemesi istemcinin saatinde 60 saniyelik beklemeye uyar", async () => {
+  let now = Date.parse("2026-10-16T12:00:00Z");
+  const paths = [];
+  let reportRequests = 0;
+  const client = new PdksClient({ clock: () => now, fetchImpl: async url => {
+    paths.push(url.pathname);
+    if (url.pathname.endsWith("/PizzyMain.aspx"))
+      return new Response('<span id="ctl_RPPersonel_LblKisiAdiSoyadi">Fixture Person</span>');
+    reportRequests++;
+    return reportRequests === 2 || reportRequests === 5
+      ? new Response("report") : new Response("fixture error", { status: 500 });
+  } });
+  client.self = { name: "Fixture Person" };
+  const logger = spyOn(console, "error").mockImplementation(() => {});
+  try {
+    expect((await client.openReport(PASSAGES_PATH)).html).toBe("report");
+    expect(reportRequests).toBe(2);
+    now += 59_999;
+    await expect(client.openReport(PASSAGES_PATH)).rejects.toMatchObject({ code: "SOURCE_ERROR", details: { sessionCheck: "active" } });
+    expect(reportRequests).toBe(3);
+    now++;
+    expect((await client.openReport(PASSAGES_PATH)).html).toBe("report");
+    expect(reportRequests).toBe(5);
+    expect(paths.filter(path => path.endsWith("/PizzyMain.aspx"))).toHaveLength(3);
+  } finally { logger.mockRestore(); }
+});
+
 test.each(["bun", "node"])("%s DNS hatası kaynak erişim hatası olarak güvenli koduyla korunur", async (runtime) => {
   const client = new PdksClient({ fetchImpl: async () => {
     throw Object.assign(new TypeError("private transport message"), runtime === "bun"

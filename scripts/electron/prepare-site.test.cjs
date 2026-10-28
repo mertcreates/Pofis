@@ -1,7 +1,7 @@
 const { test, expect } = require("bun:test");
-const { mkdtemp, mkdir, writeFile, readFile, rm, access } = require("node:fs/promises");
+const { mkdtemp, mkdir, writeFile, readFile, copyFile, rm, access } = require("node:fs/promises");
 const { tmpdir } = require("node:os");
-const { join } = require("node:path");
+const { dirname, join } = require("node:path");
 const { createHash } = require("node:crypto");
 const { prepareSite, verifyRelease, prepareChangelog, readChangelog, verifyPreparedChangelog } = require("./prepare-site.cjs");
 
@@ -15,10 +15,40 @@ test("katalog aktarımı kaynakla eşleşir; eksik veya değiştirilmiş dosya y
     await verifyPreparedChangelog({ siteDirectory, version });
     const path = join(siteDirectory, "public/releases/changelog.json");
     const catalogue = JSON.parse(await readFile(path, "utf8"));
+    const source = JSON.parse(await readFile(join(__dirname, "../../src/data/changelog.json"), "utf8"));
+    expect(catalogue).toEqual(source);
     catalogue[0].features = ["Kaynağa ait olmayan içerik"];
     await writeFile(path, JSON.stringify(catalogue));
     await expect(verifyPreparedChangelog({ siteDirectory, version })).rejects.toThrow("kaynak katalogla eşleşmiyor");
   } finally { await rm(siteDirectory, { recursive: true, force: true }); }
+});
+
+test("yayın kataloğu doğrulanırken özgün metin ve ek alanlar korunur", async () => {
+  const root = await mkdtemp(join(tmpdir(), "pofis-catalogue-fixture-"));
+  try {
+    for (const file of ["scripts/electron/prepare-site.cjs", "scripts/electron/unix-installer.cjs",
+      "electron/platform.cjs", "electron/ui-text.cjs", "src/domain/changelog.ts", "src/lib/ui-text.js"]) {
+      const destination = join(root, file);
+      await mkdir(dirname(destination), { recursive: true });
+      await copyFile(join(__dirname, "../..", file), destination);
+    }
+    const sourcePath = join(root, "src/data/changelog.json");
+    await mkdir(dirname(sourcePath), { recursive: true });
+    const source = [{ version: "1.2.3", publishedOn: "2026-10-28", features: ["  Özgün metin  "], metadata: { note: "  ek alan  " } }];
+    await writeFile(sourcePath, JSON.stringify(source));
+    const isolated = require(join(root, "scripts/electron/prepare-site.cjs"));
+    const options = { siteDirectory: join(root, "site"), version: "1.2.3" };
+    await isolated.prepareChangelog(options);
+    const outputPath = join(options.siteDirectory, "public/releases/changelog.json");
+    expect(JSON.parse(await readFile(outputPath, "utf8"))).toEqual(source);
+    await isolated.verifyPreparedChangelog(options);
+    await writeFile(sourcePath, JSON.stringify([{ ...source[0], publishedOn: "2026-02-30" }]));
+    await expect(isolated.prepareChangelog(options)).rejects.toThrow();
+    expect(JSON.parse(await readFile(outputPath, "utf8"))).toEqual(source);
+    await writeFile(sourcePath, JSON.stringify(source));
+    await writeFile(outputPath, JSON.stringify([{ ...source[0], features: ["Özgün metin"] }]));
+    await expect(isolated.verifyPreparedChangelog(options)).rejects.toThrow("kaynak katalogla eşleşmiyor");
+  } finally { await rm(root, { recursive: true, force: true }); }
 });
 
 test("yalnız doğrulanmış paketin public manifestini ve installer'ını aktarır", async () => {

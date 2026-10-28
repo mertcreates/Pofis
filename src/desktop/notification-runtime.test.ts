@@ -1,9 +1,9 @@
-import { expect, test } from "bun:test";
+import { expect, spyOn, test } from "bun:test";
 import { createNotificationRuntime } from "./notification-runtime";
 import { createNotificationStore, emptyNotificationAccount, type NotificationAccount, type NotificationStore } from "./notification-store";
 import { emptyWorkPlans } from "@/domain/rules/work-plan";
 import { defaultNotificationPreferences, type NotificationGoal } from "@/domain/rules/notifications";
-import type { NotificationReport, NotificationSession } from "./notification-contract";
+import type { NotificationReport, NotificationSession, NotificationStatus } from "./notification-contract";
 import { DeliveryError } from "./telegram";
 import { mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
@@ -390,6 +390,47 @@ test("kalıcı kayıt yazılamıyorsa göndermez ve kullanıcıya hatayı göste
   f.deps.store.save = async () => { throw new Error("disk"); };
   f.time("16:50:00"); await f.runtime.tick(); expect(f.sent).toEqual([]);
   expect(f.runtime.status().refreshError).toContain("yazılamadı");
+});
+
+test.each(["başarısız", "tamamlanan"])("hesap değişirken %s eski kayıt yeni oturumu etkilemez", async outcome => {
+  const f = fixture();
+  const changes: NotificationStatus[] = [];
+  const runtime = createNotificationRuntime({ ...f.deps, onChange: status => { changes.push(status); } });
+  const warn = spyOn(console, "warn").mockImplementation(() => {});
+  let started!: () => void;
+  let release!: () => void;
+  let reject!: (error: Error) => void;
+  const writing = new Promise<void>(resolve => { started = resolve; });
+  const blocked = new Promise<void>((resolve, fail) => { release = resolve; reject = fail; });
+  let tick: Promise<void> | undefined;
+  try {
+    await runtime.sync(plans); await runtime.refresh();
+    await runtime.save({ ...defaultNotificationPreferences(), approaching: { native: true, telegram: false } });
+    const save = f.deps.store.save;
+    f.deps.store.save = async (id, value) => {
+      if (id === "a".repeat(64)) { started(); await blocked; }
+      await save(id, value);
+    };
+    f.time("16:50:00"); tick = runtime.tick(); await writing;
+    f.identity({ accountId: "b".repeat(64), expiresAt: at("23:59:00") });
+    await runtime.sync(plans); await runtime.refresh();
+    const newSessionChanges = changes.length;
+    if (outcome === "başarısız") reject(new Error("fixture disk failure")); else release();
+    await tick;
+    expect(runtime.status().active).toBe(true);
+    expect(runtime.status().refreshError).toBe("");
+    expect(changes.slice(newSessionChanges).every(status => status.refreshError === "")).toBe(true);
+    expect(f.sent).toEqual([]);
+    expect(warn).toHaveBeenCalledTimes(outcome === "başarısız" ? 1 : 0);
+    await runtime.save({ ...defaultNotificationPreferences(), reached: { native: true, telegram: false } });
+    f.time("17:00:00"); await runtime.tick();
+    expect(f.sent).toEqual(["native"]);
+  } finally {
+    release();
+    await tick;
+    runtime.pause();
+    warn.mockRestore();
+  }
 });
 
 test("geciken rapor yanıtı durdurulmuş oturumu canlandıramaz", async () => {
