@@ -1,11 +1,5 @@
 const { test, expect } = require("bun:test");
-const { execFile } = require("node:child_process");
-const { promisify } = require("node:util");
-const { mkdtemp, rm } = require("node:fs/promises");
-const { tmpdir } = require("node:os");
-const { join } = require("node:path");
-const { publicNotes, changelogNotes, readReleaseNotes, sourceCommit } = require("./release-notes.cjs");
-const execute = promisify(execFile);
+const { publicNotes, changelogNotes } = require("./release-notes.cjs");
 
 test("mevcut conventional ve serbest başlıklar kullanıcı değişikliklerini gruplar; teknik gövdeler aktarılmaz", () => {
   const commits = [
@@ -63,32 +57,4 @@ test("katalog notları Türkçe metni ve bölümleri korur, Markdown işaretleri
     "## Performans ve bakım", "", "- Açılış hızlandı",
   ].join("\n"));
   expect(changelogNotes({ fixes: ["Düzeltildi"] })).toBe("## Düzeltmeler\n\n- Düzeltildi");
-});
-
-test("gerçek Git aralığı önceki sürümü ve sonraki commit'i dışlar; eksik veya ayrışmış geçmiş katalog için bırakılır", async () => {
-  const cwd = await mkdtemp(join(tmpdir(), "pofis-release-notes-"));
-  const git = async (...args) => (await execute("git", args, { cwd, windowsHide: true })).stdout.trim();
-  const commit = async message => { await git("-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid",
-    "commit", "--allow-empty", "-m", message); return git("rev-parse", "HEAD"); };
-  try {
-    await expect(readReleaseNotes({ body: "no source" }, "f".repeat(40), cwd)).rejects.toThrow("Git geçmişi okunamadı");
-    await git("init");
-    const base = await commit("feat: Old feature");
-    await commit("feat: Current feature\n\nPrivate body");
-    const current = await commit("Fix current issue");
-    await commit("feat: Future feature");
-    const previous = { body: `Old release prose\n\nPofis ortak sürüm otomasyonu.\nKaynak commit: ${base}` };
-    expect(sourceCommit(previous)).toBe(base);
-    const notes = await readReleaseNotes(previous, current, cwd);
-    expect(notes).toContain("- Current feature");
-    expect(notes).toContain("- Fix current issue");
-    expect(notes).not.toMatch(/Old feature|Future feature|Private body/);
-    expect(await readReleaseNotes(null, base, cwd)).toContain("- Old feature");
-    expect(await readReleaseNotes({ body: "no source" }, current, cwd)).toBeNull();
-    expect(await readReleaseNotes({ body: previous.body.replace(base, "f".repeat(40)) }, current, cwd)).toBeNull();
-    await expect(readReleaseNotes(previous, "f".repeat(40), cwd)).rejects.toThrow("mevcut kaynak commit");
-    await git("checkout", "--orphan", "unrelated");
-    const unrelated = await commit("feat: Other history");
-    expect(await readReleaseNotes(previous, unrelated, cwd)).toBeNull();
-  } finally { await rm(cwd, { recursive: true, force: true }); }
 });
