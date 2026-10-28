@@ -10,7 +10,7 @@ export type ClockSurpriseKind =
   | "double"
   | "consecutive";
 
-type ClockMinute = { hour: number; minute: number; second: number };
+type ClockMinute = { hour: number; minute: number };
 
 export const POFI_SURPRISES = Object.freeze({
   revealTaps: 3,
@@ -20,7 +20,6 @@ export const POFI_SURPRISES = Object.freeze({
   callWord: "pofi",
   meowWord: "miyav",
   callVisibleMs: 5_000,
-  specialMinuteSeconds: 12 * 3600 + 34 * 60,
 });
 
 function clockMinute(at: number): ClockMinute | null {
@@ -30,16 +29,11 @@ function clockMinute(at: number): ClockMinute | null {
   return {
     hour: Math.floor(seconds / 3600),
     minute: Math.floor(seconds / 60) % 60,
-    second: seconds % 60,
   };
 }
 
 function isMirrorClock({ hour, minute }: ClockMinute): boolean {
   return Math.floor(hour / 10) === minute % 10 && hour % 10 === Math.floor(minute / 10);
-}
-
-function remainingInMinute(at: number, clock: ClockMinute): number {
-  return (60 - clock.second) * 1_000 - new Date(at).getUTCMilliseconds();
 }
 
 export function clockSurpriseAt(now: number): ClockSurpriseKind | null {
@@ -77,15 +71,6 @@ export function hasMirroredRecords(firstEntry: number | null, lastExit: number |
   return entry !== null && exit !== null && isMirrorClock(entry) && isMirrorClock(exit);
 }
 
-export function specialMinuteRemaining(openedAt: number): number {
-  const clock = clockMinute(openedAt);
-  if (
-    clock === null ||
-    clock.hour * 60 + clock.minute !== POFI_SURPRISES.specialMinuteSeconds / 60
-  )
-    return 0;
-  return remainingInMinute(openedAt, clock);
-}
 export function nextSurpriseTap(count: number): number {
   return Math.min(count + 1, POFI_SURPRISES.revealTaps);
 }

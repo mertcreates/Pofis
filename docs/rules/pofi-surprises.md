@@ -6,7 +6,7 @@
 
 [src/domain/rules/pofi-surprises.ts](../../src/domain/rules/pofi-surprises.ts)
 
-Arayüz: `POFI_SURPRISES`, `clockSurpriseAt`, `hasMirroredRecords`, `specialMinuteRemaining`, `nextSurpriseTap`.
+Arayüz: `POFI_SURPRISES`, `clockSurpriseAt`, `hasMirroredRecords`, `nextSurpriseTap`.
 
 ## Sözleşme
 
@@ -29,7 +29,7 @@ Birden fazla koşul sağlanıyorsa ilk eşleşme seçilir:
 | 7 | Dakika, sıfırdan büyük saatin iki katı | 10:20, 01:02 |
 | 8 | Dakika, saatten bir fazla | 09:10, 10:11 |
 
-Bu örüntüler günde 99 ayrı dakikaya karşılık gelir; tarih-saat eşleşmesi bu dakikalardan birinin mesajını değiştirir. `specialMinuteRemaining` eski 12:34 süre arayüzünü korur; panel seçiminde kullanılmaz.
+Bu örüntüler günde 99 ayrı dakikaya karşılık gelir; tarih-saat eşleşmesi bu dakikalardan birinin mesajını değiştirir.
 
 Kayıt ayrıntısında, gerçek ilk giriş ve son çıkışın ikisi de saat/dakika düzeyinde palindromsa Pofi'nin kısa notu görünür. Her iki kayıt da bulunmalı ve son çıkış ilk girişten önce olmamalıdır. Kayıtların saniyeleri, durumları ve kişisel planlar değiştirilmez.
 
@@ -55,5 +55,6 @@ Kaynak footer'daki sürüm notu `versionRevealTaps: 5` dokunuşla `versionWindow
 
 ## Testler
 
-- [rules.test.ts](../../src/domain/rules/rules.test.ts): eski 12:34 süre arayüzü, dokunma eşiği ve kural sahipliği.
-- [pofi-panel.test.tsx](../../src/components/dashboard/pofi-panel.test.tsx): sürpriz dışındaki Pofi durum mesajları.
+- [pofi-surprises.test.ts](../../src/domain/rules/pofi-surprises.test.ts): saat ve kayıt örüntüleri, öncelik ve dokunma eşiği.
+- [pofi-panel.test.tsx](../../src/components/dashboard/pofi-panel.test.tsx): saat sürprizi ve hata önceliği; [records.test.tsx](../../src/components/attendance/records.test.tsx): kayıt notunun gösterimi.
+- [rules.test.ts](../../src/domain/rules/rules.test.ts): kural sahipliği.

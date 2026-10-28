@@ -11,7 +11,6 @@ import {
 } from "./work-plan";
 import { pofiNote } from "./pofi.js";
 import { pofiNotebookDates, defaultNotebookDate } from "./notebook-calendar";
-import { specialMinuteRemaining, nextSurpriseTap } from "./pofi-surprises";
 import { presentReport, type Report } from "../report";
 import { summarizeWeek } from "./week";
 
@@ -151,7 +150,7 @@ test("ilerleme ve grafik aynı yuvarlama/ölçek sahibini kullanır", () => {
   expect(chartMaximum([45000])).toBe(50400);
 });
 
-test("not defteri tarihleri ve sürprizler İstanbul takvimine bağlıdır", () => {
+test("not defteri tarihleri İstanbul takvimine bağlıdır", () => {
   const dates = pofiNotebookDates("2029-12-08", ["12-08"]);
   expect(dates).toEqual([
     "2029-12-03",
@@ -163,9 +162,6 @@ test("not defteri tarihleri ve sürprizler İstanbul takvimine bağlıdır", () 
   ]);
   expect(defaultNotebookDate("2029-12-08", dates)).toBe("2029-12-08");
   expect(defaultNotebookDate("2029-12-09", dates)).toBe("2029-12-07");
-  expect(specialMinuteRemaining(at("12:34:30").getTime())).toBe(30000);
-  expect(specialMinuteRemaining(at("12:35:00").getTime())).toBe(0);
-  expect([0, 1, 2, 3].map(nextSurpriseTap)).toEqual([1, 2, 3, 3]);
 });
 
 test("her kural sahibi belgelenir ve çalışma zamanı UI/sunucu orkestrasyonuna bağımlı olmaz", () => {
