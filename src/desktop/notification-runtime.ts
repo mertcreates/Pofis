@@ -1,7 +1,7 @@
 import { ui } from "../lib/ui-text.js";
 import { dateKey, weekStart, addDays } from "@/domain/rules/calendar";
 import { defaultNotificationPreferences, readNotificationPreferences, mesaiNotifications, NOTIFICATION_POLICY,
-  type NotificationChannel, type NotificationPreferences, type NotificationGoal } from "@/domain/rules/notifications";
+  type NotificationChannel, type NotificationGoal } from "@/domain/rules/notifications";
 import { readStoredPlans } from "@/lib/plan-storage.js";
 import { readReportResponse } from "@/data/report-response";
 import type { WorkPlans } from "@/domain/rules/work-plan";

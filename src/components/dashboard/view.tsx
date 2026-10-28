@@ -158,7 +158,6 @@ export function DashboardView({
               firstWeek={firstWeek}
               onSelect={selectWeek}
               onRefresh={() => void refresh()}
-              onEditPlan={!isCurrent ? () => setDialog({ kind: "plan" }) : undefined}
             />
             <div className="report-area" aria-busy={busy}>
               {stale && (

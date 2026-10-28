@@ -11,7 +11,6 @@ export function DashboardHeader({
   firstWeek,
   onSelect,
   onRefresh,
-  onEditPlan,
 }: {
   week: string;
   today: string;
@@ -21,7 +20,6 @@ export function DashboardHeader({
   firstWeek?: string;
   onSelect: (week: string) => void;
   onRefresh: () => void;
-  onEditPlan?: () => void;
 }) {
   return (
     <div className="dashboard-topbar">

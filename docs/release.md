@@ -54,7 +54,7 @@ Sürüm geçmişini destekleyen uygulamalar `/api/changelog` üzerinden public k
 
 ### GitHub sürüm notları
 
-Sürüm taslağı oluşturulurken [yayın betiği](../scripts/electron/publish.cjs), doğrulanmış kataloğun ilk kaydını [not biçimlendiricisiyle](../scripts/electron/release-notes.cjs) GitHub sürüm açıklamasına aktarır. Uygulamadakiyle aynı **Yenilikler**, **Düzeltmeler** ve **Bakım** başlıkları kullanılır; boş bölümler gösterilmez ve metin Markdown için kaçışlanır. Commit başlıkları ve gövdeleri sürüm notu olarak okunmaz.
+Sürüm taslağı oluşturulurken [yayın betiği](../scripts/electron/publish.cjs), doğrulanmış kataloğun ilk kaydını [not biçimlendiricisiyle](../scripts/electron/release-notes.cjs) GitHub sürüm açıklamasına aktarır. Uygulamadakiyle aynı **Yenilikler**, **Düzeltmeler** ve **Bakım** başlıkları kullanılır; boş bölümler gösterilmez ve metin Markdown için kaçışlanır.
 
 Yeni taslakta `GITHUB_SHA` ile checkout'un kaynak commit'i eşleşmelidir. Aynı sürüm ve kaynak commit ile tekrar çalıştırmak mevcut taslağın notlarını korur. Kaynak doğrulaması sürüm etiketi ve otomasyonun kaynak commit alt bilgisi üzerinden yapılır; açıklamanın kullanıcıya yönelik kısmı düzenlenebilir. Alt bilgiyi koru.
 

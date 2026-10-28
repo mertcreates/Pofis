@@ -14,6 +14,8 @@ bun run build
 
 Önce etkilenen test dosyalarını çalıştırın. Hesap ve ortak politika değişikliklerinde ilgili bağımlı davranışları da kontrol edin. Üretim derlemesi, derleme veya çalışma zamanı etkisi olan değişikliklerin son kontrolüdür; görsel iterasyon `bun run dev` ile yapılır.
 
+`bun run typecheck`, `bun check` ile `tsconfig.json` kapsamını denetler. Next.js derlemesi ve editör TypeScript bağımlılığını kullanır.
+
 `bunfig.toml` test kökü `src` olduğundan yalın `bun test` yalnız bu dizini kapsar. Tam paket için yukarıdaki üç dizinli komutu kullanın. Test seçme ve sadeleştirme ölçütleri [test bakım rehberindedir](test-value.md).
 
 Release değişikliklerinde `bun test --parallel=4 ./scripts/electron ./electron ./src/desktop` kullanılır. İptal/alt süreç temizliği, yayın kaynağı ve paket sınırları izole testlerle; macOS süreç seçimi ve Keychain reddi adaptörlerle sınanır. Süreç sözleşmesi [yayın rehberinde](release.md#yayın-sırası-ve-hata-davranışı), cihaz kontrolleri aşağıdaki masaüstü kabul bölümlerindedir.

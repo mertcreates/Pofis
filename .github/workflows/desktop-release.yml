@@ -25,7 +25,7 @@ jobs:
           persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Sürümü package.json dosyasından al
         id: version
         shell: pwsh
@@ -71,7 +71,7 @@ jobs:
           persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Tanıtım sitesinin deposunu al
         run: bun scripts/electron/checkout-site.cjs
       - name: Tamamlanmış platform paketinden devam et
@@ -99,9 +99,9 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: ${{ runner.temp }}/pofis-downloads
-          key: downloads-v2-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}
+          key: downloads-v2-${{ matrix.target }}-bun-1.4.4-${{ hashFiles('bun.lock') }}
           restore-keys: |
-            downloads-v2-${{ matrix.target }}-bun-1.4.3-
+            downloads-v2-${{ matrix.target }}-bun-1.4.4-
       - name: İndirme cache yollarını ayarla
         shell: pwsh
         run: |
@@ -112,9 +112,9 @@ jobs:
         uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: .next/cache
-          key: next-v1-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}-${{ github.sha }}
+          key: next-v1-${{ matrix.target }}-bun-1.4.4-${{ hashFiles('bun.lock') }}-${{ github.sha }}
           restore-keys: |
-            next-v1-${{ matrix.target }}-bun-1.4.3-${{ hashFiles('bun.lock') }}-
+            next-v1-${{ matrix.target }}-bun-1.4.4-${{ hashFiles('bun.lock') }}-
       - name: Kilitli bağımlılıkları kur
         if: steps.recover.outputs.reuse != 'true'
         run: bun install --frozen-lockfile
@@ -170,7 +170,7 @@ jobs:
           persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Başarısız derlemenin sürüm taslağını sil
         env:
           GH_TOKEN: ${{ secrets.POFIS_RELEASE_TOKEN }}
@@ -196,7 +196,7 @@ jobs:
           persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: Tanıtım sitesinin deposunu al
         run: bun scripts/electron/checkout-site.cjs
       - name: Dört paketi doğrula ve dağıtım dosyalarını hazırla
@@ -266,7 +266,7 @@ jobs:
           persist-credentials: false
       - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
-          bun-version: 1.4.3
+          bun-version: 1.4.4
       - name: İncelenmiş landing kaynaklarını al
         run: bun scripts/electron/checkout-site.cjs
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4

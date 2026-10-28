@@ -29,7 +29,7 @@ Birden fazla koşul sağlanıyorsa ilk eşleşme seçilir:
 | 7 | Dakika, sıfırdan büyük saatin iki katı | 10:20, 01:02 |
 | 8 | Dakika, saatten bir fazla | 09:10, 10:11 |
 
-Örneğin 11 Kasım 11:11'de tarih-saat, 11:22'de tekrarlı çift, 01:02'de iki kat seçilir. Bu örüntüler günde 99 ayrı dakikaya karşılık gelir; tarih-saat eşleşmesi bu dakikalardan birinin mesajını değiştirir. `specialMinuteRemaining` eski 12:34 süre arayüzünü korur; panel seçiminde kullanılmaz.
+Bu örüntüler günde 99 ayrı dakikaya karşılık gelir; tarih-saat eşleşmesi bu dakikalardan birinin mesajını değiştirir. `specialMinuteRemaining` eski 12:34 süre arayüzünü korur; panel seçiminde kullanılmaz.
 
 Kayıt ayrıntısında, gerçek ilk giriş ve son çıkışın ikisi de saat/dakika düzeyinde palindromsa Pofi'nin kısa notu görünür. Her iki kayıt da bulunmalı ve son çıkış ilk girişten önce olmamalıdır. Kayıtların saniyeleri, durumları ve kişisel planlar değiştirilmez.
 

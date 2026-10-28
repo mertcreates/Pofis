@@ -153,7 +153,7 @@ Windows paketinde EXE ürün adı ve dosya açıklaması **Pofis** olarak işlen
 
 Windows paketinin uygulama kimliği `app.pofis.client`, kaynak sürümünün kimliği `app.pofis.client.dev` olur. Electron 43 kaynak sürümü için `Electron.lnk`, paket için `Pofis.lnk` oluşturur. Ayrı kimlikler, Windows'un her uygulamayı kendi adı ve simgesiyle eşleştirmesini sağlar. [Başlangıç kodu](../electron/main.cjs) kimliği paketli/kaynak çalışma biçimine göre seçer. Görsel kabul: kaynak sürümünü açıp kapatın, ardından paketi açın; görev çubuğunda Pofi simgesi ve Pofis adı görünmelidir. Önceki sürümden kalan geliştirme kısayolu, düzeltilmiş kaynak sürümü ilk açıldığında Electron tarafından yenilenir.
 
-Geliştirici bilgisayarında Bun 1.4.3 ile:
+Geliştirici bilgisayarında Bun 1.4.4 ile:
 
 ```powershell
 bun install --frozen-lockfile
@@ -369,7 +369,7 @@ Hazırlık sürerken tıklamalar tek yüklemeyi paylaşır ve son görünürlük
 
 `usePdks`, görünürlük dönüşünde oturumu ve raporu doğrular; gizli panel ana sürecin rapor ve oturum olaylarını izler. İstek paylaşımı, hesap geçişi ve gecikmiş yanıtların yönetimi [PDKS hata sözleşmesindedir](pdks-errors.md#kullanıcı-davranışı). Gizli saatin durması [saat adaptöründe](rules/calendar.md#kullanan-yerler), pencereler arası plan değişikliği [plan depolama sahibinde](../src/data/work-plans.ts) yönetilir.
 
-Açık panel, ana pencerenin tema değişikliklerini ve sistem temasını mevcut [tema sahibi](../src/data/use-appearance.ts) üzerinden izler; yeniden açmak gerekmez.
+Açık panel, ana pencerenin tema değişikliklerini ve sistem temasını [tema sahibi](../src/data/use-appearance.ts) üzerinden izler.
 
 Panelin günlük yerleşimi mesai durumuna göre değişir; görsel sözleşme [DESIGN](../DESIGN.md#pofi-mini) belgesindedir. Planlı mesai olmayan günde boş hedef alanları kaldırılır; varsa gerçekleşen çalışma korunur. Günlük hedef tamamlanma özeti yalnız güncel ve belirsiz olmayan veride gösterilir. Haftalık toplam ve ana pencereyi açma eylemi her günlük durumda korunur.
 

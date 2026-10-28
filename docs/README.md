@@ -34,7 +34,7 @@ Belge değişikliğinde şu sırayı izleyin:
 
 1. Kararı tablodaki konu sahibinde güncelleyin; diğer belgelerde kısa bağlam ve bağlantı tutun.
 2. Dosya yollarını, komutları, politika değerlerini ve örnek sonuçları ilgili kodla karşılaştırın.
-3. Talimatı yapılacak iş ve beklenen sonuçla yazın; teknik sınırları geçerli oldukları koşulla açıklayın.
+3. Talimatı yapılacak iş ve beklenen sonuçla yazın; teknik sınırları geçerli oldukları koşulla açıklayın. Örnekleri ve açıklamaları ihtiyaca göre tutun.
 4. Yerel bağlantıları ve [kural mimarisi testini](../src/domain/rules/rules.test.ts) kontrol edin. Açık işleri [görev listesine](../tasks/todo.md), tamamlanan planların kararlarını sahibi belgeye taşıyın.
 
 Doğrulama ve geçici çıktıların yönetimi [doğrulama rehberindedir](verification.md#sonuçların-yönetimi).

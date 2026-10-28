@@ -26,7 +26,7 @@ Gün geçişlerinde yükleme görünümü, menü bölümleri ve Pofi notunun yer
 
 Güncel havuz **101 senaryo ve 254 yorum** içerir. Her senaryoda 2–3 bağımsız bütün metin bulunur; her metin 1–2 cümle ve en çok 160 karakterdir. Dil, mizah ve sahne sürekliliği [ton rehberinde](../brand/pofi-tone-guide.md#birleşmiş-notu-okuma) yönetilir. Kalori, kullanıcı tercihi, geçmiş tüketim ve kaynakta belirtilmeyen tat/porsiyon bilgisi metinlere eklenmez.
 
-Yemek adları Türkçe harf dönüşümü, Unicode ve boşluk/nokta aralığı normalizasyonundan sonra incelenmiş tam adlarla eşleşir. Sözcük içerme veya benzerlik tahmini kullanılmaz. Yemek ailesi adları yalnız yorum eşleştirmesine aittir; ekrandaki kaynak adını veya vejetaryen işaretini değiştirmez. İki yemek gerektiren senaryo iki ayrı öğe ister. Örneğin tek bademli pilav, iki ayrı pilavın birlikte bulunduğu anlamına gelmez.
+Yemek adları Türkçe harf dönüşümü, Unicode ve boşluk/nokta aralığı normalizasyonundan sonra incelenmiş tam adlarla eşleşir. Sözcük içerme veya benzerlik tahmini kullanılmaz. Yemek ailesi adları yalnız yorum eşleştirmesine aittir; ekrandaki kaynak adını veya vejetaryen işaretini değiştirmez. İki yemek gerektiren senaryo iki ayrı öğe ister.
 
 Somut koşullar:
 
@@ -65,6 +65,6 @@ bun run typecheck
 
 ## İçerik araştırma verisi
 
-20 Eylül–20 Ekim 2026 arasındaki [31 günlük kaynak kaydı](../../src/lib/meals/history-sample.json), Pofi metin çalışmaları ve ayrıştırma testleri için korunur. Canlı menü yanıtı olarak kullanılmaz; sonraki aylar için otomatik arşivleme sözleşmesi yoktur.
+20 Eylül–20 Ekim 2026 arasındaki [31 günlük kaynak kaydı](../../src/lib/meals/history-sample.json), Pofi metin çalışmaları ve ayrıştırma testleri için korunur.
 
-Pofi içerik çalışmaları için 20 Nisan–20 Ekim 2026 aralığındaki [altı aylık arşiv](../../data/meals/history.json), 184 gün ve 186 kayıt içerir. [Toplama durumu](../../data/meals/collection.json) kaynak, tarih aralığı ve gün bazında sonucu korur. Aynı günün farklı kayıtları birlikte saklanır. [Sıklık listesi](../../data/meals/frequencies.json) her öğenin bulunduğu farklı gün sayısına göre çoktan aza sıralıdır; aynı günün birden fazla kaydı sayıyı artırmaz. Bu arşiv uygulamanın çalışma zamanı verisine dahil değildir. [Toplama](../../scripts/collect-meal-history.ts) ve [özetleme](../../scripts/summarize-meal-history.ts) betikleri araştırma verisini üretir.
+Pofi içerik çalışmaları için 20 Nisan–20 Ekim 2026 aralığındaki [altı aylık arşiv](../../data/meals/history.json), 184 gün ve 186 kayıt içerir. [Toplama durumu](../../data/meals/collection.json) kaynak, tarih aralığı ve gün bazında sonucu korur. Aynı günün farklı kayıtları birlikte saklanır. [Sıklık listesi](../../data/meals/frequencies.json) her öğenin bulunduğu farklı gün sayısına göre çoktan aza sıralıdır. Bu arşiv uygulamanın çalışma zamanı verisine dahil değildir. [Toplama](../../scripts/collect-meal-history.ts) ve [özetleme](../../scripts/summarize-meal-history.ts) betikleri araştırma verisini üretir.

@@ -1,11 +1,11 @@
-FROM oven/bun:1.4.3 AS build
+FROM oven/bun:1.4.4 AS build
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile
 COPY . .
 RUN POFIS_STANDALONE=1 bun run build
 
-FROM oven/bun:1.4.3 AS runtime
+FROM oven/bun:1.4.4 AS runtime
 ENV NODE_ENV=production \
     TZ=Europe/Istanbul \
     HOSTNAME=0.0.0.0 \

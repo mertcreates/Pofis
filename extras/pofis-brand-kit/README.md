@@ -8,8 +8,6 @@ Görsellerin lisans kapsamı ve tabii logosu [görsel lisans bildiriminde](../..
 
 [character-sheet.html](character-sheet.html) dosyasını tarayıcıda açarak karakteri inceleyin. Güncel uygulama ekranları ve örnek kayıtlar [Mesaim demosundadır](../../docs/demo.md).
 
-Önizlemeler: [karakter sayfası](preview/character-sheet.png), [varlık kontrolü](preview/assets-qa.png).
-
 ## Dosyalar
 
 - [pofi-full.png](assets/pofi-full.png) — Şeffaf, kayıpsız ana referans

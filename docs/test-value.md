@@ -27,10 +27,10 @@ Test kapsamını risk ve davranış üzerinden değerlendirin. Aynı yardımcıy
 
 ## Sadeleştirme örnekleri
 
-- Plan testinde üç tamamlanmış ve iki kalan sekizer saat toplam 40 saattir. Bu girdide fazla süre azaltımı bekleyen bir test, azaltma yolunu çalıştırmaz. Gerçek fazla süre senaryosu 41:09:17 toplamıyla ve kalan günlerin beklenen süreleriyle sınanır.
+- Fazla süre azaltımı, 41:09:17 toplamı ve kalan günlerin beklenen süreleriyle sınanır.
 - Seçili günün korunması ve seçim olmadan dağıtım aynı kurulumda, iki bağımsız sonuçla karşılaştırılabilir. Her iki durumda girdinin değişmediği de doğrulanır.
-- Rapor testinde not seçicisini tekrar sınamak yerine raporun seçilen notu taşıdığı kontrol edilir; haftalık tekrar ve özel gün davranışı not defteri sahibinde kalır.
-- İkon sınıfı ve SVG sayısı beklentileri yerine kilidin erişilebilir adı, basılı durumu ve korunan süre; saat alanında değer, tek seçim ve gün geçişi; cetvelde kayıt uyarısı ve gezinme doğrulanır.
+- Rapor testi seçilen notun rapora taşınmasını doğrular; haftalık tekrar ve özel gün davranışı not defteri sahibinde sınanır.
+- Kilidin erişilebilir adı, basılı durumu ve korunan süresi; saat alanının değeri, tek seçimi ve gün geçişi; cetvelin kayıt uyarısı ve gezinmesi doğrulanır.
 
 ## Kanıtın sınırı
 

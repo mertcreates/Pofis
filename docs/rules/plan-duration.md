@@ -23,9 +23,9 @@ Artı sonraki, eksi önceki 30 dakikalık çizgiye gider. `8 sa 13 dk` için art
 
 ## Güvenli dakika gösterimi
 
-Gereken süre ve hedefe kalan fark, dakika gösteriminde `ceil(saniye / 60)` ile yukarı yuvarlanır. Gerçekleşen süre ve hedef üzerindeki fark dakika gösteriminde `floor(saniye / 60)` ile aşağı yuvarlanır. Dakikadan küçük pozitif fazla süre sıfır gibi gösterilmek yerine saniyesiyle gösterilir. Tam dakika ve tam sıfır değişmez; gereken 1 saniye `1 dk`, gerçekleşen 8 sa 3 dk 59 sn `8 sa 3 dk` görünür.
+Gereken süre ve hedefe kalan fark, dakika gösteriminde `ceil(saniye / 60)` ile yukarı yuvarlanır. Gerçekleşen süre ve hedef üzerindeki fark dakika gösteriminde `floor(saniye / 60)` ile aşağı yuvarlanır. Dakikadan küçük pozitif fazla süre saniyesiyle gösterilir. Tam dakika ve tam sıfır değişmez; gereken 1 saniye `1 dk`, gerçekleşen 8 sa 3 dk 59 sn `8 sa 3 dk` görünür.
 
-Tamamla hesabı ve kaydedilen hafta planı saniye hassasiyetini korur. Örneğin Tamamla sonucu 6 sa 50 dk 43 sn ise günlük kart ve süre alanı `6 sa 51 dk` gösterir; bu gösterimi izleyen kullanıcı 17 saniye tampon bırakır. Bu, gereken günlük süre başına en fazla 59 saniyedir. Gerçekleşen kayıt yuvarlanarak tekrar kaydedilmez. Beklenen toplam kaynak hassasiyetiyle hesaplanır; kartlardaki yuvarlanmış değerler toplanarak üretilmez.
+Tamamla hesabı ve kaydedilen hafta planı saniye hassasiyetini korur. Örneğin Tamamla sonucu 6 sa 50 dk 43 sn ise günlük kart ve süre alanı `6 sa 51 dk` gösterir; bu gösterimi izleyen kullanıcı 17 saniye tampon bırakır. Bu, gereken günlük süre başına en fazla 59 saniyedir. Gerçekleşen kayıt korunur ve beklenen toplam kaynak hassasiyetiyle hesaplanır.
 
 Süre alanına yalnız odaklanıp çıkmak, yuvarlanmış gösterimi plana kaydetmez. Artı/eksi görünür dakikayı baz alır; gereken 7 sa 59 dk 59 sn ekranda 8 sa görünür ve artı 8 sa 30 dk'ya gider. Kilitleme ve açık günlere uygulama görünür gereken dakikayı kullanır. Elle yeni süre seçilmesi normal düzenleme akışıyla haftalık hedefi seçilen değişim kadar günceller.
 
