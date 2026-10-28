@@ -34,7 +34,7 @@ test("geliştirme yenilemesinde kalan eski yönetici raporda 500 yerine yeniden 
     expect(response.status).toBe(401);
     expect((await response.json()).code).toBe("SESSION_EXPIRED");
     expect(disconnected).toBe(true);
-    expect(response.cookies.get(SESSION_COOKIE).value).toBe("");
+    expect(response.cookies.get(SESSION_COOKIE)).toBeUndefined();
   } finally {
     globalThis[key] = previous;
   }
@@ -238,7 +238,7 @@ test.each(["network", 403, 500, 401])("ikincil disk yazısı hatası kaynak %s h
       expect(fixture.sourceCalls()).toBe(2);
     }
     if (sourceFailure === 401) {
-      expect(response.cookies.get(SESSION_COOKIE)?.maxAge).toBe(0);
+      expect(response.cookies.get(SESSION_COOKIE)).toBeUndefined();
       expect(await fixture.manager.sessionFor(fixture.request)).toBeNull();
     } else {
       expect(response.cookies.get(SESSION_COOKIE)).toBeUndefined();
@@ -331,7 +331,7 @@ test.each(["logout", "ttl", "network"])("rapor kaynak hatasında %s durumunu do�
       expect(response.cookies.get(SESSION_COOKIE)).toBeUndefined();
       expect(await manager.sessionFor(request)).toBeTruthy();
     } else {
-      expect(response.cookies.get(SESSION_COOKIE)?.maxAge).toBe(0);
+      expect(response.cookies.get(SESSION_COOKIE)).toBeUndefined();
       expect(await manager.sessionFor(request)).toBeNull();
     }
   } finally {

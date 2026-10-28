@@ -93,7 +93,7 @@ export async function failure(error, request) {
     },
     error.status,
   );
-  // A rejected new login does not revoke the request's existing session.
+  // A delayed failure must not clear a newer session cookie in the browser.
   if (isSessionExpired(error)) {
     try {
       await disconnect(request);
@@ -103,7 +103,6 @@ export async function failure(error, request) {
         cleanupError.code || cleanupError.name,
       );
     }
-    clearSessionCookies(response, request);
   }
   return response;
 }
