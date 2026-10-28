@@ -223,8 +223,8 @@ export function DashboardView({
             onClose={() => setDialog(null)}
           />
         )}
-        {connected && dialog?.kind === "meals" && (
-          <MealMenuModal today={today} onClose={() => setDialog(null)} />
+        {connected && pdks && dialog?.kind === "meals" && (
+          <MealMenuModal today={today} onClose={() => setDialog(null)} onSessionExpired={pdks.verifySessionAfterExpiry} />
         )}
       </AppShell>
       <PofiCall />

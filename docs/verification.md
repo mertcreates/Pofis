@@ -119,7 +119,7 @@ Paketleme, süreç ve installer kabulünün ayrıntılı kapsamı [masaüstü re
 | Kontrol | Komut / sınır |
 | --- | --- |
 | Electron ve bildirim birimleri | `bun run test:desktop` |
-| Beni hatırla | `bun test src/desktop/remembered-session.test.ts src/data/remembered-electron.test.ts`; geçici profil ve sahte PDKS, gerçek Electron şifrelemesi ve çerez taşıması. Hedef macOS/Linux anahtarlığı ve gerçek kurum hesabı ayrıca doğrulanır. |
+| Beni hatırla | `bun test src/desktop/remembered-session.test.ts src/data/remembered-electron.test.ts`; geçici profil ve sahte kaynaklarla gerçek Electron şifrelemesi, çerez taşıması ve yemek menüsünde oturum bitişinden sonra yeniden giriş. Hedef macOS/Linux anahtarlığı ve gerçek kurum hesabı ayrıca doğrulanır. |
 | Kabuk ve dağıtım betiklerinin tüm birimleri | `bun test ./electron ./scripts/electron`; `.cjs` dosyaları için açık dizin seçimi gerekir |
 | Paket açılışı | `bun run test:desktop:smoke <paket-klasörü>` |
 | Windows installer | `bun run test:desktop:distribution`; landing komutu için `--site ../pofis-landing` |

@@ -25,10 +25,10 @@ const server = createServer(async (request, response) => {
   if (url.pathname.startsWith("/api/")) trace.push(`${request.method} ${url.pathname} ${logins}`);
   if (url.pathname === "/") {
     response.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-    response.end('<!doctype html><html lang="tr"><head><meta charset="utf-8"><link rel="stylesheet" href="/globals.css"><link rel="stylesheet" href="/pofis.css"><style>@font-face{font-family:FixtureGeist;src:url(/fixture-font.woff2)}:root{--font-geist-sans:FixtureGeist}</style></head><body><div id="root"></div><script src="/fixture.js"></script></body></html>');
+    response.end('<!doctype html><html lang="tr"><head><meta charset="utf-8"><link rel="stylesheet" href="/globals.css"><link rel="stylesheet" href="/pofis.css"><link rel="stylesheet" href="/modal.css"><link rel="stylesheet" href="/fixture.css"><style>@font-face{font-family:FixtureGeist;src:url(/fixture-font.woff2)}:root{--font-geist-sans:FixtureGeist}</style></head><body><div id="root"></div><script src="/fixture.js"></script></body></html>');
     return;
   }
-  if (["/fixture.js", "/globals.css", "/pofis.css"].includes(url.pathname)) {
+  if (["/fixture.js", "/fixture.css", "/globals.css", "/pofis.css", "/modal.css"].includes(url.pathname)) {
     response.writeHead(200, { "content-type": url.pathname.endsWith(".js") ? "text/javascript; charset=utf-8" : "text/css; charset=utf-8" });
     response.end(await readFile(join(directory, url.pathname.slice(1))));
     return;
@@ -58,6 +58,7 @@ const server = createServer(async (request, response) => {
   const identity = { accountId: "a".repeat(64), expiresAt };
   if (url.pathname === "/api/session") return json(response, { connected: !!active, ...(active ? { notificationSession: identity } : {}) });
   if (url.pathname === "/api/session/heartbeat" && active) return json(response, { connected: true });
+  if (url.pathname === "/api/meals" && active) return json(response, { menu: null, commentary: null });
   if (url.pathname === "/api/report" && active && reportUnavailable) {
     reportUnavailable = false;
     return json(response, { error: "fixture timeout", code: "CONNECTION_FAILED" }, 502);
@@ -68,8 +69,7 @@ const server = createServer(async (request, response) => {
     fetchedAt: new Date().toISOString(), passages: [], notificationSession: identity,
   });
   if (url.pathname.startsWith("/api/"))
-    return json(response, { error: "fixture expired", code: "SESSION_EXPIRED" }, 401,
-      { "set-cookie": "pofis_session=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict" });
+    return json(response, { error: "fixture expired", code: "SESSION_EXPIRED" }, 401);
   response.writeHead(404); response.end();
 });
 
@@ -164,6 +164,20 @@ app.whenReady().then(async () => {
     loginUnavailable = false;
     retryTimers[1]();
     await wait(async () => logins === 5 && await connected());
+    await wait(() => execute(`window.fixtureNotificationExpiry === ${expiresAt}`));
+    await execute("window.rememberFixture.openMeal()");
+    await wait(() => execute('document.querySelector("dialog.meal-menu-modal")?.open && !!document.querySelector(".meal-empty")'));
+    const mealTraceStart = trace.length;
+    authenticated = false;
+    await execute('document.querySelectorAll(".meal-week-day")[2].click()');
+    await wait(async () => logins === 6 && await connected());
+    await wait(() => execute('!document.querySelector("dialog.meal-menu-modal")'));
+    const mealTrace = trace.slice(mealTraceStart);
+    const mealRequest = mealTrace.indexOf("GET /api/meals 5");
+    const sessionCheck = mealTrace.indexOf("GET /api/session 5", mealRequest + 1);
+    const login = mealTrace.indexOf("POST /api/session 5", sessionCheck + 1);
+    if (mealRequest < 0 || sessionCheck <= mealRequest || login <= sessionCheck)
+      throw new Error(`Meal session recovery used an unexpected sequence: ${JSON.stringify(mealTrace)}`);
   } else {
     await wait(async () => logins === 1 && await connected());
     invalid = true; authenticated = false;

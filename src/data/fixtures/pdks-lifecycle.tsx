@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import { usePdks } from "../use-pdks";
+import { useMealMenu } from "../use-meal-menu";
 import type { NotificationStatus, NotificationReport } from "@/desktop/notification-contract";
 import { defaultNotificationPreferences } from "@/domain/rules/notifications";
 import { emptyWorkPlans } from "@/domain/rules/work-plan";
@@ -16,8 +17,12 @@ let connected = true;
 let hold = true;
 let release: (() => void) | undefined;
 let sessions = 0, reports = 0, refreshes = 0;
+let mealRequests = 0, mealStatus = 502, mealCode = "MEAL_SOURCE_UNAVAILABLE";
+let mealOpen = false;
 let visible = false;
 let holdSession = false;
+let failSessionCheck = false;
+let failedSessionSignal: AbortSignal | undefined;
 const sessionReleases: (() => void)[] = [];
 Object.defineProperty(document, "visibilityState", { get: () => visible ? "visible" : "hidden" });
 const statusListeners = new Set<(value: NotificationStatus) => void>();
@@ -36,8 +41,17 @@ const bridge = {
 };
 window.pofisNotifications = bridge as typeof window.pofisNotifications;
 window.fetch = (async (input: RequestInfo | URL, options?: RequestInit) => {
+  if (String(input).startsWith("/api/meals?")) {
+    mealRequests++;
+    return Response.json({ error: "fixture", code: mealCode }, { status: mealStatus });
+  }
   if (String(input).startsWith("/api/session")) {
     sessions++;
+    if (failSessionCheck && !options?.method) {
+      failSessionCheck = false;
+      failedSessionSignal = options?.signal ?? undefined;
+      throw new TypeError("fixture session check unavailable");
+    }
     if (options?.method === "POST") connected = true;
     if (options?.method === "DELETE") connected = false;
     const snapshot = connected;
@@ -54,9 +68,16 @@ let state: ReturnType<typeof usePdks>;
 let selectedWeek = week;
 let notificationStatus: NotificationStatus | null = null;
 let notificationConnectionError = "";
+function MealProbe({ onSessionExpired }: { onSessionExpired: (error: unknown) => Promise<void> }) {
+  const { state: meal } = useMealMenu("2026-10-20", onSessionExpired);
+  return <span id="meal-probe" data-kind={meal.kind} />;
+}
 function Harness() {
   state = usePdks(selectedWeek, { observeDesktopSession: true });
-  return <NotificationSettings visible source={{ mode: "desktop", status: notificationStatus, actions: null, error: notificationConnectionError }} />;
+  return <>
+    <NotificationSettings visible source={{ mode: "desktop", status: notificationStatus, actions: null, error: notificationConnectionError }} />
+    {mealOpen && state.connected && <MealProbe onSessionExpired={state.verifySessionAfterExpiry} />}
+  </>;
 }
 const root = createRoot(document.getElementById("root")!);
 root.render(<Harness />);
@@ -196,11 +217,71 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 30));
   await state.connect(form);
   await wait(() => state.report?.person.name === "signed in");
   check((form.elements.namedItem("password") as HTMLInputElement).value === "", "Password was not cleared");
+
+  const openMeal = async (status: number, code: string) => {
+    mealStatus = status; mealCode = code; mealOpen = true;
+    const previous = mealRequests;
+    root.render(<Harness />);
+    await wait(() => mealRequests > previous);
+  };
+  const closeMeal = async () => {
+    mealOpen = false; root.render(<Harness />);
+    await wait(() => !document.getElementById("meal-probe"));
+  };
+  const beforeSourceFailure = sessions;
+  await openMeal(502, "MEAL_SOURCE_UNAVAILABLE");
+  await wait(() => document.getElementById("meal-probe")?.dataset.kind === "error");
+  check(sessions === beforeSourceFailure && state.connected === true, "Meal source failure changed the session");
+  await closeMeal();
+
+  failSessionCheck = true;
+  await openMeal(401, "SESSION_EXPIRED");
+  await wait(() => document.getElementById("meal-probe")?.dataset.kind === "error");
+  check(failedSessionSignal instanceof AbortSignal && state.connected === true && state.report?.person.name === "signed in",
+    "Failed meal session check did not keep the report and retryable error");
+  await closeMeal();
+
+  source = report("report during meal", 8100); hold = true; release = undefined;
+  const reportDuringMeal = state.refresh();
+  await wait(() => !!release && state.busy === "report");
+  const beforeActiveCheck = sessions;
+  await openMeal(401, "SESSION_EXPIRED");
+  await wait(() => sessions === beforeActiveCheck + 1);
+  await settle();
+  check(state.busy === "report" && state.connected === true, "Meal session check interrupted the current report");
+  release!(); hold = false; await reportDuringMeal;
+  await wait(() => state.report?.person.name === "report during meal");
+  await closeMeal();
+
+  connected = false; holdSession = true;
+  await openMeal(401, "SESSION_EXPIRED");
+  await wait(() => sessionReleases.length === 1);
+  holdSession = false;
+  await state.disconnect();
+  await wait(() => state.connected === false);
+  await closeMeal();
+  source = report("renewed after meal", 8200);
+  (form.elements.namedItem("password") as HTMLInputElement).value = "fixture";
+  await state.connect(form);
+  await wait(() => state.report?.person.name === "renewed after meal");
+  sessionReleases.shift()!(); await settle();
+  check(state.connected === true && state.report?.person.name === "renewed after meal", "Old meal session check closed the new session");
+
+  connected = false;
+  await openMeal(401, "SESSION_EXPIRED");
+  await wait(() => state.connected === false && state.failure?.kind === "session-expired");
+  check(state.report === null, "Expired meal session retained the report");
+  mealOpen = false;
+  source = report("signed in again", 8300);
+  (form.elements.namedItem("password") as HTMLInputElement).value = "fixture";
+  await state.connect(form);
+  await wait(() => state.report?.person.name === "signed in again");
   await state.disconnect();
   await wait(() => state.connected === false && state.report === null);
   root.unmount();
   check(statusListeners.size + reportListeners.size + expiryListeners.size + scenarioListeners.size === 0, "Bridge listeners leaked");
   return { reportRace: true, olderPush: true, backgroundFailureRecovery: true, revalidateOnShow: true,
     weekChange: true, accountSwitch: true, lateExpiry: true, cleanup: true, redundantRefreshes: refreshes,
-    hiddenPreload: true, sharedRequests: true, lateSession: true, connectDisconnect: true, recordFailureIsolated: true };
+    hiddenPreload: true, sharedRequests: true, lateSession: true, connectDisconnect: true, recordFailureIsolated: true,
+    mealSessionRecovery: true };
 };

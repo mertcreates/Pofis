@@ -9,10 +9,10 @@ test("gerçek Electron'da hatırla, geçici giriş hatası, arka plan yenileme, 
   const directory = await mkdtemp(join(tmpdir(), "pofis-remember-electron-"));
   try {
     const build = await Bun.build({ entrypoints: [resolve(import.meta.dir, "fixtures/remembered-electron.tsx")],
-      target: "browser", outdir: directory, naming: "fixture.js", define: { "process.env.NODE_ENV": '"production"' } });
+      target: "browser", outdir: directory, naming: "fixture.[ext]", define: { "process.env.NODE_ENV": '"production"' } });
     expect(build.success, build.logs.toString()).toBe(true);
     await require("../../scripts/electron/build-notifications.cjs").buildNotifications(directory);
-    await Promise.all(["globals.css", "pofis.css"].map(file => copyFile(resolve(import.meta.dir, "../app", file), join(directory, file))));
+    await Promise.all(["globals.css", "pofis.css", "modal.css"].map(file => copyFile(resolve(import.meta.dir, "../app", file), join(directory, file))));
     const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE;
     const args = [resolve(import.meta.dir, "fixtures/remembered-electron.cjs"), `--fixture=${directory}`,
       `--profile=${join(directory, "profile")}`];
@@ -21,7 +21,7 @@ test("gerçek Electron'da hatırla, geçici giriş hatası, arka plan yenileme, 
     { env, windowsHide: true, timeout: 30000 });
     const firstLine = first.stdout.split(/\r?\n/).find(line => line.startsWith("RESULT:"));
     expect(firstLine, first.stderr).toBeDefined();
-    expect(JSON.parse(firstLine!.slice(7))).toEqual({ stage: "first", logins: 5, connected: true });
+    expect(JSON.parse(firstLine!.slice(7))).toEqual({ stage: "first", logins: 6, connected: true });
     const second = await promisify(execFile)(require("electron"), [...args, "--stage=second"],
       { env, windowsHide: true, timeout: 30000 });
     const secondLine = second.stdout.split(/\r?\n/).find(line => line.startsWith("RESULT:"));

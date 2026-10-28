@@ -8,6 +8,7 @@ import { startSessionHeartbeat } from "@/lib/session-heartbeat.js";
 import { toRequestFailure, type PdksOperation } from "@/lib/pdks-failure";
 import { addDays } from "@/domain/rules/calendar";
 import { REPORT_ACCESS } from "@/domain/rules/report-access";
+import { SESSION_POLICY } from "@/domain/rules/session-policy";
 import { readReportResponse } from "./report-response";
 import { initialPdksState, pdksReducer } from "./pdks-state";
 import { setAnalyticsUserId } from "@/lib/analytics";
@@ -55,6 +56,20 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
       void window.pofisRememberedSession?.recover(failure.kind === "unavailable").then(readRememberedResult).catch(() => {});
     }
   }, [invalidate]);
+
+  const verifySessionAfterExpiry = useCallback(async (error: unknown) => {
+    if (mutationInFlight.current) return;
+    const id = generation.current;
+    try {
+      const result = await api("/api/session", { signal: AbortSignal.timeout(SESSION_POLICY.heartbeatTimeoutMs) });
+      if (id !== generation.current || mutationInFlight.current) return;
+      if (!readSessionResponse(result, "/api/session", "GET")) fail(error, "session");
+    } catch (checkError) {
+      if (id === generation.current && !mutationInFlight.current)
+        console.warn(ui.serverDiagnostics.sessionRecheckFailed, toRequestFailure(checkError, "session").code);
+      // The menu keeps its error; the regular heartbeat will check the session again.
+    }
+  }, [fail]);
 
   const onExpired = useEffectEvent((error: unknown) => fail(error, "session"));
   const onDesktopReport = useEffectEvent((value: NotificationReport) => {
@@ -296,6 +311,6 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   return {
     ...state,
     report: connected && report?.from === week ? report : null,
-    connect, disconnect, refresh: load, checkSession, retryFailure, returnToLogin, rememberWarning,
+    connect, disconnect, refresh: load, checkSession, verifySessionAfterExpiry, retryFailure, returnToLogin, rememberWarning,
   };
 }

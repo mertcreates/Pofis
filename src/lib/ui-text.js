@@ -11,6 +11,7 @@ export const ui = {
   serverDiagnostics: {
     changelogRefreshFailed: "Public sürüm geçmişi alınamadı; paketle gelen kayıtlar kullanılıyor.",
     backgroundRefreshFailed: "Pofis arka plan raporu yenilenemedi.",
+    sessionRecheckFailed: "Oturum yeniden doğrulanamadı.",
     pdksApiUnexpectedError: "PDKS API unexpected error:",
     pdksSessionCleanupFailed: "PDKS session cleanup failed:",
     pdksUpstreamFailure: "PDKS upstream failure:",

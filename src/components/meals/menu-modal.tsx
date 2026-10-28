@@ -30,10 +30,12 @@ function MealSideCard({ side, label = side.label, showItems = false }: { side: M
   );
 }
 
-export function MealMenuModal({ today, onClose }: { today: string; onClose: () => void }) {
+export function MealMenuModal({ today, onClose, onSessionExpired }: {
+  today: string; onClose: () => void; onSessionExpired: (error: unknown) => Promise<void>;
+}) {
   const { minDate, maxDate } = getMealDateRange(today);
   const [selectedDate, setSelectedDate] = useState(today);
-  const { state, retry } = useMealMenu(selectedDate);
+  const { state, retry } = useMealMenu(selectedDate, onSessionExpired);
   const viewportRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
