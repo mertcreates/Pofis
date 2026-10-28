@@ -293,9 +293,10 @@ export function parsePassages(html, url) {
     `[id="${id}_DXPagerBottom"], [id="${id}_DXPagerTop"]`,
   ).first();
   if (pager.length) {
-    const match = /Page\s+(\d+)\s+of\s+(\d+)\s*\((\d+)\s+items\)/i.exec(
-      pager.text(),
-    );
+    const pagerText = pager.text();
+    const match =
+      /Page\s+(\d+)\s+of\s+(\d+)\s*\((\d+)\s+items\)/i.exec(pagerText) ||
+      /Sayfa\s+(\d+)\s*\/\s*(\d+)\s*\((\d+)\s+öğe\)/i.exec(pagerText);
     if (!match)
       throw new PdksError(
         ui.sourceErrors.reportPagesIncomplete,

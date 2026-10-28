@@ -25,7 +25,7 @@ UI kaynak bağlantısı aynı origin üzerinden üretilir. WebForms alan/sütun 
 
 Mesai raporunun tek veri kaynağı kişisel turnike geçişleridir. `PdksClient` tarih aralığını, tam gün saat filtresini ve tüm işlem noktalarını seçer; ardından bütün sayfaları toplar. Sayfa kimliği/sayısı, sıra ve toplam kayıt sayısı tutarlı olmalı; bütün hareketler istenen aralıkta kalmalıdır. Eksik veya değişen sayfalama `SOURCE_CHANGED` üretir ve başarı önbelleğine girmez. API raporu zorunlu `passages` listesini taşır; günlük ilk giriş–son çıkış hesabı [kayıtlı süre sahibindedir](recorded-time.md).
 
-Arayüz haftalık sorgular. Sayfa boyutu kurumun DevExpress ayarıdır; uygulama kaynağın sayfalama bilgisini izler.
+Arayüz haftalık sorgular. Sayfa boyutu kurumun DevExpress ayarıdır; uygulama kaynağın Türkçe `Sayfa 1 / 2 (4 öğe)` veya İngilizce `Page 1 of 2 (4 items)` sayfalama bilgisini izler. Sayfalayıcı görünmüyorsa grid metaverisi okunur.
 
 Giriş doğrulaması `PizzyMain.aspx` profilinde tek ve boş olmayan kişi adını doğrular. Yönetici hesapları dahil kişisel turnike raporu doğrudan açılır. Rapor yalnız `self` kişisine açılır; kaynak kişi kapsamını kendi oturumundan belirler. Pofi hesap anahtarı başarılı girişten sonra kaynak adaptöründe üretilir; ayrıntılar [not sözleşmesindedir](../pofi-notes.md#hesap-anahtarı).
 

@@ -1,8 +1,9 @@
 [
   {
     "version": "1.0.1",
-    "publishedOn": "2026-10-27",
+    "publishedOn": "2026-10-28",
     "fixes": [
+      "Bazı haftalarda PDKS geçiş kayıtlarının yüklenememesi düzeltildi.",
       "macOS menü çubuğundaki Pofi simgesine hızlıca art arda tıklandığında bazı tıklamaların yanıtsız kalması düzeltildi.",
       "Pofi Mini'nin ilk açılışı hızlandırıldı; üst üste gelen oturum ve rapor istekleri azaltıldı."
     ]

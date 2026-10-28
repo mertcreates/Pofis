@@ -99,14 +99,17 @@ const events = [
   { date: "2026-10-16", time: "12:00:00", direction: "out" },
   { date: "2026-10-16", time: "13:00:00", direction: "in" },
 ];
-function gridContent(rows, page = 1, pages = 1, total = rows.length) {
+function gridContent(rows, page = 1, pages = 1, total = rows.length, language = "en") {
   const body = rows
     .map((event, i) => {
       const [year, month, day] = event.date.split("-");
       return `<tr id="DXDataRow${i}"><td>${day}.${month}.${year} ${event.time}</td><td>${event.direction === "in" ? "Giriş" : "Çıkış"}</td></tr>`;
     })
     .join("");
-  return `<table id="${gridId}_DXMainTable"><tr id="DXHeadersRow"><th>Tarih</th><th>İşlem Türü</th></tr>${body}</table><div id="${gridId}_DXPagerBottom">Page ${page} of ${pages} (${total} items)</div>`;
+  const pager = language === "tr"
+    ? `\n Sayfa ${page} / ${pages} (${total} &#246;ğe)<a>1</a><a>2</a>\n`
+    : `Page ${page} of ${pages} (${total} items)`;
+  return `<table id="${gridId}_DXMainTable"><tr id="DXHeadersRow"><th>Tarih</th><th>İşlem Türü</th></tr>${body}</table><div id="${gridId}_DXPagerBottom">${pager}</div>`;
 }
 const wrapGrid = (content) =>
   `<table id="${gridId}"><tr><td>${content}</td></tr></table>`;
@@ -238,7 +241,7 @@ test("yönlendirme kurum dışına çıkamaz ve HTTP 200 giriş sayfası oturum 
   });
 });
 
-function paginatedClient(fault) {
+function paginatedClient(fault, language = "en") {
   const calls = [];
   const all = [
     ...events,
@@ -251,7 +254,7 @@ function paginatedClient(fault) {
       calls.push(fields);
       if (options.method === "GET") return new Response(passageForm);
       if (fields.get("__CALLBACKPARAM") === "c0:List")
-        return dx(wrapGrid(gridContent(all.slice(0, 2), 1, 2, 4)));
+        return dx(wrapGrid(gridContent(all.slice(0, 2), 1, 2, 4, language)));
       expect(fields.get("__CALLBACKPARAM")).toContain("8|GOTOPAGE1|1");
       let rows = all.slice(2);
       if (fault === "short") rows = rows.slice(0, 1);
@@ -262,8 +265,10 @@ function paginatedClient(fault) {
         fault === "page" ? 1 : 2,
         fault === "pages" ? 3 : 2,
         fault === "total" ? 5 : 4,
+        language,
       );
       if (fault === "pager") html = html.replace(/<div[^]*?<\/div>/, "");
+      if (fault === "label") html = html.replace(/items|&#246;ğe/, "kayıt");
       return dx(html);
     },
   });
@@ -271,8 +276,8 @@ function paginatedClient(fault) {
   return { client, calls, all };
 }
 
-test("haftanın tüm sayfaları tek raporda birleşir; tarih/saat ve tüm işlem noktaları filtreleri korunur", async () => {
-  const { client, calls, all } = paginatedClient();
+test.each(["en", "tr"])("%s sayfalayıcıyla haftanın tüm kayıtları birleşir; filtreler korunur", async (language) => {
+  const { client, calls, all } = paginatedClient(undefined, language);
   const report = await client.report("self", "2026-10-12", "2026-10-18");
   expect(report.passages).toEqual(all);
   expect(calls).toHaveLength(3);
@@ -284,16 +289,26 @@ test("haftanın tüm sayfaları tek raporda birleşir; tarih/saat ve tüm işlem
   expect(fields.get(`${prefix}$cbTumIslemNoktalari`)).toBe("C");
 });
 
-test.each(["page", "pages", "total", "short", "range", "pager"])(
-  "sayfalama kusuru kısmi haftayı başarı olarak döndürmez: %s",
-  async (fault) => {
-    const { client } = paginatedClient(fault);
-    await expect(
-      client.report("self", "2026-10-12", "2026-10-18"),
-    ).rejects.toMatchObject({ code: "SOURCE_CHANGED" });
-    expect(client.reportCache).toBeUndefined();
-  },
-);
+for (const language of ["en", "tr"]) {
+  test.each(["page", "pages", "total", "short", "range", "pager", "label"])(
+    `${language} sayfalama kusuru kısmi haftayı başarı olarak döndürmez: %s`,
+    async (fault) => {
+      const { client } = paginatedClient(fault, language);
+      await expect(
+        client.report("self", "2026-10-12", "2026-10-18"),
+      ).rejects.toMatchObject({ code: "SOURCE_CHANGED" });
+      expect(client.reportCache).toBeUndefined();
+    },
+  );
+}
+
+test("sayfalayıcı görünmeyen tek sayfalık rapor grid metaverisinden okunur", () => {
+  const grid = gridContent(events).replace(/<div[^]*?<\/div>/, "");
+  const script = `<script>var dxo = new ASPxClientGridView('${gridId}'); dxo.pageRowCount = 3; dxo.pageIndex = 0; dxo.pageCount = 1;</script>`;
+  const result = parsePassages(form(wrapGrid(grid) + script), passageUrl);
+  expect(result.rows).toEqual(events);
+  expect(result.page).toEqual({ id: gridId, current: 1, pages: 1, total: null });
+});
 
 function cachedReportClient(clock, name = "Fixture Person") {
   const client = new PdksClient({

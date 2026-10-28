@@ -104,6 +104,8 @@ Planlayıcı düzenini haftalık plan modalında masaüstü ve dar ekranda doğr
 
 Gerçek kaynak ve dağıtım kabulünde kurum ağı, kullanıcı hesabı ve hedef çalışma ortamı kullanılır. `/api/health` uygulamanın ayakta olduğunu gösterir. PDKS bağlantısını gerçek giriş ve rapor isteğiyle kontrol edin.
 
+Kaynak sayfalaması değiştiğinde birden çok sayfalı kişisel bir haftayı PDKS ve Pofis'te aynı tarih aralığı, tam gün ve tüm işlem noktalarıyla açın. PDKS'nin toplam kayıt sayısı, başarılı `/api/report` yanıtındaki `passages` sayısıyla eşleşmelidir; kaynak arada değişirse iki raporu yeniden alın. Raporun arayüzde açıldığını da kontrol edin. Kişisel kayıtları ve oturum verilerini doğrulama çıktısına taşımayın.
+
 Yerel oturum ölçümü için `bun scripts/benchmark-sessions.ts 100` çalıştırılabilir. [Betik](../scripts/benchmark-sessions.ts) sahte kaynak ve izole oturum dosyaları kullanır; geçici sonuç `work/session-benchmark/latest.json` dosyasına yazılır. Sonuç incelendikten sonra temizlenir; gerçek PDKS iş yükü ayrıca ölçülür.
 
 ## Masaüstü kabulü
