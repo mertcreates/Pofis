@@ -60,7 +60,7 @@ export default function AppFooter({ updateAvailable = false, onOpenUpdate, onOpe
           aria-label={ui.changelog.openVersion(version)}
           onClick={tapVersion}
           onBlur={(event) => {
-            // Opening history focuses this version's heading without ending the tap sequence.
+            // Opening history focuses its title without ending this version's tap sequence.
             if (event.relatedTarget?.getAttribute("data-changelog-version") !== version)
               sequence.current = null;
           }}

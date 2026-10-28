@@ -186,7 +186,7 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
     };
     const preload = app.isPackaged ? join(__dirname, "..", "server", "preload.cjs")
       : join(__dirname, "..", ".next", "standalone", "preload.cjs");
-    mini = createMiniWindow({ BrowserWindow, screen, ipcMain, preload,
+    mini = createMiniWindow({ app, BrowserWindow, screen, ipcMain, preload,
       platform: target.platform, icon, showMain: showWindow, isQuitting: () => quitting, additionalArguments,
       getAnchorBounds: () => background?.getBounds() });
     const buildScenarioMenu = () => scenario ? require("./scenarios.cjs").scenarioMenu({

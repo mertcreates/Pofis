@@ -39,7 +39,7 @@ Mesaim görünümünde `pofi` yazılınca Pofi cevap verir. Aynı görünüm aç
 
 ### Sürüm notu
 
-Kaynak footer'daki sürüm notu `versionRevealTaps: 5` dokunuşla `versionWindowMs: 5000` içinde açılır. Süre dolunca yeni dizi başlar; kullanıcı odağı başka bir kontrole aldığında dizi temizlenir. İlk dokunuşla açılan sürüm geçmişinin aynı sürüm başlığına otomatik odaklanması diziyi korur. Oda içindeki üç dokunuş eşiği ayrı davranıştır.
+Kaynak footer'daki sürüm notu `versionRevealTaps: 5` dokunuşla `versionWindowMs: 5000` içinde açılır. Süre dolunca yeni dizi başlar; kullanıcı odağı başka bir kontrole aldığında dizi temizlenir. İlk dokunuşla açılan sürüm geçmişinin sayfa başlığına otomatik odaklanması diziyi korur; geçmiş açıkken aynı sürüme tekrar dokunmak konumu değiştirmez. Oda içindeki üç dokunuş eşiği ayrı davranıştır.
 
 ## Bağımlılıklar
 

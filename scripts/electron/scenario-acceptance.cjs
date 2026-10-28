@@ -135,8 +135,27 @@ async function run() {
     const idle = await sampleHidden();
     console.log(JSON.stringify({ platform: target.id, sourceMode, preloaded: true, firstOpenMs, warmOpenMs,
       hiddenSampleMs: 2000, preloadedIdle, idle }));
+    if (target.platform === "darwin") {
+      phase = "ana pencere gizliyken Mini açılışı";
+      await main(`(() => {
+        const { app, BrowserWindow } = process.mainModule.require('electron');
+        BrowserWindow.getAllWindows().find(w => w.webContents.getURL() === ${JSON.stringify(ORIGIN + "/")}).hide();
+        app.hide();
+      })()`);
+      await until(() => main("process.mainModule.require('electron').app.isHidden()"));
+    }
     await measureOpen();
-    if (target.platform === "darwin") assert.equal(await main("process.mainModule.require('electron').app.dock.isVisible()"), true, "Mini tekrar açılışları Dock simgesini korumalı");
+    if (target.platform === "darwin") {
+      await until(() => main(`(() => {
+        const { app, BrowserWindow } = process.mainModule.require('electron');
+        const mini = BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/mini'));
+        return !app.isHidden() && app.isActive() && mini.isVisible() && mini.isFocused();
+      })()`));
+      assert.equal(await main(`process.mainModule.require('electron').BrowserWindow.getAllWindows()
+        .find(w => w.webContents.getURL() === ${JSON.stringify(ORIGIN + "/")}).isVisible()`), false,
+        "Mini çağrısı gizli ana pencereyi açmamalı");
+      assert.equal(await main("process.mainModule.require('electron').app.dock.isVisible()"), true, "Mini tekrar açılışları Dock simgesini korumalı");
+    }
     assert.equal((await renderer("window.pofisMini.pin()", true)).pinned, false);
     phase = "Mini tema senkronizasyonu";
     await renderer("localStorage.setItem('pofis:theme:v1', 'dark'); true");

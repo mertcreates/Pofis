@@ -18,6 +18,7 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   const instances = [];
   const handlers = new Map();
   let mainOpened = 0;
+  let activations = 0;
   let areaHeight = 800;
   let areaWidth = 1000;
   const displays = Object.assign(new EventEmitter(), {
@@ -49,12 +50,14 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   const mini = createMiniWindow({
     BrowserWindow, screen: displays,
     ipcMain: { handle: (name, fn) => handlers.set(name, fn), removeHandler: name => handlers.delete(name) },
-    app: {}, preload: "/fixture/preload.cjs", platform: "darwin", icon: "/fixture/icon.png",
+    app: { isHidden: () => false, focus(options) { expect(options).toEqual({ steal: true }); activations++; } },
+    preload: "/fixture/preload.cjs", platform: "darwin", icon: "/fixture/icon.png",
     showMain: () => mainOpened++, isQuitting: () => false,
   });
   await mini.toggle({ x: 900, y: 0, width: 18, height: 20 });
   expect(instances.length).toBe(1);
   expect(instances[0].visible).toBe(true);
+  expect(activations).toBe(1);
   expect(instances[0].url).toBe("http://127.0.0.1:3210/mini");
   expect(instances[0].options.webPreferences.sandbox).toBe(true);
   expect(instances[0].options.paintWhenInitiallyHidden).toBe(false);
@@ -104,12 +107,14 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   expect(escapes).toBe(1);
   const pinnedPosition = { ...instances[0].position };
   const focuses = instances[0].focuses;
+  const beforePinned = activations;
   for (let click = 0; click < 3; click++) {
     await mini.toggle({ x: 900, y: 0, width: 18, height: 20 });
     expect(instances[0].visible).toBe(true);
     expect(instances[0].position).toEqual(pinnedPosition);
   }
   expect(instances[0].focuses).toBe(focuses + 3);
+  expect(activations).toBe(beforePinned + 3);
   expect(handlers.get("pofis:mini:pin")(event)).toEqual({ pinned: false });
   await mini.toggle();
   expect(instances[0].visible).toBe(false);
@@ -151,11 +156,40 @@ function loadingFixture(load, options = {}) {
   const screen = Object.assign(new EventEmitter(), { getCursorScreenPoint: () => ({ x: 100, y: 20 }),
     getDisplayNearestPoint: () => ({ workArea: { x: 0, y: 0, width: 1000, height: 800 } }) });
   const mini = createMiniWindow({ BrowserWindow, screen,
-    ipcMain: { handle() {}, removeHandler() {} }, platform: "darwin",
+    ipcMain: { handle() {}, removeHandler() {} }, app: { isHidden: () => false, focus() {} }, platform: "darwin",
     isQuitting: () => false, showMain() {}, ...options,
   });
   return { mini, windows, screen };
 }
+
+test.each(["darwin", "win32", "linux"])("%s Mini gösterilirken macOS uygulama odağı önce alınır; gizli hazırlık odak almaz", async platform => {
+  const calls = [];
+  const f = loadingFixture(() => Promise.resolve(), { platform,
+    app: { isHidden: () => false, focus: options => calls.push(["activate", options]) },
+    showMain: () => calls.push(["main"]),
+  });
+  try {
+    await f.mini.prepare();
+    expect(calls).toEqual([]);
+    const window = f.windows[0];
+    const nativeShow = window.show.bind(window);
+    window.show = () => { calls.push(["show"]); nativeShow(); };
+    window.focus = () => calls.push(["focus"]);
+    const expected = platform === "darwin"
+      ? [["activate", { steal: true }], ["show"], ["focus"]]
+      : [["show"], ["focus"]];
+    await f.mini.toggle();
+    expect(calls).toEqual(expected);
+    calls.length = 0;
+    await f.mini.toggle();
+    expect(calls).toEqual([]);
+    await f.mini.toggle();
+    expect(calls).toEqual(expected);
+    calls.length = 0;
+    window.emit("blur");
+    expect(window.visible).toBe(false);
+  } finally { f.mini.stop(); }
+});
 
 test("kısayol ve ekran değişimi güncel tray konumunu kullanır; elle taşınan panel yerini korur", async () => {
   let anchor = { x: 900, y: 0, width: 18, height: 20 };

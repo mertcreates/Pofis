@@ -36,6 +36,7 @@ export default function AppShell({
   const [updateOpen, setUpdateOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("content");
   const [changelogVersion, setChangelogVersion] = useState();
+  const [changelogOpening, setChangelogOpening] = useState(0);
   const notificationsOpen = connected && activeSection === "notifications";
   const changelogOpen = activeSection === "changelog";
   function openChangelog(version) {
@@ -68,14 +69,19 @@ export default function AppShell({
           {appearance.error && <InlineNotice tone="warning">{appearance.error}</InlineNotice>}
           <div hidden={notificationsOpen || changelogOpen}>{children}</div>
           {connected && notifications && <NotificationSettings visible={notificationsOpen} source={notifications} />}
-          {changelogOpen && <ChangelogHistory focusVersion={changelogVersion}
+          {changelogOpen && <ChangelogHistory targetVersion={changelogVersion} opening={changelogOpening}
             onBack={connected ? undefined : () => setActiveSection("content")} />}
         </main>
         <AppFooter updateAvailable={!connected && !!update} onOpenUpdate={() => setUpdateOpen(true)}
           onOpenChangelog={openChangelog} />
       </div>
       {updateOpen && update && <DesktopUpdateModal update={update} onClose={() => setUpdateOpen(false)}
-        onOpenChangelog={(version) => { setUpdateOpen(false); openChangelog(version); }} />}
+        onOpenChangelog={(version) => {
+          setUpdateOpen(false);
+          openChangelog(version);
+          // The modal can reopen the same version while history is already visible.
+          setChangelogOpening((opening) => opening + 1);
+        }} />}
     </div>
   );
 }

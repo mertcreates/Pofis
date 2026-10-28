@@ -26,14 +26,13 @@ function releaseGroups(release: ChangelogRelease) {
   ].filter((group): group is [string, readonly string[]] => !!group[1]?.length);
 }
 
-export function ChangelogHistory({ focusVersion, onBack }: {
-  focusVersion?: string;
+export function ChangelogHistory({ targetVersion, opening, onBack }: {
+  targetVersion?: string;
+  opening: number;
   onBack?: () => void;
 }) {
   const [releases, setReleases] = useState<readonly ChangelogRelease[]>(bundledChangelog);
-  const [remoteSettled, setRemoteSettled] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const focused = useRef<string | null>(null);
 
   useEffect(() => {
     let active = true;
@@ -44,28 +43,19 @@ export function ChangelogHistory({ focusVersion, onBack }: {
         if (active) setReleases(next);
       })
       .catch(error => console.warn(ui.diagnostics.changelogLoadFailed,
-        error instanceof Error ? error.message : "UnknownError"))
-      .finally(() => { if (active) setRemoteSettled(true); });
+        error instanceof Error ? error.message : "UnknownError"));
     return () => { active = false; };
   }, []);
 
   useEffect(() => {
-    const release = focusVersion ? releases.find(item => item.version === focusVersion) : undefined;
-    if (focusVersion && !release && !remoteSettled) return;
-    const key = release?.version ?? "top";
-    if (focused.current === key) return;
-    focused.current = key;
-    const target = release
-      ? document.querySelector<HTMLElement>(`#${releaseId(release.version)} h2`)
-      : titleRef.current;
-    if (!target) return;
-    target.scrollIntoView({ block: "start" });
-    target.focus({ preventScroll: true });
-  }, [focusVersion, releases, remoteSettled]);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    titleRef.current?.focus({ preventScroll: true });
+  }, [targetVersion, opening]);
 
   return <section className="changelog-page" aria-labelledby="changelog-title">
     <header className="changelog-header">
-      <h1 id="changelog-title" ref={titleRef} tabIndex={-1}>{ui.changelog.title}</h1>
+      <h1 id="changelog-title" ref={titleRef} tabIndex={-1}
+        data-changelog-version={targetVersion}>{ui.changelog.title}</h1>
       {onBack && <button type="button" className="text-button changelog-back" onClick={onBack}>
         {ui.changelog.back}
       </button>}
@@ -73,7 +63,7 @@ export function ChangelogHistory({ focusVersion, onBack }: {
     <ol className="changelog-timeline">
       {releases.map((release, index) => {
         const isCurrent = release.version === currentVersion;
-        const isTarget = release.version === focusVersion;
+        const isTarget = release.version === targetVersion;
         return <li className="changelog-stop" data-latest={index === 0 || undefined}
           data-target={isTarget || undefined} key={release.version}>
           <span className="changelog-marker" aria-hidden="true" />
@@ -81,7 +71,7 @@ export function ChangelogHistory({ focusVersion, onBack }: {
             aria-labelledby={`${releaseId(release.version)}-title`} aria-current={isCurrent ? "true" : undefined}>
             <header className="changelog-release-header">
               <div>
-                <h2 id={`${releaseId(release.version)}-title`} data-changelog-version={release.version} tabIndex={-1}>v{release.version}</h2>
+                <h2 id={`${releaseId(release.version)}-title`}>v{release.version}</h2>
                 <time dateTime={release.publishedOn}>
                   {dateFormatter.format(new Date(`${release.publishedOn}T12:00:00Z`))}
                 </time>

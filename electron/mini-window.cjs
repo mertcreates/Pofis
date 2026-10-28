@@ -10,7 +10,7 @@ function miniPosition(bounds, area, width, height, platform) {
   return { x, y };
 }
 
-function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, showMain, isQuitting, icon, additionalArguments = [], getAnchorBounds = () => undefined }) {
+function createMiniWindow({ app, BrowserWindow, screen, ipcMain, preload, platform, showMain, isQuitting, icon, additionalArguments = [], getAnchorBounds = () => undefined }) {
   let mini = null;
   let loading = null;
   let loaded = false;
@@ -25,6 +25,15 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
   function hide() {
     visible = false;
     if (valid()) mini.hide();
+  }
+  function show() {
+    // Electron's macOS panel show/focus paths do not activate a background app.
+    if (platform === "darwin") {
+      if (app.isHidden()) app.show();
+      app.focus({ steal: true });
+    }
+    mini.show();
+    mini.focus();
   }
   function authorize(event) {
     if (!valid() || event.sender !== mini.webContents ||
@@ -122,8 +131,7 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
       loaded = true;
       if (!visible || stopped || isQuitting()) return;
       fit();
-      mini.show();
-      mini.focus();
+      show();
     }).catch(error => {
       if (mini !== openingWindow || stopped) return;
       hide();
@@ -141,8 +149,7 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
     if (visible) {
       if (pinned) {
         if (valid() && loaded) {
-          mini.show();
-          mini.focus();
+          show();
         }
       } else hide();
       return;
@@ -154,8 +161,7 @@ function createMiniWindow({ BrowserWindow, screen, ipcMain, preload, platform, s
     movedBounds = null;
     if (loaded) {
       fit();
-      mini.show();
-      mini.focus();
+      show();
       return;
     }
     return prepare();

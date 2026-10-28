@@ -1,5 +1,5 @@
 .changelog-page {
-  width: min(100%, 860px);
+  width: min(100%, var(--public-content-width, 920px));
   margin: 0 auto;
   padding-bottom: 32px;
 }
@@ -19,8 +19,7 @@
   letter-spacing: -.02em;
 }
 
-.changelog-header h1:focus,
-.changelog-release h2:focus {
+.changelog-header h1:focus {
   outline: 0;
 }
 
@@ -78,9 +77,7 @@
 
 .changelog-release {
   min-width: 0;
-  max-width: 75ch;
   padding: 0 0 36px;
-  scroll-margin-top: 24px;
 }
 
 .changelog-stop:last-child .changelog-release {

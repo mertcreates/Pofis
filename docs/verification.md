@@ -125,7 +125,7 @@ Paketleme, süreç ve installer kabulünün ayrıntılı kapsamı [masaüstü re
 | Windows ZIP üretimi | `bun test ./scripts/electron/archive.test.cjs`; .NET ZIP çıktısının sistem aracı ve .NET ile açılması, Unicode dosya/klasör adları ve içerik, gizli dosyalar, boş klasörler, `.zip.partial` ve mevcut hedefin korunması |
 | Windows sunucu ASAR'ı | `bun test ./scripts/electron/pack-server.test.cjs`; beklenmeyen Next girişinde kaynağı koruyarak durma. Sunucunun bağımlılık/statik dosyalarıyla çalışması ve kapanması gerçek paket açılış kabulünde; eski paketten güncelleme dağıtım kabulünde doğrulanır. |
 | Güncelleme arayüzü | Güncel standalone sonrasında `bun scripts/electron/update-demo.cjs --verify`; [senaryolar](desktop.md#güncelleme-bildirimini-deneme) |
-| Sürüm geçmişi | Masaüstü ve 390 px genişlikte menü ile açılış, footer sürümünün kendi durağına gitmesi, beş dokunuşluk sürüm notunun korunması ve kullanıcı odağı değiştirdiğinde sayacın sıfırlanması, güncelleme modalının hedef sürümü açması, klavye odağı, açık/koyu tema ve public katalog kesildiğinde paket geçmişine dönüş |
+| Sürüm geçmişi | Masaüstü ve 390 px genişlikte girişle aynı içerik genişliği, başka bir görünümden veya güncelleme modalından sayfanın başında açılış, açık geçmişte aynı sürüme tekrar basınca konumun korunması, hedef sürümün vurgusu, beş dokunuşluk sürüm notu, odak değişiminde sayacın sıfırlanması, klavye odağı, açık/koyu tema ve public katalog kesildiğinde paket geçmişine dönüş |
 | Bildirim arayüzü ve IPC | Güncel standalone sonrasında `bun scripts/electron/notification-demo.cjs --verify`; sağlayıcılar fixture'dır |
 | Bildirim zamanlaması ve tercih sıfırlaması | `bun test src/domain/rules/notifications.test.ts src/desktop/notification-runtime.test.ts src/desktop/notification-store.test.ts src/desktop/install-notifications.test.ts`; sahte saat/sağlayıcı ve geçici disk kaydı. Beklenen davranış [bildirim sözleşmesinde](rules/notifications.md#gönderim-ve-hesap-ayrımı). |
 | Sistem panosu | Önce `bun run desktop:prepare`, ardından `bun scripts/electron/clipboard-smoke.cjs --isolated-desktop`; panoyu değiştirdiği için yalnız izole CI/VM masaüstünde |
@@ -161,7 +161,7 @@ Davranışın sahibi [masaüstü rehberi](desktop.md#pofi-mini-ve-macos-menü-ç
 
 | Kontrol | Kapsam |
 | --- | --- |
-| [Pencere](../electron/mini-window.test.cjs) | Gizli hazırlık, tek yükleme/pencere, hızlı aç/kapat, sabitleme, sınırlar, yükleme/renderer hatasından toparlanma, IPC yetkisi ve kapanış |
+| [Pencere](../electron/mini-window.test.cjs) | Gizli hazırlık, gösterme öncesi macOS uygulama odağı, tek yükleme/pencere, hızlı aç/kapat, sabitleme, sınırlar, yükleme/renderer hatasından toparlanma, IPC yetkisi ve kapanış |
 | [Tray ve menü](../electron/background.test.cjs) | macOS hızlı tıklama adaptörü, sağ tık, ana pencereye dönüş ve çıkış |
 | [PDKS yaşam döngüsü](../src/data/pdks-lifecycle.test.ts) | İzole React/Electron ortamında gizli hazırlıkta sıfır HTTP isteği, çakışan isteklerin paylaşılması, rapor/olay yarışı, hafta/hesap değişimi, oturum bitişi ve dinleyici temizliği |
 | [Bildirim adaptörü](../src/desktop/install-notifications.test.ts), [plan depolama](../src/data/work-plans.test.ts), [saat](../src/data/clock.test.ts) | Pencereler arası rapor/plan aktarımı, oturum olayları ve görünürlüğe bağlı saat |
@@ -184,13 +184,15 @@ bun scripts/electron/scenario-acceptance.cjs --source
 
 Senaryo modu geçici profil ve örnek HTTP yanıtları kullanır; profil koşu sonunda temizlenir. Paket kabulleri [sürüm akışında](../.github/workflows/desktop-release.yml) çalışır.
 
+macOS koşusu ana pencereyi ve uygulamayı gizleyip Mini'yi yeniden çağırır; panelin görünür ve odakta, ana pencerenin gizli kaldığını doğrular.
+
 ### Performans ölçümü
 
 Senaryo kabulü, hazır pencerenin ilk native `show` süresini, beş tekrar açılışı ve gizli renderer'ın kullanım öncesi/sonrası iki saniyelik CPU/working-set örneklerini yazdırır (`preloadedIdle`/`idle`). Tekrar ölçümlerinde panel sabitlenir ve her örnekten önce gizlenir. Sonuçları kullanılan kaynak/paket ve işletim sistemiyle birlikte değerlendirin; fiziksel tıklama ile ilk boyanmış kare arasındaki gecikmeyi cihazda ölçün.
 
 ### Cihazda etkileşim ve görünüm
 
-- Intel ve Apple Silicon macOS'ta gizli panelden başlayarak iki, üç ve beş hızlı sol tıklamayı deneyin → çift sayıda panel gizli, tek sayıda görünür kalır. Hazırlık sürerken de son görünürlük tercihi korunur. Sabitlenmiş paneli taşıyıp yeniden çağırın → aynı konumda odaklanır. Dışarı tıklama, sağ tık, kısayol, Dock ve tam ekran/Spaces geçişlerini kontrol edin. Windows'ta tray sol/sağ tık ve ana pencereye dönüşü deneyin.
+- Intel ve Apple Silicon macOS'ta başka bir uygulama öndeyken, ana pencere kapatılmışken ve Command-H sonrasında Mini'yi çağırın → panel görünür ve odakta olur. Gizli panelden başlayarak iki, üç ve beş hızlı sol tıklamayı deneyin → çift sayıda panel gizli, tek sayıda görünür kalır. Hazırlık sürerken de son görünürlük tercihi korunur. Sabitlenmiş paneli taşıyıp yeniden çağırın → aynı konumda odaklanır. Dışarı tıklama, sağ tık, kısayol, Dock ve tam ekran/Spaces geçişlerini kontrol edin. Windows'ta tray sol/sağ tık ve ana pencereye dönüşü deneyin.
 - Ana pencerede tema veya plan değiştirin → açık Mini güncellenir. Çıkış/hesap değişimi ve oturum bitişinde eski rapor temizlenir; yeni girişte yeni hesabın raporu gelir.
 - Canlı mesai, hedefe ulaşma/aşma, izin, kayıtsız gün, belirsiz kayıt ve hata durumlarını kontrol edin. Hedef `16:00:17`, saat `16:00:00` → kalan `17 sn` görünür. Bozuk plan kaydı hata durumuna geçer.
 - Açık/koyu tema, kısa ekran ve içerik geçişlerinde pencere içeriğe uyar, çalışma alanında kalır ve yatay taşmaz. Klavye odağı görünürdür. `--capture` seçeneği açık/koyu görüntüleri `dist/electron/checks/preview` altına kaydeder; inceleme sonunda temizleyin.
