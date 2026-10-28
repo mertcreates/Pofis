@@ -10,7 +10,7 @@
       "Bildirim kaydı yazılamadığında Pofi Mini’nin hata ekranına geçmesi düzeltildi; uyarı Bildirimler’de gösteriliyor.",
       "Hesap değiştirirken önceki bildirim işleminin hatasının yeni oturumda görünmesi düzeltildi.",
       "macOS’ta başka bir uygulama öndeyken Pofi Mini’nin odaklanmaması düzeltildi.",
-      "Sürüm geçmişini açtığında sayfanın başı gösteriliyor. Geçmiş, giriş ekranıyla aynı genişlikte.",
+      "Sürüm geçmişi giriş ekranıyla aynı genişlikte açılıyor; sayfanın başı ve okurken alttaki sürüm numarası görünüyor.",
       "Pofi panelindeki durum bilgisi sadeleştirildi; başlıktaki rozet kaldırıldı."
     ]
   },

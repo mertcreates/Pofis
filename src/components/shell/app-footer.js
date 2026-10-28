@@ -9,6 +9,7 @@ import { CHANGELOG_SEEN_KEY } from "@/domain/changelog";
 
 export default function AppFooter({ updateAvailable = false, onOpenUpdate, onOpenChangelog }) {
   const sequence = useRef(null);
+  const versionButton = useRef(null);
   const [noteOpen, setNoteOpen] = useState(false);
   const [isNew, setIsNew] = useState(false);
 
@@ -20,6 +21,18 @@ export default function AppFooter({ updateAvailable = false, onOpenUpdate, onOpe
     } catch {
       // Tarayıcı depolaması kapalıysa veya erişilemiyorsa sessizce devam edilir.
     }
+  }, []);
+
+  useEffect(() => {
+    function resetSequenceOnFocus(event) {
+      if (event.target !== versionButton.current &&
+          (!(event.target instanceof Element) ||
+            event.target.getAttribute("data-changelog-version") !== version)) {
+        sequence.current = null;
+      }
+    }
+    document.addEventListener("focusin", resetSequenceOnFocus);
+    return () => document.removeEventListener("focusin", resetSequenceOnFocus);
   }, []);
 
   function tapVersion() {
@@ -55,6 +68,7 @@ export default function AppFooter({ updateAvailable = false, onOpenUpdate, onOpe
       <span className="app-footer-meta">
         <button
           type="button"
+          ref={versionButton}
           className="app-version"
           data-new={isNew || undefined}
           aria-label={ui.changelog.openVersion(version)}

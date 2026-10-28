@@ -64,7 +64,7 @@ export default function AppShell({
         notificationsOpen={notificationsOpen}
         onOpenNotifications={() => setActiveSection("notifications")}
       />
-      <div className="app-content">
+      <div className="app-content" data-changelog-open={changelogOpen || undefined}>
         <main>
           {appearance.error && <InlineNotice tone="warning">{appearance.error}</InlineNotice>}
           <div hidden={notificationsOpen || changelogOpen}>{children}</div>

@@ -598,6 +598,14 @@ body {
   margin-top: 0;
   color: var(--muted);
 }
+.app-content[data-changelog-open] .app-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  padding-bottom: 24px;
+  margin-bottom: -24px;
+  background: var(--surface);
+}
 .app-footer-meta {
   display: inline-flex;
   align-items: center;
@@ -1744,6 +1752,10 @@ body {
   }
   .app-shell-public .app-content {
     padding: 16px var(--public-page-gutter);
+  }
+  .app-shell-public .app-content[data-changelog-open] .app-footer {
+    padding-bottom: 16px;
+    margin-bottom: -16px;
   }
   .app-shell-public .connection {
     grid-template-columns: 1fr;
