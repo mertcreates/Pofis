@@ -21,6 +21,6 @@ test("gerçek React/Electron yaşamı: rapor yarışı, tekrar açılış, oturu
     expect(JSON.parse(line!.slice(7))).toEqual({ reportRace: true, olderPush: true, backgroundFailureRecovery: true,
       revalidateOnShow: true, weekChange: true, accountSwitch: true, lateExpiry: true, cleanup: true, redundantRefreshes: 0,
       hiddenPreload: true, sharedRequests: true, lateSession: true, connectDisconnect: true, recordFailureIsolated: true,
-      mealSessionRecovery: true });
+      mealSessionRecovery: true, notificationStatusRace: true });
   } finally { await rm(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); }
 }, 20000);

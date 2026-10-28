@@ -14,6 +14,7 @@ export function useDesktopNotifications(enabled: boolean, connected: boolean | n
     const bridge = window.pofisNotifications;
     if (!enabled || !bridge) return;
     let active = true;
+    let receivedStatus = false;
     setAvailable(true);
     setActions(bridge);
     const receive = (next: NotificationStatus) => {
@@ -21,8 +22,15 @@ export function useDesktopNotifications(enabled: boolean, connected: boolean | n
       setStatus(next);
       if (next.active) setError("");
     };
-    const unsubscribe = bridge.subscribe(receive);
-    bridge.get().then(receive).catch(() => { if (active) setError(ui.notificationErrors.loadFailed); });
+    const unsubscribe = bridge.subscribe(next => {
+      receivedStatus = true;
+      receive(next);
+    });
+    bridge.get().then(next => {
+      if (!receivedStatus) receive(next);
+    }).catch(() => {
+      if (active && !receivedStatus) setError(ui.notificationErrors.loadFailed);
+    });
     return () => { active = false; unsubscribe(); };
   }, [enabled]);
   useEffect(() => {

@@ -1,6 +1,7 @@
 import { createRoot } from "react-dom/client";
 import { usePdks } from "../use-pdks";
 import { useMealMenu } from "../use-meal-menu";
+import { useDesktopNotifications } from "../use-desktop-notifications";
 import type { NotificationStatus, NotificationReport } from "@/desktop/notification-contract";
 import { defaultNotificationPreferences } from "@/domain/rules/notifications";
 import { emptyWorkPlans } from "@/domain/rules/work-plan";
@@ -78,6 +79,12 @@ function Harness() {
     <NotificationSettings visible source={{ mode: "desktop", status: notificationStatus, actions: null, error: notificationConnectionError }} />
     {mealOpen && state.connected && <MealProbe onSessionExpired={state.verifySessionAfterExpiry} />}
   </>;
+}
+function NotificationStateHarness() {
+  const source = useDesktopNotifications(true, true, false, null);
+  return <div data-notification-active={source.status ? String(source.status.active) : "pending"} data-notification-error={source.error}>
+    <NotificationSettings visible source={{ ...source, mode: "desktop" }} />
+  </div>;
 }
 const root = createRoot(document.getElementById("root")!);
 root.render(<Harness />);
@@ -280,8 +287,50 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 30));
   await wait(() => state.connected === false && state.report === null);
   root.unmount();
   check(statusListeners.size + reportListeners.size + expiryListeners.size + scenarioListeners.size === 0, "Bridge listeners leaked");
+
+  const notificationStatus = (active: boolean): NotificationStatus => ({
+    active, preferences: defaultNotificationPreferences(), telegram: { connected: false, label: "" },
+    nativeSupported: true, secureStorageAvailable: true, lastRefreshAt: null,
+    refreshError: "", recordError: "", deliveryErrors: {},
+  });
+  async function checkNotificationSnapshot(snapshot: boolean | "error", event?: boolean) {
+    let listener: ((status: NotificationStatus) => void) | undefined;
+    let resolveSnapshot: ((status: NotificationStatus) => void) | undefined;
+    let rejectSnapshot: ((error: Error) => void) | undefined;
+    window.pofisNotifications = {
+      get: () => new Promise<NotificationStatus>((resolve, reject) => { resolveSnapshot = resolve; rejectSnapshot = reject; }),
+      subscribe: (callback: (status: NotificationStatus) => void) => {
+        listener = callback;
+        return () => { listener = undefined; };
+      },
+    } as typeof window.pofisNotifications;
+    const notificationRoot = createRoot(document.getElementById("root")!);
+    notificationRoot.render(<NotificationStateHarness />);
+    await wait(() => !!listener && !!resolveSnapshot);
+    if (event !== undefined) {
+      listener!(notificationStatus(event));
+      await wait(() => document.querySelector("[data-notification-active]")?.getAttribute("data-notification-active") === String(event));
+    }
+    if (snapshot === "error") rejectSnapshot!(new Error("fixture unavailable"));
+    else resolveSnapshot!(notificationStatus(snapshot));
+    await settle();
+    const expected = event ?? (typeof snapshot === "boolean" ? snapshot : null);
+    check(document.querySelector("[data-notification-active]")?.getAttribute("data-notification-active") === (expected === null ? "pending" : String(expected)),
+      "A delayed initial notification status replaced a newer event");
+    check(!!document.querySelector(".notification-settings") === (expected === true), "Notification settings do not match the current status");
+    if (snapshot === "error")
+      check(!!document.querySelector("[data-notification-error]")?.getAttribute("data-notification-error") === (event === undefined),
+        "Initial notification error visibility does not match the current status");
+    notificationRoot.unmount();
+    check(!listener, "Notification status listener leaked");
+  }
+  await checkNotificationSnapshot(true);
+  await checkNotificationSnapshot(false, true);
+  await checkNotificationSnapshot(true, false);
+  await checkNotificationSnapshot("error", true);
+  await checkNotificationSnapshot("error");
   return { reportRace: true, olderPush: true, backgroundFailureRecovery: true, revalidateOnShow: true,
     weekChange: true, accountSwitch: true, lateExpiry: true, cleanup: true, redundantRefreshes: refreshes,
     hiddenPreload: true, sharedRequests: true, lateSession: true, connectDisconnect: true, recordFailureIsolated: true,
-    mealSessionRecovery: true };
+    mealSessionRecovery: true, notificationStatusRace: true };
 };
