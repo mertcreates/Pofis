@@ -8,6 +8,7 @@
     "fixes": [
       "Yemek menüsünü kullanırken oturumun sona erdiği daha hızlı fark ediliyor.",
       "Mesai planındaki süre alanı düzenlemeden sonra hesaplanan değerle eşleşiyor; kapasite uyarılarının hizası düzeltildi.",
+      "Mesai planında bazı ondalık saatlerin geçersiz sayılması düzeltildi.",
       "Hesap değiştirirken önceki oturumdan gelen gecikmiş yanıtın yeni bağlantıyı kapatması düzeltildi.",
       "Bildirim kaydı yazılamadığında Pofi Mini’nin hata ekranına geçmesi düzeltildi; uyarı Bildirimler’de gösteriliyor.",
       "Hesap değiştirirken önceki bildirim işleminin hatasının yeni oturumda görünmesi düzeltildi.",

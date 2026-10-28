@@ -25,6 +25,19 @@ export function planDisplayMinutes(seconds: number, kind: "required" | "recorded
   return kind === "required" ? Math.ceil(seconds / 60) : Math.floor(seconds / 60);
 }
 
+function wholePlanMinutes(hours: string, minutes = "0"): number | null {
+  // Keep decimal input exact when checking for whole minutes.
+  const [wholeHours, fractionalHours = ""] = hours.replace(",", ".").split(".");
+  const [wholeMinutes, fractionalMinutes = ""] = minutes.replace(",", ".").split(".");
+  const precision = Math.max(fractionalHours.length, fractionalMinutes.length);
+  const scale = 10n ** BigInt(precision);
+  const hourUnits = BigInt(wholeHours + fractionalHours.padEnd(precision, "0"));
+  const minuteUnits = BigInt(wholeMinutes + fractionalMinutes.padEnd(precision, "0"));
+  const total = hourUnits * 60n + minuteUnits;
+  if (total % scale !== 0n || total > BigInt(PLAN_LIMITS.maxDailyMinutes) * scale) return null;
+  return Number(total / scale);
+}
+
 // A bare number denotes hours. Unit-bearing parts can be entered in either order.
 export function parsePlanDuration(input: string): number | null {
   const value = input.trim().toLocaleLowerCase("tr-TR");
@@ -35,27 +48,23 @@ export function parsePlanDuration(input: string): number | null {
     return Number(clock[2]) < 60 && minutes <= PLAN_LIMITS.maxDailyMinutes ? minutes : null;
   }
   if (/^\d+(?:[.,]\d+)?$/.test(value)) {
-    const minutes = Number(value.replace(",", ".")) * 60;
-    return Number.isInteger(minutes) && minutes <= PLAN_LIMITS.maxDailyMinutes ? minutes : null;
+    return wholePlanMinutes(value);
   }
   const part = /^(\d+(?:[.,]\d+)?)\s*(hours?|hrs?|saat|sa|h|minutes?|mins?|min|dakika|dak|dk|m)/;
   let position = 0;
-  let total = 0;
-  let hours = false;
-  let minutes = false;
+  let hours: string | undefined;
+  let minutes: string | undefined;
   while (position < value.length) {
     const match = part.exec(value.slice(position));
     if (!match) return null;
-    const count = Number(match[1].replace(",", "."));
     const isHour = /^(hours?|hrs?|h|saat|sa)$/.test(match[2]);
-    if (isHour ? hours : minutes) return null;
-    if (isHour) hours = true;
-    else minutes = true;
-    total += count * (isHour ? 60 : 1);
+    if (isHour ? hours !== undefined : minutes !== undefined) return null;
+    if (isHour) hours = match[1];
+    else minutes = match[1];
     position += match[0].length;
     while (value[position] === " ") position++;
   }
-  return Number.isInteger(total) && total <= PLAN_LIMITS.maxDailyMinutes ? total : null;
+  return wholePlanMinutes(hours ?? "0", minutes);
 }
 
 export function stepPlanDuration(minutes: number, direction: -1 | 1): number {

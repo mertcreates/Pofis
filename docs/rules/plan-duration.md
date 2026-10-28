@@ -11,7 +11,7 @@ Plan doğrulamasındaki ve süre alanındaki hata metinleri, üst sınırı ayn�
 ## Giriş sözleşmesi
 
 - Sonuç 0–960 arasında tam dakikadır. Boş, tanınmayan, negatif veya sınır dışı giriş `null` döndürür; mevcut süre korunur.
-- Birimsiz sayı saat olarak okunur. `8,5` ve `8.5`, 510 dakikadır.
+- Birimsiz sayı saat olarak okunur. `8,2` 492, `8.5` 510 dakikadır.
 - `8:13`, 493 dakikadır; iki nokta sonrasındaki dakika 0–59 olmalıdır.
 - Saat birimleri: `saat`, `sa`, `h`, `hr`, `hrs`, `hour`, `hours`.
 - Dakika birimleri: `dakika`, `dak`, `dk`, `m`, `min`, `mins`, `minute`, `minutes`.

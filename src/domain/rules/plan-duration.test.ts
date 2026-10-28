@@ -50,9 +50,11 @@ test("serbest süre birimleri ve saat:dakika girişleri tam dakikaya çevrilir",
     expect(parsePlanDuration(input)).toBe(493);
   }
   expect(parsePlanDuration("8,5 sa")).toBe(510);
+  for (const [input, minutes] of [["4,1", 246], ["8,2", 492], ["8.3", 498], ["8,2 sa", 492], ["8,2 sa 13 dk", 505], ["0,5 dk 0,025 sa", 2], ["16,0", 960]] as const)
+    expect(parsePlanDuration(input)).toBe(minutes);
   expect(parsePlanDuration("45 dak")).toBe(45);
   expect(parsePlanDuration("8")).toBe(480);
-  for (const input of ["", "17 sa", "16:01", "8:75", "foo", "8 sa 13 dk 2 dk", "8.1 dakika", "-1 sa"])
+  for (const input of ["", "17 sa", "16,01", "16:01", "8:75", "foo", "8 sa 13 dk 2 dk", "8.1 dakika", "8,21 sa", "8,200000000000001 sa", "-1 sa"])
     expect(parsePlanDuration(input)).toBeNull();
 });
 
