@@ -154,15 +154,55 @@ test("hatalı parola ve geçersiz alanlar oturum oluşturmaz", async () => {
       remove() {},
     },
   });
-  await expect(
-    manager.connect({ username: "alice", password: "bad" }),
-  ).rejects.toMatchObject({ code: "AUTH_FAILED" });
+  const rejected = { username: "alice", password: "bad" };
+  await expect(manager.connect(rejected)).rejects.toMatchObject({ code: "AUTH_FAILED" });
+  expect(rejected).toEqual({});
   for (const username of ["", "   ", "@trt.net.tr", "  @trt.net.tr", `a@${"b".repeat(199)}`]) {
     await expect(
       manager.connect({ username, password: "fixture-password" }),
     ).rejects.toMatchObject({ code: "INVALID_INPUT" });
   }
   expect(records).toHaveLength(0);
+});
+
+test.each([
+  { username: "", password: "fixture-password" },
+  { username: "@trt.net.tr", password: "fixture-password" },
+  { username: `a@${"b".repeat(199)}`, password: "fixture-password" },
+  { username: "alice", password: "" },
+  { username: "alice", password: "x".repeat(1001) },
+  { username: 123, password: "fixture-password" },
+  { username: "alice", password: 123 },
+])("geçersiz girişte kimlik alanları temizlenir ve kaynak çağrılmaz", async (credentials) => {
+  const body = { ...credentials, marker: "preserved" };
+  const manager = createSessionManager({
+    createClient: () => { throw new Error("Geçersiz giriş kaynak istemcisi oluşturmamalı."); },
+  });
+  await expect(manager.connect(body)).rejects.toMatchObject({ code: "INVALID_INPUT", status: 400 });
+  expect(body).toEqual({ marker: "preserved" });
+});
+
+test("kaynak istemcisi oluşturulamazsa giriş alanları temizlenir", async () => {
+  const body = { username: "alice", password: "fixture-password" };
+  const manager = createSessionManager({ createClient: () => { throw new Error("fixture client failure"); } });
+  await expect(manager.connect(body)).rejects.toThrow("fixture client failure");
+  expect(body).toEqual({});
+});
+
+test("sınırdaki geçerli bilgiler temizlenmiş istekten kaynağa değişmeden aktarılır", async () => {
+  const username = "a".repeat(200), password = "p".repeat(1000);
+  const body = { username, password, marker: "preserved" };
+  const manager = createSessionManager({ createClient: () => ({
+    jar: new CookieJar(), self: { pofiKey: "verified-person" },
+    async login(receivedUsername, receivedPassword) {
+      expect(body).toEqual({ marker: "preserved" });
+      expect(receivedUsername).toBe(username);
+      expect(receivedPassword).toBe(password);
+    },
+  }) });
+  const id = await manager.connect(body);
+  try { expect((await manager.requireSession(request(id))).client.self.pofiKey).toBe("verified-person"); }
+  finally { await manager.disconnect(request(id)); }
 });
 
 test("oturum yalnız güncel çerez adından yüklenir", async () => {

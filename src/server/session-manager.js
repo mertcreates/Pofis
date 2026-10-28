@@ -296,24 +296,25 @@ export function createSessionManager({
     let username = typeof body.username === "string"
       ? body.username.split("@", 1)[0].trim()
       : "";
-    if (
-      typeof body.username !== "string" ||
-      !username ||
-      body.username.length > SESSION_POLICY.maxUsernameLength ||
-      typeof body.password !== "string" ||
-      !body.password ||
-      body.password.length > SESSION_POLICY.maxPasswordLength
-    )
-      throw new PdksError(
-        ui.apiErrors.credentialsRequired,
-        "INVALID_INPUT",
-        400,
-      );
-    const client = createClient();
+    const usernameLength = typeof body.username === "string" ? body.username.length : 0;
     let password = body.password;
     delete body.username;
     delete body.password;
+    let client;
     try {
+      if (
+        !username ||
+        usernameLength > SESSION_POLICY.maxUsernameLength ||
+        typeof password !== "string" ||
+        !password ||
+        password.length > SESSION_POLICY.maxPasswordLength
+      )
+        throw new PdksError(
+          ui.apiErrors.credentialsRequired,
+          "INVALID_INPUT",
+          400,
+        );
+      client = createClient();
       await client.login(username, password);
     } finally {
       username = undefined;
