@@ -27,4 +27,3 @@ Haftalık grafik, `chartMaximum` sahibine yalnız gösterdiği günlük süreler
 ## Testler
 
 - [rules.test.ts](../../src/domain/rules/rules.test.ts)
-- [duration-segments.test.tsx](../../src/components/duration-segments.test.tsx): iki görünümde sıfır hedef, hedef altı/üstü, parçalar ve ölçek sınırı.

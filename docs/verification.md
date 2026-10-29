@@ -43,11 +43,9 @@ Giriş → footer sürüm numarası → **Girişe dön** zincirini ve güncellem
 
 Politika testleri gerçek modülleri ayrı Bun süreçlerinde, yalnız sahibin değerlerini bellekte değiştirerek çalıştırır. HTTP ve Electron yanıtları taklittir. Hook kurulmuş oturumla, Telegram formu manuel alan açıkken sunulur. Tarayıcıda bekleyen çıkış → hafta değişimi → geciken rapor yanıtı zincirini ve Telegram modal etkileşimini doğrulayın; React effect yaşam döngüsünün kabulü bu yoldadır.
 
-Test kapsamını yüklenen modüller ve somut davranış beklentileriyle değerlendirin. Belge/kod anlam uyumunu ayrıca inceleyin. İçerik testleri seçim, tarih, tekrar ve özel gün davranışını; editoryal inceleme metnin doğallığını doğrular.
+Test kapsamını yüklenen modüller ve somut davranış beklentileriyle değerlendirin. Belge/kod anlam uyumunu ayrıca inceleyin.
 
 ## Günün akışı doğrulaması
-
-[Günün akışı testi](../src/components/attendance/day-flow.test.tsx), giriş yokken sıfır süre/grafik üretilmemesini, Şimdi → Son çıkış ayrımını, hedef öncesi/sonrası işaret konumlarını, saniyeli hedefin korunmasını, kayıt uyarısı sırasında güvenilir canlı sürenin devam etmesini ve eski raporda bilinmeyen sürenin hesaplanmış gibi gösterilmemesini sınar. Gerçek CSS yerleşimi ve odak davranışı bu statik testin kapsamında değildir.
 
 Tarayıcı kabulü:
 
@@ -68,20 +66,14 @@ Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut se
 | [Manuel kilit](../src/domain/rules/work-plan-locks.test.ts) | Kaydetme/yeniden yükleme, otomatik devir ve iki Tamamla seçeneğinde süreyi koruma; Sıfırla ile kilidi kaldırıp şablona dönüş |
 | [Süre girişi](../src/domain/rules/plan-duration.test.ts) | Türkçe/İngilizce birimler, saat:dakika ve ondalık saat biçimleri, geçersiz girişler, +/- çizgileri; plan saatinde `H:mm` / `HH:mm` / dört rakam, `00:00`–`23:59` sınırı, karşı saati hesaplama ve gün sınırı |
 | [Plan hesap denetimi](../src/domain/rules/work-plan-audit.test.ts) | İki Tamamla dağıtımında saniyeli eksik/fazla süre, izin ve manuel kilit → kaydetme/yeniden yükleme → tam referans hedef; güvenli dakika gösterimi, tekrar Tamamla ve şablonu 5 × 8 saate sıfırlama |
-| [Plan düzenleyici](../src/components/plan-editor.test.tsx) | Referans hedef, beklenen toplam ve farkın tek özette aynı saniye hassasiyetiyle sunumu; eksikte Tamamla, fazlada Ayarla; kısa kapasite uyarıları ve Tamamla kapasitesi, Sıfırla, tamamlanmış günün kayıt görünümü; gün eylemlerinin sırası, İzinli/Kilitli durumları ve kilitli sabit süre; Planlayıcının kapalı başlaması ve kilitli/kapalı gün görünürlüğü |
-| [Saat alanı](../src/components/plan-time-input.test.tsx) | `6 → 06 → 06:30`, belirsiz ilk rakam, bölüm değiştirme/silme, eksik dakika, geçersiz değer ve tam saat yapıştırma, ↑ / ↓ adımları ve gece yarısı döngüsü; DOM odağı ve dokunmatik kabul aşağıdaki zincirdedir |
-| [Saat düzenleyici](../src/components/plan-time-planner.test.tsx) | Saat alanının cümle içinde doğrudan sunulması, tek girersem/çıkmak için seçimi ve karşı saat, Türkçe saat eki, gün adı ve hafta sınırı geçişleri, güvenli dakika hesabı, boş ve devre dışı kontroller |
 | [Fazla süre politikası](../src/domain/rules/work-plan-surplus.test.ts) | Güncel ayarda fazla süreyi ayrı tutma, eksik süre dağıtımı, izin, elle düzenleme ve Tamamla; önceki dağıtım testleri azaltma açıkken dönüş sözleşmesini doğrular |
 | [İzin ve kapasite](../src/domain/rules/work-plan-leave.test.ts) | Şablon karşılığını düşme, açma/sıfırlama ve kapasite sınırında otomatik dağıtım |
 | [Sıfır süreli açık gün](../src/domain/rules/work-plan-open-days.test.ts) | Kaydetme → yeniden yükleme → sonraki gün yeni kayıt → yeniden dengeleme; izin, şablon ve sıfırlama |
 | [Depolama](../src/data/work-plans.test.ts) | Doğrulama, kalıcılık, yazı hatası ve canlı/demo ayrımı |
 | [Rapor](../src/domain/report.test.ts) | Ortak gereken süre, kayıt durumu, Pofi ve hedef çıkış |
 | [Kural mimarisi](../src/domain/rules/rules.test.ts) | Belge/kod sahipliği ve bağımlılık sınırları |
-| [Haftalık toplam](../src/components/dashboard/weekly-total.test.tsx) | İzinli günün cetveldeki sırası ve dolgusuz durumu, normal kapalı günlerin gizlenmesi, izinli çalışma süresinin görünürlüğü ve toplamda korunması; geçmiş hafta cetvelinin kapalı kalması; bugünün ayrışması ve gelecek günün planlanan süre etiketi; Çalışılan/Hedef ayrımı, kayıtsız ve belirsiz günün uyarısı, bilinen belirsiz sürenin korunması |
 
 ### Haftalık cetvelden güne geçiş
-
-[Plan düzenleyici testi](../src/components/plan-editor.test.tsx), cetvelden gelen gün bugünden farklıysa o günün seçildiğini doğrular. Geçiş, kaydırma, dokunma ve odak dönüşü aşağıdaki tarayıcı kabulünde kontrol edilir.
 
 Tarayıcı kabulü:
 
@@ -169,7 +161,6 @@ Davranışın sahibi [masaüstü rehberi](desktop.md#pofi-mini-ve-macos-menü-ç
 | [Tray ve menü](../electron/background.test.cjs) | macOS hızlı tıklama adaptörü, sağ tık, ana pencereye dönüş ve çıkış |
 | [PDKS yaşam döngüsü](../src/data/pdks-lifecycle.test.ts) | İzole React/Electron ortamında gizli hazırlıkta sıfır HTTP isteği, çakışan isteklerin paylaşılması, rapor/olay yarışı, hafta/hesap değişimi, oturum bitişi ve dinleyici temizliği |
 | [Bildirim adaptörü](../src/desktop/install-notifications.test.ts), [plan depolama](../src/data/work-plans.test.ts), [saat](../src/data/clock.test.ts) | Pencereler arası rapor/plan aktarımı, oturum olayları ve görünürlüğe bağlı saat |
-| [Mini sunumu](../src/components/mini/mini-dashboard.test.tsx) | Saniyeli hedef/kalan/aşan süre, günlük durumlar ve yükleniyor/bağlantısız/hata ayrımı |
 | [Senaryo kabulü](../scripts/electron/scenario-acceptance.cjs) | Gerçek Electron'da sürüm, uygulama kökü ve simge; gizli hazırlık ve aynı pencerenin gösterilmesi, tema/plan senkronizasyonu, sekiz mesai senaryosu, bağlantı/oturum toparlanması, native menü, sandbox ve kapanış |
 | [Smoke](../scripts/electron/smoke.cjs) | Mini açılışı, sabitleme, IPC köprüsü ve ana pencereye dönüş |
 

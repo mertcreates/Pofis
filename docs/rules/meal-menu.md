@@ -59,12 +59,10 @@ bun test src/lib/meals src/server/meals.test.ts src/server/meals-route.test.ts
 bun run typecheck
 ```
 
-[Katalog testi](../../src/lib/meals/commentary-catalogue.test.ts) metin sınırlarını, benzersizliği ve her senaryonun arşivde bir örneği bulunmasını; [seçim testleri](../../src/lib/meals/commentary-selection.test.ts) öncelikleri, hesap/tarih tutarlılığını ve ardışık varyant geçişini doğrular. Doğallık, mizah ve sahne sürekliliği editoryal incelemeyle değerlendirilir.
-
 [Yerel araç](../../scripts/meal-commentary.ts) arşivde eşleşme kapsamını ve 100 örnek hesabın seçimini inceler; `preview` aynı günün farklı kaynak kayıtlarını ayrı gösterir. Tarihsel arşiv çalışma zamanına yüklenmez; bu nedenle menünün yeniden gelmesi veya uzun süredir bulunmaması hakkında yorum seçilmez.
 
 ## İçerik araştırma verisi
 
-20 Eylül–20 Ekim 2026 arasındaki [31 günlük kaynak kaydı](../../src/lib/meals/history-sample.json), Pofi metin çalışmaları ve ayrıştırma testleri için korunur.
+20 Eylül–20 Ekim 2026 arasındaki [31 günlük kaynak kaydı](../../src/lib/meals/history-sample.json), Pofi metin çalışmaları ve yemek API testi için korunur.
 
 Pofi içerik çalışmaları için 20 Nisan–20 Ekim 2026 aralığındaki [altı aylık arşiv](../../data/meals/history.json), 184 gün ve 186 kayıt içerir. [Toplama durumu](../../data/meals/collection.json) kaynak, tarih aralığı ve gün bazında sonucu korur. Aynı günün farklı kayıtları birlikte saklanır. [Sıklık listesi](../../data/meals/frequencies.json) her öğenin bulunduğu farklı gün sayısına göre çoktan aza sıralıdır. Bu arşiv uygulamanın çalışma zamanı verisine dahil değildir. [Toplama](../../scripts/collect-meal-history.ts) ve [özetleme](../../scripts/summarize-meal-history.ts) betikleri araştırma verisini üretir.

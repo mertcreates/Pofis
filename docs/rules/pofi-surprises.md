@@ -55,6 +55,4 @@ Kaynak footer'daki sürüm notu `versionRevealTaps: 5` dokunuşla `versionWindow
 
 ## Testler
 
-- [pofi-surprises.test.ts](../../src/domain/rules/pofi-surprises.test.ts): saat ve kayıt örüntüleri, öncelik ve dokunma eşiği.
-- [pofi-panel.test.tsx](../../src/components/dashboard/pofi-panel.test.tsx): saat sürprizi ve hata önceliği; [records.test.tsx](../../src/components/attendance/records.test.tsx): kayıt notunun gösterimi.
 - [rules.test.ts](../../src/domain/rules/rules.test.ts): kural sahipliği.

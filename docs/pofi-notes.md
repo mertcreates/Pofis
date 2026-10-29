@@ -49,7 +49,7 @@ Katalog giriş × gelişme × kapanış kombinasyonlarından havuz sırasını b
 
 Özel not eklerken metni `specials.js` içine, `MM-DD → note` eşleştirmesini `special-days.ts` içine ekleyin. `sharedVariant` varsa herkes o varyantı görür; yoksa kişi anahtarıyla seçim yapılır.
 
-Özel notların her varyantı bağımsız, üç parçalı bir hikâyedir; her seçim bir varyantın kendi giriş, gelişme ve kapanışını birlikte kullanır. Bayram notları küçük katılım ve gözlem anlarını, 10 Kasım notları saygılı anma davranışlarını anlatır. Kâğıt gemi serisi 12 Mart (İlk gün), 9 Nisan (Bir süre sonra) ve 7 Mayıs (Yeniden) sırasıyla ilerler. Her tarihin varyantı ayrı seçilir ve kendi içinde anlamlı bir hikâye sunar. 8 Aralık'ın herkes için ortak `little-star:v1` metni korunur; tarih eşlemesi ve tam metni davranış testiyle doğrulanır.
+Özel notların her varyantı bağımsız, üç parçalı bir hikâyedir; her seçim bir varyantın kendi giriş, gelişme ve kapanışını birlikte kullanır. Bayram notları küçük katılım ve gözlem anlarını, 10 Kasım notları saygılı anma davranışlarını anlatır. Kâğıt gemi serisi 12 Mart (İlk gün), 9 Nisan (Bir süre sonra) ve 7 Mayıs (Yeniden) sırasıyla ilerler. Her tarihin varyantı ayrı seçilir ve kendi içinde anlamlı bir hikâye sunar. 8 Aralık'ın herkes için ortak `little-star:v1` metni korunur.
 
 ### Yerel komutlar
 
@@ -76,11 +76,8 @@ Aynı başlık altında son yedi takvim gününün metni tekrarlanmaz. Her havuz
 ## Doğrulama
 
 ```powershell
-bun test src/lib/pofi-notes src/lib/pofi-work
 bun scripts/pofi-notes.ts validate
 bun run typecheck
 ```
-
-[Not defteri testleri](../src/lib/pofi-notes/notebook.test.ts) haftalık seçimi, tekrar kontrolünü, boş havuzu, özel gün varyantlarını, bozuk girdiyi ve değişmezliği sınar. [CLI testi](../src/lib/pofi-notes/cli.test.ts) listeleme, doğrulama, önizleme ve desteklenmeyen komutun reddini kontrol eder. [Faaliyet testleri](../src/lib/pofi-work/catalogue.test.ts) günlük seçimi, değişen eşleşmeleri, bağlantılı setleri, yedi günlük tekrar sınırını, içerik eklemeyi, tarih sınırlarını ve değişmezliği sınar.
 
 Metinleri [ton rehberiyle](brand/pofi-tone-guide.md) birlikte okuyun. Demoda bir gün seçip Pofi → Pofi’nin mesaisi ekranını açın; kapatıp açınca kayıtların korunduğunu, başka gün seçilince değiştiğini kontrol edin. Yenileme kontrolünü demonun varsayılan gününde yapın.
