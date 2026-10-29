@@ -29,7 +29,7 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 - Kişisel turnike kayıtlarından [kayıtlı süre](docs/rules/recorded-time.md), [anlık tahmin](docs/rules/duration.md) ve [kayıt bütünlüğü](docs/rules/record-status.md) gösterilir.
 - Kullanıcı [mesai planında](docs/rules/work-plan.md) varsayılan şablonu, haftalık süreleri ve izinli günleri düzenler. Plan tarayıcıda saklanır; gerçekleşen süre PDKS'den gelir.
 - Her kullanıcı kendi PDKS hesabıyla giriş yapar ve yalnız kendi raporunu görür. [Oturum politikası](docs/rules/session-policy.md) ve [kaynak politikası](docs/rules/source-policy.md) kimlik, kalıcılık ve erişim sınırlarını yönetir.
-- [Mesaim demosu](docs/demo.md), ortak ekran ve hesapları yakalanmış kayıtlarla giriş gerektirmeden sunar.
+- [Mesaim demosu](docs/demo.md), ortak ekran ve hesapları örnek kayıtlarla giriş gerektirmeden sunar.
 - Oturum açmış kullanıcı [yemek menüsünü](docs/rules/meal-menu.md) ve seçilen güne ait Pofi yorumunu görüntüler.
 - Pofi [durumları](docs/rules/pofi.md), albüm, [not defteri ve günlük faaliyetleri](docs/pofi-notes.md) ve [sürprizleri](docs/rules/pofi-surprises.md) mesai ekranına eşlik eder.
 - Masaüstü uygulaması pencere kapatılınca arka planda çalışır. Kullanıcının açtığı masaüstü ve kişisel Telegram kanalları [çıkış hedefini hatırlatır](docs/rules/notifications.md).

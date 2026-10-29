@@ -2,7 +2,7 @@
 
 Paketli uygulamada ana pencere, Pofi Mini ve menü çubuğunu birlikte denemek için [paketli senaryo modunu](desktop.md#paketli-senaryo-modu) kullan. Bu sayfadaki web demosu kendi kontrollerini ve kayıtlarını kullanmayı sürdürür.
 
-Yerel adres: http://127.0.0.1:3000/demo. Sayfa giriş gerektirmeden Mesaim'i yakalanmış kayıtlarla açar. Canlı ekranla aynı [bileşenleri](architecture/ui-components.md) ve [ürün kurallarını](rules/README.md) kullanır. Yerleşim ve etkileşimlerin sahibi [DESIGN](../DESIGN.md) belgesidir.
+Yerel adres: http://127.0.0.1:3000/demo. Sayfa giriş gerektirmeden Mesaim'i örnek kayıtlarla açar. Canlı ekranla aynı [bileşenleri](architecture/ui-components.md) ve [ürün kurallarını](rules/README.md) kullanır. Yerleşim ve etkileşimlerin sahibi [DESIGN](../DESIGN.md) belgesidir.
 
 ## Demo kontrolleri
 
@@ -13,11 +13,11 @@ Mesaim, Hata ekranları ve Durum mesajları sekmeleri arasında seçimler korunu
 | Önizleme | Kontrol ve sonuç |
 | --- | --- |
 | Gün | Pazartesi–Cuma seçicisi günü sanal “bugün” yapar. Günün akışı, rapordaki “Bugün”, Pofi durumu ve [odadaki faaliyetler](pofi-notes.md#pofinin-mesaisi) aynı günü kullanır. |
-| Geçmiş hafta | “Hazır senaryo → Geçmiş hafta” önceki haftanın tüm kayıtlarını yakalama saatiyle açar. Gün ve ek süre kontrolleri gizlenir. Hafta seçiciyle diğer geçmiş haftalara geçilebilir; yakalama haftasına geçmek veya gün senaryosu seçmek gün önizlemesine döner. |
+| Geçmiş hafta | “Hazır senaryo → Geçmiş hafta” önceki haftanın tüm kayıtlarını sabit önizleme saatiyle açar. Gün ve ek süre kontrolleri gizlenir. Hafta seçiciyle diğer geçmiş haftalara geçilebilir; başlangıç haftasına geçmek veya gün senaryosu seçmek gün önizlemesine döner. |
 
 Gün senaryoları: Hedefin altında → 15 Ekim; Tekrarlanan geçiş → 7 Ekim; Kayıt olmayan gün → 9 Ekim; Devam eden mesai → 15 Ekim'e 120 dakika sanal ek süre. Hedef farkı kayıtlı demo planına göre hesaplanır. Elle seçim bir senaryoyla eşleşmezse “Özel seçim” görünür.
 
-“Demoyu sıfırla” yakalama gününü sıfır ek süreyle açar; hata önizlemesini bağlantı, durum mesajı önizlemesini çıkış hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince geçici seçimler sıfırlanır.
+“Demoyu sıfırla” başlangıç gününü sıfır ek süreyle açar; hata önizlemesini bağlantı, durum mesajı önizlemesini çıkış hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince geçici seçimler sıfırlanır.
 
 [Demo kontrolleri](../src/demo/controls.tsx) sekmeleri ve sıfırlamayı sunar; durum [demo istemcisinde](../src/demo/dashboard.tsx) tutulur. Ortak DashboardView içeriği standart `children` ile alır.
 
@@ -55,13 +55,13 @@ Yerel modal ve örnek plan senaryo/sekme değişiminde sıfırlanır. Bu örnekl
 
 ## Veri ve zaman
 
-[Yakalanan turnike verisi](../src/demo/passages.json), geliştiricinin public paylaşımını onayladığı 21 Eylül–16 Ekim 2026 aralığındaki 297 hareketi içerir. Her hareket yalnız `date`, `time`, `direction` taşır; gerçek tarih ve saatler korunmuştur. Ekranda “Örnek kullanıcı” görünür.
+[Demo verisindeki](../src/demo/passages.json) her hareket `date`, `time` ve `direction` alanlarını taşır. Ekranda “Örnek kullanıcı” görünür.
 
-Başlangıç günü 16 Ekim 2026, saati 11:24 Europe/Istanbul'dur. Bir gün seçildiğinde demo o günü “bugün” kabul eder. Normal görünümde önceki günler İstanbul saatinde 23:59:59, yakalama günü özgün yakalama saatiyle gösterilir. Anlık ek süre seçildiğinde yalnız seçili günün sanal saati, o günün son geçerli hareketinden seçilen süre kadar sonrasına alınır. Son hareket çıkışsa aynı saniyeye demo amaçlı açık giriş eklenir; yakalanmış hareketler ve kayıtlı toplam değişmez. Süre 15 dakika adımlıdır, gün sonunu aşamaz ve seçili gün değişince sıfırlanır. Hareketi olmayan veya güvenilir açık giriş kurulamayan günlerde kontrol kapalıdır. Önceki eşleşmeyen çıkış güvenilir son girişi engellemez. Bilgisayarın tarihi sonucu etkilemez. Seçilen tarihten sonraki hareketler ve Pofi notları önizleme girdisine katılmaz; fixture korunur. Böylece haftalık toplam yalnız seçilen güne kadarki gerçek kayıtlardan oluşur.
+Başlangıç günü 16 Ekim 2026, saati 11:24 Europe/Istanbul'dur. Bir gün seçildiğinde demo o günü “bugün” kabul eder. Normal görünümde önceki günler İstanbul saatinde 23:59:59, başlangıç günü ise 11:24 olarak gösterilir. Anlık ek süre seçildiğinde yalnız seçili günün sanal saati, o günün son geçerli hareketinden seçilen süre kadar sonrasına alınır. Son hareket çıkışsa aynı saniyeye demo amaçlı açık giriş eklenir; veri kümesindeki hareketler ve kayıtlı toplam değişmez. Süre 15 dakika adımlıdır, gün sonunu aşamaz ve seçili gün değişince sıfırlanır. Hareketi olmayan veya güvenilir açık giriş kurulamayan günlerde kontrol kapalıdır. Önceki eşleşmeyen çıkış güvenilir son girişi engellemez. Bilgisayarın tarihi sonucu etkilemez. Seçilen tarihten sonraki hareketler ve Pofi notları önizleme girdisine katılmaz; fixture korunur. Böylece haftalık toplam yalnız seçilen güne kadarki kayıtlardan oluşur.
 
-Dört hafta arasında gezinilir; ilk yakalama haftasından önceki ve yakalama tarihinden sonraki haftalar seçilmez. Haftayı değiştirince haftanın aynı günü korunur; kısmi yakalama haftasında son kullanılabilir hafta içi gün seçilir. Kayıtsız hafta içi günler de seçilebilir. Raporu yenile, aynı günün yakalanmış raporunu yeniden sunar. Gün gezintisi canlı Mesaim'de gösterilmez.
+Dört hafta arasında gezinilir; veri aralığı dışındaki haftalar seçilmez. Haftayı değiştirince haftanın aynı günü korunur; başlangıç haftasında gerekirse son kullanılabilir hafta içi gün seçilir. Kayıtsız hafta içi günler de seçilebilir. Raporu yenile, aynı günün demo raporunu yeniden sunar. Gün gezintisi canlı Mesaim'de gösterilmez.
 
-Pozitif ek sürede sanal saat saniyede bir ilerler; sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Sekmeye dönüşte geçen süre yansır. Saat 23:59:59'da durur; sıfır ek süre ve “Demoyu sıfırla” çalışan saati durdurur. Geçmiş hafta önizlemesi tüm haftayı sabit yakalama saatiyle değerlendirir.
+Pozitif ek sürede sanal saat saniyede bir ilerler; sayaçlar, haftalık toplam ve Pofi aynı saati kullanır. Sekmeye dönüşte geçen süre yansır. Saat 23:59:59'da durur; sıfır ek süre ve “Demoyu sıfırla” çalışan saati durdurur. Geçmiş hafta önizlemesi tüm haftayı sabit önizleme saatiyle değerlendirir.
 
 | Haftanın başlangıcı | Hareket | Kayıtlı süre |
 | --- | ---: | ---: |
@@ -80,14 +80,14 @@ Gün önizlemesinde örnekler:
 - 15 Ekim: 2 saatlik ek süre seçimi 04:51:52 kayıtlı süreyi korur ve 02:00:00 anlık tahmin üretir.
 - 16 Ekim: henüz giriş yok; 17–18 Ekim gelecek gün.
 
-Yakalanan veride gerçek son hareketi giriş olan gün bulunmuyor. Demo ek süre seçeneği son hareket saatinde sanal açık giriş kurarak ortak süre hesabını örnekler; canlı PDKS açık girişi, eskimiş rapor, ağ hatası ve oturum bitişi gerçek kaynak kabulünde kontrol edilir. İlgili kural/oturum testleri kendi davranış sözleşmelerini doğrular.
+Veri kümesinde son hareketi giriş olan gün bulunmuyor. Demo ek süre seçeneği son hareket saatinde sanal açık giriş kurarak ortak süre hesabını örnekler; canlı PDKS açık girişi, eskimiş rapor, ağ hatası ve oturum bitişi gerçek kaynak kabulünde kontrol edilir. İlgili kural/oturum testleri kendi davranış sözleşmelerini doğrular.
 
 ## Sahiplik ve kalıcılık
 
 - [Sunucu adaptörü](../src/demo/report.ts) fixture'ı ortak rapor sözleşmesiyle doğrular, haftalara böler ve mevcut Pofi not üreticisini sabit örnek anahtarla kullanır.
 - [Demo gezinti sahibi](../src/demo/navigation.ts) kullanılabilir günleri, sabit önizleme saatini, seçilen tarihe kadarki raporu ve geçerli son harekete bağlı sanal açık girişi yönetir. Takvim işlemleri [ortak takvim sahibinden](rules/calendar.md) gelir; süre/plan/Pofi formülleri [ortak rapor hazırlığında](../src/domain/report.ts) kendi kural sahiplerinden alınır.
 - Ek süre adımı `EXTRA_TIME_STEP_MINUTES` ile gezinti sahibinde yönetilir; hesap doğrulaması, gün sonu sınırı ve gün seçicinin `step`/kapalı kontrol üst sınırı bu değeri kullanır.
-- [Demo istemcisi](../src/demo/dashboard.tsx) seçili günü ve o güne ait geçici ek süreyi tutar; hafta ve sanal saat bu seçimden türetilir. [Gün seçici](../src/demo/day-picker.tsx) gün/süre kontrollerini ve açıklamaları sunar. [Ortak DashboardView](../src/components/dashboard/view.tsx) demo istemcisinin oluşturduğu içeriği standart children alanında sunar; hafta seçicinin üst sınırı yakalama tarihidir. Canlı [Dashboard](../src/components/dashboard.tsx) kendi saatini ve PDKS hook'unu yönetir.
+- [Demo istemcisi](../src/demo/dashboard.tsx) seçili günü ve o güne ait geçici ek süreyi tutar; hafta ve sanal saat bu seçimden türetilir. [Gün seçici](../src/demo/day-picker.tsx) gün/süre kontrollerini ve açıklamaları sunar. [Ortak DashboardView](../src/components/dashboard/view.tsx) demo istemcisinin oluşturduğu içeriği standart children alanında sunar; hafta seçicinin üst sınırı başlangıç tarihidir. Canlı [Dashboard](../src/components/dashboard.tsx) kendi saatini ve PDKS hook'unu yönetir.
 - [Plan depolama adaptörü](../src/data/work-plans.ts) demo anahtarlarını `demo:` önekiyle ayırır. Demo planları canlı planları değiştirmez; anında kayıt ve hata davranışı ortak kalır. Görünüm tercihi uygulama genelinde paylaşılır.
 - [Route](../src/app/demo/page.tsx) statik üretilir; gezinme ve yenileme fixture üzerinde çalışır.
 
@@ -95,6 +95,6 @@ Yakalanan veride gerçek son hareketi giriş olan gün bulunmuyor. Demo ek süre
 
 ## Veriyi güncelleme
 
-Onaylı yeni yakalamada fixture'ın `from`, `to`, `capturedAt` ve hareketlerini birlikte değiştirin. Hareketleri tarih/saat sırasıyla, aynı üç alanla koruyun. Ekrandaki tarih açıklamasını [metin sahibinde](../src/lib/ui-text.js), değişen simülasyon senaryolarını [demo davranış testlerinde](../src/demo/navigation.test.ts) güncelleyin. Ardından test, tür kontrolü, üretim derlemesi ve tarayıcıda hafta/kayıt/plan kabulünü çalıştırın.
+Demo verisini güncellerken fixture'ın `from`, `to`, `capturedAt` ve hareketlerini birlikte değiştirin. Hareketleri tarih/saat sırasıyla, aynı üç alanla koruyun. Ekrandaki tarih açıklamasını [metin sahibinde](../src/lib/ui-text.js), değişen simülasyon senaryolarını [demo davranış testlerinde](../src/demo/navigation.test.ts) güncelleyin. Ardından test, tür kontrolü, üretim derlemesi ve tarayıcıda hafta/kayıt/plan kabulünü çalıştırın.
 
 [Doğrulama rehberi](verification.md) · [Gezinti testleri](../src/demo/navigation.test.ts)

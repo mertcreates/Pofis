@@ -1,6 +1,6 @@
 # Kullanım ölçümü
 
-Üretim web ve Electron sürümleri GA4 `G-MV4MG71CDB` Web akışını otomatik kullanır. Geliştirme çalıştırmalarında etiket yüklenmez. [Kök yerleşim](../src/app/layout.tsx) etiketi bağlar; [istemci bileşeni](../src/components/google-analytics.tsx) hidrasyon sonrasında Google betiğini bir kez yükler ve yol değişimlerini izler. Başlangıç ve sayfa geçişleri [ölçüm sahibinden](../src/lib/analytics.ts) geçer.
+Üretim web ve Electron derlemeleri varsayılan olarak GA4 `G-MV4MG71CDB` Web akışını kullanır. Depodan alınan bağımsız üretim derlemeleri de aynı akışa bağlanır; ölçüm kimliği [ölçüm sahibinde](../src/lib/analytics.ts) tanımlıdır. Geliştirme çalıştırmalarında etiket yüklenmez. [Kök yerleşim](../src/app/layout.tsx) etiketi bağlar; [istemci bileşeni](../src/components/google-analytics.tsx) hidrasyon sonrasında Google betiğini bir kez yükler ve yol değişimlerini izler. Başlangıç ve sayfa geçişleri ölçüm sahibinden geçer.
 
 ## Alanlar ve sınırlar
 

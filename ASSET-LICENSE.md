@@ -13,11 +13,8 @@ Pofi çizimleri, uygulama simgeleri ve marka görselleri MIT kapsamı dışında
 
 HTML, CSS, üretim tarifleri ve teknik belgeler MIT kapsamında kalır. MIT lisansı marka kullanım hakkı vermez.
 
-## tabii logosu
-
-Personel kartındaki **tabii** logosu ve `extras/pofis-brand-kit/references/tabii-logo-provided.png`, TRT'nin tabii markasına ait üçüncü taraf unsurlarıdır. Bu depo, tabii logosu için kullanım lisansı vermez. [Resmî kullanım koşulları](https://corporate.tabii.com/terms-of-use).
-
 ## Diğer üçüncü taraflar
 
+- Pofi görsellerindeki üçüncü taraf marka unsurları ilgili hak sahiplerine aittir.
 - `public/icons/` altındaki Bootstrap ikonları [Bootstrap MIT lisansına](public/icons/LICENSE.bootstrap.txt) tabidir.
 - Yazılım bağımlılıkları kendi lisanslarına tabidir. Dağıtımda ilgili lisans ve telif bildirimleri korunmalıdır.

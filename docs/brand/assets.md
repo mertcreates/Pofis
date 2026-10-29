@@ -1,6 +1,6 @@
 # Pofi görsel kaynakları
 
-Kullanıcının paylaştığı [marka kiti](../../extras/pofis-brand-kit/README.md) özgün karakter kaynağıdır. Aşağıdaki tablo etkin uygulama dosyalarını ve korunmuş referansları ayırır.
+[Marka kiti](../../extras/pofis-brand-kit/README.md) özgün karakter kaynağıdır. Aşağıdaki tablo etkin uygulama dosyalarını ve korunmuş referansları ayırır.
 
 Görsellerin lisans kapsamı ve üçüncü taraf bildirimleri [görsel lisans bildiriminde](../../ASSET-LICENSE.md) tanımlıdır.
 
@@ -9,7 +9,7 @@ Görsellerin lisans kapsamı ve üçüncü taraf bildirimleri [görsel lisans bi
 | `public/pofi/pofi-mark-256.png` | Üst marka, favicon, Apple simgesi ve Electron pencere/uygulama simgesinin kaynağı |
 | `public/pofi/pofi-full.webp` | Yükleme ekranı ve Pofi odası |
 | `public/brand/pofi-full-512.webp` | Marka kitinden korunmuş görsel referans |
-| `public/pofi/states/*.webp` | Kullanıcının 1.0.0 Docker arşivindeki break, completed, error, idle, overworked, tired, working; durum paneli ve albüm |
+| `public/pofi/states/*.webp` | 1.0.0 Docker arşivindeki break, completed, error, idle, overworked, tired, working; durum paneli ve albüm |
 | `public/pofi/pofi-meal.webp` | Yemek menüsündeki Pofi notu ve fotoğraf albümündeki “Yemeği beklerken” sahnesi |
 | `public/pofi/` | Arşivin kanonik Pofi varlıkları |
 | `public/icons/` | Arşiv ikonları; lisans aynı klasörde |

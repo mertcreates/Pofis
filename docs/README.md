@@ -39,8 +39,6 @@ Belge değişikliğinde şu sırayı izleyin:
 
 Doğrulama ve geçici çıktıların yönetimi [doğrulama rehberindedir](verification.md#sonuçların-yönetimi).
 
-Public `pofis-landing` README'si ürün tanıtımı ve site bağlantısı içerir; teknik işletim bilgileri bu depodaki rehberlerde tutulur.
-
 ## Karakter kaynakları
 
 - [Marka kiti](../extras/pofis-brand-kit/README.md): özgün karakter dosyaları, referanslar ve karakter kontrol sayfası.

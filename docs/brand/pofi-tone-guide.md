@@ -6,7 +6,7 @@
 - **Slogan:** "Mesaiye biraz Pofi"
 - **Maskot:** Pofi
 
-Pofis, mesai saatlerini ve PDKS kayıtlarını takip etmek için geliştirilmiş, gayriresmî ve özenli bir üründür.
+Pofis, mesai saatlerini ve PDKS kayıtlarını takip etmek için geliştirilmiş bir üründür.
 
 Arayüzü minimalist, modern, temiz ve anlaşılırdır. İşlevini özenle sunar; dili rahat ve doğaldır.
 

@@ -69,7 +69,7 @@ Oklar kural sonuçlarının kullanıldığı yerleri gösterir. Rapor uyarlamas�
 | Kaynak tazeliği ve istek yaşamı | [use-pdks](../../src/data/use-pdks.ts): başarısız yenilemede eski rapor, geç kalan yanıtın ayrılması ve oturum bitişinde temizleme |
 | PDKS hata sözleşmesi | [pdks-failure](../../src/lib/pdks-failure.ts): ortak sınıflandırma ve toparlanma; [hata sözleşmesi](../pdks-errors.md) taşıma, durum ve sunum sahiplerini açıklar |
 | Telegram girdileri | [telegram-input](../../src/lib/telegram-input.ts): token ve kişisel sohbet kimliği biçimi; form, keşif ve sağlayıcı adaptörü aynı sahibi kullanır |
-| Demo verisi ve saati | [Demo rehberi](../demo.md): yakalama, gezinti ve istemci sahipleri; canlı görünümle ortak hesaplar |
+| Demo verisi ve saati | [Demo rehberi](../demo.md): veri, gezinti ve istemci sahipleri; canlı görünümle ortak hesaplar |
 | Yemek menüsü | [Menü sözleşmesi](meal-menu.md): TRT kaynağı, tarih sınırı, önbellek ve kategori ayrıştırma; [sunucu](../../src/server/meals.ts), [sunum](../../src/lib/meals/presentation.ts) ve [modal](../../src/components/meals/menu-modal.tsx) |
 
 `prepareReport` günlük özetleri, hedefleri ve geçiş analizini bir kez hazırlar; dönen fonksiyon saat değişiminde bugünün süre/Pofi sonucunu günceller. [DashboardView](../../src/components/dashboard/view.tsx), rapor/plan/İstanbul tarihi/tazelik değiştiğinde hazırlığı yeniler. [ReportContent](../../src/components/dashboard/report-content.tsx) canlı güncel haftanın saniyelik saatini, [Dashboard](../../src/components/dashboard.tsx) İstanbul gün değişimini yönetir; demo kendi sanal saatini sağlar. `presentReport` tek çağrıda aynı yolu kullanır. Sabit alanların korunması [rapor testleriyle](../../src/domain/report.test.ts) denetlenir.

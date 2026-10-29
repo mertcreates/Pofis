@@ -52,6 +52,6 @@ Bir değişiklik yaparken ilgili [kural sahibini](docs/rules/README.md) izleyin;
 
 ## Veri ve lisans
 
-Üretim sürümlerindeki GA4 ölçümünün topladığı alanlar ve hesap eşleştirmesi [kullanım ölçümü rehberinde](docs/analytics.md) açıklanır. Demo, geliştiricinin paylaştığı tarih/saat hareketlerini içerir; veri kapsamı [demo rehberindedir](docs/demo.md#veri-ve-zaman).
+Üretim derlemeleri, depodan alınan bağımsız derlemeler dahil, Pofis'in GA4 akışını kullanır. Toplanan alanlar ve hesap eşleştirmesi [kullanım ölçümü rehberinde](docs/analytics.md) açıklanır.
 
-Kaynak kod ve teknik belgeler [MIT lisansıyla](LICENSE) sunulur. Pofi görselleri ve üçüncü taraf tabii logosu bu lisansın kapsamı dışındadır. Lisans sınırları [görsel lisans bildiriminde](ASSET-LICENSE.md), dosya kaynakları [görsel rehberinde](docs/brand/assets.md) açıklanır.
+Kaynak kod ve teknik belgeler [MIT lisansıyla](LICENSE) sunulur. Pofi görselleri bu lisansın kapsamı dışındadır. Lisans sınırları [görsel lisans bildiriminde](ASSET-LICENSE.md), dosya kaynakları [görsel rehberinde](docs/brand/assets.md) açıklanır.

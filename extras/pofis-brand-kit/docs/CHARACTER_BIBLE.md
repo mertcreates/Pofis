@@ -8,7 +8,7 @@
 
 `assets/pofi-full.png` ve `assets/pofi-full.webp`, yüz kimliği, kafa oranları, renkler, materyal ve aksesuarlar için öncelikli görsel referanslardır. Yeni tam gövde üretimlerinde kanonik dik duruş izlenir.
 
-Pofi, açık krem gövdeli, yumuşak lavanta ayrıntılı, iki arka ayağı üzerinde doğal biçimde dik duran tombul bir kedi maskotudur. Gövdesi kısa ve yuvarlak kalır; iki kısa ön pati kol gibi doğal durur. Büyük ve yuvarlak kafa, iki üçgen kulak, alında tek kıvrımlı tüy, iri koyu oval gözler, küçük burun ve gülümseme, pembe yanaklar, yanlarda ince bıyıklar ve sol yanda dolgun lavanta kuyruk karakterin değişmez özellikleridir. Boynunda lavanta renkli bir kart askısı ve beyaz personel kartı bulunur. Kartta kullanıcı tarafından sağlanan **tabii** işareti yer alır.
+Pofi, açık krem gövdeli, yumuşak lavanta ayrıntılı, iki arka ayağı üzerinde doğal biçimde dik duran tombul bir kedi maskotudur. Gövdesi kısa ve yuvarlak kalır; iki kısa ön pati kol gibi doğal durur. Büyük ve yuvarlak kafa, iki üçgen kulak, alında tek kıvrımlı tüy, iri koyu oval gözler, küçük burun ve gülümseme, pembe yanaklar, yanlarda ince bıyıklar ve sol yanda dolgun lavanta kuyruk karakterin değişmez özellikleridir. Boynunda lavanta renkli bir kart askısı ve beyaz personel kartı bulunur.
 
 ## Tasarım dili
 
@@ -29,7 +29,6 @@ Bu belge görsel kimliği, oranları ve sahne yerleşimini tanımlar. Pofi'nin s
 | `--pofi-lavender` | `#CFC3E6` | Kulak, pati, kuyruk |
 | `--pofi-ink` | `#2B2240` | Göz, burun, ağız |
 | `--pofi-blush` | `#FFDDEA` | Yanak |
-| `--tabii-green` | `#00FF99` | Personel kartı sembolü |
 
 *Bu değerler illüstrasyonun hedef renk rehberidir. PNG içindeki gölgeler bu ana tonlardan doğal geçişler üretir.*
 
@@ -51,7 +50,3 @@ Yeni sahnede ana referans görsel ve [üretim promptunu](MASTER_PROMPT.md) birli
 Dosya seçimi [görsel kaynaklar](../../../docs/brand/assets.md), ekran boyutları ve yerleşim [DESIGN](../../../DESIGN.md) belgesinde yönetilir.
 
 Resimler `object-fit: contain` ile, özgün en/boy oranı korunarak gösterilir.
-
-## tabii kartı hakkında
-
-`references/tabii-logo-provided.png`, TRT'nin tabii logosunun referansıdır. Personel kartındaki işaretin geometrisi gerektiğinde bu referansla karşılaştırılır. Logo ve Pofi görsellerinin lisans kapsamı [görsel lisans bildiriminde](../../../ASSET-LICENSE.md) açıklanır.

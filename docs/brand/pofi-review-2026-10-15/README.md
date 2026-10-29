@@ -16,7 +16,6 @@ Klasör adları korunur. Uygulamanın etkin görselleri [görsel kaynaklar](../a
 ## Kaynaklar ve sabitler
 
 - Kanonik kimlik: `extras/pofis-brand-kit/assets/pofi-full.png`.
-- Personel kartı sembolü: `extras/pofis-brand-kit/references/tabii-logo-provided.png`.
 - Uygulamaya alınacak görselde yüz/kimlik, kart, dört uzuv, gerçek şeffaflık ve küçük boyutta okunurluk incelenir.
 - Kullanıcı uygulamaya alınacak dosyaları seçip onayladıktan sonra görseller uygulanır.
 
