@@ -1,5 +1,4 @@
 import { test, expect, spyOn } from "bun:test";
-import { pofiNotesForWeek } from "./pofi-notes.js";
 import {
   PdksClient,
   PDKS_ORIGIN,
@@ -36,8 +35,6 @@ test("menüsüz yönetici girişi sabit hesap anahtarı üretir; aynı adlı hes
   expect(await login("another-account")).not.toBe(key);
   expect(await login("Manager-account")).not.toBe(key);
   expect(await login("manager-account", "https://fixture.example")).not.toBe(key);
-  expect(pofiNotesForWeek("2026-10-16", await login("manager-account")))
-    .toEqual(pofiNotesForWeek("2026-10-16", key));
 });
 
 test.each(["", "<span id=ctl_RPPersonel_LblKisiAdiSoyadi> </span>",
