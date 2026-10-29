@@ -27,7 +27,7 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   });
   class BrowserWindow extends EventEmitter {
     constructor(options) {
-      super(); this.options = options; this.visible = false; this.destroyed = false;
+      super(); this.options = options; this.visible = false; this.focused = false; this.destroyed = false;
       this.position = null; this.alwaysOnTop = false; this.reloads = 0; this.focuses = 0;
       this.webContents = new EventEmitter();
       this.webContents.mainFrame = { url: "http://127.0.0.1:3210/mini" };
@@ -39,9 +39,10 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
     getBounds() { return { ...this.position, ...this.size }; }
     setBounds({ x, y, width, height }) { this.position = { x, y }; this.size = { width, height }; }
     show() { this.visible = true; }
-    focus() { this.focuses++; }
-    hide() { this.visible = false; }
+    focus() { this.focuses++; this.focused = true; }
+    hide() { this.visible = false; this.focused = false; }
     isVisible() { return this.visible; }
+    isFocused() { return this.focused; }
     isDestroyed() { return this.destroyed; }
     setAlwaysOnTop(value) { this.alwaysOnTop = value; }
     setVisibleOnAllWorkspaces(value, options) { this.spaces = { value, options }; }
@@ -71,7 +72,9 @@ test("Pofi Mini tek pencerede açılır, gizlenir, sabitlenir ve ana uygulamaya 
   expect(instances[0].size.height).toBe(600);
   handlers.get("pofis:mini:resize")(event, 240);
   expect(instances[0].size.height).toBe(240);
-  instances[0].emit("will-move", {}, { x: 100, y: 200, width: 356, height: 240 });
+  instances[0].emit("will-move", {}, instances[0].getBounds());
+  instances[0].position = { x: 100, y: 200 };
+  instances[0].emit("move");
   handlers.get("pofis:mini:resize")(event, 300);
   expect(instances[0].position).toEqual({ x: 100, y: 200 });
   areaHeight = 350;
@@ -137,19 +140,20 @@ function loadingFixture(load, options = {}) {
   const windows = [];
   class BrowserWindow extends EventEmitter {
     constructor() {
-      super(); this.visible = false; this.destroyed = false; this.loads = 0; this.boundsChanges = 0;
+      super(); this.visible = false; this.focused = false; this.destroyed = false; this.loads = 0; this.boundsChanges = 0;
       this.webContents = new EventEmitter();
       this.webContents.setWindowOpenHandler = () => {};
       this.webContents.reload = () => { throw new Error("An opening must not load twice"); };
       windows.push(this);
     }
     loadURL() { this.loads++; return load(windows.length); }
-    setAlwaysOnTop() {} setVisibleOnAllWorkspaces() {} focus() {}
+    setAlwaysOnTop() {} setVisibleOnAllWorkspaces() {} focus() { this.focused = true; }
     getBounds() { return this.bounds || {}; }
     setBounds(bounds) { this.bounds = bounds; this.position = { x: bounds.x, y: bounds.y }; this.boundsChanges++; }
     show() { this.visible = true; }
-    hide() { this.visible = false; }
+    hide() { this.visible = false; this.focused = false; }
     isVisible() { return this.visible; }
+    isFocused() { return this.focused; }
     isDestroyed() { return this.destroyed; }
     destroy() { this.destroyed = true; this.emit("closed"); }
   }
@@ -200,7 +204,10 @@ test("kısayol ve ekran değişimi güncel tray konumunu kullanır; elle taşın
     anchor = { x: 500, y: 0, width: 18, height: 20 };
     f.screen.emit("display-metrics-changed");
     expect(f.windows[0].position).toEqual({ x: 331, y: 28 });
-    f.windows[0].emit("will-move", {}, { x: 80, y: 90, width: 356, height: 240 });
+    f.windows[0].emit("will-move", {}, f.windows[0].getBounds());
+    f.windows[0].bounds = { ...f.windows[0].bounds, x: 80, y: 90 };
+    f.windows[0].position = { x: 80, y: 90 };
+    f.windows[0].emit("move");
     anchor = { x: 800, y: 0, width: 18, height: 20 };
     f.screen.emit("display-removed");
     expect(f.windows[0].position).toEqual({ x: 80, y: 90 });

@@ -10,8 +10,7 @@
       "Mesai planında bazı ondalık saatlerin reddedilmesi ve düzenlenen sürenin yanlış gösterilmesi düzeltildi.",
       "Hesap değiştirirken önceki oturumdan gelen yanıtın yeni bağlantıyı kapatması ve eski bildirim hatalarının görünmesi düzeltildi.",
       "Bildirim kaydı yazılamadığında Pofi Mini’nin hata ekranına geçmesi düzeltildi.",
-      "macOS’ta başka bir uygulama öndeyken Pofi Mini’nin odaklanmaması düzeltildi.",
-      "macOS’ta Pofis gizliyken Pofi Mini açıldığında ana pencerenin de açılması düzeltildi."
+      "macOS’ta Pofi Mini’nin odağı, gizli uygulamadan açılışı, hızlı tıklamalar ve tam ekran geçişlerindeki konumu düzeltildi."
     ]
   },
   {

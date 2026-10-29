@@ -18,12 +18,15 @@ function createMiniWindow({ app, BrowserWindow, screen, ipcMain, preload, platfo
   let visible = false;
   let anchorBounds;
   let movedBounds = null;
+  let manualMove = false;
+  let placedBounds = null;
   let stopped = false;
   const width = 356;
   let height = 240;
   const valid = () => mini && !mini.isDestroyed();
   function hide() {
     visible = false;
+    manualMove = false;
     if (valid()) mini.hide();
   }
   function show() {
@@ -59,7 +62,10 @@ function createMiniWindow({ app, BrowserWindow, screen, ipcMain, preload, platfo
     } : miniPosition(anchorBounds, workArea, fittedWidth, fittedHeight, platform);
     const next = { ...position, width: fittedWidth, height: fittedHeight };
     const current = mini.getBounds();
-    if (Object.keys(next).some(key => current[key] !== next[key])) mini.setBounds(next);
+    if (Object.keys(next).some(key => current[key] !== next[key])) {
+      placedBounds = next;
+      mini.setBounds(next);
+    }
   }
   const refit = () => { if (valid() && visible) fit(); };
   screen.on("display-metrics-changed", refit);
@@ -100,8 +106,20 @@ function createMiniWindow({ app, BrowserWindow, screen, ipcMain, preload, platfo
     mini.setAlwaysOnTop(pinned, "floating");
     // Keep the main app's Dock identity while configuring the native panel's Spaces behavior.
     if (platform === "darwin") mini.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true, skipTransformProcessType: true });
-    mini.on("will-move", (_event, bounds) => { movedBounds = bounds; });
-    mini.on("blur", () => { if (!pinned && !isQuitting()) hide(); });
+    mini.on("will-move", (_event, bounds) => {
+      if (platform === "darwin") { manualMove = true; placedBounds = null; }
+      else movedBounds = bounds;
+    });
+    mini.on("move", () => {
+      if (platform !== "darwin" || !manualMove) return;
+      const bounds = mini.getBounds();
+      // A programmatic refit also emits move; retain the user's unclamped position.
+      if (!placedBounds || bounds.x !== placedBounds.x || bounds.y !== placedBounds.y) movedBounds = bounds;
+    });
+    mini.on("blur", () => {
+      // A blur from an earlier hide may arrive after macOS has focused the new opening.
+      if (!pinned && !isQuitting() && (platform !== "darwin" || !mini.isFocused())) hide();
+    });
     mini.on("close", event => {
       if (isQuitting()) return;
       event.preventDefault();
@@ -163,6 +181,7 @@ function createMiniWindow({ app, BrowserWindow, screen, ipcMain, preload, platfo
     const point = anchor ? null : screen.getCursorScreenPoint();
     anchorBounds = anchor || { ...point, width: 0, height: 0 };
     movedBounds = null;
+    manualMove = false;
     if (loaded) {
       fit();
       show();
