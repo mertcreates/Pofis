@@ -6,6 +6,7 @@ import { memo, useEffect, useId, useRef, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { POFI_ASSETS } from "@/domain/rules/pofi.js";
 import { presentPdksFailure } from "./pdks-error-presentation";
+import PofiIdle from "./pofi/idle";
 
 export const Connection = memo(function Connection({
   busy,
@@ -44,14 +45,24 @@ export const Connection = memo(function Connection({
   return (
     <section className="connection" aria-labelledby="connection-title">
       <div className="connection-brand">
-        <img
-          src={busy ? POFI_ASSETS.working : POFI_ASSETS.idle}
-          className="connection-mascot"
-          width={240}
-          height={240}
-          alt={product.mascotName}
-          fetchPriority="high"
-        />
+        {busy ? (
+          <img
+            src={POFI_ASSETS.working}
+            className="connection-mascot"
+            width={240}
+            height={240}
+            alt={product.mascotName}
+            fetchPriority="high"
+          />
+        ) : (
+          <PofiIdle
+            className="connection-mascot"
+            width={240}
+            height={240}
+            alt={product.mascotName}
+            fetchPriority="high"
+          />
+        )}
       </div>
       <div className="dashboard-card connection-form">
         <h1 id="connection-title">{ui.connect}</h1>

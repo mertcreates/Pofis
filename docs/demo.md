@@ -19,7 +19,7 @@ Gün senaryoları: Hedefin altında → 15 Ekim; Tekrarlanan geçiş → 7 Ekim;
 
 “Demoyu sıfırla” başlangıç gününü sıfır ek süreyle açar; hata önizlemesini bağlantı, durum mesajı önizlemesini çıkış hatasına döndürür. Kayıtlı planlar ve görünüm tercihi korunur. Sayfa yenilenince geçici seçimler sıfırlanır.
 
-[Demo kontrolleri](../src/demo/controls.tsx) sekmeleri ve sıfırlamayı sunar; durum [demo istemcisinde](../src/demo/dashboard.tsx) tutulur. Ortak DashboardView içeriği standart `children` ile alır.
+[Demo kontrolleri](../src/demo/controls.tsx) sekmeleri ve sıfırlamayı sunar; durum [demo istemcisinde](../src/demo/dashboard.tsx) tutulur.
 
 ## Haftalık planlayıcı
 
@@ -51,7 +51,7 @@ Senaryolar canlı ekranlarla aynı [hata bileşenini](../src/components/request-
 
 Yerel modal ve örnek plan senaryo/sekme değişiminde sıfırlanır. Bu örneklerin saklama alanı yalnız süreç belleğidir.
 
-Önizleme sahipleri: [hatalar](../src/demo/error-preview.tsx), [durum mesajları](../src/demo/notice-preview.tsx), [yerel modal senaryoları](../src/demo/local-preview.tsx). Ortak DashboardView senaryo içeriğini `children` olarak alır.
+Önizleme sahipleri: [hatalar](../src/demo/error-preview.tsx), [durum mesajları](../src/demo/notice-preview.tsx), [yerel modal senaryoları](../src/demo/local-preview.tsx).
 
 ## Veri ve zaman
 

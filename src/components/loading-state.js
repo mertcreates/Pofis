@@ -1,4 +1,5 @@
 import { ui } from "@/lib/ui-text.js";
+import PofiIdle from "./pofi/idle";
 
 export default function LoadingState({ label = ui.loadingApp }) {
   return (
@@ -8,7 +9,7 @@ export default function LoadingState({ label = ui.loadingApp }) {
       aria-live="polite"
       aria-busy="true"
     >
-      <img src="/pofi/pofi-full.webp" width="200" height="200" alt="" />
+      <PofiIdle width={200} height={200} alt="" />
       <p>{label}</p>
     </div>
   );

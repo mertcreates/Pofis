@@ -43,9 +43,7 @@ Toparlanma işlemi hatanın sahibine döner: oturum kontrolü GET `/api/session`
 
 Sistem hatası normal hata ekranında sunulur. “Girişe dön” hatayı temizleyip boş formu açar; yeni giriş isteği form gönderildiğinde başlar. Oturum bitişi giriş formunda kutusuz, nötr durum metnidir. Pofi yanlış bilgide normal, sistem hatasında hata duruşunu kullanır; istek sürerken çalışma duruşundadır.
 
-Eski rapor varken hata kısa bir bildirim olarak raporun üzerinde kalır; rapor yokken tek hata görünümü sunulur.
-
-Tam sayfa hata ve rapor üzerindeki kompakt bildirim ortak [RequestError](../src/components/request-error.js) sahibini kullanır. Tam sayfa görünümü rapor yokken, kompakt bildirim mevcut raporun üzerinde sunulur. Lavanta Pofi sahnesi ve duyarlı yerleşim [DESIGN](../DESIGN.md#hata-ve-yardımcı-ekranlar) belgesinde yönetilir.
+Rapor varken hata kısa bir bildirim olarak raporun üzerinde kalır; rapor yokken tam sayfa hata görünümü sunulur. Her iki görünüm ortak [RequestError](../src/components/request-error.js) sahibini kullanır. Lavanta Pofi sahnesi ve duyarlı yerleşim [DESIGN](../DESIGN.md#hata-ve-yardımcı-ekranlar) belgesinde yönetilir.
 
 Teknik ayrıntılar kutusuz İz kaydı düzeninde sürekli görünür. “Sorunun nedeni” güvenli açıklama, hata kodu ve kısa İstanbul zamanını içerir. “İstek ayrıntıları” Pofis API ve PDKS alanlarını kendi isteklerinin altında toplar; verisi bulunmayan kaynak grubu çizilmez. API ve PDKS HTTP durumları kendi istek bağlamında gösterilir. Alanlar yalnız boşlukla ayrılır, uzun yollar satır kırar. “Teknik ayrıntıları kopyala” tüm izinli alanları ve özgün zaman damgasını kopyalar; başarı veya erişim reddi durum metniyle bildirilir.
 

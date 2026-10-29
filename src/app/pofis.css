@@ -27,12 +27,8 @@
   color: var(--secondary);
   text-align: center;
 }
-.loading-state img {
-  display: block;
-  width: 200px;
+.loading-state .pofi-idle {
   max-width: 100%;
-  height: auto;
-  object-fit: contain;
 }
 .loading-state p {
   margin: 0;

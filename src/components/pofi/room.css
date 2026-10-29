@@ -95,8 +95,32 @@
   margin: 0 0 16px;
   text-align: center;
 }
-.pofi-room-welcome img {
-  object-fit: contain;
+.pofi-room-welcome-pofi {
+  display: block;
+  flex: 0 0 auto;
+  appearance: none;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: default;
+  line-height: 0;
+  touch-action: manipulation;
+}
+.pofi-room-welcome-pofi:hover:not(:disabled),
+.pofi-room-welcome-pofi:focus:not(:disabled),
+.pofi-room-welcome-pofi:active:not(:disabled) {
+  border-color: transparent;
+  background: transparent;
+  color: inherit;
+  box-shadow: none;
+}
+.pofi-room-welcome-pofi:focus-visible {
+  outline: none;
+}
+.pofi-room-welcome-pofi:focus-visible > .pofi-idle {
+  filter: drop-shadow(0 0 3px var(--accent-text));
 }
 .pofi-room-welcome-copy {
   display: flex;
@@ -313,12 +337,13 @@
   border-radius: var(--radius);
   background: var(--surface);
 }
-.pofi-room-identity > img {
-  object-fit: contain;
+.pofi-room-identity > .pofi-idle {
   max-width: 100%;
-  padding: 12px;
   background: var(--accent-soft);
   border-radius: var(--radius);
+}
+.pofi-room-identity > .pofi-idle > .pofi-idle__sway {
+  inset: 12px;
 }
 .pofi-room-identity dl {
   display: grid;

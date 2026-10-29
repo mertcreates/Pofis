@@ -3,14 +3,14 @@
     "version": "1.1.0",
     "publishedOn": "2026-10-29",
     "features": [
-      "Masaüstünde mesai planın artık PDKS hesabına göre bu cihazda saklanıyor. Her hesap 40 saatlik planla başlıyor; aynı hesapla tekrar bağlandığında kaydettiğin plan açılıyor.",
-      "Masaüstünde “Beni hatırla” ile kullanıcı adını ve şifreni bu cihazda şifreli saklayabilirsin. Oturumun sona erdiğinde veya PDKS’ye ulaşılamadığında Pofis yeniden bağlanmayı dener. Bağlantıyı kestiğinde kayıtlı bilgiler silinir."
+      "Masaüstünde “Beni hatırla” ile giriş bilgilerini cihazında şifreli saklayabilirsin. Pofis gerektiğinde yeniden bağlanmayı dener; bağlantıyı kestiğinde bilgiler silinir.",
+      "Pofi’nin bekleme hâli yenilendi; artık göz kırpıyor."
     ],
     "fixes": [
-      "Mesai planında bazı ondalık saatlerin reddedilmesi ve düzenlenen sürenin yanlış gösterilmesi düzeltildi.",
-      "Hesap değiştirirken önceki oturumdan gelen yanıtın yeni bağlantıyı kapatması ve eski bildirim hatalarının görünmesi düzeltildi.",
+      "Mesai planında bazı ondalık sürelerin reddedilmesi ve düzenlenen sürenin yanlış gösterilmesi düzeltildi.",
+      "Hesap değiştirirken bağlantının kesilmesi ve eski bildirim hatalarının görünmesi düzeltildi.",
       "Bildirim kaydı yazılamadığında Pofi Mini’nin hata ekranına geçmesi düzeltildi.",
-      "macOS’ta Pofi Mini’nin odağı, gizli uygulamadan açılışı, hızlı tıklamalar ve tam ekran geçişlerindeki konumu düzeltildi."
+      "macOS’ta Pofi Mini’nin açılış, odaklanma ve konum sorunları düzeltildi."
     ]
   },
   {

@@ -6,6 +6,7 @@ import Icon from "../ui-icon.js";
 import { POFI_SURPRISES, nextSurpriseTap } from "@/domain/rules/pofi-surprises";
 import { POFI_ASSETS } from "@/domain/rules/pofi.js";
 import { product, ui } from "@/lib/ui-text.js";
+import PofiIdle from "./idle";
 
 export default function PofiRoom({ onClose, children, work }) {
   const [section, setSection] = useState(null);
@@ -15,6 +16,7 @@ export default function PofiRoom({ onClose, children, work }) {
   const [signatureTaps, setSignatureTaps] = useState(0);
   const [workTaps, setWorkTaps] = useState(0);
   const [idleNoteVisible, setIdleNoteVisible] = useState(false);
+  const [welcomeBlinkSequence, setWelcomeBlinkSequence] = useState(0);
   const tiles = useRef({});
   const photos = useRef({});
   const laptopCaption = useRef(null);
@@ -106,7 +108,20 @@ export default function PofiRoom({ onClose, children, work }) {
       {!section && (
         <>
           <div className="pofi-room-welcome">
-            <img src="/pofi/pofi-full.webp" width="112" height="112" alt="" />
+            <button
+              type="button"
+              className="pofi-room-welcome-pofi"
+              onClick={() =>
+                setWelcomeBlinkSequence((sequence) => sequence + 1)
+              }
+            >
+              <PofiIdle
+                width={112}
+                height={112}
+                alt={product.mascotName}
+                blinkSequence={welcomeBlinkSequence}
+              />
+            </button>
             <div
               role="status"
               aria-atomic="true"
@@ -233,10 +248,9 @@ export default function PofiRoom({ onClose, children, work }) {
       {section === "notes" && children}
       {section === "identity" && (
         <div className="pofi-room-identity">
-          <img
-            src="/pofi/pofi-full.webp"
-            width="160"
-            height="160"
+          <PofiIdle
+            width={160}
+            height={160}
             alt={product.mascotName}
           />
           <dl>

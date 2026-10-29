@@ -7,7 +7,8 @@ Görsellerin lisans kapsamı ve üçüncü taraf bildirimleri [görsel lisans bi
 | Uygulama dosyası | Kaynak ve kullanım |
 | --- | --- |
 | `public/pofi/pofi-mark-256.png` | Üst marka, favicon, Apple simgesi ve Electron pencere/uygulama simgesinin kaynağı |
-| `public/pofi/pofi-full.webp` | Yükleme ekranı ve Pofi odası |
+| `public/pofi/pofi-full.webp` | [Pofi bekleme görselinin](../../src/components/pofi/idle.tsx) taban çizimi |
+| `public/pofi/pofi-blink-patch-v1.webp` | Göz kırpma sırasında göz alanını temizleyen 470×190, 54,6 KB kayıpsız WebP katmanı |
 | `public/brand/pofi-full-512.webp` | Marka kitinden korunmuş görsel referans |
 | `public/pofi/states/*.webp` | 1.0.0 Docker arşivindeki break, completed, error, idle, overworked, tired, working; durum paneli ve albüm |
 | `public/pofi/pofi-meal.webp` | Yemek menüsündeki Pofi notu ve fotoğraf albümündeki “Yemeği beklerken” sahnesi |

@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 import "./pofis.css";
 import "./modal.css";
+import "@/components/pofi/idle.css";
 import "@/components/pofi/room.css";
 import "./current-contracts.css";
 import "@/components/request-error.css";

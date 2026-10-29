@@ -2,6 +2,7 @@ import { clockSurpriseAt } from "@/domain/rules/pofi-surprises";
 import { product, ui } from "@/lib/ui-text.js";
 import { type DayReport } from "@/domain/attendance";
 import { formatClock } from "@/domain/time";
+import PofiIdle from "../pofi/idle";
 type Props = {
   day: DayReport;
   now: number;
@@ -34,14 +35,24 @@ export function PofiPanel({ day, now, onOpen }: Props) {
               if (event.repeat) event.preventDefault();
             }}
           >
-            <img
-              src={day.source.pofi.asset}
-              className="pofi-hero"
-              alt=""
-              width={156}
-              height={156}
-              fetchPriority="high"
-            />
+            {pofiText.state === "idle" ? (
+              <PofiIdle
+                className="pofi-hero"
+                alt=""
+                width={152}
+                height={152}
+                fetchPriority="high"
+              />
+            ) : (
+              <img
+                src={day.source.pofi.asset}
+                className="pofi-hero"
+                alt=""
+                width={156}
+                height={156}
+                fetchPriority="high"
+              />
+            )}
           </button>
         </div>
         <div className="pofi-message">
