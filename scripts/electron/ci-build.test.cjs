@@ -51,7 +51,7 @@ test("iptal edilen CI komutu hazır alt süreçlerini de kapatır", async () => 
   const record = join(directory, "pids.json");
   let pids = [];
   const controller = new AbortController();
-  let pending;
+  let pending, failure;
   try {
     const nested = `const { spawn } = require('node:child_process');
       const child = spawn(process.execPath, ['-e', 'setInterval(() => {}, 1000)'], { stdio: 'ignore' });
@@ -60,7 +60,8 @@ test("iptal edilen CI komutu hazır alt süreçlerini de kapatır", async () => 
     await writeFile(script, `const { run, handleCancellation } = require(${JSON.stringify(join(__dirname, "ci-build.cjs"))});
       handleCancellation();
       run(process.execPath, ['-e', ${JSON.stringify(nested)}]).catch(() => { process.exitCode = 1; });`);
-    pending = run(process.execPath, [script, record], directory, process.env, { signal: controller.signal });
+    // Keep the fixture directory out of the subprocess working directory on Windows.
+    pending = run(process.execPath, [script, record], undefined, process.env, { signal: controller.signal });
     pending.catch(() => {}); // Observe rejection even if fixture startup fails first.
     await until(async () => Bun.file(record).exists(), 5000);
     pids = JSON.parse(await readFile(record, "utf8"));
@@ -70,13 +71,24 @@ test("iptal edilen CI komutu hazır alt süreçlerini de kapatır", async () => 
     controller.abort(reason);
     await expect(pending).rejects.toBe(reason);
     expect(await runningPids(pids)).toEqual([]);
+  } catch (error) {
+    failure = error;
+    throw error;
   } finally {
     controller.abort();
     await pending?.catch(() => {});
     for (const pid of pids) { try { process.kill(pid, "SIGKILL"); } catch {} }
-    await rm(directory, { recursive: true, force: true });
+    try {
+      await until(() => rm(directory, { recursive: true, force: true }).then(() => true, error => {
+        if (!["EBUSY", "EPERM", "ENOTEMPTY"].includes(error.code)) throw error;
+        return false;
+      }), 5000, "CI testinin geçici klasörü temizlenemedi.");
+    } catch (cleanup) {
+      if (failure) throw new AggregateError([failure, cleanup], `${failure.message}\nTemizlik: ${cleanup.message}`);
+      throw cleanup;
+    }
   }
-});
+}, 40000);
 
 test("CI komutunun zaman sınırı bekleyen komutu sonlandırır", async () => {
   await expect(run(process.execPath, ["-e", "setInterval(() => {}, 1000)"], undefined, undefined,
