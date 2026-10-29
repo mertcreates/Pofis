@@ -11,6 +11,7 @@ import { dateKey } from "@/domain/rules/calendar";
 import { pofiNotesForWeek } from "@/server/pofi-notes.js";
 import { analyticsUserIdForAccount } from "@/server/analytics-identity";
 import { notificationSession } from "@/server/notification-identity";
+import { workPlanSessionId } from "@/server/work-plan-storage.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -38,9 +39,11 @@ export async function GET(request) {
     assertSessionActive(session);
     return json({
       ...report,
-      notificationSession: notificationSession(session),
-      analyticsUserId: analyticsUserIdForAccount(person.pofiKey),
-      pofiNotes: pofiNotesForWeek(dateKey(Date.now()), person.pofiKey),
+      notificationSession: { ...notificationSession(session),
+        ...(process.env.POFIS_PLAN_DIR ? { workPlanSession: workPlanSessionId(session) } : {}),
+      },
+      analyticsUserId: analyticsUserIdForAccount(person.accountKey),
+      pofiNotes: pofiNotesForWeek(dateKey(Date.now()), person.accountKey),
     });
   } catch (error) {
     return failure(error, request);

@@ -13,7 +13,7 @@
 
 ## Hesap kimliği
 
-[Sunucu kimlik sahibi](../src/server/analytics-identity.ts), mevcut Pofi hesap anahtarından `pofis_ga_v1_` önekli SHA-256 kimliği üretir: UTF-8 JSON girdisi `["pofis:analytics-user:v1", accountKey]`. Anahtarın kendisi ve oturum token'ı Google'a gönderilmez. Aynı kaynak/normalize kullanıcı adıyla girişler, süreçler ve cihazlar aynı analytics kimliğini üretir. Ad-soyad kimliğe katılmaz. Kaynağın farklı harf/takma adlarla aynı hesabı kabul etmesi, mevcut Pofi anahtarı sözleşmesine bağlıdır; bu eşdeğerlik doğrulanmış değildir.
+[Sunucu kimlik sahibi](../src/server/analytics-identity.ts), [ortak hesap anahtarından](rules/account-identity.md) `pofis_ga_v1_` önekli SHA-256 kimliği üretir: UTF-8 JSON girdisi `["pofis:analytics-user:v1", accountKey]`. Anahtarın kendisi ve oturum token'ı Google'a gönderilmez. Aynı hesap anahtarı süreçler ve cihazlar arasında aynı analytics kimliğini üretir.
 
 [Kendi raporu route'u](../src/app/api/report/route.js) aktif oturumu doğruladıktan sonra yanıta `analyticsUserId` ekler. Bu alan raporun `no-store` sınırını kullanır. Kimlik her yanıtta mevcut hesap anahtarından türetilir. Bu kimlik takma kimliktir; sürümlü hash ve ayrı kullanım alanı anonimlik veya tahmin saldırısına direnç garantisi vermez.
 

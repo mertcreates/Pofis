@@ -2,7 +2,7 @@
 import { ui } from "../lib/ui-text.js";
 
 import { useCallback, useEffect, useEffectEvent, useReducer, useRef, useState } from "react";
-import { api, createLatestRequest } from "@/lib/api-client.js";
+import { api, ApiError, createLatestRequest } from "@/lib/api-client.js";
 import { readSessionResponse } from "@/lib/session-response.js";
 import { startSessionHeartbeat } from "@/lib/session-heartbeat.js";
 import { toRequestFailure, type PdksOperation } from "@/lib/pdks-failure";
@@ -19,6 +19,27 @@ import type { RememberedResult } from "@/desktop/remembered-contract";
 function readRememberedResult<T>(result: RememberedResult<T>): T {
   if (!result.ok) throw result.error;
   return result.value;
+}
+
+function readWorkPlanSession(value: unknown, required: boolean): string | null {
+  const session = value && typeof value === "object" && "workPlanSession" in value
+    ? value.workPlanSession : undefined;
+  if (session === undefined && !required) return null;
+  if (typeof session === "string" && /^[a-f0-9]{64}$/.test(session)) return session;
+  throw new ApiError(ui.apiErrors.responseUnreadable, 200, "INVALID_RESPONSE", {
+    apiPath: "/api/session", apiMethod: "GET", diagnostic: ui.apiErrors.invalidSessionResponse,
+  });
+}
+
+function desktopWorkPlansEnabled() {
+  return Boolean(window.pofisRememberedSession && !window.pofisScenario);
+}
+
+function reportBelongsToSession(value: unknown, expected: string | null): boolean {
+  if (!desktopWorkPlansEnabled()) return true;
+  if (!expected || !value || typeof value !== "object" || !("notificationSession" in value)) return false;
+  const session = value.notificationSession;
+  return Boolean(session && typeof session === "object" && "workPlanSession" in session && session.workPlanSession === expected);
 }
 
 export function usePdks(week: string, { observeDesktopSession = false } = {}) {
@@ -75,6 +96,7 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
   const onDesktopReport = useEffectEvent((value: NotificationReport) => {
     if (observeDesktopSession && desktopActive.current === false) return;
     if (!connected || (state.busy && state.busy !== "report") || mutationInFlight.current || value.from !== week) return;
+    if (!reportBelongsToSession(value, state.workPlanSession)) return;
     try {
       const next = readReportResponse(value, week, addDays(week, 6));
       if (report?.from === next.from && report.to === next.to) {
@@ -112,15 +134,21 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
     dispatch({ type: "started", operation: "session" });
     const promise = (async () => {
       try {
-        const result = await api("/api/session", { signal });
+        let result = await api("/api/session", { signal });
         if (signal.aborted || id !== generation.current) return;
         let sessionConnected = readSessionResponse(result, "/api/session", "GET");
         if (!sessionConnected && window.pofisRememberedSession) {
           sessionConnected = readRememberedResult(await window.pofisRememberedSession.recover(false));
           if (signal.aborted || id !== generation.current) return;
+          if (sessionConnected) {
+            result = await api("/api/session", { signal });
+            if (signal.aborted || id !== generation.current) return;
+            sessionConnected = readSessionResponse(result, "/api/session", "GET");
+          }
         }
+        const workPlanSession = sessionConnected ? readWorkPlanSession(result, desktopWorkPlansEnabled()) : null;
         if (!sessionConnected) setAnalyticsUserId(null);
-        dispatch({ type: "session-checked", connected: sessionConnected });
+        dispatch({ type: "session-checked", connected: sessionConnected, workPlanSession });
         return sessionConnected;
       } catch (error) {
         if (!signal.aborted && id === generation.current)
@@ -204,6 +232,10 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
           `/api/report?${new URLSearchParams({ person: REPORT_ACCESS.person, from: week, to: addDays(week, 6) })}`,
         );
         if (!result || id !== generation.current) return;
+        if (!reportBelongsToSession(result, state.workPlanSession))
+          throw new ApiError(ui.apiErrors.responseUnreadable, 200, "INVALID_RESPONSE", {
+            apiPath: "/api/report", apiMethod: "GET", diagnostic: ui.sourceErrors.reportContractMismatch,
+          });
         const nextReport = readReportResponse(result, week, addDays(week, 6));
         setAnalyticsUserId(readAnalyticsUserId(result));
         dispatch({ type: "report-loaded", report: nextReport });
@@ -216,7 +248,7 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
     })();
     pendingReport.current = { id, week, promise };
     return promise;
-  }, [connected, week, requests, fail, observeDesktopSession]);
+  }, [connected, week, requests, fail, observeDesktopSession, state.workPlanSession]);
 
   useEffect(() => {
     void load();
@@ -239,6 +271,7 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
     invalidate();
     const id = generation.current;
     dispatch({ type: "started", operation: "connect" });
+    let sessionEstablished = false;
     try {
       const remember = values.has("remember");
       const desktop = window.pofisRememberedSession;
@@ -249,16 +282,30 @@ export function usePdks(week: string, { observeDesktopSession = false } = {}) {
           body: JSON.stringify({ username: values.get("username"), password: values.get("password") }),
         });
       if (id !== generation.current) return;
+      sessionEstablished = true;
       if (desktop) {
         const saved = result as { remembered: boolean; cleanupFailed?: boolean };
         setRememberWarning(saved.cleanupFailed ? ui.connectionFields.rememberCleanupFailed
           : remember && !saved.remembered ? ui.connectionFields.rememberSaveFailed : "");
       }
       else readSessionResponse(result, "/api/session", "POST");
+      const session = desktop ? await api("/api/session") : result;
+      if (id !== generation.current) return;
+      if (desktop && !readSessionResponse(session, "/api/session", "GET"))
+        throw new ApiError(ui.apiErrors.responseUnreadable, 200, "INVALID_RESPONSE", {
+          apiPath: "/api/session", apiMethod: "GET", diagnostic: ui.apiErrors.invalidSessionResponse,
+        });
+      const workPlanSession = readWorkPlanSession(session, desktopWorkPlansEnabled());
       setAnalyticsUserId(null);
-      dispatch({ type: "connected" });
+      dispatch({ type: "connected", workPlanSession });
     } catch (error) {
-      if (id === generation.current) fail(error, "connect");
+      if (id === generation.current) {
+        if (sessionEstablished) {
+          setAnalyticsUserId(null);
+          dispatch({ type: "disconnected" });
+        }
+        fail(error, sessionEstablished ? "session" : "connect");
+      }
     } finally {
       values.delete("username");
       values.delete("password");

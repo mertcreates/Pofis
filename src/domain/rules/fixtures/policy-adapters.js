@@ -108,7 +108,8 @@ const frame = { url: "http://127.0.0.1:3210/" };
 const emitted = [];
 const contents = { mainFrame: frame, isDestroyed: () => false, send: name => emitted.push(name) };
 let sessionFailure = null;
-const identity = { accountId: "a".repeat(64), expiresAt: Date.now() + 3600000 };
+const workPlanSession = "b".repeat(64);
+const identity = { accountId: "a".repeat(64), expiresAt: Date.now() + 3600000, workPlanSession };
 let tick, desktopPerson, desktopAborted = false, desktopFinished;
 const desktopDone = new Promise(resolve => { desktopFinished = resolve; });
 const originalInterval = globalThis.setInterval;
@@ -122,7 +123,7 @@ try {
       const url = new URL(path);
       if (url.pathname === "/api/session") return sessionFailure
         ? Response.json({ code: sessionFailure.code }, { status: sessionFailure.status })
-        : Response.json({ connected: true, notificationSession: identity });
+        : Response.json({ connected: true, notificationSession: identity, workPlanSession });
       if (url.pathname === "/api/report") {
         desktopPerson = url.searchParams.get("person");
         return Response.json({ ...report(url.searchParams.get("from"), url.searchParams.get("to")), notificationSession: identity });
@@ -141,7 +142,8 @@ try {
 } finally { globalThis.setInterval = originalInterval; }
 try {
   const event = { sender: contents, senderFrame: frame };
-  const synced = await handlers.get("pofis:notifications:sync")(event, JSON.stringify(emptyWorkPlans()));
+  const plan = { plans: JSON.stringify(emptyWorkPlans()), session: workPlanSession };
+  const synced = await handlers.get("pofis:notifications:sync")(event, plan);
   if (!synced.ok) throw new Error(synced.error);
   await handlers.get("pofis:notifications:refresh")(event);
   tick();
@@ -152,7 +154,7 @@ try {
     { status: 401, code: "AUTH_FAILED" }, { status: 500, code: "SESSION_EXPIRED" }]) {
     sessionFailure = failure;
     const before = emitted.filter(name => name === "pofis:notifications:expired").length;
-    await handlers.get("pofis:notifications:sync")(event, JSON.stringify(emptyWorkPlans()));
+    await handlers.get("pofis:notifications:sync")(event, plan);
     desktopExpiry.push(emitted.filter(name => name === "pofis:notifications:expired").length > before);
   }
   console.log(JSON.stringify({ webPerson, desktopPerson, profilePerson,

@@ -7,16 +7,17 @@ export type PdksState = {
   failure: RequestFailure | null;
   report: Report | null;
   stale: boolean;
+  workPlanSession: string | null;
 };
 
 export const initialPdksState: PdksState = {
-  connected: null, busy: "session", failure: null, report: null, stale: false,
+  connected: null, busy: "session", failure: null, report: null, stale: false, workPlanSession: null,
 };
 
 type Action =
   | { type: "started"; operation: PdksState["busy"] }
-  | { type: "session-checked"; connected: boolean }
-  | { type: "connected" }
+  | { type: "session-checked"; connected: boolean; workPlanSession?: string | null }
+  | { type: "connected"; workPlanSession: string | null }
   | { type: "returned-to-login" }
   | { type: "report-loaded"; report: Report }
   | { type: "failed"; failure: RequestFailure }
@@ -30,9 +31,11 @@ export function pdksReducer(state: PdksState, action: Action): PdksState {
     case "started": return { ...state, busy: action.operation, failure: null };
     case "session-checked":
       return action.connected
-        ? { ...state, connected: true, busy: "", failure: null }
+        ? { ...state, connected: true, busy: "", failure: null,
+            workPlanSession: action.workPlanSession ?? null,
+            ...(state.workPlanSession !== (action.workPlanSession ?? null) ? { report: null, stale: false } : {}) }
         : { ...initialPdksState, connected: false, busy: "" };
-    case "connected": return { ...state, connected: true, busy: "", failure: null, report: null, stale: false };
+    case "connected": return { ...state, connected: true, busy: "", failure: null, report: null, stale: false, workPlanSession: action.workPlanSession };
     case "report-loaded": return { ...state, busy: "", failure: null, report: action.report, stale: false };
     case "disconnected": return { ...initialPdksState, connected: false, busy: "" };
     case "failed": {

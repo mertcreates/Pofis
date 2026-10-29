@@ -11,7 +11,10 @@ export function Dashboard({ initialNow }: { initialNow: number }) {
   const now = useClock(initialNow, "day");
   const [week, setWeek] = useState(() => weekStart(dateKey(initialNow)));
   const pdks = usePdks(week);
-  const workPlans = useWorkPlans(week);
+  const workPlans = useWorkPlans(week, "live", {
+    connected: pdks.connected, busy: pdks.busy, workPlanSession: pdks.workPlanSession,
+    sessionFailed: pdks.failure?.operation === "session", checkSession: pdks.checkSession,
+  });
 
   return (
     <DashboardView

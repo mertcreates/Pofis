@@ -60,6 +60,10 @@ Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut se
 
 [Paketli senaryo kabulü](../scripts/electron/scenario-acceptance.cjs), gerçek arayüzde önceki haftaya geçer; Mesai planını açıp sekmedeki tarih aralığını, kapatınca rapor haftasının korunduğunu ve Mesaim ile güncel haftaya dönüşü doğrular. Tarayıcıda ayrıca Çalışma düzeni → haftalık plan geçişini ve düzenlemeyi kaydedip yeniden açmayı kontrol edin; kayıt ve yükleme beklentileri [plan sözleşmesindedir](rules/work-plan.md#kalıcılık-ve-navigasyon). [Kapasite örneğinde](rules/work-plan.md#elle-haftalık-düzenleme-ve-sıfırlama) süre alanının ve gün kartının hesaplanan sonuçla eşleştiğini kontrol edin.
 
+Yetkili PDKS hesaplarıyla paketli Electron'da A hesabının planını ve bildirim tercihlerini değiştirip çıkış yapın → aynı cihazda ilk kez açılan B hesabı 40 saatlik şablonla başlar → A'ya dönünce kayıtlı planı ve bildirim tercihleri görünür. A kullanıcı adındaki ASCII harflerin büyük/küçük yazımını değiştirerek tekrar giriş yapın → aynı plan ve tercihler açılır. Pofi notları aynı hesap ve tarihte, yemek yorumu da aynı hesap, tarih ve menüde aynı seçimi kullanır.
+
+Önceki sürümden 1.1.0'a geçişte mevcut oturum yeniden giriş ister; yeni hesap planı 40 saatlik şablonla açılır. Paketli geçişte tema ve tarayıcı kayıtları korunur; sentetik oturumlarla kontrol yöntemi [masaüstü rehberindedir](desktop.md#motor-geçişi-kabulü).
+
 | Otomatik test | Kapsam |
 | --- | --- |
 | [Plan](../src/domain/rules/work-plan.test.ts) | Sayısal devir, şablon mirası, özel hedef, kilitler, tamamlama ve sınırlar |
@@ -70,6 +74,9 @@ Beklenen sonuçlar [mesai planı sözleşmesindeki](rules/work-plan.md) somut se
 | [İzin ve kapasite](../src/domain/rules/work-plan-leave.test.ts) | Şablon karşılığını düşme, açma/sıfırlama ve kapasite sınırında otomatik dağıtım |
 | [Sıfır süreli açık gün](../src/domain/rules/work-plan-open-days.test.ts) | Kaydetme → yeniden yükleme → sonraki gün yeni kayıt → yeniden dengeleme; izin, şablon ve sıfırlama |
 | [Depolama](../src/data/work-plans.test.ts) | Doğrulama, kalıcılık, yazı hatası ve canlı/demo ayrımı |
+| [Hesap kimliği](../src/domain/rules/account-identity.test.ts), [PDKS](../src/server/pdks.test.js), [plan route](../src/server/work-plan-route.test.js) ve [rapor route](../src/server/routes.test.js) | Giriş adı ve ASCII dönüşümü; sahte kaynakla ortak plan, not, bildirim ve analitik kimliği |
+| [Electron plan deposu](../src/server/work-plan-storage.test.js), [route](../src/server/work-plan-route.test.js), [oturum](../src/server/desktop-plan-session.test.js) ve [PDKS](../src/server/pdks.test.js) | Hesap ayrımı ve ASCII kullanıcı adı, varsayılan plan, yeniden açılış, geçersiz oturum, revizyon çatışması, bozuk dosya, başarısız yazı ve çıkışla süren kayıt; geçici dizin ve sahte oturum/kaynak |
+| [Electron istemcisi](../src/data/desktop-work-plans.test.ts), [React kabulü](../src/data/desktop-work-plans-react.test.ts) ve [rapor bağlayıcısı](../src/data/pdks-plan-session.test.ts) | A → B → A, iki plan tüketicisi ve saat taslağı, demo ayrımı, geciken okuma/rapor, yazı hatası ve Dashboard ile Mini düğmelerinde okuma hatasından yeniden deneme; gerçek Electron, geçici profil ve sahte HTTP |
 | [Rapor](../src/domain/report.test.ts) | Ortak gereken süre, kayıt durumu, Pofi ve hedef çıkış |
 | [Kural mimarisi](../src/domain/rules/rules.test.ts) | Belge/kod sahipliği ve bağımlılık sınırları |
 
@@ -112,6 +119,7 @@ Paketleme, süreç ve installer kabulünün ayrıntılı kapsamı [masaüstü re
 | --- | --- |
 | Electron ve bildirim birimleri | `bun run test:desktop` |
 | Beni hatırla | `bun test src/desktop/remembered-session.test.ts src/data/remembered-electron.test.ts`; geçici profil ve sahte kaynaklarla gerçek Electron şifrelemesi, çerez taşıması ve yemek menüsünde oturum bitişinden sonra yeniden giriş. Hedef macOS/Linux anahtarlığı ve gerçek kurum hesabı ayrıca doğrulanır. |
+| Hesaba göre Electron planı | `bun test src/server/work-plan-storage.test.js src/server/work-plan-route.test.js src/server/desktop-plan-session.test.js src/server/pdks.test.js src/data/desktop-work-plans.test.ts src/data/desktop-work-plans-react.test.ts src/data/pdks-plan-session.test.ts`; cihaz kabulü [plan doğrulamasındadır](#plan-doğrulaması). |
 | Kabuk ve dağıtım betiklerinin tüm birimleri | `bun test ./electron ./scripts/electron`; `.cjs` dosyaları için açık dizin seçimi gerekir |
 | Paket açılışı | `bun run test:desktop:smoke <paket-klasörü>` |
 | Windows installer | `bun run test:desktop:distribution`; landing komutu için `--site ../pofis-landing` |

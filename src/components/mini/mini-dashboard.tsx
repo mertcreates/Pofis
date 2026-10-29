@@ -47,7 +47,10 @@ export function MiniDashboard({ initialNow }: { initialNow: number }) {
   const today = dateKey(now);
   const [week, setWeek] = useState(() => weekStart(today));
   const pdks = usePdks(week, { observeDesktopSession: true });
-  const plans = useWorkPlans(week);
+  const plans = useWorkPlans(week, "live", {
+    connected: pdks.connected, busy: pdks.busy, workPlanSession: pdks.workPlanSession,
+    sessionFailed: pdks.failure?.operation === "session", checkSession: pdks.checkSession,
+  });
   const [pinned, setPinned] = useState(false);
   useEffect(() => { setWeek(weekStart(today)); }, [today]);
   useEffect(() => {
@@ -99,7 +102,11 @@ export function MiniDashboard({ initialNow }: { initialNow: number }) {
       </header>
 
       {plans.error || pdks.failure ? (
-        <div className="pofi-mini-empty" role="alert">{plans.error || ui.desktop.miniLoadFailed}</div>
+        <div className="pofi-mini-empty" role="alert">
+          {plans.error || ui.desktop.miniLoadFailed}
+          {plans.error && !plans.ready && plans.retryRead && <button type="button" className="text-button"
+            onClick={() => void plans.retryRead?.()}>{ui.desktopPlanRetry}</button>}
+        </div>
       ) : pdks.connected === false ? (
         <div className="pofi-mini-empty"><strong>{ui.desktop.miniDisconnectedTitle}</strong><p>{ui.desktop.miniDisconnectedHelp}</p></div>
       ) : !presentation ? (

@@ -130,11 +130,61 @@ async function run() {
     weekZeroOpenDays: { "2026-10-19": [4] } });
   const demoPlan = JSON.stringify({ defaultPlan: [360, 360, 360, 360, 360, 0, 0], weekOverrides: {} });
   const token = randomBytes(32).toString("hex");
+  const currentToken = randomBytes(32).toString("hex");
   const sessionPath = join(profile, "sessions", `${token}.json`);
+  const currentSessionPath = join(profile, "sessions", `${currentToken}.json`);
+  const transitionAccount = "a".repeat(64);
+  const planPath = join(profile, "work-plans", `${transitionAccount}.json`);
+  const accountA = randomBytes(32).toString("hex");
+  const accountB = randomBytes(32).toString("hex");
+  const sessionA = randomBytes(32).toString("hex");
+  const sessionB = randomBytes(32).toString("hex");
+  const sessionAAgain = randomBytes(32).toString("hex");
+  const requestPlan = (id, options = {}) => fetch(`${serverOrigin}/api/work-plans`, {
+    ...options, headers: { ...options.headers, Cookie: `pofis_session=${id}` },
+  });
+  const readPlan = async id => {
+    const response = await requestPlan(id);
+    assert.equal(response.status, 200);
+    return response.json();
+  };
+  const exerciseAccountPlans = async () => {
+    const storage = createSessionStorage(join(profile, "sessions"));
+    const jar = new CookieJar().serializeSync();
+    for (const [id, key] of [[sessionA, accountA], [sessionB, accountB], [sessionAAgain, accountA]])
+      await storage.save(id, { expiresAt: Date.now() + 3600000, jar,
+        self: { accountKey: key }, lastRequestAt: Date.now() });
+    const firstA = await readPlan(sessionA);
+    const firstB = await readPlan(sessionB);
+    assert.deepEqual(firstA.plans.defaultPlan, [480, 480, 480, 480, 480, 0, 0]);
+    assert.deepEqual(firstB.plans, firstA.plans);
+    const write = async (id, previous, plans) => {
+      const response = await requestPlan(id, { method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...previous, plans }) });
+      assert.equal(response.status, 200);
+      return response.json();
+    };
+    await write(sessionA, firstA, readStoredPlans(plan));
+    await write(sessionB, firstB, readStoredPlans(demoPlan));
+    const logout = await fetch(`${serverOrigin}/api/session`, { method: "DELETE",
+      headers: { Cookie: `pofis_session=${sessionA}` } });
+    assert.equal(logout.status, 200);
+    assert.equal((await requestPlan(sessionA)).status, 401);
+    const restored = await readPlan(sessionAAgain);
+    assert.deepEqual(restored.plans, readStoredPlans(plan));
+    assert.notEqual(restored.session, firstA.session);
+    assert.deepEqual((await readPlan(sessionB)).plans, readStoredPlans(demoPlan));
+  };
+  const checkAccountPlans = async () => {
+    assert.deepEqual((await readPlan(sessionAAgain)).plans, readStoredPlans(plan));
+    assert.deepEqual((await readPlan(sessionB)).plans, readStoredPlans(demoPlan));
+  };
   // Scope the synthetic cookie away from UI requests, which could otherwise contact real PDKS.
   const cookieUrl = `${ORIGIN}/transition-check`;
   let sessionRecord;
-  const checkTransition = async () => {
+  let currentSessionRecord;
+  let transitionPlanSaved = false;
+  const checkTransition = async (currentPackage = false) => {
     await until(() => evaluate("document.documentElement.dataset.theme === 'dark'"));
     assert.equal(await evaluate("localStorage.getItem('pofis:theme:v1')"), "dark");
     assert.equal(await evaluate("localStorage.getItem('pofis:work-plans:v1')"), plan);
@@ -145,12 +195,35 @@ async function run() {
     assert.equal(cookie.httpOnly, true);
     assert.equal(cookie.sameSite, "Strict");
     assert.ok(Math.abs(cookie.expires - sessionRecord.expiresAt / 1000) < 1);
-    const response = await fetch(`${serverOrigin}/api/session`, { headers: { Cookie: `pofis_session=${token}` } });
-    const sessionData = await response.json();
-    assert.equal(sessionData.connected, true);
-    assert.match(sessionData.notificationSession.accountId, /^[a-f0-9]{64}$/);
-    assert.equal(sessionData.notificationSession.expiresAt, sessionRecord.expiresAt);
+    const readSession = async id => (await fetch(`${serverOrigin}/api/session`, {
+      headers: { Cookie: `pofis_session=${id}` },
+    })).json();
+    const legacy = await readSession(token);
+    const current = await readSession(currentToken);
+    if (currentPackage) assert.deepEqual([legacy.connected, current.connected], [false, true]);
+    else assert.notEqual(legacy.connected, current.connected, "Önceki paket bir oturum biçimini kabul etmeli.");
+    const connected = current.connected ? current : legacy;
+    assert.match(connected.notificationSession.accountId, /^[a-f0-9]{64}$/);
+    assert.equal(connected.notificationSession.expiresAt, sessionRecord.expiresAt);
     assert.deepEqual(JSON.parse(await readFile(sessionPath, "utf8")), sessionRecord);
+    assert.deepEqual(JSON.parse(await readFile(currentSessionPath, "utf8")), currentSessionRecord);
+    if (current.connected) {
+      assert.match(current.workPlanSession, /^[a-f0-9]{64}$/);
+      const snapshot = await readPlan(currentToken);
+      assert.equal(snapshot.session, current.workPlanSession);
+      if (transitionPlanSaved) {
+        assert.deepEqual(snapshot.plans, readStoredPlans(plan));
+        assert.deepEqual(readStoredPlans(await readFile(planPath, "utf8")), readStoredPlans(plan));
+      } else {
+        assert.deepEqual(snapshot.plans.defaultPlan, [480, 480, 480, 480, 480, 0, 0]);
+        assert.deepEqual(snapshot.plans.weekOverrides, {});
+        const response = await requestPlan(currentToken, { method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ...snapshot, plans: readStoredPlans(plan) }) });
+        assert.equal(response.status, 200);
+        transitionPlanSaved = true;
+      }
+    }
   };
   try {
     if (previous) {
@@ -171,9 +244,13 @@ async function run() {
       jar.setCookieSync("fixture=preserved; Path=/; HttpOnly", "https://fixture.invalid");
       await createSessionStorage(join(profile, "sessions")).save(token, {
         expiresAt: Date.now() + 3600000, jar: jar.serializeSync(),
-        self: { pofiKey: "desktop-transition-fixture" }, lastRequestAt: Date.now(),
+        self: { pofiKey: "desktop-transition-fixture", planKey: transitionAccount }, lastRequestAt: Date.now(),
       });
       sessionRecord = JSON.parse(await readFile(sessionPath, "utf8"));
+      await createSessionStorage(join(profile, "sessions")).save(currentToken, {
+        ...sessionRecord, self: { accountKey: transitionAccount },
+      });
+      currentSessionRecord = JSON.parse(await readFile(currentSessionPath, "utf8"));
       await launch(previous);
       await evaluate(`localStorage.setItem('pofis:theme:v1','dark'); localStorage.setItem('pofis:work-plans:v1',${JSON.stringify(plan)}); localStorage.setItem('demo:pofis:work-plans:v1',${JSON.stringify(demoPlan)}); true`);
       await cdp.send("Network.setCookie", { url: cookieUrl, path: "/transition-check", name: "pofis_session",
@@ -183,7 +260,10 @@ async function run() {
       await close();
     }
     await launch();
-    if (previous) await checkTransition();
+    if (previous) await checkTransition(true);
+    // Direct fixture cookies are never installed in the renderer and cannot trigger real PDKS requests.
+    await exerciseAccountPlans();
+    console.log("PASS: yerel sunucuda hesap planları, çıkış ve A → B → A ayrımı.");
     const image = await fetch(`${serverOrigin}/pofi/pofi-mark-256.png`);
     assert.equal(image.status, 200);
     assert.deepEqual(Buffer.from(await image.arrayBuffer()), await readFile(join(root, "public/pofi/pofi-mark-256.png")));
@@ -208,6 +288,8 @@ async function run() {
     assert.equal(await evaluate("fetch('/api/session', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'}).then(r => r.status)"), 400);
     await cdp.send("Network.setCookie", { url: ORIGIN, name: "pofis_session", value: "a".repeat(64), httpOnly: true, sameSite: "Strict" });
     assert.equal(await evaluate("fetch('/api/report?person=self&from=2026-10-12&to=2026-10-18').then(r => r.status)"), 401);
+    assert.equal((await cdp.send("Network.getCookies", { urls: [ORIGIN] })).cookies.some(cookie => cookie.name === "pofis_session"), true);
+    assert.equal(await evaluate("fetch('/api/session', {method:'DELETE'}).then(r => r.status)"), 200);
     assert.equal((await cdp.send("Network.getCookies", { urls: [ORIGIN] })).cookies.some(cookie => cookie.name === "pofis_session"), false);
     await evaluate("localStorage.setItem('desktop-smoke', 'persisted'); true");
     const second = spawn(executable, [...appArgs, `--user-data-dir=${profile}`],
@@ -347,6 +429,7 @@ async function run() {
     occupied = Bun.serve({ hostname: "127.0.0.1", port: 3210, fetch: () => new Response("another app") });
     await launch();
     assert.notEqual(serverOrigin, ORIGIN);
+    await checkAccountPlans();
     assert.equal(await evaluate("fetch('/api/health').then(r => r.json()).then(b => b.status)"), "ok");
     assert.equal(await evaluate("fetch('/api/session', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'}).then(r => r.status)"), 400);
     assert.equal(await evaluate("localStorage.getItem('desktop-smoke')"), "persisted");
@@ -360,10 +443,11 @@ async function run() {
     occupied.stop(true); occupied = null;
     await launch();
     assert.equal(serverOrigin, ORIGIN);
+    await checkAccountPlans();
     assert.equal(await evaluate("localStorage.getItem('desktop-smoke')"), "persisted");
     if (previous) {
-      await checkTransition();
-      console.log("PASS: eski → yeni motor ve yeniden açılış; tema, canlı/demo planları, HttpOnly çerez ve sunucu oturumu/TTL korundu.");
+      await checkTransition(true);
+      console.log("PASS: motor geçişi ve yeniden açılış; tema, tarayıcı kayıtları, hesap planı, HttpOnly çerez ve güncel oturum korundu; eski oturum reddedildi.");
     }
     await close();
     if (target.platform === "darwin" && !sourceMode) {

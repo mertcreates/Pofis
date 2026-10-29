@@ -5,7 +5,7 @@ import { ui } from "../lib/ui-text.js";
 import { useEffect, useState } from "react";
 import type { NotificationSettingsActions, NotificationStatus } from "@/desktop/notification-contract";
 
-export function useDesktopNotifications(enabled: boolean, connected: boolean | null, mutating: boolean, plans: string | null) {
+export function useDesktopNotifications(enabled: boolean, connected: boolean | null, mutating: boolean, plans: string | null, session: string | null = null) {
   const [status, setStatus] = useState<NotificationStatus | null>(null);
   const [error, setError] = useState("");
   const [available, setAvailable] = useState(false);
@@ -38,15 +38,14 @@ export function useDesktopNotifications(enabled: boolean, connected: boolean | n
     if (!enabled || !bridge) return;
     let active = true;
     const sync = () => {
-      const run = !connected || mutating ? bridge.pause() : plans ? bridge.sync(plans) : Promise.resolve();
+      const run = !connected || mutating || !plans || (!session && !window.pofisScenario)
+        ? bridge.pause() : bridge.sync(plans, session);
       void run.then(() => { if (active) setError(""); }).catch((error: unknown) => {
         if (active) setError(error instanceof Error ? error.message : ui.notificationErrors.syncFailed);
       });
     };
     sync();
-    const unsubscribe = connected && !mutating && plans
-      ? window.pofisRememberedSession?.onRecovered(sync) : undefined;
-    return () => { active = false; unsubscribe?.(); };
-  }, [enabled, connected, mutating, plans]);
+    return () => { active = false; };
+  }, [enabled, connected, mutating, plans, session]);
   return { available, status, error, actions };
 }

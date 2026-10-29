@@ -14,9 +14,9 @@ Tek uygulama süreci, süreç belleğinde oturumlar ve yerel JSON dosyaları kul
 
 ## Oturum yaşam döngüsü
 
-Kullanıcı adının normalizasyonu, hesap anahtarı gereksinimi ve parola temizliği [oturum politikasında](../rules/session-policy.md#güvenceler) tanımlıdır.
+Hesap anahtarı [hesap kimliği kuralında](../rules/account-identity.md), oturum ve parola temizliği [oturum politikasında](../rules/session-policy.md#güvenceler) tanımlıdır.
 
-Bellekteki yönetici `pofis.session-manager:account-key-v1` anahtarıyla tutulur. Bu anahtar geliştirme sunucusundaki yönetici ve giriş istemcisi fabrikasını hesap anahtarı sözleşmesine göre oluşturur.
+Bellekteki yönetici `pofis.session-manager:account-key-v3` anahtarıyla tutulur. Bu anahtar geliştirme sunucusundaki yönetici ve giriş istemcisi fabrikasını güncel hesap kimliği sözleşmesine göre oluşturur.
 
 1. Girişte ayrı istemci oluşturulur; sunucu oturum yöneticisi parolayı yalnız kaynak girişinde kullanır. Yeni oturumu kaydeder, mevcut oturumu kapatır ve ardından tarayıcıya yeni token verilir. Yeni kimlik doğrulama veya ilk kayıt başarısızsa mevcut oturum korunur. Eski oturumun diskten silinmesi başarısızsa yeni oturum da iptal edilip dosyası silinmeye çalışılır; istek başarısız döner.
 2. İstek yalnız güncel oturum çerezindeki kimliği arar. Bellekte yoksa v1 biçimindeki ilgili dosya asenkron okunur; aynı kimliğin eşzamanlı okumaları birleştirilir. Desteklenmeyen dosya biçimi yeniden kimlik doğrulama gerektirir.
@@ -25,13 +25,13 @@ Bellekteki yönetici `pofis.session-manager:account-key-v1` anahtarıyla tutulur
 5. Dosya silme başarısızsa hata döner ve aynı süreç oturumu yeniden yüklemeyi engeller; silme yeniden denenebilir. Bu sınır, yeniden bağlantının geri alınmasındaki silme hatası için de geçerlidir. Silinemeyen kayıt süreç yeniden başlatılınca TTL sonuna kadar yeniden yüklenebilir; iptal bilgisi süreç belleğinde yaşar. Dosya erişimi ve disk hatalarının izlenmesi işletim sorumluluğudur.
 6. Etkin bellek oturumları varken tek bakım zamanlayıcısı çalışır. Süresi dolan bellek kayıtları ve soğuk dosyalar [politika aralıklarında](../rules/session-policy.md) temizlenir. Silme/tarama hataları loglanır, sonraki aralıkta yeniden denenir ve sağlıklı oturumların keepalive işleri sürer. Süreç boşken zamanlayıcı durur; yeni oturumla devam eder. Süresi geçmiş dosyalar erişimde reddedilir.
 
-Bozuk dosyada ilgili kullanıcı yeniden giriş yapar; diğer kullanıcıların yüklenmesi bağımsız sürer. Kaynak çerezleri hassastır; oturum dizinine yalnız uygulama hesabı erişmelidir. Plan ve tema mevcut tarayıcı depolamasını kullanmayı sürdürür.
+Bozuk dosyada ilgili kullanıcı yeniden giriş yapar; diğer kullanıcıların yüklenmesi bağımsız sürer. Kaynak çerezleri hassastır; oturum dizinine yalnız uygulama hesabı erişmelidir. Tema tarayıcı profilindedir. Web planı tarayıcıda, Electron canlı planı yerel sunucunun hesap dosyasında saklanır; [plan sözleşmesi](../rules/work-plan.md#kalıcılık-ve-navigasyon).
 
 ## Kaynak istekleri
 
 [Kaynak politikası](../rules/source-policy.md) profil doğrulamasını, kişisel turnike sayfalamasını, oturum başına işlem sırasını ve kısa rapor önbelleğini yönetir. [Hata sözleşmesi](../pdks-errors.md) hangi kaynak yanıtının oturumu bitirdiğini belirler.
 
-Başarılı girişte üretilen `self.pofiKey` sunucu oturumunda saklanır ve diskten aynı değerle yüklenir. Anahtarı olmayan oturumlar yeniden giriş ister; [üretim ve geçiş sözleşmesi](../pofi-notes.md#hesap-anahtarı). Kendi raporuna eklenen [analytics kimliği](../analytics.md#hesap-kimliği) ayrı kullanım alanına sahiptir.
+Başarılı girişte üretilen `self.accountKey` sunucu oturumunda saklanır ve diskten aynı değerle yüklenir. Anahtarı olmayan oturumlar yeniden giriş ister; [hesap kimliği sözleşmesi](../rules/account-identity.md). Kendi raporuna eklenen [analytics kimliği](../analytics.md#hesap-kimliği) ayrı kullanım alanına sahiptir.
 
 [Yemek kaynağı önbelleği](../rules/meal-menu.md) oturumlar arasında ortaktır; kişisel yorum her istekte mevcut hesap anahtarıyla seçilir. HTTP yanıtı `no-store` taşır.
 

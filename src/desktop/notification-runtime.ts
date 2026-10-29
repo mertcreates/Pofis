@@ -35,9 +35,11 @@ class NotificationAccountChanged extends Error {}
 
 export function readNotificationSession(value: unknown): NotificationSession {
   const session = value as NotificationSession | null;
-  if (!session || !/^[a-f0-9]{64}$/.test(session.accountId) || !Number.isSafeInteger(session.expiresAt))
+  if (!session || !/^[a-f0-9]{64}$/.test(session.accountId) || !Number.isSafeInteger(session.expiresAt) ||
+      (session.workPlanSession !== undefined && !/^[a-f0-9]{64}$/.test(session.workPlanSession)))
     throw new Error(ui.notificationErrors.invalidSession);
-  return { accountId: session.accountId, expiresAt: session.expiresAt };
+  return { accountId: session.accountId, expiresAt: session.expiresAt,
+    ...(session.workPlanSession ? { workPlanSession: session.workPlanSession } : {}) };
 }
 
 export function createNotificationRuntime(deps: Dependencies) {
@@ -59,7 +61,7 @@ export function createNotificationRuntime(deps: Dependencies) {
   let refreshing: Promise<void> | null = null;
   let ticking = false;
   let mutations: Promise<unknown> = Promise.resolve();
-  let pendingSync: string | null = null;
+  let pendingSync: { plans: string; session: string | null } | null = null;
   let lastSyncAttempt = 0;
   let syncVersion = 0;
   let syncing = 0;
@@ -79,7 +81,7 @@ export function createNotificationRuntime(deps: Dependencies) {
     generation++;
     controller.abort();
     controller = new AbortController();
-    session = null; account = null; report = null; credentials = null;
+    session = null; account = null; plans = null; report = null; credentials = null;
     refreshing = null; lastRefreshAt = null; lastAttemptAt = 0; lastHeartbeatAt = 0; refreshError = ""; recordError = ""; deliveryErrors = {};
     eligibleSince = now();
     publish();
@@ -101,11 +103,18 @@ export function createNotificationRuntime(deps: Dependencies) {
     mutations = task.catch(() => {});
     return task;
   }
-  async function sync(rawPlans: string) {
-    if (typeof rawPlans !== "string" || rawPlans.length > 1_000_000) throw new Error(ui.notificationErrors.plansUnreadable);
-    plans = readStoredPlans(rawPlans);
+  async function sync(rawPlans: string, expectedSession: string | null = null) {
+    if (typeof rawPlans !== "string" || rawPlans.length > 4 * 1024 * 1024 ||
+        (expectedSession !== null && !/^[a-f0-9]{64}$/.test(expectedSession)))
+      throw new Error(ui.notificationErrors.plansUnreadable);
+    const nextPlans = readStoredPlans(rawPlans);
     const attempt = ++syncVersion;
     syncing = attempt;
+    // An old session's delayed sync must not clear the current session's plan.
+    if (!session || session.workPlanSession === (expectedSession ?? undefined)) {
+      plans = null;
+      publishGoal(null);
+    }
     // A report from the old session must not cancel or replace this sync.
     refreshing = null;
     pendingSync = null;
@@ -118,7 +127,8 @@ export function createNotificationRuntime(deps: Dependencies) {
       catch (error) {
         if (version !== generation || attempt !== syncVersion) return status();
         if ((error as { code?: string }).code === "SESSION_EXPIRED") { expire(); return status(); }
-        pendingSync = rawPlans;
+        if (session && session.workPlanSession !== (expectedSession ?? undefined)) pause();
+        pendingSync = { plans: rawPlans, session: expectedSession };
         throw error;
       }
       if (version !== generation || attempt !== syncVersion) return status();
@@ -126,7 +136,12 @@ export function createNotificationRuntime(deps: Dependencies) {
       if (!next) { if (session) expire(); else pause(); return status(); }
       const verified = readNotificationSession(next);
       if (verified.expiresAt <= now()) { expire(); return status(); }
-      if (session?.accountId !== verified.accountId || session?.expiresAt !== verified.expiresAt) {
+      if ((verified.workPlanSession ?? null) !== expectedSession) {
+        if (session && session.workPlanSession !== verified.workPlanSession) pause();
+        throw new NotificationAccountChanged(ui.notificationErrors.accountChanged);
+      }
+      if (session?.accountId !== verified.accountId || session?.expiresAt !== verified.expiresAt ||
+          session?.workPlanSession !== verified.workPlanSession) {
         pause();
         const loadingGeneration = generation;
         const loaded = await deps.store.load(verified.accountId);
@@ -137,6 +152,7 @@ export function createNotificationRuntime(deps: Dependencies) {
           catch { deliveryErrors.telegram = ui.notificationErrors.telegramUnreadable; }
         }
       }
+      plans = nextPlans;
       publish();
       refreshAfterSync = true;
       return status();
@@ -162,7 +178,8 @@ export function createNotificationRuntime(deps: Dependencies) {
         if (current.session.expiresAt <= now()) { expire(); return; }
         const parsed = readReportResponse(raw, from, addDays(from, 6)) as NotificationReport;
         const identity = readNotificationSession(parsed.notificationSession);
-        if (identity.accountId !== current.session.accountId || identity.expiresAt !== current.session.expiresAt) { pause(); return; }
+        if (identity.accountId !== current.session.accountId || identity.expiresAt !== current.session.expiresAt ||
+            identity.workPlanSession !== current.session.workPlanSession) { pause(); return; }
         report = parsed; lastRefreshAt = now(); refreshError = "";
         deps.onReport(parsed);
       } catch (error) {
@@ -180,7 +197,7 @@ export function createNotificationRuntime(deps: Dependencies) {
     if (!ticking && pendingSync !== null && now() - lastSyncAttempt >= 30_000) {
       const retry = pendingSync;
       pendingSync = null;
-      void sync(retry).catch(() => {}); // sync retains transient failures for the next timed attempt.
+      void sync(retry.plans, retry.session).catch(() => {}); // sync retains transient failures for the next timed attempt.
     }
     if (syncing || ticking || !session) return;
     if (session.expiresAt <= now()) { expire(); return; }
@@ -220,7 +237,7 @@ export function createNotificationRuntime(deps: Dependencies) {
         }, current);
         if (current.generation !== generation || now() >= event.expiresAt || session.expiresAt <= now() ||
             (account!.preferencesRevision ?? 0) !== current.preferencesRevision) return;
-        if (!account!.preferences[event.kind][channel] || (channel === "telegram" && !credentials) ||
+        if (syncing || pendingSync !== null || !account!.preferences[event.kind][channel] || (channel === "telegram" && !credentials) ||
             notificationGoal(report, plans, now())?.at !== goal?.at) {
           await persist(value => { const deliveries = { ...value.deliveries }; delete deliveries[key]; return { ...value, deliveries }; }, current);
           continue;

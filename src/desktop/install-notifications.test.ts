@@ -79,7 +79,7 @@ test("Mini güncel raporu, hesap geçişini ve oturum bitişini alır; yalnız y
   } as unknown as Parameters<typeof installDesktopNotifications>[0]);
   const invoke = (contents: typeof main, name: string, value?: unknown, frame = contents.mainFrame) =>
     handlers.get(`pofis:notifications:${name}`)!({ sender: contents, senderFrame: frame }, value);
-  const plans = JSON.stringify(emptyWorkPlans());
+  const plans = { plans: JSON.stringify(emptyWorkPlans()), session: null };
   try {
     expect((await invoke(main, "sync", plans)).ok).toBe(true);
     expect((await invoke(main, "refresh")).ok).toBe(true);

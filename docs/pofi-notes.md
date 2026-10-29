@@ -6,7 +6,7 @@ Not defterinin günlükleri ve odadaki faaliyet kayıtları ayrı içerik ve se�
 
 ## Not defteri
 
-Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kısa notlardır. Not seçimi kişi anahtarı, hafta ve tarihe dayanır.
+Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kısa notlardır. Not seçimi hesap anahtarı, hafta ve tarihe dayanır.
 
 ### Tek sahipler
 
@@ -16,28 +16,24 @@ Pofi'nin günlükleri giriş / gelişme / kapanış parçalarından oluşan kıs
 | Özel not metinleri ve varyantları | [specials.js](../src/lib/pofi-notes/specials.js) |
 | Özel gün listesi | [special-days.ts](../src/lib/pofi-notes/special-days.ts) |
 | İçerik doğrulama ve tek havuz üretimi | [catalogue.ts](../src/lib/pofi-notes/catalogue.ts) |
-| Kişi / hafta / tarih üzerinden seçim | [notebook.ts](../src/lib/pofi-notes/notebook.ts) |
+| Hesap / hafta / tarih üzerinden seçim | [notebook.ts](../src/lib/pofi-notes/notebook.ts) |
 | Uygulamanın bağlandığı giriş | [index.ts](../src/lib/pofi-notes/index.ts) |
-| Hesap anahtarının başarılı girişte oluşturulması | [kaynak adaptörü](../src/server/pdks.js) |
+| Hesap anahtarı | [Hesap kimliği kuralı](rules/account-identity.md) |
 | Hesap anahtarıyla not seçimine bağlanma | [sunucu adaptörü](../src/server/pofi-notes.js) |
 | Not yönetimi ve önizleme komutları | [CLI](../scripts/pofi-notes.ts) |
 | Tarih uygunluğu / gösterim | [takvim kuralı](rules/notebook-calendar.md), [not defteri](../src/components/pofi/notebook.js) |
 
 ### Hesap anahtarı
 
-Başarılı PDKS girişinde `SHA-256(JSON.stringify(["pofis:pofi-account:v1", kurumOrigin, kullanıcıAdı.trim()]))` hesaplanır. Saklanan sonuç, sunucu oturumuna özel `self.pofiKey` alanıdır. API yalnız seçilen notları döndürür. Bu anahtar not seçimi içindir; rapor erişim yetkisini kaynak oturumu belirler.
-
-Anahtar, [oturum yöneticisinin normalize ettiği kullanıcı adından](rules/session-policy.md#güvenceler) üretilir. Aynı origin ve aynı kullanıcı adı farklı cihaz/oturumlarda aynı anahtarı verir. Harf büyüklüğü ve farklı giriş takma adları ayrı anahtar üretir; görünen ad-soyad hesaba katılmaz. Farklı anahtarlar aynı normal notu seçebilir.
-
-Tüm tarihlerde notlar güncel havuzdan hesaplanır. Hesap anahtarı olmayan oturumlar yeniden giriş ister.
+Not seçimi doğrulanmış oturumun [ortak hesap anahtarını](rules/account-identity.md) kullanır. API yalnız seçilen notları döndürür. Farklı anahtarlar aynı normal notu seçebilir; tüm tarihler güncel havuzdan hesaplanır.
 
 ### Tek havuz
 
 Temalar kullanıcıyla belirlenir; metinler ve tüm kombinasyonları incelendikten sonra onaylanan tema kataloğa eklenir. Güncel tema ve not sayıları [doğrulama komutundan](#yerel-komutlar) alınır.
 
-Katalog giriş × gelişme × kapanış kombinasyonlarından havuz sırasını bir kez kurar; aynı havuz tüm tarihler için kullanılır. Seçim kişi anahtarına, haftaya ve güne göre deterministiktir. Normal havuz boşken haftalık sonuç yalnız o haftanın özel notlarını içerir; diğer günler için not dönmez. Defter mevcut nötr boş durumunu ve tarih gezinmesini korur. Doğrudan normal gün seçimi içerik yokluğu hatası verir. Dolu normal havuz haftalık tekrarı önlemek için en az beş benzersiz not içermelidir.
+Katalog giriş × gelişme × kapanış kombinasyonlarından havuz sırasını bir kez kurar; aynı havuz tüm tarihler için kullanılır. Seçim hesap anahtarına, haftaya ve güne göre deterministiktir. Normal havuz boşken haftalık sonuç yalnız o haftanın özel notlarını içerir; diğer günler için not dönmez. Defter mevcut nötr boş durumunu ve tarih gezinmesini korur. Doğrudan normal gün seçimi içerik yokluğu hatası verir. Dolu normal havuz haftalık tekrarı önlemek için en az beş benzersiz not içermelidir.
 
-İçerik veya havuz sırası değişikliği geçmiş tarihler dahil her tarihteki seçimi etkileyebilir. Tema ve metin değişikliklerini Git diff'i ve [önizleme](#yerel-komutlar) üzerinden temsilî tarih ve kişi anahtarlarıyla kontrol edin.
+İçerik veya havuz sırası değişikliği geçmiş tarihler dahil her tarihteki seçimi etkileyebilir. Tema ve metin değişikliklerini Git diff'i ve [önizleme](#yerel-komutlar) üzerinden temsilî tarih ve hesap anahtarlarıyla kontrol edin.
 
 ### Tema veya metin eklemek
 
@@ -45,9 +41,9 @@ Katalog giriş × gelişme × kapanış kombinasyonlarından havuz sırasını b
 2. Temayı `themes/index.js` listesine bir kez ekleyin. Katalog ve seçim motoru yeni kombinasyonları tek havuza dahil eder.
 3. Yeni parçayı ilgili gruba ekleyin; her grupta en az bir dolu metin olmalıdır.
 4. Kimlikler küçük harfle başlamalı; küçük harf, rakam ve tire içerebilir. Normal not kimliği `coffee:i1:d1:e1`, özel not kimliği `special:little-star:v1` biçimindedir.
-5. Her birleşimi [ton rehberindeki ölçütlerle](brand/pofi-tone-guide.md#birleşmiş-notu-okuma) okuyun. Ardından doğrulayın ve temsilî tarih/kişi anahtarıyla önizleyin.
+5. Her birleşimi [ton rehberindeki ölçütlerle](brand/pofi-tone-guide.md#birleşmiş-notu-okuma) okuyun. Ardından doğrulayın ve temsilî tarih/hesap anahtarıyla önizleyin.
 
-Özel not eklerken metni `specials.js` içine, `MM-DD → note` eşleştirmesini `special-days.ts` içine ekleyin. `sharedVariant` varsa herkes o varyantı görür; yoksa kişi anahtarıyla seçim yapılır.
+Özel not eklerken metni `specials.js` içine, `MM-DD → note` eşleştirmesini `special-days.ts` içine ekleyin. `sharedVariant` varsa herkes o varyantı görür; yoksa hesap anahtarıyla seçim yapılır.
 
 Özel notların her varyantı bağımsız, üç parçalı bir hikâyedir; her seçim bir varyantın kendi giriş, gelişme ve kapanışını birlikte kullanır. Bayram notları küçük katılım ve gözlem anlarını, 10 Kasım notları saygılı anma davranışlarını anlatır. Kâğıt gemi serisi 12 Mart (İlk gün), 9 Nisan (Bir süre sonra) ve 7 Mayıs (Yeniden) sırasıyla ilerler. Her tarihin varyantı ayrı seçilir ve kendi içinde anlamlı bir hikâye sunar. 8 Aralık'ın herkes için ortak `little-star:v1` metni korunur.
 

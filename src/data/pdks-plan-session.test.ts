@@ -1,0 +1,24 @@
+import { expect, test } from "bun:test";
+import { mkdtemp, writeFile, rm } from "node:fs/promises";
+import { join, resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { execFile } from "node:child_process";
+import { promisify } from "node:util";
+
+test("Electron raporu yalnız güncel plan oturumuna uygulanır", async () => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-report-session-"));
+  try {
+    const build = await Bun.build({ entrypoints: [resolve(import.meta.dir, "fixtures/pdks-plan-session.tsx")],
+      target: "browser", outdir: directory, naming: "fixture.[ext]", define: { "process.env.NODE_ENV": '"production"' } });
+    expect(build.success, build.logs.toString()).toBe(true);
+    const html = join(directory, "index.html");
+    await writeFile(html, '<!doctype html><meta charset="utf-8"><div id="root"></div><script src="fixture.js"></script>');
+    const env = { ...process.env }; delete env.ELECTRON_RUN_AS_NODE;
+    const result = await promisify(execFile)(require("electron"), [resolve(import.meta.dir, "fixtures/pdks-lifecycle.cjs"),
+      `--user-data-dir=${join(directory, "profile")}`, `--fixture=${html}`], { env, windowsHide: true, timeout: 15000 });
+    const line = result.stdout.split(/\r?\n/).find(value => value.startsWith("RESULT:"));
+    expect(line, result.stderr).toBeDefined();
+    expect(JSON.parse(line!.slice(7))).toEqual({ switched: true, stalePushRejected: true,
+      unboundPushRejected: true, mismatchedHttpRejected: true });
+  } finally { await rm(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); }
+}, 20000);

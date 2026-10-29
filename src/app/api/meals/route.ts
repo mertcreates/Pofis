@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     }
     assertSessionActive(session);
     const note = menu ? getMealPofiCommentary(presentMeal(menu), {
-      date, accountKey: session.client.self.pofiKey,
+      date, accountKey: session.client.self.accountKey,
     }) : null;
     return json({ menu, commentary: note?.text ?? null });
   } catch (error) {

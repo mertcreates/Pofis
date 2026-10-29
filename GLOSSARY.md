@@ -2,6 +2,11 @@
 
 Kişisel PDKS mesaisini takip ederken kullanılan ortak terimler.
 
+## Hesap ve oturum
+
+**Hesap anahtarı**:
+Doğrulanmış PDKS hesabından türetilen, plan ve kişisel içeriklerin kullandığı ortak değer. [Hesap kimliği kuralı](docs/rules/account-identity.md).
+
 ## Mesai ve plan
 
 **Kayıtlı süre**:
@@ -68,7 +73,7 @@ Kullanıcının haftalık planda günün gereken süresini korumak için koyduğ
 ## Pofi içeriği
 
 **Pofi notu**:
-Mesai kaydından bağımsız, belirli bir tarih ve kişi anahtarı için seçilen günlük metni.
+Mesai kaydından bağımsız, belirli bir tarih ve hesap anahtarı için seçilen günlük metni.
 
 **Pofi faaliyet kaydı**:
 Odadaki “Pofi’nin mesaisi” ekranında tarih için seçilen üç kurgusal faaliyetten biri. Aynı gün herkes aynı kayıtları görür.

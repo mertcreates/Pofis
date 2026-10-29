@@ -1,5 +1,6 @@
 import { SOURCE_POLICY } from "../domain/rules/source-policy";
 import { REPORT_ACCESS, isOwnReport } from "../domain/rules/report-access";
+import { accountUsername } from "../domain/rules/account-identity";
 import { ui } from "../lib/ui-text.js";
 import { isSessionExpired } from "../lib/pdks-failure";
 import { load } from "cheerio";
@@ -662,8 +663,8 @@ export class PdksClient {
     try {
       await this.request(form.url, form.fields);
       await this.verify();
-      this.self.pofiKey = createHash("sha256")
-        .update(JSON.stringify(["pofis:pofi-account:v1", this.origin, username.trim()]))
+      this.self.accountKey = createHash("sha256")
+        .update(JSON.stringify(["pofis:pofi-account:v1", this.origin, accountUsername(username)]))
         .digest("hex");
     } finally {
       form.fields.delete("tbUserName");

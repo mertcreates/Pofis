@@ -257,6 +257,9 @@ async function runFixture(directory, { startupOnly, group }) {
         await evaluate(`localStorage.setItem('pofis:theme:v1','dark'); localStorage.setItem('pofis:work-plans:v1',${JSON.stringify(plan)}); true`);
         await mkdir(join(profile, "sessions"), { recursive: true });
         await writeFile(join(profile, "sessions/preservation-fixture.txt"), "fixture-session-preserved");
+        await mkdir(join(profile, "work-plans"), { recursive: true });
+        const planPath = join(profile, "work-plans", `${"a".repeat(64)}.json`);
+        await writeFile(planPath, plan);
         active = previousManifest ? candidate
           : JSON.parse((await readFile(join(directory, `${updatedVersion}.json`), "utf8")).replace(/^\uFEFF/, ""));
         // Non-interactive execution must refuse to close the running release without consent.
@@ -281,7 +284,8 @@ async function runFixture(directory, { startupOnly, group }) {
         assert.equal(defaultPlan[4], 7 * 60);
         assert.equal(defaultPlan.reduce((total, minutes) => total + minutes, 0), 39 * 60);
         assert.equal(await readFile(join(profile, "sessions/preservation-fixture.txt"), "utf8"), "fixture-session-preserved");
-        passed("yeni sürüm, tema/plan ve oturum dosyalarının korunması");
+        assert.equal(await readFile(planPath, "utf8"), plan);
+        passed("yeni sürüm, tema, plan ve oturum dosyalarının korunması");
         // Kill only our main PID. The owned Node utility process must exit when its main PID disappears.
         debugChild.kill();
         cdp.close(); cdp = null;

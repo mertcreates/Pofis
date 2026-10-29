@@ -17,7 +17,7 @@ declare global {
 function Fixture() {
   const state = usePdks("2026-10-19");
   const [mealOpen, setMealOpen] = useState(false);
-  const notifications = useDesktopNotifications(true, state.connected, state.busy === "connect" || state.busy === "disconnect", plans);
+  const notifications = useDesktopNotifications(true, state.connected, state.busy === "connect" || state.busy === "disconnect", plans, state.workPlanSession);
   useEffect(() => { if (state.connected === false) setMealOpen(false); }, [state.connected]);
   window.rememberFixture = { state, plans, notifications, openMeal: () => setMealOpen(true) };
   if (state.connected === null) return <p>Oturum kontrol ediliyor…</p>;

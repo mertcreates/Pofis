@@ -23,7 +23,7 @@ async function fixture(mode, run, { timeoutMs = 1800 } = {}) {
     child.postMessage = message => child.send(message);
     return child;
   };
-  const options = { root, fork, sessionDirectory: join(root, "sessions"), port,
+  const options = { root, fork, sessionDirectory: join(root, "sessions"), planDirectory: join(root, "work-plans"), port,
     timeoutMs, onUnexpectedExit: error => exits.push(error) };
   const server = createDesktopServer(options);
   try { await run({ server, options, exits }); }
@@ -40,6 +40,7 @@ test("hazır olmayı bekler; yalnız kendi sunucusunu açar ve kapatır", () => 
   const response = await fetch(`${origin}/api/health`);
   const body = await response.json();
   expect(body.directory).toBe(options.sessionDirectory);
+  expect(body.planDirectory).toBe(options.planDirectory);
   await Promise.all([server.stop(), server.stop()]);
   expect(() => process.kill(body.pid, 0)).toThrow();
   expect(exits).toEqual([]);

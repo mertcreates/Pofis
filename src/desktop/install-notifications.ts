@@ -104,7 +104,10 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
     async readSession(signal) {
       const data = await request("/api/session", signal);
       if (typeof data?.connected !== "boolean") throw new Error(ui.notificationErrors.sessionUnreadable);
-      return data.connected === true ? data.notificationSession : null;
+      return data.connected === true ? {
+        ...data.notificationSession,
+        ...(data.workPlanSession !== undefined ? { workPlanSession: data.workPlanSession } : {}),
+      } : null;
     },
     readReport: (from, to, signal) => request(`/api/report?${new URLSearchParams({ person: REPORT_ACCESS.person, from, to })}`, signal),
     heartbeat: async signal => { await request("/api/session/heartbeat", signal, "POST"); },
@@ -137,7 +140,15 @@ export function installDesktopNotifications({ app, ipcMain, session, safeStorage
     onGoal,
   });
   const operations = {
-    get: () => runtime.status(), sync: (plans: string) => runtime.sync(plans), pause: () => runtime.pause(),
+    get: () => runtime.status(),
+    sync: (input: unknown) => {
+      if (!input || typeof input !== "object" || Array.isArray(input)) throw new Error(ui.notificationErrors.plansUnreadable);
+      const { plans, session } = input as { plans?: unknown; session?: unknown };
+      if (typeof plans !== "string" || (session !== null && typeof session !== "string"))
+        throw new Error(ui.notificationErrors.plansUnreadable);
+      return runtime.sync(plans, session);
+    },
+    pause: () => runtime.pause(),
     refresh: () => runtime.refresh(), save: (preferences: NotificationPreferences) => runtime.save(preferences),
     connectTelegram: (input: unknown) => runtime.connectTelegram(input), disconnectTelegram: () => runtime.disconnectTelegram(),
     test: (channel: NotificationChannel) => runtime.test(channel),

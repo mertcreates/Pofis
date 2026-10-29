@@ -1,7 +1,7 @@
 import type { NotificationPreferences, NotificationChannel } from "@/domain/rules/notifications";
 import type { Report } from "@/domain/report";
 
-export type NotificationSession = { accountId: string; expiresAt: number };
+export type NotificationSession = { accountId: string; expiresAt: number; workPlanSession?: string };
 export type NotificationReport = Report & { notificationSession: NotificationSession };
 export type NotificationStatus = {
   active: boolean;
@@ -16,7 +16,7 @@ export type NotificationStatus = {
 };
 export type DesktopNotificationBridge = {
   get(): Promise<NotificationStatus>;
-  sync(plans: string): Promise<NotificationStatus>;
+  sync(plans: string, session: string | null): Promise<NotificationStatus>;
   pause(): Promise<void>;
   refresh(): Promise<void>;
   save(preferences: NotificationPreferences): Promise<NotificationStatus>;

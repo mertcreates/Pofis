@@ -299,6 +299,7 @@ const settle = () => new Promise(resolve => setTimeout(resolve, 30));
     let rejectSnapshot: ((error: Error) => void) | undefined;
     window.pofisNotifications = {
       get: () => new Promise<NotificationStatus>((resolve, reject) => { resolveSnapshot = resolve; rejectSnapshot = reject; }),
+      pause: async () => {},
       subscribe: (callback: (status: NotificationStatus) => void) => {
         listener = callback;
         return () => { listener = undefined; };

@@ -15,7 +15,7 @@ export function PlanTimePlanner({ time, seconds, day, disabled, id, onCommit }: 
   day: number;
   disabled: boolean;
   id: string;
-  onCommit: (time: PlanTime | null) => boolean;
+  onCommit: (time: PlanTime | null) => boolean | Promise<boolean>;
 }) {
   const [mode, setMode] = useState<PlanTime["anchor"]>(time?.anchor ?? "entry");
   const [draft, setDraft] = useState(() => planClockTimes(time, seconds)?.[time?.anchor ?? "entry"].value ?? "");
@@ -27,7 +27,20 @@ export function PlanTimePlanner({ time, seconds, day, disabled, id, onCommit }: 
   const opposite = mode === "entry" ? "exit" : "entry";
   const clocks = planClockTimes(preview, seconds);
   const result = clocks?.[opposite];
+  const savedMode = time?.anchor ?? "entry";
   const savedDraft = planClockTimes(time, seconds)?.[time?.anchor ?? "entry"].value ?? "";
+  const previousSaved = useRef({ mode: savedMode, draft: savedDraft });
+
+  useLayoutEffect(() => {
+    const previous = previousSaved.current;
+    if (previous.mode === savedMode && previous.draft === savedDraft) return;
+    previousSaved.current = { mode: savedMode, draft: savedDraft };
+    const unchanged = draft === previous.draft && (draft === "" || mode === previous.mode);
+    if (unchanged && !invalid) {
+      setMode(savedMode);
+      setDraft(savedDraft);
+    }
+  }, [savedMode, savedDraft, mode, draft, invalid]);
 
   useLayoutEffect(() => {
     if (!focusHour) return;
@@ -36,12 +49,12 @@ export function PlanTimePlanner({ time, seconds, day, disabled, id, onCommit }: 
     setFocusHour(false);
   }, [focusHour]);
 
-  function saveTime() {
+  async function saveTime() {
     if (disabled) return;
     if (draft.trim() && minute === null) { setInvalid(true); return; }
     const next = minute === null ? null : { anchor: mode, minute };
     const changed = (next?.minute ?? null) !== (time?.minute ?? null) || next?.anchor !== time?.anchor;
-    if (changed && !onCommit(next)) return;
+    if (changed && !(await onCommit(next))) return;
     setInvalid(false);
     setDraft(planClockTimes(next ?? undefined, seconds)?.[mode].value ?? "");
   }
@@ -68,8 +81,8 @@ export function PlanTimePlanner({ time, seconds, day, disabled, id, onCommit }: 
                 onChange={next => { setDraft(next); setInvalid(false); }} onConfirm={saveTime} />
               {clocks && <span className="work-plan-time-suffix">{copy.clockAt(clocks[mode].value).slice(5)}</span>}
               <button type="button" className="work-plan-time-clear" disabled={disabled || !draft} aria-label={copy.clearTime}
-                onClick={() => {
-                  if (onCommit(null)) { setDraft(""); setInvalid(false); setFocusHour(true); }
+                onClick={async () => {
+                  if (await onCommit(null)) { setDraft(""); setInvalid(false); setFocusHour(true); }
                 }}><X size={16} aria-hidden="true" /></button>
             </div>
           </div>

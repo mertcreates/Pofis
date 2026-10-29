@@ -54,11 +54,11 @@ export function PlanEditor({
   userLockedDays?: readonly number[];
   times?: WeekTimes;
   targetSeconds?: number;
-  onSave: (plan: WorkPlan, targetSeconds?: number, leaveDays?: readonly number[]) => boolean;
-  onSaveDefault: (plan: WorkPlan) => boolean;
-  onReset: () => boolean;
-  onSetLockedDays?: (days: readonly number[], plan: WorkPlan) => boolean;
-  onSetTime?: (day: number, time: PlanTime | null) => boolean;
+  onSave: (plan: WorkPlan, targetSeconds?: number, leaveDays?: readonly number[]) => boolean | Promise<boolean>;
+  onSaveDefault: (plan: WorkPlan) => boolean | Promise<boolean>;
+  onReset: () => boolean | Promise<boolean>;
+  onSetLockedDays?: (days: readonly number[], plan: WorkPlan) => boolean | Promise<boolean>;
+  onSetTime?: (day: number, time: PlanTime | null) => boolean | Promise<boolean>;
   onClose: () => void;
 }) {
   const [scope, setScope] = useState<"default" | "week">("week");
@@ -276,7 +276,7 @@ export function PlanEditor({
         {scope === "week" && (needsCompletion || (special && canReset)) && (
           <div className="work-plan-actions">
             <div>
-              {canReset && <button type="button" className="work-plan-reset" disabled={!ready} onClick={() => { if (onReset()) setPlannerDay(null); }}>{copy.reset}</button>}
+              {canReset && <button type="button" className="work-plan-reset" disabled={!ready} onClick={async () => { if (await onReset()) setPlannerDay(null); }}>{copy.reset}</button>}
               {needsCompletion && <span className="work-plan-completion" ref={completionRef}
                 onBlur={event => {
                   if (!event.currentTarget.contains(event.relatedTarget)) setCompletionOpen(false);

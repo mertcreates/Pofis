@@ -8,6 +8,7 @@ Her kuralın bir kod sahibi vardır. Görünümler, route'lar ve depolama adapt�
 
 | Kural                                              | Kod sahibi                                                          |
 | -------------------------------------------------- | ------------------------------------------------------------------- |
+| [Hesap kimliği](account-identity.md) | [account-identity.ts](../../src/domain/rules/account-identity.ts) |
 | [Mesai bildirimleri](notifications.md) | [notifications.ts](../../src/domain/rules/notifications.ts) |
 | [Takvim ve kaynak saati](calendar.md)              | [calendar.ts](../../src/domain/rules/calendar.ts)                   |
 | [Turnikeden günlük özet ve kayıtlı süre](recorded-time.md) | [recorded-time.js](../../src/domain/rules/recorded-time.js)         |
@@ -60,8 +61,8 @@ Oklar kural sonuçlarının kullanıldığı yerleri gösterir. Rapor uyarlamas�
 | Alan | Sahip ve görev |
 | --- | --- |
 | Rapor hazırlığı ve saat izdüşümü | [report.ts](../../src/domain/report.ts): kaynak ve planı ekran modeline uyarlar; hesapları ilgili kurallardan alır |
-| Pofi notları | [İçerik yönetim rehberi](../pofi-notes.md): not defteri ve odadaki günlük faaliyet kayıtlarının içerik/seçim sahipleri; [kaynak adaptörü](../../src/server/pdks.js) defterin hesap anahtarını üretir; [sunucu](../../src/server/pofi-notes.js) defter seçimine bağlar |
-| Plan kalıcılığı | [plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulama; [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamı; [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonra durum güncelleme |
+| Pofi notları | [İçerik yönetim rehberi](../pofi-notes.md): not defteri ve odadaki günlük faaliyet kayıtlarının içerik/seçim sahipleri; [sunucu](../../src/server/pofi-notes.js) ortak hesap anahtarını defter seçimine bağlar |
+| Plan kalıcılığı | [plan-storage](../../src/lib/plan-storage.js) şema doğrulama; [work-plans](../../src/data/work-plans.ts) web/demo, [work-plan-storage](../../src/server/work-plan-storage.js) Electron hesap dosyaları; [desktop-work-plans](../../src/data/desktop-work-plans.ts) ve [use-work-plans](../../src/data/use-work-plans.ts) oturuma bağlı istemci durumu; [sözleşme](work-plan.md#kalıcılık-ve-navigasyon) |
 | Sürüm geçmişi takibi | [changelog.ts](../../src/domain/changelog.ts) uygulama ve yayın için katalog doğrulama, sıralama ve `pofis:changelog-seen` depolama anahtarı; [app-footer.js](../../src/components/shell/app-footer.js) okundu durumunu günceller |
 | Tema | [theme](../../src/lib/theme.js) tercih değerleri ve `pofis:theme:v1` depolama anahtarı; [use-appearance](../../src/data/use-appearance.ts) işletim sistemi ve depolama olayları |
 | Kullanım ölçümü | [analytics](../../src/lib/analytics.ts): sabit GA4 alanları ve başlangıç; [ölçüm sözleşmesi](../analytics.md) akış ayarlarını ve veri sınırlarını yönetir |

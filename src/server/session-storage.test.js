@@ -10,15 +10,17 @@ const request = (id) => ({
     get: (name) => (name === SESSION_COOKIE ? { value: id } : undefined),
   },
 });
+const aliceAccountKey = "a".repeat(64);
+const bobAccountKey = "b".repeat(64);
 const record = () => ({
   expiresAt: Date.now() + 60_000,
   jar: new CookieJar().serializeSync(),
-  self: { pofiKey: "alice" },
+  self: { accountKey: aliceAccountKey },
 });
 
-test.each([undefined, "", "  ", 123])("Pofi anahtarı olmayan eski veya bozuk oturum yeniden giriş gerektirir: %s", async (pofiKey) => {
+test.each([undefined, "", "  ", 123, "invalid", "a".repeat(63), "A".repeat(64), "g".repeat(64)])("hesap anahtarı olmayan veya bozuk oturum yeniden giriş gerektirir: %s", async (accountKey) => {
   const id = "f".repeat(64);
-  const stored = { ...record(), self: { sourceId: "old-person", pofiKey } };
+  const stored = { ...record(), self: { pofiKey: "old-account", planKey: "a".repeat(64), accountKey } };
   const manager = createSessionManager({ storage: {
     read: async () => stored,
     save: async () => { throw new Error("Must not rewrite old identity"); },
@@ -26,6 +28,7 @@ test.each([undefined, "", "  ", 123])("Pofi anahtarı olmayan eski veya bozuk ot
   } });
   expect(await manager.sessionFor(request(id))).toBeNull();
   await expect(manager.requireSession(request(id))).rejects.toMatchObject({ code: "SESSION_EXPIRED", status: 401 });
+  await expect(manager.heartbeat(request(id))).rejects.toMatchObject({ code: "SESSION_EXPIRED", status: 401 });
 });
 
 test("yazma sırası ve silme atomik dosya değiştirme ile korunur; silinen oturum geri oluşmaz", async () => {
@@ -37,9 +40,9 @@ test("yazma sırası ve silme atomik dosya değiştirme ile korunur; silinen otu
     const id = "a".repeat(64);
     await Promise.all([
       storage.save(id, record()),
-      storage.save(id, { ...record(), self: { pofiKey: "bob" } }),
+      storage.save(id, { ...record(), self: { accountKey: bobAccountKey } }),
     ]);
-    expect((await storage.read(id)).self.pofiKey).toBe("bob");
+    expect((await storage.read(id)).self.accountKey).toBe(bobAccountKey);
     await Promise.all([storage.save(id, record()), storage.remove(id)]);
     expect(await storage.read(id)).toBeNull();
     expect(await readdir(directory)).toEqual([]);
@@ -47,12 +50,12 @@ test("yazma sırası ve silme atomik dosya değiştirme ile korunur; silinen otu
     await writeFile(join(directory, `${bad}.json`), "{broken");
     expect(await storage.read(bad)).toBeNull();
     await storage.save(id, record());
-    expect((await storage.read(id)).self.pofiKey).toBe("alice");
+    expect((await storage.read(id)).self.accountKey).toBe(aliceAccountKey);
     const expired = "e".repeat(64);
     await storage.save(expired, { ...record(), expiresAt: Date.now() - 1 });
     await storage.pruneExpired(Date.now());
     expect(await storage.read(expired)).toBeNull();
-    expect((await storage.read(id)).self.pofiKey).toBe("alice");
+    expect((await storage.read(id)).self.accountKey).toBe(aliceAccountKey);
     expect(await storage.read("../escape")).toBeNull();
   } finally {
     if (relative(root, directory).startsWith(".."))

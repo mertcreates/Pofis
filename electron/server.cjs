@@ -56,7 +56,7 @@ async function stopProcessTree(child, { platform = process.platform, processGrou
   });
 }
 
-function createDesktopServer({ root, fork, sessionDirectory, onUnexpectedExit, port = PORT, timeoutMs = 30000 }) {
+function createDesktopServer({ root, fork, sessionDirectory, planDirectory, onUnexpectedExit, port = PORT, timeoutMs = 30000 }) {
   let child;
   let exited = false;
   let exitPromise;
@@ -108,7 +108,7 @@ function createDesktopServer({ root, fork, sessionDirectory, onUnexpectedExit, p
         cwd: root,
         serviceName: "Pofis Sunucusu",
         stdio: "ignore",
-        env: { ...process.env, NODE_ENV: "production", POFIS_SESSION_DIR: sessionDirectory,
+        env: { ...process.env, NODE_ENV: "production", POFIS_SESSION_DIR: sessionDirectory, POFIS_PLAN_DIR: planDirectory,
           POFIS_PARENT_PID: String(process.pid), POFIS_DESKTOP_TOKEN: token, NEXT_TELEMETRY_DISABLED: "1" },
       });
       exitPromise = new Promise(resolve => child.once("exit", () => { exited = true; resolve(); }));

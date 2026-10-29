@@ -1,4 +1,5 @@
 import { SESSION_POLICY } from "../domain/rules/session-policy";
+import { isAccountKey, loginUsername } from "../domain/rules/account-identity";
 import { randomBytes } from "node:crypto";
 import { CookieJar } from "tough-cookie";
 import { PdksClient, PdksError } from "./pdks.js";
@@ -20,6 +21,7 @@ export function createSessionManager({
   scheduler = { timer: null },
 } = {}) {
   const loading = new Map();
+  const commits = new WeakMap();
   let nextDiskCleanup = clock() + SESSION_POLICY.diskCleanupMs;
   let maintenance;
   function saveSession(id, session) {
@@ -54,8 +56,7 @@ export function createSessionManager({
     state.promise = (async () => {
       const record = await storage.read(id);
       if (
-        state.cancelled || !record ||
-        typeof record.self?.pofiKey !== "string" || !record.self.pofiKey.trim()
+        state.cancelled || !record || !isAccountKey(record.self?.accountKey)
       ) return null;
       if (record.expiresAt <= clock()) {
         await storage.remove(id);
@@ -127,8 +128,9 @@ export function createSessionManager({
     }
     sessions.delete(id);
     stopIdleTimer();
+    const pendingCommits = session ? [...(commits.get(session) || [])] : [];
     const state = { cancelled: true, promise: null };
-    state.promise = Promise.resolve()
+    state.promise = Promise.allSettled(pendingCommits)
       .then(() => storage.remove(id))
       .then(
         () => {
@@ -274,10 +276,7 @@ export function createSessionManager({
     if (!validSessionId(id)) return null;
     if (loading.get(id)?.cancelled) return null;
     const session = sessions.get(id) || (await loadSession(id));
-    if (
-      !session || typeof session.client.self?.pofiKey !== "string" ||
-      !session.client.self.pofiKey.trim()
-    ) return null;
+    if (!session || !isAccountKey(session.client.self?.accountKey)) return null;
     if (session.expiresAt <= clock()) {
       await removeSession(id);
       return null;
@@ -293,9 +292,7 @@ export function createSessionManager({
   }
 
   async function connect(body) {
-    let username = typeof body.username === "string"
-      ? body.username.split("@", 1)[0].trim()
-      : "";
+    let username = loginUsername(body.username);
     const usernameLength = typeof body.username === "string" ? body.username.length : 0;
     let password = body.password;
     delete body.username;
@@ -316,6 +313,8 @@ export function createSessionManager({
         );
       client = createClient();
       await client.login(username, password);
+      if (!isAccountKey(client.self?.accountKey))
+        throw new Error(ui.internalErrors.invalidSessionRecord);
     } finally {
       username = undefined;
       password = undefined;
@@ -357,6 +356,18 @@ export function createSessionManager({
       throw new PdksError(ui.apiErrors.sessionRequired, "SESSION_EXPIRED", 401);
   }
 
+  function commitWhileActive(session, action) {
+    assertActive(session);
+    const commit = Promise.resolve().then(action);
+    let pending = commits.get(session);
+    if (!pending) { pending = new Set(); commits.set(session, pending); }
+    pending.add(commit);
+    return commit.finally(() => {
+      pending.delete(commit);
+      if (!pending.size) commits.delete(session);
+    });
+  }
+
   return {
     sessionFor,
     requireSession,
@@ -366,5 +377,6 @@ export function createSessionManager({
     heartbeat,
     checkKeepAlive,
     assertActive,
+    commitWhileActive,
   };
 }

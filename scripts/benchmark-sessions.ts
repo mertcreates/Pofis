@@ -2,6 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { resolve, join, relative } from "node:path";
 import { cpus, platform, release } from "node:os";
 import { monitorEventLoopDelay } from "node:perf_hooks";
+import { createHash } from "node:crypto";
 import {
   createSessionManager,
   SESSION_COOKIE,
@@ -19,6 +20,7 @@ if (
 )
   throw new Error("Provide sizes between 1 and 10000");
 const results = [];
+const fixtureAccountKey = (username: string) => createHash("sha256").update(username).digest("hex");
 const request = (id: string) => ({
   cookies: {
     get: (name: string) =>
@@ -69,7 +71,7 @@ try {
           "/PizzyKurumWeb/Giris.aspx",
           new URLSearchParams({ username }),
         );
-        client.self = { pofiKey: username, name: username };
+        client.self = { accountKey: fixtureAccountKey(username), name: username };
       };
       return client;
     };
@@ -88,7 +90,7 @@ try {
     const coldStart = performance.now();
     await batch(ids, async (id, i) => {
       const session = await restored.requireSession(request(id));
-      if (session.client.self.pofiKey !== `fixture-${i}`)
+      if (session.client.self.accountKey !== fixtureAccountKey(`fixture-${i}`))
         throw new Error("Restored identity mismatch");
     });
     const restoreMs = performance.now() - coldStart;

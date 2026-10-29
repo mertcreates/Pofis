@@ -18,9 +18,9 @@ Her bildirim türü için masaüstü ve Telegram ayrı ayrı açılır. Varsayı
 
 Ön süre sınırları ve başlangıç değeri `NOTIFICATION_POLICY` sahibindedir. Doğrulayıcı, formun min/max değerleri ve hata metinleri bu değerleri kullanır; hazır seçenekler bu aralığa göre süzülür. Bildirim saatinin gösterimi ortak [takvimin](calendar.md) saat dilimini kullanır.
 
-Güncel haftanın raporu açılışta ve 30 dakikada bir ana süreçten yenilenir. Görünen geçmiş hafta bu işi değiştirmez. Başarılı manuel yenileme arka plan raporunun yenilenmesini de ister. Ekran planın bütün kayıtlarını doğrulanmış mevcut serileştirmeyle ana sürece aktarır; plan değişikliğinde hedef yeniden hesaplanır.
+Güncel haftanın raporu açılışta ve 30 dakikada bir ana süreçten yenilenir. Görünen geçmiş hafta bu işi değiştirmez. Başarılı manuel yenileme arka plan raporunun yenilenmesini de ister. Ekran planı ve oturum bağlayıcısını ana sürece aktarır; plan değişikliğinde hedef yeniden hesaplanır. Canlı Electron oturumunda plan ve rapor güncel oturumla eşleşir. Plan hazır değilse hedef temizlenir. Paketli senaryo örnek oturumla çalışır.
 
-Eşzamanlı plan senkronizasyonlarında son istek geçerlidir. Eski isteğin geciken oturum yanıtı veya hatası yeni oturumu durduramaz ve eski planı tekrar deneme kuyruğuna yazamaz. Yeni istek önceki bekleyen plan tekrarını kaldırır; geçici hatada yalnız son plan yeniden denenir.
+Eşzamanlı plan senkronizasyonlarında son istek geçerlidir; geciken yanıtlar yeni oturumu değiştirmez. Aynı oturumun yeni planı doğrulanana kadar hedef temizlenir ve bildirim bekler. Geçici oturum okuma hatasında son plan yeniden denenir. Gönderim kaydı sürerken başlayan eşitlemede de bu sıra uygulanır.
 
 Son başarılı raporda güvenilir açık giriş varsa geçici ağ/yenileme hatası bildirimleri durdurmaz. Görünümün eski rapor nedeniyle canlı tahmini durdurması kendi sözleşmesini korur; bildirimler son bilinen giriş ve güncel planla sürer. Yeni raporda çıkış, belirsiz hedef veya kapalı gün bulunursa mesai bildirimi üretilmez. Önceki günün açık girişi bugüne taşınmaz.
 
@@ -30,7 +30,7 @@ Masaüstünde bir dakikalık oturum heartbeat'ini ana süreç gönderir. İlk ot
 
 ## Gönderim ve hesap ayrımı
 
-Sunucu, Pofi hesap anahtarından bildirimlere özgü SHA-256 hesap kimliğini ve sabit oturum bitiş anını üretir. Kaynak anahtar ve PDKS çerezleri renderer'a verilmez. Hesap değişimi, başarılı çıkış, doğrulanmış oturum bitişi ve [oturum TTL'inin](session-policy.md) dolması ilgili arka plan işini durdurur. Giriş/çıkış işlemi sırasında gönderimler askıya alınır; başarısız çıkışta mevcut oturum yeniden bağlanır.
+Sunucu, [ortak hesap anahtarından](account-identity.md) bildirimlere özgü SHA-256 hesap kimliğini ve sabit oturum bitiş anını üretir. Kaynak anahtar ve PDKS çerezleri renderer'a verilmez. Hesap değişimi, başarılı çıkış, doğrulanmış oturum bitişi ve [oturum TTL'inin](session-policy.md) dolması ilgili arka plan işini durdurur. Giriş/çıkış işlemi sırasında gönderimler askıya alınır; başarısız çıkışta mevcut oturum yeniden bağlanır.
 
 Kalıcı tekrar anahtarı hesap + İstanbul tarihi + bildirim türü + kanaldır. Ön süre veya tür/kanal tercihleri değiştirilip başarıyla kaydedilirse ilgili hesabın bugünkü bütün gönderim kayıtları sıfırlanır; sonraki uygun eşikte açık kanallara yeniden gönderilebilir. Aynı tercihleri tekrar kaydetmek kayıtları ve eşik uygunluğunu değiştirmez. Tercih değişmeden yalnız çıkış hedefinin değişmesi aynı gün aynı tür/kanalda ikinci gönderim oluşturmaz. Önceki günlerin kayıtları korunur; gönderim sırasında son yedi gün dışındaki kayıtlar temizlenir. Gönderim öncesi `pending` diske yazılır; kayıt yazılamıyorsa mesaj gönderilmez. Kayıt hatası Bildirimler'de gösterilir, başarılı hesap kaydında temizlenir ve raporun tazeliğini değiştirmez. Sağlayıcı kabulü `accepted` olur; bu durum okunma kanıtı değildir.
 

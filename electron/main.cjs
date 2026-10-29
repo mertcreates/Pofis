@@ -148,6 +148,7 @@ if (!app.requestSingleInstanceLock() || process.argv.includes("--pofis-quit")) {
       root: serverDirectory,
       fork: (entry, args, options) => utilityProcess.fork(entry, args, options),
       sessionDirectory: join(app.getPath("userData"), "sessions"),
+      planDirectory: join(app.getPath("userData"), "work-plans"),
       onUnexpectedExit: fail,
     });
     serverOrigin = await server.start();

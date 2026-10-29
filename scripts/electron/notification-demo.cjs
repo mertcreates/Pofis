@@ -1,5 +1,6 @@
 const { resolve, join, dirname } = require("node:path");
 const { EventEmitter } = require("node:events");
+const { createHash } = require("node:crypto");
 
 if (process.versions.electron) {
   const { app, BrowserWindow, session, ipcMain, safeStorage, powerMonitor } = require("electron");
@@ -31,19 +32,31 @@ if (process.versions.electron) {
       passages.push({ date, time: "09:00:00", direction: "in" });
       if (date !== today) passages.push({ date, time: "17:00:00", direction: "out" });
     }
-    const identity = { accountId: "a".repeat(64), expiresAt: now + 8 * 3600_000 };
+    const workPlanSession = "b".repeat(64);
+    const identity = { accountId: "a".repeat(64), expiresAt: now + 8 * 3600_000, workPlanSession };
+    let plans = { defaultPlan: [480, 480, 480, 480, 480, 0, 0], weekOverrides: {} };
+    const revision = value => createHash("sha256").update(JSON.stringify(value)).digest("hex");
     const report = { person: { id: "self", name: "Bildirim önizlemesi", title: "", unit: "" },
       from, to: sunday.toISOString().slice(0, 10), fetchedAt: new Date(now).toISOString(), passages, notificationSession: identity };
     const telegramMessages = [];
     let failTelegram = false;
     const transport = createDesktopTransport({ serverOrigin: upstream,
       fetch: (url, options) => session.defaultSession.fetch(url, options) });
-    await session.defaultSession.protocol.handle("http", request => {
+    await session.defaultSession.protocol.handle("http", async request => {
       const url = new URL(request.url);
       if (url.origin !== ORIGIN) return new Response("Forbidden", { status: 403 });
-      if (url.pathname === "/api/session") return Response.json({ connected: true, notificationSession: identity });
+      if (url.pathname === "/api/session") return Response.json({ connected: true, notificationSession: identity, workPlanSession });
       if (url.pathname === "/api/session/heartbeat") return Response.json({ connected: true });
       if (url.pathname === "/api/report") return Response.json(report);
+      if (url.pathname === "/api/work-plans") {
+        if (request.method === "PUT") {
+          const input = await request.json();
+          if (input.session !== workPlanSession || input.revision !== revision(plans))
+            return Response.json({ code: "PLAN_CONFLICT" }, { status: 409 });
+          plans = input.plans;
+        }
+        return Response.json({ plans, revision: revision(plans), session: workPlanSession });
+      }
       return transport(request);
     });
     window = new BrowserWindow({ show: !process.argv.includes("--verify"), width: 1280, height: 950,

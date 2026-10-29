@@ -27,19 +27,61 @@ test("menüsüz yönetici girişi sabit hesap anahtarı üretir; aynı adlı hes
     ]);
     expect(JSON.stringify(client)).not.toContain(username.trim());
     expect(JSON.stringify(client)).not.toContain("fixture-password");
-    return client.self.pofiKey;
+    return client.self.accountKey;
   }
   const key = await login("manager-account");
   expect(key).toMatch(/^[a-f0-9]{64}$/);
   expect(await login("  manager-account  ")).toBe(key);
   expect(await login("another-account")).not.toBe(key);
-  expect(await login("Manager-account")).not.toBe(key);
+  expect(await login("Manager-account")).toBe(key);
   expect(await login("manager-account", "https://fixture.example")).not.toBe(key);
+});
+
+test("ortak hesap kimliği ASCII büyük harfleri eşitler, diğer karakterleri ve PDKS girişini korur", async () => {
+  const previous = process.env.POFIS_PLAN_DIR;
+  process.env.POFIS_PLAN_DIR = "fixture-only";
+  async function login(username, origin = PDKS_ORIGIN) {
+    let submitted;
+    const client = new PdksClient({ origin, fetchImpl: async (url, options) => {
+      if (url.pathname.endsWith("/Giris.aspx")) {
+        if (options.method === "POST") submitted = new URLSearchParams(options.body).get("tbUserName");
+        return new Response('<form><input name="tbUserName"><input name="tbPassword"></form>');
+      }
+      if (url.pathname.endsWith("/PizzyMain.aspx"))
+        return new Response('<span id="ctl_RPPersonel_LblKisiAdiSoyadi">Fixture Person</span>');
+      throw new Error("Unexpected fixture request");
+    } });
+    await client.login(username, "fixture-password");
+    expect(submitted).toBe(username);
+    expect(JSON.stringify(client)).not.toContain(username.trim());
+    expect(JSON.stringify(client)).not.toContain("fixture-password");
+    return client.self;
+  }
+  try {
+    const lower = await login("ismail.fixture");
+    const upper = await login("ISMAIL.FIXTURE");
+    expect(lower.accountKey).toBe("0217f3c9adc70c33c05e6d0f7dcbb50ad8c9939cd7071fb9a7f69ca164e21f72");
+    expect(upper.accountKey).toBe(lower.accountKey);
+    expect(upper).not.toHaveProperty("pofiKey");
+    expect(upper).not.toHaveProperty("planKey");
+    expect((await login("  ismail.fixture  ")).accountKey).toBe(lower.accountKey);
+    expect((await login("another.fixture")).accountKey).not.toBe(lower.accountKey);
+    expect((await login("ismail.fixture", "https://fixture.example")).accountKey).not.toBe(lower.accountKey);
+    expect((await login("İSMAİL.fixture")).accountKey).not.toBe(lower.accountKey);
+    expect((await login("ısmaıl.fixture")).accountKey).not.toBe(lower.accountKey);
+    expect((await login("ŞAHİN.fixture")).accountKey).not.toBe((await login("şahin.fixture")).accountKey);
+
+    delete process.env.POFIS_PLAN_DIR;
+    expect((await login("ismail.fixture")).accountKey).toBe(lower.accountKey);
+  } finally {
+    if (previous === undefined) delete process.env.POFIS_PLAN_DIR;
+    else process.env.POFIS_PLAN_DIR = previous;
+  }
 });
 
 test.each(["", "<span id=ctl_RPPersonel_LblKisiAdiSoyadi> </span>",
   "<span id=a_RPPersonel_LblKisiAdiSoyadi>A</span><span id=b_RPPersonel_LblKisiAdiSoyadi>B</span>"])(
-  "bozuk profil girişe ve Pofi anahtarı üretimine izin vermez: %s", async (profile) => {
+  "bozuk profil girişe ve hesap anahtarı üretimine izin vermez: %s", async (profile) => {
     const client = new PdksClient({ fetchImpl: async url => new Response(
       url.pathname.endsWith("/Giris.aspx") ? '<form><input name="tbUserName"><input name="tbPassword"></form>' : profile,
     ) });
@@ -196,7 +238,7 @@ test("tam giriş ve kendi raporu WebForms/DevExpress sözleşmesini uygular; par
     },
   });
   await client.login("fixture-user", "fixture-password");
-  expect(client.self.pofiKey).toMatch(/^[a-f0-9]{64}$/);
+  expect(client.self.accountKey).toMatch(/^[a-f0-9]{64}$/);
   const report = await client.report("self", "2026-10-12", "2026-10-18");
   expect(report.person).toEqual({ id: "self", name, unit: "", title: "" });
   expect(report.passages).toEqual(events);
@@ -324,7 +366,7 @@ function paginatedClient(fault, language = "en") {
       return dx(html);
     },
   });
-  client.self = { name, unit: "", title: "", pofiKey: "fixture" };
+  client.self = { name, unit: "", title: "", accountKey: "fixture" };
   return { client, calls, all };
 }
 
@@ -371,7 +413,7 @@ function cachedReportClient(clock, name = "Fixture Person") {
   });
   let loads = 0;
   client.personalProfile = async () => ({
-    name, unit: "", title: "", pofiKey: name,
+    name, unit: "", title: "", accountKey: name,
   });
   client.personalPassages = async () => {
     loads++;

@@ -34,7 +34,7 @@ export function clearSessionCookies(response, request) {
   });
 }
 
-export async function readBody(request) {
+export async function readBody(request, maxBytes = HTTP_POLICY.maxJsonBytes) {
   if (!request.headers.get("content-type")?.startsWith("application/json"))
     throw new PdksError(ui.apiErrors.jsonRequired, "INVALID_INPUT", 400);
   const reader = request.body?.getReader();
@@ -46,7 +46,7 @@ export async function readBody(request) {
     const { done, value } = await reader.read();
     if (done) break;
     size += value.length;
-    if (size > HTTP_POLICY.maxJsonBytes) {
+    if (size > maxBytes) {
       await reader.cancel();
       throw new PdksError(ui.apiErrors.requestTooLarge, "INVALID_INPUT", 413);
     }

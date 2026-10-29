@@ -178,6 +178,7 @@ Seçili haftada, açık ve PDKS kaydıyla kilitlenmemiş günün eylem satırın
 - Yazarken geçerli taslaktan karşı saat önizlenir; kayıt henüz değiştirilmez. Enter veya odağın düzenleme grubundan ayrılması değişen geçerli taslağı kaydeder ve alan `HH:mm` biçimine dönüşür. Saat türü seçimi ve temizleme kontrolü arasındaki odak geçişi kayıt oluşturmaz. Düzenleme kontrolleri kayıt sonrasında görünür kalır; dışarıda tıklanan kontrolün yeri değişmez. Değişmemiş seçim yeniden yazılmaz.
 - Geçersiz taslak kaydedilmez; alan, taslak ve hata mesajı düzenleme için korunur. Boş taslakta Enter, gruptan odak çıkışı veya temizleme düğmesine basmak yalnız o günün saat seçimini `null` olarak kaydeder; çalışma süresi korunur.
 - Kaydedilmemiş değişiklik veya hata varken Escape taslağı son başarılı seçime döndürür ve saat bölümünü seçer. Değişiklik yokken Escape Planlayıcı bölümünü kapatıp odağı açan düğmeye döndürür.
+- Başka pencerede saat değiştiğinde düzenlenmemiş alan güncellenir; açık taslak korunur. Escape güncel kayda döner.
 
 - Giriş 09:00 + gereken 8 saat → çıkış 17:00. Çıkış 18:00 + gereken 8 saat → giriş 10:00.
 - [plan-duration.ts](../../src/domain/rules/plan-duration.ts) içindeki `planClockTimes`, karşı saati görünür gereken dakikadan hesaplar. Gereken 6 sa 50 dk 43 sn, 6 sa 51 dk olarak kullanılır; 09:00 girişi 15:51 çıkışı verir.
@@ -196,9 +197,21 @@ Saklanan `WorkPlans` durumu `{ defaultPlan, weekOverrides, weekTargets?, weekLea
 - `weekLockedDays`: kullanıcı tarafından kilitlenen tekil 0–4 gün indeksleri. İzinli günle çakışmaz. Günün kilit anındaki gereken süresi `weekOverrides` içinde tutulur; kilit kaldırılınca bu süre plan olarak kalır. Sıfırla, seçili haftanın kilit listesini kaldırır.
 - `weekTimes`: pazartesi tarihiyle anahtarlanan, gün indeksine (0–4) göre `{ anchor: "entry" | "exit", minute: 0–1439 }` seçimleri. Yalnız seçilen sınır saklanır; karşı saat gereken süreden türetilir. Boş gün/hafta kayıtları temizlenir; alanın bulunmadığı mevcut v1 kayıtları normal okunur. Şablon ve süre değişikliği saat seçimini korur; seçim başka güne veya haftaya taşınmaz.
 
-[plan-storage](../../src/lib/plan-storage.js) serileştirme ve doğrulamayı, [work-plans](../../src/data/work-plans.ts) canlı/demo depolama kapsamını ve diğer pencerelerin storage olaylarından planı yeniden okumayı, [use-work-plans](../../src/data/use-work-plans.ts) başarılı yazıdan sonraki durum güncellemesini yönetir. Güncel şema tek `pofis:work-plans:v1` anahtarında saklanır; demo aynı şemayı `demo:pofis:work-plans:v1` anahtarında tutar. Yalnız bu anahtar okunur; kayıt yoksa varsayılan plan açılır. Depolama sözleşmesi güncel v1 şemasıdır. Güncel anahtardaki geçersiz veri görünür hata üretir ve düzenleme kilitlenir. Yazı hatasında son başarılı kayıt korunur. Diğer pencerenin geçersiz kaydı da görünür hata üretir ve düzenlemeyi durdurur; kayıt düzeltildiğinde abonelik yeniden okur. storage temizleme olayı varsayılan plana döner; demo ve canlı anahtarları birbirini güncellemez.
+[plan-storage](../../src/lib/plan-storage.js) bütün ortamlarda plan şemasını doğrular. [use-work-plans](../../src/data/use-work-plans.ts) yükleme ve başarılı yazı sonrası ekran durumunu yönetir.
 
-Yan menüdeki Mesai planı, ekranda seçili haftanın planını açar. Güncel haftanın cetvelinde bugün veya gelecek gün seçildiğinde plan o günle açılır. Modalın haftalık sekmesi, kaynak raporu ve okuma/kaydetme işlemleri aynı pazartesi tarihini kullanır. Modalı kapatmak ve Çalışma düzeni sekmesine geçmek seçili haftayı korur. Çalışma düzeni genel şablonu düzenler; haftalık düzenlemeler seçili haftaya kaydedilir. Mesaim menü eylemi güncel haftaya döner. Düzenleme için kaynak rapor ve yerel planın yüklenmesi gerekir. Modal açıkken hatalar modalda, kapalıyken rapor üzerinde gösterilir.
+**Electron canlı oturumu:** Yerel sunucu, planı doğrulanmış oturumun [ortak hesap anahtarıyla](account-identity.md) seçer.
+
+[work-plan-storage](../../src/server/work-plan-storage.js), Electron profilindeki `work-plans/` dizininde hesap anahtarıyla adlandırılmış bir JSON dosyası kullanır. Yeni hesap 40 saatlik şablonla başlar ve dosya ilk başarılı yazıda oluşur. Aynı hesap, aynı cihazda tekrar açıldığında son planı görür.
+
+[work-plans route'u](../../src/app/api/work-plans/route.js), okuma ve yazma yanıtlarında oturum bağlayıcısı ile içerik revizyonunu döndürür; yazıda ikisini doğrular. Aynı hesaba eşzamanlı yazılarda eski revizyon reddedilir ve [desktop-work-plans](../../src/data/desktop-work-plans.ts) güncel planı yeniden okur. Ana pencere ve Mini değişikliği `BroadcastChannel` ile bildirip sunucudan yeniden okur. Rapor hedefi ve bildirimler, doğrulanmış güncel planı kullanır.
+
+Okuma veya doğrulama hatası görünür ve düzenleme durur; ana pencerede ve Mini'de yeniden deneme planı tekrar okur. Yazma hatasında son başarılı plan korunur. Sunucu dosyayı geçici kaydı yeniden adlandırarak yazar; fsync uygulanmaz.
+
+Oturum son dosya değişiminden önce doğrulanır. Değişim başlamışsa çıkış tamamlanmasını bekler; çıkış başlamışsa yeni değişim reddedilir. Oturum süresi değişim başladıktan sonra dolarsa kabul edilen değişim tamamlanır.
+
+**Web, demo ve paketli senaryo:** [work-plans](../../src/data/work-plans.ts) tarayıcı depolamasını ve pencereler arası storage olaylarını kullanır. Web canlı planı `pofis:work-plans:v1`, demo `demo:pofis:work-plans:v1` anahtarındadır; aynı tarayıcı profilindeki web hesapları canlı planı paylaşır. Paketli senaryo ayrı profilindeki canlı anahtarı kullanır. Kayıt yoksa varsayılan plan açılır. Geçersiz kayıt görünür hata üretir ve düzenlemeyi durdurur; yazı hatasında son başarılı kayıt korunur. Storage temizleme olayı varsayılan plana döner; demo ve canlı anahtarları birbirini güncellemez.
+
+Yan menüdeki Mesai planı, ekranda seçili haftanın planını açar. Güncel haftanın cetvelinde bugün veya gelecek gün seçildiğinde plan o günle açılır. Modalın haftalık sekmesi, kaynak raporu ve okuma/kaydetme işlemleri aynı pazartesi tarihini kullanır. Modalı kapatmak ve Çalışma düzeni sekmesine geçmek seçili haftayı korur. Çalışma düzeni genel şablonu düzenler; haftalık düzenlemeler seçili haftaya kaydedilir. Mesaim menü eylemi güncel haftaya döner. Düzenleme için kaynak rapor ve yerel planın yüklenmesi gerekir. Hataların gösterimi [hata sözleşmesindedir](../pdks-errors.md#uygulama-içi-hata-ve-yerel-bildirimler).
 
 ## Doğrulama
 

@@ -63,22 +63,23 @@ export function DashboardView({
   const refresh = data.kind === "pdks" ? data.state.refresh : data.refresh;
   const source = data.kind === "pdks" ? data.state.report : data.report;
   const notifications = useDesktopNotifications(data.kind === "pdks", connected,
-    pdks?.busy === "connect" || pdks?.busy === "disconnect", workPlans.serialized);
+    pdks?.busy === "connect" || pdks?.busy === "disconnect", workPlans.serialized, workPlans.session);
   const firstWeek = data.kind === "demo" ? data.firstWeek : undefined;
   const prepared = useMemo(() => {
-    if (!source) return null;
+    if (!source || !workPlans.ready) return null;
     return prepareReport(source, workPlans.plan, today, stale, workPlans.targetSeconds, workPlans.zeroOpenDays, workPlans.userLockedDays);
-  }, [source, workPlans.plan, workPlans.targetSeconds, workPlans.zeroOpenDays, workPlans.userLockedDays, today, stale]);
+  }, [source, workPlans.ready, workPlans.plan, workPlans.targetSeconds, workPlans.zeroOpenDays, workPlans.userLockedDays, today, stale]);
   const presentation = useMemo(() => {
     return prepared ? prepared(now) : null;
   }, [prepared, now]);
   const days = presentation?.days ?? [];
   useEffect(() => {
+    if (pdks?.busy === "connect" || pdks?.busy === "disconnect") setDialog(null);
     if (!connected) {
       setDialog(null);
       onWeekChange(weekStart(today));
     }
-  }, [connected, today, onWeekChange]);
+  }, [connected, pdks?.busy, today, onWeekChange]);
   const previousToday = useRef(today);
   useEffect(() => {
     if (!liveClock) return;
@@ -122,8 +123,12 @@ export function DashboardView({
         }}
         onDisconnect={pdks ? () => void pdks.disconnect() : undefined}
       >
-        {workPlans.error && dialog?.kind !== "plan" && (
-          <InlineNotice tone="warning">{workPlans.error}</InlineNotice>
+        {workPlans.error && (dialog?.kind !== "plan" || !workPlans.ready) && (
+          <InlineNotice tone="warning">
+            {workPlans.error}
+            {!workPlans.ready && workPlans.retryRead && <button type="button" className="text-button"
+              onClick={() => void workPlans.retryRead?.()}>{ui.desktopPlanRetry}</button>}
+          </InlineNotice>
         )}
         {pdks?.rememberWarning && <InlineNotice tone="warning">{pdks.rememberWarning}</InlineNotice>}
         {pdks?.failure && connected === true && (
@@ -180,7 +185,9 @@ export function DashboardView({
                   onOpenRoom={() => setDialog({ kind: "room" })}
                   onEditPlan={date => setDialog({ kind: "plan", initialDate: date })}
                 />
-              ) : pdks?.failure ? null : busy ? (
+              ) : !workPlans.ready && !workPlans.error ? (
+                <LoadingState label={ui.loadingSelf} />
+              ) : pdks?.failure || workPlans.error ? null : busy ? (
                 <LoadingState label={ui.loadingSelf} />
               ) : (
                 <div className="empty report-empty">
@@ -191,7 +198,7 @@ export function DashboardView({
             </div>
           </>
         )}
-        {connected && dialog?.kind === "plan" && (
+        {connected && workPlans.ready && dialog?.kind === "plan" && (
           <PlanEditor
             key={week}
             week={week}
@@ -208,7 +215,7 @@ export function DashboardView({
             times={workPlans.times}
             onSetTime={workPlans.setTime}
             special={workPlans.special}
-            ready={workPlans.ready && source?.from === week}
+            ready={!workPlans.saving && source?.from === week}
             error={workPlans.error}
             onSave={(plan, targetSeconds, leaveDays) => workPlans.save(plan, planProtectionMarkers(days, week, today), targetSeconds, leaveDays)}
             onSaveDefault={plan => workPlans.saveDefault(plan, planProtectionMarkers(days, week, today))}

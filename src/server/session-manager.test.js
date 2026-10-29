@@ -1,5 +1,6 @@
 import { test, expect, spyOn } from "bun:test";
 import { CookieJar } from "tough-cookie";
+import { createHash } from "node:crypto";
 import {
   mkdirSync,
   mkdtempSync,
@@ -7,7 +8,7 @@ import {
   readFileSync,
   rmSync,
 } from "node:fs";
-import { join } from "node:path";
+import { join, relative, resolve } from "node:path";
 import {
   createSessionManager,
   SESSION_COOKIE,
@@ -16,6 +17,7 @@ import {
 import { createSessionStorage } from "./session-storage.js";
 import { PdksError } from "./pdks.js";
 
+const fixtureAccountKey = value => createHash("sha256").update(value).digest("hex");
 const request = (id, cookieName = SESSION_COOKIE) => ({
   cookies: {
     get: (name) => (name === cookieName && id ? { value: id } : undefined),
@@ -29,7 +31,7 @@ function clientFactory(clock, check = async () => 200) {
     async login(username, password) {
       if (password !== "fixture-password")
         throw new PdksError("Reddedildi", "AUTH_FAILED", 401);
-      this.self = { id: "self", name: username, pofiKey: username };
+      this.self = { id: "self", name: username, accountKey: fixtureAccountKey(username) };
       await this.jar.setCookie(
         `identity=${username}; Path=/`,
         "https://pdks.trt.net.tr",
@@ -117,6 +119,9 @@ test("diskten geri yükler, parolayı saklamaz ve çıkış yalnız ilgili dosya
     await first.disconnect(request(a));
     await first.disconnect(request(b));
   } finally {
+    const child = relative(root, directory);
+    if (!child || child.startsWith("..") || resolve(root, child) !== directory)
+      throw new Error("Invalid fixture directory");
     rmSync(directory, { recursive: true, force: true });
   }
 });
@@ -134,7 +139,7 @@ test("e-posta ile giriş kullanıcı adıyla aynı PDKS kimliğini kullanır", a
     try {
       const { client } = await manager.requireSession(request(id));
       expect(client.self.name).toBe("mert.ercan");
-      expect(client.self.pofiKey).toBe("mert.ercan");
+      expect(client.self.accountKey).toBe(fixtureAccountKey("mert.ercan"));
       expect(await client.jar.getCookieString("https://pdks.trt.net.tr")).toBe(
         "identity=mert.ercan",
       );
@@ -165,6 +170,32 @@ test("hatalı parola ve geçersiz alanlar oturum oluşturmaz", async () => {
   expect(records).toHaveLength(0);
 });
 
+test.each([undefined, "", "invalid", "A".repeat(64)])(
+  "kaynak girişi geçersiz hesap anahtarı üretirse oturum oluşturulmaz: %s",
+  async (accountKey) => {
+    const sessions = new Map();
+    const records = [];
+    let loginCalls = 0;
+    const body = { username: "alice", password: "fixture-password" };
+    const manager = createSessionManager({
+      sessions,
+      createClient: () => ({
+        self: { accountKey },
+        async login() { loginCalls++; },
+      }),
+      storage: {
+        save: async (...args) => { records.push(args); },
+      },
+    });
+
+    await expect(manager.connect(body)).rejects.toThrow("Oturum kaydı geçersiz.");
+    expect(loginCalls).toBe(1);
+    expect(records).toHaveLength(0);
+    expect(sessions.size).toBe(0);
+    expect(body).toEqual({});
+  },
+);
+
 test.each([
   { username: "", password: "fixture-password" },
   { username: "@trt.net.tr", password: "fixture-password" },
@@ -193,7 +224,7 @@ test("sınırdaki geçerli bilgiler temizlenmiş istekten kaynağa değişmeden 
   const username = "a".repeat(200), password = "p".repeat(1000);
   const body = { username, password, marker: "preserved" };
   const manager = createSessionManager({ createClient: () => ({
-    jar: new CookieJar(), self: { pofiKey: "verified-person" },
+    jar: new CookieJar(), self: { accountKey: fixtureAccountKey("verified-person") },
     async login(receivedUsername, receivedPassword) {
       expect(body).toEqual({ marker: "preserved" });
       expect(receivedUsername).toBe(username);
@@ -201,7 +232,7 @@ test("sınırdaki geçerli bilgiler temizlenmiş istekten kaynağa değişmeden 
     },
   }) });
   const id = await manager.connect(body);
-  try { expect((await manager.requireSession(request(id))).client.self.pofiKey).toBe("verified-person"); }
+  try { expect((await manager.requireSession(request(id))).client.self.accountKey).toBe(fixtureAccountKey("verified-person")); }
   finally { await manager.disconnect(request(id)); }
 });
 
@@ -235,12 +266,12 @@ test("2.000 paralel oturum ayrı kimlik ve çerezlerle çalışır; çıkış ya
     password: "fixture-password",
   });
   expect(
-    (await manager.requireSession(request(later))).client.self.pofiKey,
-  ).toBe("after-burst");
+    (await manager.requireSession(request(later))).client.self.accountKey,
+  ).toBe(fixtureAccountKey("after-burst"));
   await manager.disconnect(request(later));
   for (const [i, id] of ids.entries()) {
     const session = await manager.requireSession(request(id));
-    expect(session.client.self.pofiKey).toBe(`person${i}`);
+    expect(session.client.self.accountKey).toBe(fixtureAccountKey(`person${i}`));
     expect(
       await session.client.jar.getCookieString("https://pdks.trt.net.tr"),
     ).toBe(`identity=person${i}`);
@@ -248,8 +279,8 @@ test("2.000 paralel oturum ayrı kimlik ve çerezlerle çalışır; çıkış ya
   await manager.disconnect(request(ids[0]));
   expect(await manager.sessionFor(request(ids[0]))).toBeFalsy();
   expect(
-    (await manager.requireSession(request(ids[1999]))).client.self.pofiKey,
-  ).toBe("person1999");
+    (await manager.requireSession(request(ids[1999]))).client.self.accountKey,
+  ).toBe(fixtureAccountKey("person1999"));
   await Promise.all(ids.slice(1).map((id) => manager.disconnect(request(id))));
 });
 
@@ -315,12 +346,12 @@ test("keepalive tutarsız SESSION_EXPIRED/500 yanıtında oturumu düşürmez", 
   }
 });
 
-test("giriş isteğinin kimlik alanları işlem sonunda tutulmaz; oturumda yalnız profil ve Pofi hesap anahtarı kalır", async () => {
+test("giriş isteğinin kimlik alanları işlem sonunda tutulmaz; oturumda yalnız profil ve hesap anahtarı kalır", async () => {
   const body = { username: "credential-user", password: "credential-secret" };
   const manager = createSessionManager({
     createClient: () => ({
       jar: new CookieJar(),
-      self: { pofiKey: "verified-person" },
+      self: { accountKey: fixtureAccountKey("verified-person") },
       async login(username, password) {
         expect(username).toBe("credential-user");
         expect(password).toBe("credential-secret");
@@ -333,7 +364,7 @@ test("giriş isteğinin kimlik alanları işlem sonunda tutulmaz; oturumda yaln�
     const session = await manager.requireSession(request(token));
     expect(JSON.stringify(session)).not.toContain("credential-user");
     expect(JSON.stringify(session)).not.toContain("credential-secret");
-    expect(session.client.self.pofiKey).toBe("verified-person");
+    expect(session.client.self.accountKey).toBe(fixtureAccountKey("verified-person"));
   } finally {
     await manager.disconnect(request(token));
   }

@@ -21,6 +21,7 @@ if (process.versions.electron) {
     server = createDesktopServer({ root: resolve(__dirname, "../../.next/standalone"),
       fork: (entry, args, options) => utilityProcess.fork(entry, args, options),
       sessionDirectory: join(app.getPath("userData"), "sessions"),
+      planDirectory: join(app.getPath("userData"), "work-plans"),
       onUnexpectedExit: error => { console.error(error); app.exit(1); } });
     const origin = await server.start();
     session.defaultSession.protocol.handle("http", createDesktopTransport({ serverOrigin: origin,

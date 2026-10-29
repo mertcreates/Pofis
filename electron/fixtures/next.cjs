@@ -10,7 +10,7 @@ else {
     response.setHeader("Content-Type", "application/json");
     response.setHeader("X-Pofis-Desktop", mode === "wrong-token" ? "another-process" : process.env.POFIS_DESKTOP_TOKEN);
     response.end(JSON.stringify({ status: "ok", pid: process.pid,
-      directory: process.env.POFIS_SESSION_DIR }));
+      directory: process.env.POFIS_SESSION_DIR, planDirectory: process.env.POFIS_PLAN_DIR }));
   });
   setTimeout(() => server.listen(port, "127.0.0.1"), 100);
 }

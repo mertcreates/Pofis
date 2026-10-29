@@ -1,6 +1,7 @@
 import { test, expect, spyOn } from "bun:test";
 import { NextRequest } from "next/server";
 import { CookieJar } from "tough-cookie";
+import { createHash } from "node:crypto";
 import {
   createSessionManager,
   SESSION_COOKIE,
@@ -16,8 +17,10 @@ import { POST as heartbeat } from "../app/api/session/heartbeat/route.js";
 import { PdksClient, PdksError, PASSAGES_PATH } from "./pdks.js";
 import { analyticsUserIdForAccount } from "./analytics-identity";
 
+const fixtureAccountKey = value => createHash("sha256").update(value).digest("hex");
+
 test("geliştirme yenilemesinde kalan eski yönetici raporda 500 yerine yeniden giriş ister", async () => {
-  const key = Symbol.for("pofis.session-manager:account-key-v1");
+  const key = Symbol.for("pofis.session-manager:account-key-v3");
   const previous = globalThis[key];
   let disconnected = false;
   globalThis[key] = {
@@ -41,7 +44,7 @@ test("geliştirme yenilemesinde kalan eski yönetici raporda 500 yerine yeniden 
 });
 
 test("menüsüz gerçek istemciyle giriş → rapor → Pofi notları diskten yüklenince de çalışır", async () => {
-  const key = Symbol.for("pofis.session-manager:account-key-v1");
+  const key = Symbol.for("pofis.session-manager:account-key-v3");
   const previous = globalThis[key];
   const records = new Map();
   const storage = {
@@ -70,7 +73,7 @@ test("menüsüz gerçek istemciyle giriş → rapor → Pofi notları diskten y�
   try {
     firstManager = createSessionManager({ storage, createClient });
     globalThis[key] = firstManager;
-    for (const username of ["manager-fixture", "employee-fixture", " manager-fixture@trt.net.tr "]) {
+    for (const username of ["manager-fixture", "employee-fixture", " MANAGER-FIXTURE@trt.net.tr "]) {
       const response = await connect(new NextRequest("http://localhost:3000/api/session", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password: "private-fixture-password" }),
@@ -82,23 +85,25 @@ test("menüsüz gerçek istemciyle giriş → rapor → Pofi notları diskten y�
     expect(first.status).toBe(200);
     const body = await first.json();
     expect(first.headers.get("Cache-Control")).toBe("no-store");
-    expect(body.analyticsUserId).toBe(analyticsUserIdForAccount(records.get(tokens[0]).self.pofiKey));
+    expect(body.analyticsUserId).toBe(analyticsUserIdForAccount(records.get(tokens[0]).self.accountKey));
     const secondAccount = await (await report(lookup(tokens[1]))).json();
     expect(secondAccount.analyticsUserId).not.toBe(body.analyticsUserId);
     const sameAccount = await (await report(lookup(tokens[2]))).json();
     expect(tokens[2]).not.toBe(tokens[0]);
     expect(sameAccount.analyticsUserId).toBe(body.analyticsUserId);
     expect(sameAccount.pofiNotes).toEqual(body.pofiNotes);
-    expect(JSON.stringify(body)).not.toContain(records.get(tokens[0]).self.pofiKey);
+    expect(sameAccount.notificationSession.accountId).toBe(body.notificationSession.accountId);
+    expect(secondAccount.notificationSession.accountId).not.toBe(body.notificationSession.accountId);
+    expect(JSON.stringify(body)).not.toContain(records.get(tokens[0]).self.accountKey);
     expect(body.person).toEqual({ id: "self", name: "Same Name", unit: "", title: "" });
     expect(body.pofiNotes.length).toBeGreaterThan(0);
-    expect(records.get(tokens[0]).self.pofiKey).not.toBe(records.get(tokens[1]).self.pofiKey);
+    expect(records.get(tokens[0]).self.accountKey).not.toBe(records.get(tokens[1]).self.accountKey);
     for (const value of [JSON.stringify([...records.values()]), JSON.stringify(body)]) {
       expect(value).not.toContain("manager-fixture");
       expect(value).not.toContain("employee-fixture");
       expect(value).not.toContain("private-fixture-password");
     }
-    expect(body.person.pofiKey).toBeUndefined();
+    expect(body.person.accountKey).toBeUndefined();
     restoredManager = createSessionManager({ storage, createClient });
     globalThis[key] = restoredManager;
     const restored = await report(lookup(tokens[0]));
@@ -152,7 +157,7 @@ async function reportPersistenceFixture(cookieChange, sourceFailure) {
       client.login = async () => {
         client.self = {
           id: "self",
-          pofiKey: "fixture",
+          accountKey: fixtureAccountKey("fixture"),
           name: "Fixture Person",
           unit: "",
           title: "",
@@ -180,7 +185,7 @@ async function reportPersistenceFixture(cookieChange, sourceFailure) {
 }
 
 test.each([false, true])("başarılı raporun disk yazısı hata verirse başarı dönmez; depolama düzelince aynı oturum yeniden dener (çerez değişimi: %s)", async (cookieChange) => {
-  const key = Symbol.for("pofis.session-manager:account-key-v1");
+  const key = Symbol.for("pofis.session-manager:account-key-v3");
   const previous = globalThis[key];
   const logger = spyOn(console, "error").mockImplementation(() => {});
   let fixture;
@@ -212,7 +217,7 @@ test.each([false, true])("başarılı raporun disk yazısı hata verirse başar�
 });
 
 test.each(["network", 403, 500, 401])("ikincil disk yazısı hatası kaynak %s hatasını maskelemez", async (sourceFailure) => {
-  const key = Symbol.for("pofis.session-manager:account-key-v1");
+  const key = Symbol.for("pofis.session-manager:account-key-v3");
   const previous = globalThis[key];
   const logger = spyOn(console, "error").mockImplementation(() => {});
   let fixture;
@@ -253,7 +258,7 @@ test.each(["network", 403, 500, 401])("ikincil disk yazısı hatası kaynak %s h
 });
 
 test.each([403, 429, 500, "invalid-expiry"])("%s kaynak hatası giriş formu içerse de aktif oturumu korur", async (scenario) => {
-  const key = Symbol.for("pofis.session-manager:account-key-v1");
+  const key = Symbol.for("pofis.session-manager:account-key-v3");
   const previous = globalThis[key];
   const logger = spyOn(console, "error").mockImplementation(() => {});
   const manager = createSessionManager({ createClient: () => {
@@ -261,7 +266,7 @@ test.each([403, 429, 500, "invalid-expiry"])("%s kaynak hatası giriş formu iç
       url.pathname.endsWith("/PizzyMain.aspx")
         ? new Response('<span id="ctl_RPPersonel_LblKisiAdiSoyadi">Fixture</span>')
         : new Response('<input name="tbPassword">', { status: Number(scenario) }) });
-    client.login = async () => { client.self = { pofiKey: "fixture", name: "Fixture" }; };
+    client.login = async () => { client.self = { accountKey: fixtureAccountKey("fixture"), name: "Fixture" }; };
     client.report = () => scenario === "invalid-expiry"
       ? Promise.reject(new PdksError("fixture", "SESSION_EXPIRED", 500))
       : client.request(PASSAGES_PATH);
@@ -287,7 +292,7 @@ test.each([403, 429, 500, "invalid-expiry"])("%s kaynak hatası giriş formu iç
 });
 
 test.each(["logout", "ttl", "network"])("rapor kaynak hatasında %s durumunu doğru sınıflandırır", async (scenario) => {
-  const key = Symbol.for("pofis.session-manager:account-key-v1");
+  const key = Symbol.for("pofis.session-manager:account-key-v3");
   const previous = globalThis[key];
   let time = Date.now();
   let started;
@@ -303,7 +308,7 @@ test.each(["logout", "ttl", "network"])("rapor kaynak hatasında %s durumunu do�
           started();
         }),
       });
-      client.login = async () => { client.self = { pofiKey: "alice" }; };
+      client.login = async () => { client.self = { accountKey: fixtureAccountKey("alice") }; };
       // Exercise the real transport and its merged session cancellation signal.
       client.report = () => client.request(PASSAGES_PATH);
       return client;
@@ -343,7 +348,7 @@ test.each(["logout", "ttl", "network"])("rapor kaynak hatasında %s durumunu do�
 });
 
 test.each(["success", "credentials", "save", "old-delete", "rollback-delete"])("yeniden bağlantı %s sonucunda oturum sahipliğini korur", async (scenario) => {
-  const key = Symbol.for("pofis.session-manager:account-key-v1");
+  const key = Symbol.for("pofis.session-manager:account-key-v3");
   const previous = globalThis[key];
   const sessions = new Map();
   const records = new Map();
@@ -358,7 +363,7 @@ test.each(["success", "credentials", "save", "old-delete", "rollback-delete"])("
         jar: new CookieJar(),
         async login(username, password) {
           if (password === "bad") throw new PdksError("fixture", "AUTH_FAILED", 401);
-          this.self = { pofiKey: username };
+          this.self = { accountKey: fixtureAccountKey(username) };
         },
       };
       created.push(client);
@@ -390,13 +395,13 @@ test.each(["success", "credentials", "save", "old-delete", "rollback-delete"])("
     if (scenario === "success") {
       const newToken = response.cookies.get(SESSION_COOKIE).value;
       expect(newToken).not.toBe(oldToken);
-      expect((await manager.requireSession(lookup(newToken))).client.self.pofiKey).toBe("bob");
+      expect((await manager.requireSession(lookup(newToken))).client.self.accountKey).toBe(fixtureAccountKey("bob"));
       expect(await manager.sessionFor(lookup(oldToken))).toBeNull();
       expect([...records.keys()]).toEqual([newToken]);
       expect(sessions.size).toBe(1);
     } else if (scenario === "credentials" || scenario === "save") {
       expect(response.cookies.get(SESSION_COOKIE)).toBeUndefined();
-      expect((await manager.requireSession(lookup(oldToken))).client.self.pofiKey).toBe("alice");
+      expect((await manager.requireSession(lookup(oldToken))).client.self.accountKey).toBe(fixtureAccountKey("alice"));
       expect([...records.keys()]).toEqual([oldToken]);
       expect(sessions.size).toBe(1);
     } else {
@@ -446,7 +451,7 @@ test.each([
 
 test("gerçek route zincirinde giriş çerezi iki kullanıcıyı ayırır; çıkış ve TTL erişimi kaldırır", async () => {
   let clock = Date.now();
-  const key = Symbol.for("pofis.session-manager:account-key-v1");
+  const key = Symbol.for("pofis.session-manager:account-key-v3");
   const previous = globalThis[key];
   let logins = 0;
   globalThis[key] = createSessionManager({
@@ -456,7 +461,7 @@ test("gerçek route zincirinde giriş çerezi iki kullanıcıyı ayırır; çık
       self: null,
       async login(username) {
         logins++;
-        this.self = { name: username, pofiKey: username };
+        this.self = { name: username, accountKey: fixtureAccountKey(username) };
       },
       async report(id, from, to) {
         return {
@@ -517,7 +522,7 @@ test("gerçek route zincirinde giriş çerezi iki kullanıcıyı ayırır; çık
 });
 
 test("çıkışla yarışan rapor yanıtı eski kişinin verisini döndürmez", async () => {
-  const key = Symbol.for("pofis.session-manager:account-key-v1");
+  const key = Symbol.for("pofis.session-manager:account-key-v3");
   const previous = globalThis[key];
   let release;
   let started;
@@ -530,7 +535,7 @@ test("çıkışla yarışan rapor yanıtı eski kişinin verisini döndürmez", 
   const manager = createSessionManager({
     createClient: () => ({
       jar: new CookieJar(),
-      self: { pofiKey: "alice" },
+      self: { accountKey: fixtureAccountKey("alice") },
       async login() {},
       async report() {
         started();
@@ -567,12 +572,12 @@ test("çıkışla yarışan rapor yanıtı eski kişinin verisini döndürmez", 
 });
 
 test("TLS ingress arkasında farklı Origin ile giriş, heartbeat, self raporu ve çıkış çalışır", async () => {
-  const key = Symbol.for("pofis.session-manager:account-key-v1");
+  const key = Symbol.for("pofis.session-manager:account-key-v3");
   const previousManager = globalThis[key];
   const manager = createSessionManager({
     createClient: () => ({
       jar: new CookieJar(),
-      self: { pofiKey: "proxy-person", name: "Proxy Person" },
+      self: { accountKey: fixtureAccountKey("proxy-person"), name: "Proxy Person" },
       async login() {},
       async report() {
         return { person: { id: "self", name: "Proxy Person" } };

@@ -237,6 +237,56 @@ test("plan değişince yeni hedefi kullanır; rapor erişimi başarısız olsa d
   f.time("17:50:00"); await f.runtime.tick(); expect(f.sent).toEqual(["native"]);
 });
 
+test("yeni planın oturum okuması başarısızsa eski hedef gönderilmez ve tekrar denemede yeni hedef kullanılır", async () => {
+  const f = fixture();
+  const session = "1".repeat(64);
+  f.identity({ accountId: "a".repeat(64), expiresAt: at("23:59:00"), workPlanSession: session });
+  await f.runtime.sync(plans, session); await f.runtime.refresh(); await f.enable();
+  const read = f.deps.readSession;
+  const nextPlans = JSON.stringify({ defaultPlan: [480, 480, 540, 480, 480, 0, 0], weekOverrides: {} });
+  f.deps.readSession = async () => { throw new Error("offline"); };
+  f.time("16:49:55");
+  await expect(f.runtime.sync(nextPlans, session)).rejects.toThrow("offline");
+  expect(f.goals.at(-1)).toBeNull();
+  f.time("16:50:00"); await f.runtime.tick();
+  expect(f.sent).toEqual([]);
+
+  f.deps.readSession = read;
+  f.time("16:50:26"); await f.runtime.tick(); await Bun.sleep(0);
+  await f.runtime.refresh();
+  f.time("17:50:00"); await f.runtime.tick();
+  expect(f.sent).toEqual(["native"]);
+});
+
+test("plan eşitlemesi gönderim kaydı sürerken başlarsa eski hedef gönderilmez", async () => {
+  const f = fixture();
+  const session = "1".repeat(64);
+  const identity = { accountId: "a".repeat(64), expiresAt: at("23:59:00"), workPlanSession: session };
+  f.identity(identity);
+  await f.runtime.sync(plans, session); await f.runtime.refresh(); await f.enable();
+  let releaseSave!: () => void;
+  let startedSave!: () => void;
+  const saving = new Promise<void>(resolve => { startedSave = resolve; });
+  const heldSave = new Promise<void>(resolve => { releaseSave = resolve; });
+  const save = f.deps.store.save;
+  f.deps.store.save = async (id, value) => {
+    if (Object.values(value.deliveries).some(delivery => delivery.state === "pending")) {
+      startedSave(); await heldSave;
+    }
+    await save(id, value);
+  };
+  f.time("16:50:00");
+  const tick = f.runtime.tick(); await saving;
+  let releaseSession!: (value: NotificationSession) => void;
+  f.deps.readSession = () => new Promise(resolve => { releaseSession = resolve; });
+  const nextPlans = JSON.stringify({ defaultPlan: [480, 480, 540, 480, 480, 0, 0], weekOverrides: {} });
+  const sync = f.runtime.sync(nextPlans, session);
+  releaseSave(); await tick;
+  expect(f.sent).toEqual([]);
+  expect(f.records.get(identity.accountId)?.deliveries["2026-10-21:approaching:native"]).toBeUndefined();
+  releaseSession(identity); await sync;
+});
+
 test("kalıcı gönderim kaydı yeniden açılış ve aynı hedefte ikinci gönderimi engeller", async () => {
   const f = fixture(); await f.runtime.sync(plans); await f.enable();
   f.time("16:50:00"); await f.runtime.tick();
@@ -367,6 +417,46 @@ test("hesap değişiminde tercihler ayrılır; TTL ve çıkış bütün gönderi
   expect(f.runtime.status().preferences.reached.native).toBe(false);
   await f.enable(); f.time("17:00:00"); await f.runtime.tick(); expect(f.sent).toEqual([]);
   expect(f.runtime.status().active).toBe(false);
+});
+
+test("eski oturumun planı yeni hesaba veya yeniden açılmış oturuma uygulanmaz", async () => {
+  const f = fixture();
+  const firstSession = "1".repeat(64);
+  const secondSession = "2".repeat(64);
+  f.identity({ accountId: "a".repeat(64), expiresAt: at("23:59:00"), workPlanSession: firstSession });
+  await f.runtime.sync(plans, firstSession);
+  await f.runtime.refresh();
+  expect(f.goals.at(-1)?.at).toBe(at("17:00:00"));
+
+  // Even if the browser now sends B's cookie, A's delayed plan cannot become B's target.
+  f.identity({ accountId: "b".repeat(64), expiresAt: at("23:59:00"), workPlanSession: secondSession });
+  await expect(f.runtime.sync(plans, firstSession)).rejects.toThrow();
+  expect(f.runtime.status().active).toBe(false);
+  expect(f.goals.at(-1)).toBeNull();
+
+  const nextPlans = JSON.stringify({ defaultPlan: [480, 480, 540, 480, 480, 0, 0], weekOverrides: {} });
+  await f.runtime.sync(nextPlans, secondSession);
+  await f.runtime.refresh();
+  expect(f.goals.at(-1)?.at).toBe(at("18:00:00"));
+
+  await expect(f.runtime.sync(plans, firstSession)).rejects.toThrow();
+  expect(f.runtime.status().active).toBe(true);
+  expect(f.goals.at(-1)?.at).toBe(at("18:00:00"));
+  f.runtime.pause();
+  expect(f.goals.at(-1)).toBeNull();
+});
+
+test("aynı hesabın eski oturumundan gelen rapor yeni planla birleştirilmez", async () => {
+  const f = fixture();
+  const current = { accountId: "a".repeat(64), expiresAt: at("23:59:00"), workPlanSession: "2".repeat(64) };
+  f.identity(current);
+  await f.runtime.sync(plans, current.workPlanSession);
+  await f.runtime.refresh();
+  f.deps.readReport = async () => ({ ...f.report,
+    notificationSession: { ...current, workPlanSession: "1".repeat(64) } });
+  await f.runtime.refresh();
+  expect(f.runtime.status().active).toBe(false);
+  expect(f.goals.at(-1)).toBeNull();
 });
 
 test("Telegram reddi native gönderimi durdurmaz; belirsiz sonuç otomatik tekrarlanmaz", async () => {

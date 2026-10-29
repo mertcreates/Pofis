@@ -55,8 +55,9 @@ const server = createServer(async (request, response) => {
     return json(response, { connected: false }, 200, { "set-cookie": "pofis_session=; Path=/; Max-Age=0; HttpOnly; SameSite=Strict" });
   }
   const active = authenticated && request.headers.cookie?.includes("pofis_session=fixture");
-  const identity = { accountId: "a".repeat(64), expiresAt };
-  if (url.pathname === "/api/session") return json(response, { connected: !!active, ...(active ? { notificationSession: identity } : {}) });
+  const workPlanSession = logins.toString(16).padStart(64, "0");
+  const identity = { accountId: "a".repeat(64), expiresAt, workPlanSession };
+  if (url.pathname === "/api/session") return json(response, { connected: !!active, ...(active ? { notificationSession: identity, workPlanSession } : {}) });
   if (url.pathname === "/api/session/heartbeat" && active) return json(response, { connected: true });
   if (url.pathname === "/api/meals" && active) return json(response, { menu: null, commentary: null });
   if (url.pathname === "/api/report" && active && reportUnavailable) {
@@ -135,7 +136,7 @@ app.whenReady().then(async () => {
     await input(); await wait(connected);
     const encrypted = await readFile(join(profile, "remembered-session.bin"));
     if (encrypted.includes(credentials.username) || encrypted.includes(credentials.password)) throw new Error("Credential plaintext in profile");
-    await execute("window.pofisNotifications.sync(window.rememberFixture.plans)");
+    await execute("window.pofisNotifications.sync(window.rememberFixture.plans, window.rememberFixture.state.workPlanSession)");
     await wait(() => execute("window.rememberFixture.notifications.status?.active === true"));
     await execute(`window.fixtureTrace = []; window.fixtureNotificationExpiry = 0;
       window.pofisNotifications.onReport(value => { window.fixtureNotificationExpiry = value.notificationSession.expiresAt; window.fixtureTrace.push(['report', value.notificationSession.expiresAt]); });

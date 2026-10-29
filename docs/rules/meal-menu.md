@@ -12,7 +12,7 @@ Gün geçişlerinde yükleme görünümü, menü bölümleri ve Pofi notunun yer
 
 ## Pofi yemek yorumları
 
-[Yorum sahibi](../../src/lib/meals/commentary.ts) yalnız menü sunumu, tarih ve [Pofi hesap anahtarı](../pofi-notes.md#hesap-anahtarı) alır. Hesap anahtarı oturumdan okunur; tarayıcıya yalnız seçilen metin gider. Ortak saatlik önbellek kaynak menüsünü tutar. Kişisel yorum her API isteğinde ortak menü üzerinden seçilir; HTTP yanıtı `Cache-Control: no-store` taşır.
+[Yorum sahibi](../../src/lib/meals/commentary.ts) yalnız menü sunumu, tarih ve [hesap anahtarı](account-identity.md) alır. Hesap anahtarı oturumdan okunur; tarayıcıya yalnız seçilen metin gider. Ortak saatlik önbellek kaynak menüsünü tutar. Kişisel yorum her API isteğinde ortak menü üzerinden seçilir; HTTP yanıtı `Cache-Control: no-store` taşır.
 
 | Sorumluluk | Sahip |
 | --- | --- |

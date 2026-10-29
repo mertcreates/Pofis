@@ -26,7 +26,7 @@ const subscribeNotification = (name, callback) => {
 };
 contextBridge.exposeInMainWorld("pofisNotifications", {
   get: () => invokeNotification("get"),
-  sync: plans => invokeNotification("sync", plans),
+  sync: (plans, session) => invokeNotification("sync", { plans, session }),
   pause: () => invokeNotification("pause"),
   refresh: () => invokeNotification("refresh"),
   save: preferences => invokeNotification("save", preferences),

@@ -50,4 +50,5 @@
 .pofi-mini-open { display: inline-flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 40px; padding: 10px 11px; border: 0; border-radius: var(--radius-control); background: var(--accent); color: var(--accent-content); font: inherit; font-size: 13px; font-weight: 650; cursor: pointer; }
 .pofi-mini button:focus-visible { outline: 3px solid var(--accent-visual); outline-offset: 2px; }
 .pofi-mini-empty { display: grid; gap: 7px; padding: 16px 0; font-size: 13px; color: var(--secondary); }
+.pofi-mini-empty .text-button { justify-self: start; }
 .pofi-mini-empty p { margin: 0; font-size: 12px; }
