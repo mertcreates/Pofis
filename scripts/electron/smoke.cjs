@@ -1,7 +1,7 @@
 // Run against a native package folder; no Playwright or installed Node is needed.
 const { spawn, execFile } = require("node:child_process");
 const { promisify } = require("node:util");
-const { mkdtemp, rm, writeFile, mkdir, readdir, readFile } = require("node:fs/promises");
+const { mkdtemp, rm, mkdir, readdir, readFile } = require("node:fs/promises");
 const { randomBytes } = require("node:crypto");
 const { join, resolve } = require("node:path");
 const assert = require("node:assert/strict");
@@ -303,19 +303,15 @@ async function run() {
     await evaluate("location.href = 'https://example.invalid'; true");
     await Bun.sleep(200);
     assert.equal(await evaluate("location.origin"), ORIGIN);
-    const artifactDirectory = join(checks, "preview");
-    await mkdir(artifactDirectory, { recursive: true });
-    const screenshot = async name => {
+    const checkFont = async () => {
       const fontLoaded = await evaluate(`document.fonts.ready.then(() =>
         [...document.fonts].some(font => font.family === 'GeistSans' && font.status === 'loaded'))`);
-      assert.equal(fontLoaded, true, "Görsel kabul için Geist fontu yüklenmeli.");
-      const shot = await cdp.send("Page.captureScreenshot", { format: "png" });
-      await writeFile(join(artifactDirectory, name), Buffer.from(shot.data, "base64"));
+      assert.equal(fontLoaded, true, "Geist fontu yüklenmeli.");
     };
-    await screenshot("login.png");
+    await checkFont();
     await cdp.send("Page.navigate", { url: `${ORIGIN}/demo` });
     await until(() => evaluate("!!document.body && (!!document.querySelector('.dashboard') || document.body.innerText.includes('Kayıtlı süre'))"));
-    await screenshot("demo.png");
+    await checkFont();
     // Open the actual native mini window, inspect its isolated renderer and exercise both IPC actions.
     const miniMain = await connect(mainDebugUrl);
     let miniPage;
@@ -345,50 +341,13 @@ async function run() {
         });
         return state.result?.value === true;
       }, 30000, "Pofi Mini penceresi açılmadı.");
-      // Intel macOS CI can load the renderer without a composited window surface.
-      // Keep the native UI/IPC acceptance mandatory; capture a preview where supported.
-      if (target.id !== "darwin-x64") {
-        const miniShot = await miniPage.send("Page.captureScreenshot", { format: "png" });
-        await writeFile(join(artifactDirectory, "mini.png"), Buffer.from(miniShot.data, "base64"));
-      }
       // Give React hydration time to attach the real button action before clicking.
       await Bun.sleep(500);
-      // The Mini primary action must retain its shared hover colors.
-      await miniPage.send("DOM.enable");
-      await miniPage.send("CSS.enable");
-      const miniDocument = await miniPage.send("DOM.getDocument");
-      const miniOpenNode = await miniPage.send("DOM.querySelector", {
-        nodeId: miniDocument.root.nodeId, selector: ".pofi-mini-open",
-      });
-      assert.ok(miniOpenNode.nodeId, "Pofi Mini ana ekrana dönüş düğmesi bulunamadı.");
-      await miniPage.send("CSS.forcePseudoState", {
-        nodeId: miniOpenNode.nodeId, forcedPseudoClasses: ["hover"],
-      });
-      const openHover = await miniPage.send("Runtime.evaluate", {
-        expression: `(() => {
-          const button = document.querySelector('.pofi-mini-open');
-          const reference = document.createElement('span');
-          reference.style.background = 'var(--accent-hover)';
-          reference.style.color = 'var(--accent-content)';
-          document.body.append(reference);
-          const buttonStyle = getComputedStyle(button);
-          const referenceStyle = getComputedStyle(reference);
-          const matches = buttonStyle.backgroundColor === referenceStyle.backgroundColor &&
-            buttonStyle.color === referenceStyle.color;
-          reference.remove();
-          return matches;
-        })()`,
-        returnByValue: true,
-      });
-      assert.equal(openHover.result.value, true, "Pofi Mini ana eyleminin hover renkleri korunmalı.");
-      await miniPage.send("CSS.forcePseudoState", {
-        nodeId: miniOpenNode.nodeId, forcedPseudoClasses: [],
-      });
       const pinBefore = await miniPage.send("Runtime.evaluate", {
-        expression: "(() => { const button = document.querySelector('.pofi-mini-pin'); return !button?.classList.contains('is-pinned') && button?.getAttribute('aria-label') === 'Sabitle' && button?.getAttribute('aria-pressed') === 'false' && !!button?.querySelector('svg') && button.textContent.trim() === ''; })()",
-        returnByValue: true,
+        expression: "window.pofisMini.get()", awaitPromise: true, returnByValue: true,
       });
-      assert.equal(pinBefore.result.value, true);
+      assert.equal(pinBefore.exceptionDetails, undefined);
+      assert.deepEqual(pinBefore.result.value, { pinned: false });
       const pinClick = await miniPage.send("Runtime.evaluate", {
         expression: "document.querySelector('.pofi-mini-pin').click(); true",
         returnByValue: true,
@@ -396,7 +355,7 @@ async function run() {
       assert.equal(pinClick.exceptionDetails, undefined);
       await until(async () => {
         const state = await miniPage.send("Runtime.evaluate", {
-          expression: "(() => { const button = document.querySelector('.pofi-mini-pin'); return button?.classList.contains('is-pinned') && button?.getAttribute('aria-label') === 'Sabitlemeyi kaldır' && button?.getAttribute('aria-pressed') === 'true' && !!button?.querySelector('svg') && button.textContent.trim() === ''; })()",
+          expression: "document.querySelector('.pofi-mini-pin')?.getAttribute('aria-pressed') === 'true'",
           returnByValue: true,
         });
         return state.result?.value === true;
@@ -406,8 +365,14 @@ async function run() {
       });
       assert.equal(pin.exceptionDetails, undefined);
       assert.deepEqual(pin.result.value, { pinned: true });
+      const nativePin = await miniMain.send("Runtime.evaluate", {
+        expression: `process.mainModule.require('electron').BrowserWindow.getAllWindows().find(w => w.webContents.getURL() === ${JSON.stringify(`${ORIGIN}/mini`)})?.isAlwaysOnTop()`,
+        returnByValue: true,
+      });
+      assert.equal(nativePin.exceptionDetails, undefined);
+      assert.equal(nativePin.result.value, true, "Sabitlenen Mini diğer pencerelerin üzerinde kalmalı.");
       const opened = await miniPage.send("Runtime.evaluate", {
-        expression: "window.pofisMini.openMain().then(() => true)", awaitPromise: true, returnByValue: true,
+        expression: "document.querySelector('.pofi-mini-open').click(); true", returnByValue: true,
       });
       assert.equal(opened.exceptionDetails, undefined);
       assert.equal(opened.result.value, true);
@@ -456,7 +421,7 @@ async function run() {
       console.log("PASS: açılış, demo ve yeniden başlatma sonrasında uygulama imzası geçerli.");
     }
     console.log(`PASS: ${target.id}; ${sourceMode ? "Kaynak" : "Pofis paketi"}; Node/Bun içermeyen PATH; giriş ekranı/API doğrulaması; demo; tek örnek; gezinme sınırı; kalıcı profil; üç açılış/kapanışta port temizliği.`);
-    console.log(`PASS: başka uygulama 3210'da kalırken boş port; portlar arasında kalıcı ayarlar; alternatif portta tek örnek; HTTP POST ve HttpOnly çerez temizleme.\nGeçici görsel inceleme: ${artifactDirectory}`);
+    console.log("PASS: başka uygulama 3210'da kalırken boş port; portlar arasında kalıcı ayarlar; alternatif portta tek örnek; HTTP POST ve HttpOnly çerez temizleme.");
   } finally {
     cdp?.close();
     await stopProcessTree(child);

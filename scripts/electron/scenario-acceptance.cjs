@@ -165,6 +165,28 @@ async function run() {
         .find(w => w.webContents.getURL() === ${JSON.stringify(ORIGIN + "/")}).isVisible()`), false,
         "Mini çağrısı gizli ana pencereyi açmamalı");
       assert.equal(await main("process.mainModule.require('electron').app.dock.isVisible()"), true, "Mini tekrar açılışları Dock simgesini korumalı");
+
+      phase = "görünür ana pencereyle uygulama gizlendikten sonra Mini açılışı";
+      await hideMini();
+      await main(`(() => {
+        const { app, BrowserWindow } = process.mainModule.require('electron');
+        const main = BrowserWindow.getAllWindows().find(w => w.webContents.getURL() === ${JSON.stringify(ORIGIN + "/")});
+        main.show();
+        main.focus();
+        app.hide();
+      })()`);
+      await until(() => main("process.mainModule.require('electron').app.isHidden()"));
+      await measureOpen();
+      await until(() => main(`(() => {
+        const { app, BrowserWindow } = process.mainModule.require('electron');
+        const mini = BrowserWindow.getAllWindows().find(w => w.webContents.getURL().endsWith('/mini'));
+        return !app.isHidden() && app.isActive() && mini.isVisible() && mini.isFocused();
+      })()`));
+      // An activation handler can show the main window after an asynchronous health check.
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      assert.equal(await main(`process.mainModule.require('electron').BrowserWindow.getAllWindows()
+        .find(w => w.webContents.getURL() === ${JSON.stringify(ORIGIN + "/")}).isVisible()`), false,
+        "Uygulama görünür ana pencereyle gizlendiğinde Mini çağrısı ana pencereyi açmamalı");
     }
     assert.equal((await renderer("window.pofisMini.pin()", true)).pinned, false);
     phase = "Mini tema senkronizasyonu";

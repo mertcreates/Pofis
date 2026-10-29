@@ -169,7 +169,7 @@ Davranışın sahibi [masaüstü rehberi](desktop.md#pofi-mini-ve-macos-menü-ç
 | [Tray ve menü](../electron/background.test.cjs) | macOS hızlı tıklama adaptörü, sağ tık, ana pencereye dönüş ve çıkış |
 | [PDKS yaşam döngüsü](../src/data/pdks-lifecycle.test.ts) | İzole React/Electron ortamında gizli hazırlıkta sıfır HTTP isteği, çakışan isteklerin paylaşılması, rapor/olay yarışı, hafta/hesap değişimi, oturum bitişi ve dinleyici temizliği |
 | [Bildirim adaptörü](../src/desktop/install-notifications.test.ts), [plan depolama](../src/data/work-plans.test.ts), [saat](../src/data/clock.test.ts) | Pencereler arası rapor/plan aktarımı, oturum olayları ve görünürlüğe bağlı saat |
-| [Senaryo kabulü](../scripts/electron/scenario-acceptance.cjs) | Gerçek Electron'da sürüm, uygulama kökü ve simge; gizli hazırlık ve aynı pencerenin gösterilmesi, tema/plan senkronizasyonu, sekiz mesai senaryosu, bağlantı/oturum toparlanması, native menü, sandbox ve kapanış |
+| [Senaryo kabulü](../scripts/electron/scenario-acceptance.cjs) | Yerelde gerçek Electron'da sürüm, uygulama kökü ve simge; gizli hazırlık ve aynı pencerenin gösterilmesi, macOS'ta gizli uygulamadan Mini açılışı, tema/plan senkronizasyonu, sekiz mesai senaryosu, bağlantı/oturum toparlanması, native menü, sandbox ve kapanış |
 | [Smoke](../scripts/electron/smoke.cjs) | Mini açılışı, sabitleme, IPC köprüsü ve ana pencereye dönüş |
 
 Güncel paketle senaryo kabulünü çalıştırın:
@@ -185,9 +185,9 @@ bun scripts/electron/build.cjs
 bun scripts/electron/scenario-acceptance.cjs --source
 ```
 
-Senaryo modu geçici profil ve örnek HTTP yanıtları kullanır; profil koşu sonunda temizlenir. Paket kabulleri [sürüm akışında](../.github/workflows/desktop-release.yml) çalışır.
+Senaryo modu geçici profil ve örnek HTTP yanıtları kullanır; profil koşu sonunda temizlenir. Senaryo kabulü yerelde çalıştırılır; sürüm akışında [smoke paket kabulü](release.md#bir-sürüm-yayımlama) çalışır.
 
-macOS koşusu ana pencereyi ve uygulamayı gizleyip Mini'yi yeniden çağırır; panelin görünür ve odakta, ana pencerenin gizli kaldığını doğrular.
+macOS koşusu ana pencere kapalıyken ve görünür ana pencereyle uygulama gizlendiğinde Mini'yi yeniden çağırır; panelin görünür ve odakta, ana pencerenin gizli kaldığını doğrular.
 
 ### Performans ölçümü
 
@@ -195,7 +195,7 @@ Senaryo kabulü, hazır pencerenin ilk native `show` süresini, beş tekrar aç�
 
 ### Cihazda etkileşim ve görünüm
 
-- Intel ve Apple Silicon macOS'ta başka bir uygulama öndeyken, ana pencere kapatılmışken ve Command-H sonrasında Mini'yi çağırın → panel görünür ve odakta olur. Gizli panelden başlayarak iki, üç ve beş hızlı sol tıklamayı deneyin → çift sayıda panel gizli, tek sayıda görünür kalır. Hazırlık sürerken de son görünürlük tercihi korunur. Sabitlenmiş paneli taşıyıp yeniden çağırın → aynı konumda odaklanır. Dışarı tıklama, sağ tık, kısayol, Dock ve tam ekran/Spaces geçişlerini kontrol edin. Windows'ta tray sol/sağ tık ve ana pencereye dönüşü deneyin.
+- Intel ve Apple Silicon macOS'ta başka bir uygulama öndeyken, ana pencere kapatılmışken ve görünür ana pencereyle Command-H sonrasında Mini'yi çağırın → panel görünür ve odakta, ana pencere gizli kalır. Mini'den Pofis'i açın → ana pencere görünür, panel gizlenir. Ana pencere açıkken Mini'yi çağırın → ana pencere açık kalır. Gizli panelden başlayarak iki, üç ve beş hızlı sol tıklamayı deneyin → çift sayıda panel gizli, tek sayıda görünür kalır. Hazırlık sürerken de son görünürlük tercihi korunur. Sabitlenmiş paneli taşıyıp yeniden çağırın → aynı konumda odaklanır. Dışarı tıklama, sağ tık, kısayol, Dock ve tam ekran/Spaces geçişlerini kontrol edin. Windows'ta tray sol/sağ tık ve ana pencereye dönüşü deneyin.
 - Ana pencerede tema veya plan değiştirin → açık Mini güncellenir. Çıkış/hesap değişimi ve oturum bitişinde eski rapor temizlenir; yeni girişte yeni hesabın raporu gelir.
 - Canlı mesai, hedefe ulaşma/aşma, izin, kayıtsız gün, belirsiz kayıt ve hata durumlarını kontrol edin. Hedef `16:00:17`, saat `16:00:00` → kalan `17 sn` görünür. Bozuk plan kaydı hata durumuna geçer.
 - Açık/koyu tema, kısa ekran ve içerik geçişlerinde pencere içeriğe uyar, çalışma alanında kalır ve yatay taşmaz. Klavye odağı görünürdür. `--capture` seçeneği açık/koyu görüntüleri `dist/electron/checks/preview` altına kaydeder; inceleme sonunda temizleyin.

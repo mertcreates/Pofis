@@ -10,7 +10,7 @@ function miniPosition(bounds, area, width, height, platform) {
   return { x, y };
 }
 
-function createMiniWindow({ app, BrowserWindow, screen, ipcMain, preload, platform, showMain, isQuitting, icon, additionalArguments = [], getAnchorBounds = () => undefined }) {
+function createMiniWindow({ app, BrowserWindow, screen, ipcMain, preload, platform, showMain, hideMain, isQuitting, icon, additionalArguments = [], getAnchorBounds = () => undefined }) {
   let mini = null;
   let loading = null;
   let loaded = false;
@@ -29,7 +29,11 @@ function createMiniWindow({ app, BrowserWindow, screen, ipcMain, preload, platfo
   function show() {
     // Electron's macOS panel show/focus paths do not activate a background app.
     if (platform === "darwin") {
-      if (app.isHidden()) app.show();
+      if (app.isHidden()) {
+        // app.show() restores windows that were visible when the app was hidden.
+        hideMain();
+        app.show();
+      }
       app.focus({ steal: true });
     }
     mini.show();

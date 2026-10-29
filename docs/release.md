@@ -88,7 +88,7 @@ Electron sürümü değiştiğinde workflow öncesinde [motor geçişi kabulün�
 | macOS Intel | Aynı `macos-15` runner, ARM64 Bun ve x64 Electron | `Pofis-<sürüm>-darwin-x64.zip` |
 | Ubuntu x64 | Aynı `macos-15` runner, ARM64 Bun ve Linux x64 Electron; statik kabul | `Pofis-<sürüm>-linux-x64.tar.gz` |
 
-Dört hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Windows ve ARM64'te pano, gerçek paket/pencere/süreç ve görsel/font kabulü; Windows'ta ayrıca gerçek ZIP ve landing komutuyla installer kabulü çalışır. Intel ve Linux statik kontrolleri aşağıda açıklanır. Paketleyicinin stdout'a yazdığı tam klasör yolu sonraki aşamalara aktarılır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
+Dört hedef [aynı build betiğini](../scripts/electron/ci-build.cjs) kullanır. Windows ve ARM64'te pano, gerçek paket/pencere/süreç, görsel dosyası ve font kabulü; Windows'ta ayrıca gerçek ZIP ve landing komutuyla installer kabulü çalışır. Mini kabulü pencere açılışını, sabitlemeyi ve ana pencereye dönüşü sınar. Intel ve Linux statik kontrolleri aşağıda açıklanır. Paketleyicinin stdout'a yazdığı tam klasör yolu sonraki aşamalara aktarılır. Temiz cihaz kabulünü indirilen paketle hedef cihazda yap.
 
 Pano kabulü içeren `build` ve `package` işlemlerini izole CI/VM masaüstünde `POFIS_ISOLATED_DESKTOP=1` ile çalıştırın; workflow bu değeri kendi runner'ında tanımlar.
 
