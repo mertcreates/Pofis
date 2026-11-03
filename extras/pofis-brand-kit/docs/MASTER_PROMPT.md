@@ -3,15 +3,14 @@
 ## Girdi sırası
 
 1. **Image A:** `assets/pofi-full.png` (yüz, renk, materyal ve aksesuar kimliği)
-2. **Image B:** `references/tabii-logo-provided.png` (kart görünüyorsa)
-3. **Image C:** İsteğe bağlı kompozisyon / arayüz referansı
+2. **Image B:** İsteğe bağlı kompozisyon / arayüz referansı
 
 ## Yeni görünüm veya poz için kopyalanabilir prompt
 
 ```text
 Use Image A for Pofi's face and head proportions, fur colors and material, tail,
 lanyard and badge design. Follow the upright bipedal pose described below for
-the full-body composition.
+the full-body composition. If provided, use Image B for composition.
 
 Character identity: a chubby kitten standing naturally on two hind feet, with a
 short rounded torso and two short forepaws acting as arms. Preserve Pofi's
@@ -21,9 +20,9 @@ triangular nose, subtle cat smile, pink rounded cheeks, lavender whiskers and
 large rounded lavender tail on Pofi's left. Show exactly four animal limbs: two
 hind feet supporting the stance and two simple rounded front paws.
 
-Accessories: lavender V-shaped employee lanyard and white rounded ID badge with
-the mint-green tabii mark from Image B. Place the badge naturally on the chest
-with a size consistent with Image A.
+Accessories: lavender V-shaped employee lanyard and white rounded ID badge
+matching Image A. Place the badge naturally on the chest with a size consistent
+with Image A.
 
 Style: premium soft-flat 2D mascot art, warm ivory fur, muted lavender shading,
 soft matte gradient, simple forms and a calm expression. Match Image A's eye
@@ -36,8 +35,8 @@ Keep the face, ears, curl and badge clearly visible.
 Task-specific change: [DESCRIBE THE REQUESTED SCENE AND ITS SPATIAL LAYOUT]
 
 Use a light neutral background or genuine transparency. Deliver one full-body
-asset with Pofi's recognized identity. Keep the tabii badge mark visually faithful
-to Image B and check legibility at small UI sizes.
+asset with Pofi's recognized identity. Keep the badge visually faithful to
+Image A and check legibility at small UI sizes.
 ```
 
 ## Dashboard için mevcut dosya seçimi
@@ -53,7 +52,7 @@ Uygulamada kullanılacak mevcut dosyalar [görsel kaynaklar](../../../docs/brand
 - İki kısa ön pati, kısa tombul gövdeye bağlı mı ve toplam dört uzuv okunuyor mu?
 - Yüz, kulaklar, alın kıvrımı ve kart sahne nesnelerinden tamamen görünür mü?
 - Krem-lavanta renk sistemi tutarlı mı?
-- Kart ve gerçek tabii işareti doğru mu?
+- Kart referanstaki görünümüyle tutarlı mı?
 - 64, 128, 160 px'de silüet ve yüz okunuyor mu?
 
 Yeni çıktı, tüm ana özellikler kanonik referansla eşleştikten ve kullanıcı tarafından seçildikten sonra uygulamaya alınır.

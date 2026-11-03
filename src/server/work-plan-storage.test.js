@@ -2,7 +2,8 @@ import { expect, test } from "bun:test";
 import * as fs from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, relative, resolve } from "node:path";
-import { createWorkPlanStorage, workPlanSessionId } from "./work-plan-storage.js";
+import { createWorkPlanStorage } from "./work-plan-storage.js";
+import { workPlanSessionId } from "./work-plan-identity.js";
 import { emptyWorkPlans } from "../domain/rules/work-plan";
 import { PdksError } from "./pdks.js";
 import { createSessionManager, SESSION_COOKIE } from "./session-manager.js";
@@ -208,7 +209,7 @@ test("hesap anahtarı ve oturum bağlayıcısı biçimlenir; geçersiz anahtar d
     expect(() => store.load("../escape", active)).toThrow();
     expect(() => workPlanSessionId({ id: "bad" })).toThrow();
     const one = workPlanSessionId({ id: "c".repeat(64) });
-    expect(one).toMatch(/^[a-f0-9]{64}$/);
+    expect(one).toBe("a1a2fb3a364e175a90a6403219ac8651dfed5bcdb025d6aa445d6a158c4418ce");
     expect(one).not.toBe("c".repeat(64));
     expect(workPlanSessionId({ id: "d".repeat(64) })).not.toBe(one);
     expect(await fs.readdir(directory)).toEqual([]);

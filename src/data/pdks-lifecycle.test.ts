@@ -5,10 +5,10 @@ import { tmpdir } from "node:os";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 
-test("gerçek React/Electron yaşamı: rapor yarışı, tekrar açılış, oturum ve dinleyici temizliği", async () => {
+async function runFixture(name: string) {
   const directory = await mkdtemp(join(tmpdir(), "pofis-pdks-lifecycle-"));
   try {
-    const build = await Bun.build({ entrypoints: [resolve(import.meta.dir, "fixtures/pdks-lifecycle.tsx")],
+    const build = await Bun.build({ entrypoints: [resolve(import.meta.dir, `fixtures/${name}.tsx`)],
       target: "browser", outdir: directory, naming: "fixture.[ext]", define: { "process.env.NODE_ENV": '"production"' } });
     expect(build.success, build.logs.toString()).toBe(true);
     const html = join(directory, "index.html");
@@ -18,9 +18,18 @@ test("gerçek React/Electron yaşamı: rapor yarışı, tekrar açılış, oturu
       `--user-data-dir=${join(directory, "profile")}`, `--fixture=${html}`], { env, windowsHide: true, timeout: 15000 });
     const line = result.stdout.split(/\r?\n/).find(value => value.startsWith("RESULT:"));
     expect(line, result.stderr).toBeDefined();
-    expect(JSON.parse(line!.slice(7))).toEqual({ reportRace: true, olderPush: true, backgroundFailureRecovery: true,
-      revalidateOnShow: true, weekChange: true, accountSwitch: true, lateExpiry: true, cleanup: true, redundantRefreshes: 0,
-      hiddenPreload: true, sharedRequests: true, lateSession: true, connectDisconnect: true, recordFailureIsolated: true,
-      mealSessionRecovery: true, notificationStatusRace: true });
+    return JSON.parse(line!.slice(7));
   } finally { await rm(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }); }
+}
+
+test("gerçek React/Electron yaşamı: rapor yarışı, tekrar açılış, oturum ve dinleyici temizliği", async () => {
+  expect(await runFixture("pdks-lifecycle")).toEqual({ reportRace: true, olderPush: true, backgroundFailureRecovery: true,
+    revalidateOnShow: true, weekChange: true, accountSwitch: true, lateExpiry: true, cleanup: true, redundantRefreshes: 0,
+    hiddenPreload: true, sharedRequests: true, lateSession: true, connectDisconnect: true, recordFailureIsolated: true,
+    mealSessionRecovery: true, notificationStatusRace: true });
+}, 20000);
+
+test("giriş ve çıkış sırasında hafta değişimi ve başarısız işlemler", async () => {
+  expect(await runFixture("pdks-mutation-lifecycle")).toEqual({ connectWeek: true, disconnectWeek: true,
+    failedConnect: true, failedDisconnect: true, mutationLock: true, sessionReportRace: true, sessionFirstReportRace: true });
 }, 20000);

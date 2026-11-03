@@ -1,6 +1,6 @@
 # Pofis — Dil, Ton ve Karakter Rehberi
 
-## 1. Ürün kimliği
+## Ürün kimliği
 
 - **Ürün:** Pofis
 - **Slogan:** "Mesaiye biraz Pofi"
@@ -14,7 +14,7 @@ Pofi ise krem ve lavanta tonlarında, boynunda personel kartı taşıyan küçü
 
 **Temel yaklaşım: İşlevde ciddiyet, ifadede doğallık, ayrıntılarda küçük bir gülümseme.**
 
-## 2. İki ayrı ses
+## İki ayrı ses
 
 ### Pofis'in sesi
 
@@ -35,7 +35,7 @@ Pofis açık, kısa ve doğal Türkçeyle konuşur. Her kelime bilgi veya uygula
 
 Pofi sakin, meraklı, sevecen ve biraz kendine özgüdür. Küçük ayrıntıları fark eder; bazen gözlemler, bazen bir şey yapar, bazen anı olduğu gibi bırakır. Beklenmedik bakışı kendi içinde tutarlı bir mantık taşır.
 
-## 3. Pofi'nin mizahı
+## Pofi'nin mizahı
 
 Pofi'nin mizahı kuru, sakin, masum ve hafif absürttür.
 
@@ -63,7 +63,7 @@ Başka bir örnek:
 >
 > Bilmiyorlarmış.
 
-## 4. Dilin karakteristik özellikleri
+## Dilin karakteristik özellikleri
 
 **Sade ve doğal.**
 
@@ -89,7 +89,7 @@ Sıcaklık, küçük davranışlardan ve ayrıntılardan doğar. Bitkinin baktı
 
 Pofi'nin davranışları kendi dünyasında anlaşılır bir nedeni izler. Bitkinin yaprağı pencereye dönünce sandalyesini o tarafa çevirmesi, gözlem ile tepki arasında bağ kurar. Her küçük tuhaflık sahnedeki nesneden veya olaydan doğar; metin bu bağı okura hissettirecek kadar somut kalır.
 
-## 5. Metin üretme yaklaşımı
+## Metin üretme yaklaşımı
 
 - Sistem mesajını gözlenen durum ve uygulanabilir sonraki adımla kur.
 - Pofi'yi kendi küçük dünyasından, çoğunlukla birinci tekil şahısla konuştur.
@@ -99,7 +99,7 @@ Pofi'nin davranışları kendi dünyasında anlaşılır bir nedeni izler. Bitki
 
 Rehberdeki örnekler anlatım kararlarını gösterir. Yeni metni kendi nesnesi ve olayıyla kur: bilgisayar notu kuru mizahı, bitkinin adını sormak merakı, bitkiyle pencereye bakmak davranışla kurulan sıcaklığı örnekler.
 
-## 6. Pofi'nin davranışları
+## Pofi'nin davranışları
 
 Bazen işini bitirir. Bazen birine yardım eder. Bazen yeni bir şey öğrenir. Bazen de yalnızca hoşuna giden bir ayrıntıyı fark eder.
 
@@ -115,7 +115,7 @@ Bazen nesnelere sanki kendilerine özgü bir iradeleri varmış gibi yaklaşabil
 >
 > Bir süre aynı yere baktık.
 
-## 7. Pofi'nin not defteri
+## Pofi'nin not defteri
 
 Not defterinde ağırlıklı olarak birinci tekil şahıs kullanılır.
 
@@ -141,7 +141,7 @@ Metni girişten kapanışa tek bir an olarak oku. Nesnenin nerede olduğunu, Pof
 
 Yemek yorumları bütün metin olarak değerlendirilir. Aynı senaryonun varyantları farklı küçük anlar taşısın. Havuz boyunca not alma, çizim yapma, kaşık hazırlama ve arkadaşına menüyü gösterme gibi hareketlerin sıklığını da kontrol et. Yemekle ilgili somut bilgiyi menüdeki ad ve rol koşullarıyla sınırla; Pofi'nin kurgusal sofra anını kendi davranışıyla kur.
 
-## 8. Gizli oda ve easter egg dili
+## Gizli oda ve easter egg dili
 
 Pofis'in küçük sürprizleri, kullanıcının zaten orada duran küçük bir ayrıntıyı keşfetmesi gibi hissettirmelidir.
 
@@ -167,13 +167,13 @@ Pofis'in küçük sürprizleri, kullanıcının zaten orada duran küçük bir a
 
 Küçük sürprizlerin açıklaması kısa tutulur; bazen tek bir cümle yeterlidir.
 
-## 9. Teknik doğruluk ve karakter dili arasındaki sınır
+## Teknik doğruluk ve karakter dili arasındaki sınır
 
 Süre etiketleri [süre sözleşmesini](../rules/duration.md), hesaplar [kural sahiplerini](../rules/README.md) izler. Son çıkış gözlenen turnike hareketini belirtir. Ciddi hata ve belirsizliklerde sorun ile uygulanabilir sonraki adım açıkça anlatılır.
 
 **Sistem gerçeği söyler. Pofi ona eşlik eder.**
 
-## 10. Arayüzde tutarlılık
+## Arayüzde tutarlılık
 
 - Yönlendirmelerde tekil ve doğrudan konuş: “Kontrol et”, “Yeniden dene”, “PDKS’ye bağlan”.
 - Aynı eylemi aynı adla göster. PDKS oturumu için “Bağlan / Bağlantıyı kes”, turnike hareketleri için “Giriş / Çıkış” kullan.
@@ -191,7 +191,7 @@ Kurulum, derleme, paketleme, yayın ve uygulama açılışında Pofis'in sistem 
 
 Komutları, dosya yollarını, sürümleri ve tanılama için gerekli teknik ayrıntıları koru. Açıklamalarda “derleme”, “kurulum betiği” ve “sürüm taslağı” terimlerini kullan. Bu metinler ilgili betiklerde yönetilir. Teknik durumları Pofis’in sesiyle, hata mesajlarını doğrudan yönlendirmeyle anlat.
 
-## 11. Yeni metin üretirken kontrol et
+## Yeni metin üretirken kontrol et
 
 Metni şu ölçütlerle incele:
 

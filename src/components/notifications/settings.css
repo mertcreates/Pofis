@@ -1,6 +1,6 @@
 .notification-page { max-width: 1160px; width: 100%; padding-bottom: 32px; }
 .notification-page[hidden], #telegram-setup[hidden] { display: none; }
-.notification-page h1 { margin: 0 0 24px; font-size: var(--page-title-size); font-weight: 700; letter-spacing: -0.025em; }
+.notification-page h1 { margin: 0 0 24px; font-size: var(--page-title-size); font-weight: 700; }
 .notification-page h1:focus { outline: none; }
 .notification-context { color: var(--secondary); margin: -12px 0 24px; font-size: 14px; }
 .notification-settings { display: block; }
@@ -11,7 +11,7 @@
 .notification-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .notification-event { display: grid; gap: 16px; min-width: 0; }
 .notification-event + .notification-event { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--line); }
-.notification-event-heading h2 { margin: 0; font-size: var(--section-title-size); font-weight: 600; line-height: 1.4; letter-spacing: -0.015em; }
+.notification-event-heading h2 { margin: 0; font-size: var(--section-title-size); font-weight: 600; line-height: 1.4; }
 .notification-event-heading { display: grid; gap: 8px; }
 .notification-event-heading p { margin: 0; color: var(--secondary); font-size: 14px; line-height: 1.5; }
 .notification-lead { display: grid; gap: 8px; min-width: 0; }

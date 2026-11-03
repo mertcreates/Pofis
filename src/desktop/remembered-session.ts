@@ -106,13 +106,15 @@ export function createRememberedSession({ store, fetch, onRecovered, onInvalid, 
   let disabled = false;
   let failures = 0;
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let retryForce = false;
   let tail: Promise<unknown> = Promise.resolve();
-  let recovering: Promise<boolean> | null = null;
+  let recovering: { promise: Promise<boolean>; state: { force: boolean; checkedConnected: boolean } } | null = null;
 
   function invalidate() {
     generation++;
     if (timer) clearTimer(timer);
     timer = undefined;
+    retryForce = false;
     recovering = null;
     failures = 0;
   }
@@ -133,16 +135,40 @@ export function createRememberedSession({ store, fetch, onRecovered, onInvalid, 
     const retryAfter = error instanceof ApiError && typeof error.details?.retryAfterMs === "number"
       ? Math.min(Math.max(error.details.retryAfterMs, 0), 2_147_483_647) : 0;
     const delay = Math.max(Math.min(30_000 * 2 ** Math.min(failures - 1, 4), 300_000), retryAfter);
-    timer = setTimer(() => { timer = undefined; void recover(force).catch(() => {}); }, delay);
+    retryForce = force;
+    timer = setTimer(() => {
+      timer = undefined;
+      const force = retryForce;
+      retryForce = false;
+      void recover(force).catch(() => {});
+    }, delay);
   }
   function recover(force = false): Promise<boolean> {
     if (stopped || disabled) return Promise.resolve(false);
-    if (recovering) return recovering;
-    if (timer) return Promise.resolve(false);
+    // A late forced request cannot reuse a recovery that only checked the existing session.
+    if (recovering && !(force && recovering.state.checkedConnected)) {
+      if (force) {
+        recovering.state.force = true;
+        if (timer) retryForce = true;
+      }
+      return recovering.promise;
+    }
+    if (timer) {
+      if (force) retryForce = true;
+      return Promise.resolve(false);
+    }
     const version = generation;
+    const state = { force, checkedConnected: false };
     const run = enqueue(async () => {
       if (version !== generation || stopped) return false;
-      if (!force && await request("GET")) return true;
+      if (!state.force) {
+        const connected = await request("GET");
+        if (version !== generation || stopped) return false;
+        if (connected && !state.force) {
+          state.checkedConnected = true;
+          return true;
+        }
+      }
       if (version !== generation || stopped) return false;
       const credentials = await store.load();
       if (!credentials || version !== generation || stopped) return false;
@@ -164,13 +190,12 @@ export function createRememberedSession({ store, fetch, onRecovered, onInvalid, 
       onRecovered();
       return true;
     });
-    recovering = run;
-    void run.catch(error => {
-      if (version !== generation || stopped || disabled) return;
-      scheduleRetry(error, force);
-      // Errors are returned to the caller; a later attempt handles temporary failures.
-    }).finally(() => { if (recovering === run) recovering = null; });
-    return run;
+    const result = run.catch(error => {
+      if (version === generation && !stopped && !disabled) scheduleRetry(error, state.force);
+      throw error;
+    }).finally(() => { if (recovering?.state === state) recovering = null; });
+    recovering = { promise: result, state };
+    return result;
   }
   return {
     recover,

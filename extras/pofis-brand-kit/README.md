@@ -13,14 +13,15 @@ Görsellerin lisans kapsamı [görsel lisans bildiriminde](../../ASSET-LICENSE.m
 - [pofi-full.png](assets/pofi-full.png) — Şeffaf, kayıpsız ana referans
 - [pofi-full.webp](assets/pofi-full.webp) — Web için optimize tam gövde; 256 ve 512 px türevleri aynı klasörde
 - [character-sheet.html](character-sheet.html) — Karakter kimliği kontrol sayfası
+- [COLOR_TOKENS](docs/COLOR_TOKENS.json) — Açık tema ve karakter renkleri; hareketin ayrıntıları [DESIGN](../../DESIGN.md#gezinme-ve-kontroller) belgesinde
 - [CHARACTER_BIBLE](docs/CHARACTER_BIBLE.md) — Karakter özellikleri ve poz kuralları
 - [MASTER_PROMPT](docs/MASTER_PROMPT.md) — Referans dosyalı üretim promptu
 - [references/](references/) — Keşif görselleri ve üretim referansları
 
-Görsel üretimde CHARACTER_BIBLE ve MASTER_PROMPT birlikte kullanılır. Sahnenin karaktere uygunluğu, Pofi'nin sesi ve metin örnekleri [ton rehberinden](../../docs/brand/pofi-tone-guide.md#4-dilin-karakteristik-özellikleri) değerlendirilir.
+Görsel üretimde CHARACTER_BIBLE ve MASTER_PROMPT birlikte kullanılır. Sahnenin karaktere uygunluğu, Pofi'nin sesi ve metin örnekleri [ton rehberinden](../../docs/brand/pofi-tone-guide.md#dilin-karakteristik-özellikleri) değerlendirilir.
 
 ## Referansı kullanma
 
 Pofi'nin **önden tam gövde** illüstrasyonu yüz ve karakter kimliğinin referansıdır; yeni üretimlerin dik duruşu karakter kurallarında tanımlanır. Uygulamanın marka simgesi `public/pofi/pofi-mark-256.png` dosyasıdır.
 
-Ürün adı **Pofis**, maskot adı **Pofi** olarak kullanılır. `references/pofi-original-ai-sheet.png` ilk görsel üretimin referansıdır.
+Ürün adı **Pofis**, maskot adı **Pofi** olarak kullanılır.

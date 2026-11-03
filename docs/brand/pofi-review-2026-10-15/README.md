@@ -9,9 +9,9 @@ Depoda iki görsel seti bulunur:
 | [round-1-approved](round-1-approved/) | 10 PNG: durumlar, bitki, defter ve kamera |
 | [round-2-approved](round-2-approved/) | 10 PNG: şemsiye, kâğıt tekne, su birikintisi, fırıldak, paket, fide, çanta, eskiz, kart ve esneme |
 
-Klasör adları korunur. Uygulamanın etkin görselleri [görsel kaynaklar](../assets.md) belgesindedir; bu setlerin uygulamaya alınması ayrıca seçilmelidir.
+Uygulamanın etkin görselleri [görsel kaynaklar](../assets.md) belgesindedir.
 
-[prompts.json](prompts.json) ilk üretim denemesinin metinlerini ve o denemenin durumunu içerir. Güncel dosya envanteri yukarıdaki tabloda tutulur. Yeni üretim için [karakter kuralları](../../../extras/pofis-brand-kit/docs/CHARACTER_BIBLE.md) ve [ana prompt](../../../extras/pofis-brand-kit/docs/MASTER_PROMPT.md) kullanılır.
+[prompts.json](prompts.json) ilk setteki sahnelerin tariflerini içerir. Yeni üretim için [karakter kuralları](../../../extras/pofis-brand-kit/docs/CHARACTER_BIBLE.md) ve [ana prompt](../../../extras/pofis-brand-kit/docs/MASTER_PROMPT.md) kullanılır.
 
 ## Kaynaklar ve sabitler
 
@@ -34,4 +34,4 @@ Klasör adları korunur. Uygulamanın etkin görselleri [görsel kaynaklar](../a
 | 09 | 09-notebook | Küçük bir not | Not defteri ve kalem |
 | 10 | 10-camera | Bu kez fotoğraftayım | Küçük lavanta fotoğraf makinesi |
 
-İlk setin metinleri `prompts.json` içindedir; `basePrompt + variants[i].scene` yapısını kullanır. Bu metinlerdeki oturan poz ilk denemeye aittir; yeni üretimler güncel karakter kurallarındaki dik duruşu izler.
+İlk setin sahne tarifleri `basePrompt + variants[i].scene` yapısındadır. Ortak tarif güncel referansı kullanır; setteki oturan poz korunur. Yeni üretimler güncel karakter kurallarındaki dik duruşu izler.

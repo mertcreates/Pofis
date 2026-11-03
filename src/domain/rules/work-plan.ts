@@ -57,6 +57,12 @@ export function emptyWorkPlans(): WorkPlans {
   return { defaultPlan: DEFAULT_WORK_PLAN, weekOverrides: {} };
 }
 
+export function hasSpecialWeek(plans: WorkPlans, week: string): boolean {
+  return Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined ||
+    plans.weekLeaves?.[week]?.length || plans.weekZeroOpenDays?.[week]?.length ||
+    plans.weekLockedDays?.[week]?.length || plans.weekTimes?.[week]);
+}
+
 export function readDayPlan(value: unknown): WorkPlan | null {
   const plan = readWeekPlan(value);
   return plan && plan.every(Number.isInteger) ? plan : null;
@@ -81,6 +87,85 @@ export function readLeaveDays(value: unknown): number[] | null {
     ? [...value].sort((left, right) => left - right) : null;
 }
 
+function hasLeaveConflict(days: readonly number[], leaves: readonly number[]): boolean {
+  return days.some(day => leaves.includes(day));
+}
+
+function isPlanRecord(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+type WorkPlansIssue = "plan" | "week" | "target" | "leave" | "openDays" | "lockedDays" | "times";
+
+export class WorkPlansValidationError extends Error {
+  constructor(readonly issue: WorkPlansIssue) {
+    super(issue);
+    this.name = "WorkPlansValidationError";
+  }
+}
+
+function storedWeekEntries(value: unknown, issue: WorkPlansIssue): [string, unknown][] {
+  if (value === undefined) return [];
+  if (!isPlanRecord(value)) throw new WorkPlansValidationError(issue);
+  return Object.entries(value);
+}
+
+export function readWorkPlans(value: unknown): WorkPlans {
+  if (!isPlanRecord(value)) throw new WorkPlansValidationError("plan");
+  const defaultPlan = readDayPlan(value.defaultPlan);
+  if (!defaultPlan || !isPlanRecord(value.weekOverrides)) throw new WorkPlansValidationError("plan");
+  const storedOverrides = value.weekOverrides;
+  const weekOverrides: WorkPlans["weekOverrides"] = {};
+  for (const [week, input] of Object.entries(storedOverrides)) {
+    const plan = readWeekPlan(input);
+    if (!isPlanWeek(week) || !plan) throw new WorkPlansValidationError("week");
+    if (!samePlan(plan, defaultPlan)) weekOverrides[week] = plan;
+  }
+  const weekTargets: Record<string, number> = {};
+  for (const [week, seconds] of storedWeekEntries(value.weekTargets, "target")) {
+    if (!isPlanWeek(week) || typeof seconds !== "number" || !Number.isSafeInteger(seconds) || seconds < 0)
+      throw new WorkPlansValidationError("target");
+    weekTargets[week] = seconds;
+  }
+  const weekLeaves: NonNullable<WorkPlans["weekLeaves"]> = {};
+  for (const [week, input] of storedWeekEntries(value.weekLeaves, "leave")) {
+    const days = readLeaveDays(input);
+    if (!isPlanWeek(week) || !days) throw new WorkPlansValidationError("leave");
+    if (days.length) weekLeaves[week] = days;
+  }
+  const weekZeroOpenDays: NonNullable<WorkPlans["weekZeroOpenDays"]> = {};
+  for (const [week, input] of storedWeekEntries(value.weekZeroOpenDays, "openDays")) {
+    const days = readLeaveDays(input);
+    if (!isPlanWeek(week) || !days || hasLeaveConflict(days, weekLeaves[week] ?? NO_PLAN_DAYS))
+      throw new WorkPlansValidationError("openDays");
+    const plan = weekOverrides[week] ?? defaultPlan;
+    const zeroDays = days.filter(day => plan[day] === 0);
+    if (zeroDays.length) weekZeroOpenDays[week] = zeroDays;
+  }
+  const weekLockedDays: NonNullable<WorkPlans["weekLockedDays"]> = {};
+  for (const [week, input] of storedWeekEntries(value.weekLockedDays, "lockedDays")) {
+    const days = readLeaveDays(input);
+    const lockedPlan = readWeekPlan(storedOverrides[week]);
+    if (!isPlanWeek(week) || !days || !lockedPlan || hasLeaveConflict(days, weekLeaves[week] ?? NO_PLAN_DAYS))
+      throw new WorkPlansValidationError("lockedDays");
+    if (days.length) {
+      weekLockedDays[week] = days;
+      weekOverrides[week] = lockedPlan;
+    }
+  }
+  const weekTimes: NonNullable<WorkPlans["weekTimes"]> = {};
+  for (const [week, input] of storedWeekEntries(value.weekTimes, "times")) {
+    const times = readWeekTimes(input);
+    if (!isPlanWeek(week) || !times) throw new WorkPlansValidationError("times");
+    if (Object.keys(times).length) weekTimes[week] = times;
+  }
+  return { defaultPlan, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
+    ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}),
+    ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}),
+    ...(Object.keys(weekLockedDays).length ? { weekLockedDays } : {}),
+    ...(Object.keys(weekTimes).length ? { weekTimes } : {}) };
+}
+
 export function resolveLeaveDays(plans: WorkPlans, week: string): readonly number[] {
   return plans.weekLeaves?.[week] ?? NO_PLAN_DAYS;
 }
@@ -95,7 +180,7 @@ export function resolveUserLockedDays(plans: WorkPlans, week: string): readonly 
 
 export function changeWeekLockedDays(plans: WorkPlans, week: string, days: readonly number[], plan: WorkPlan): WorkPlans {
   if (!isPlanWeek(week) || !readLeaveDays(days) || !readWeekPlan(plan) ||
-    days.some(day => resolveLeaveDays(plans, week).includes(day))) throw new Error(ui.validationErrors.lockedDays);
+    hasLeaveConflict(days, resolveLeaveDays(plans, week))) throw new Error(ui.validationErrors.lockedDays);
   const weekLockedDays = { ...plans.weekLockedDays };
   if (days.length) weekLockedDays[week] = [...days].sort((a, b) => a - b);
   else delete weekLockedDays[week];

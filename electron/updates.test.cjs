@@ -43,9 +43,15 @@ test("bozuk veya hedefe uymayan manifestler reddedilir", async () => {
     { ...f.manifest, platform: "darwin" }, { ...f.manifest, arch: "arm64" },
     { ...f.manifest, version: "0.1.2-beta" }, { ...f.manifest, version: "0.01.2" },
     { ...f.manifest, version: "9007199254740992.0.0" }, { ...f.manifest, size: -1 },
+    { ...f.manifest, size: 2 ** 31 }, { ...f.manifest, size: 1.5 },
     { ...f.manifest, sha256: "bad" }, { ...f.manifest, url: "https://example.com/app.zip" }]) {
     await expect(checkForUpdates({ ...f.options, fetchManifest: async () => Response.json(invalid) })).rejects.toThrow();
   }
+});
+test("güncelleme manifestinde üst boyut sınırının altındaki değer kabul edilir", async () => {
+  const f = fixture();
+  f.manifest.size = 2 ** 31 - 1;
+  expect(await checkForUpdates(f.options)).toMatchObject({ version: "0.1.1" });
 });
 test("HTTP, JSON ve ağ hataları reddedilir", async () => {
   for (const fetchManifest of [async () => new Response("missing", { status: 404 }),

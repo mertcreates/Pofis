@@ -3,6 +3,7 @@ const { join, resolve, basename } = require("node:path");
 const { execFile } = require("node:child_process");
 const { promisify } = require("node:util");
 const { platformTarget } = require("../../electron/platform.cjs");
+const { versionParts } = require("../../electron/release-manifest.cjs");
 const { rebrandMacBundle, signMacBundle } = require("./macos.cjs");
 const { prepareIcons } = require("./icons.cjs");
 const { assertPortableStandalone } = require("./standalone.cjs");
@@ -52,7 +53,7 @@ async function prepare(arch = process.arch, platform = process.platform) {
   const root = resolve(__dirname, "../..");
   const icons = await prepareIcons(join(root, "public", "pofi", "pofi-mark-256.png"), join(root, "dist", "electron", "icons"));
   const manifest = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
-  if (!/^\d+\.\d+\.\d+$/.test(manifest.version)) throw new Error("Pofis sürümü x.y.z biçiminde olmalı.");
+  if (!versionParts(manifest.version)) throw new Error("Pofis sürümü x.y.z biçiminde olmalı.");
   const electronDist = join(root, "node_modules", "electron", "dist");
   await verifyRuntime(electronDist, target, manifest.devDependencies.electron);
   const standalone = process.env.POFIS_SHARED_STANDALONE || join(root, ".next", "standalone");
@@ -80,7 +81,7 @@ async function prepare(arch = process.arch, platform = process.platform) {
   for (const file of ["LICENSE", "ASSET-LICENSE.md"]) {
     await copyFile(join(root, file), join(payload, file));
   }
-  for (const file of ["main.cjs", "scenarios.cjs", "ui-text.cjs", "background.cjs", "mini-window.cjs", "menu-clock.cjs", "transport.cjs", "server.cjs", "server-entry.cjs", "startup.cjs", "platform.cjs", "updates.cjs", "update-bridge.cjs", "external-links.cjs", "permissions.cjs", "acceptance-network.cjs"]) {
+  for (const file of ["main.cjs", "scenarios.cjs", "ui-text.cjs", "background.cjs", "mini-window.cjs", "menu-clock.cjs", "transport.cjs", "server.cjs", "server-entry.cjs", "startup.cjs", "platform.cjs", "release-manifest.cjs", "updates.cjs", "update-bridge.cjs", "external-links.cjs", "permissions.cjs", "acceptance-network.cjs"]) {
     await copyFile(join(root, "electron", file), join(payload, "electron", file));
   }
   if (target.platform === "win32") await copyFile(join(root, "electron", "uninstall.ps1"), join(payload, "electron", "uninstall.ps1"));

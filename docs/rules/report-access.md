@@ -26,7 +26,7 @@ Web ve masaüstü rapor istekleri, kaynak profilinin kimliği ve demo raporları
 - [session.js](../../src/server/session.js)
 - [pdks.js](../../src/server/pdks.js)
 - [report-response.ts](../../src/data/report-response.ts)
-- [use-pdks.ts](../../src/data/use-pdks.ts), [install-notifications.ts](../../src/desktop/install-notifications.ts), [demo raporu](../../src/demo/report.ts)
+- [pdks-lifecycle.ts](../../src/data/pdks-lifecycle.ts), [install-notifications.ts](../../src/desktop/install-notifications.ts), [demo raporu](../../src/demo/report.ts)
 
 ## Testler
 

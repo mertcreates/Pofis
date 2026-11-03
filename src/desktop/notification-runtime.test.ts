@@ -4,7 +4,7 @@ import { createNotificationStore, emptyNotificationAccount, type NotificationAcc
 import { emptyWorkPlans } from "@/domain/rules/work-plan";
 import { defaultNotificationPreferences, type NotificationGoal } from "@/domain/rules/notifications";
 import type { NotificationReport, NotificationSession, NotificationStatus } from "./notification-contract";
-import { DeliveryError } from "./telegram";
+import { createTelegram, DeliveryError } from "./telegram";
 import { mkdtemp, rm } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
@@ -72,6 +72,49 @@ test("eski gönderim sonucu aynı hesaba yeniden bağlandıktan sonraki tercihle
   expect(stored.deliveries["2026-10-21:approaching:native"]).toBeUndefined();
 });
 
+test.each(["bellek", "disk"])("hesap değişimi yazma sırasındaki tamamlanmış eski gönderim sonucunu korur (%s)", async storage => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-notification-queue-"));
+  const f = fixture();
+  if (storage === "disk") f.deps.store = createNotificationStore(directory);
+  try {
+    await f.runtime.sync(plans); await f.runtime.refresh(); await f.enable();
+    let releaseSend!: () => void;
+    let startedSend!: () => void;
+    const sending = new Promise<void>(resolve => { startedSend = resolve; });
+    f.deps.sendNative = async () => { startedSend(); await new Promise<void>(resolve => { releaseSend = resolve; }); };
+    f.time("16:50:00");
+    const tick = f.runtime.tick(); await sending;
+
+    let releaseSave!: () => void;
+    let startedSave!: () => void;
+    const saving = new Promise<void>(resolve => { startedSave = resolve; });
+    const originalSave = f.deps.store.save;
+    f.deps.store.save = async (id, value) => {
+      if (id === "a".repeat(64)) {
+        startedSave(); await new Promise<void>(resolve => { releaseSave = resolve; });
+      }
+      await originalSave(id, value);
+    };
+    const save = f.runtime.save(f.runtime.status().preferences).catch(error => error);
+    await saving;
+    releaseSend();
+    await Bun.sleep(0); // The send result queues behind the unfinished save.
+    f.identity({ accountId: "b".repeat(64), expiresAt: at("23:59:00") });
+    await f.runtime.sync(plans);
+    f.deps.store.save = originalSave;
+    releaseSave();
+    await save; await tick;
+    const oldAccount = await f.deps.store.load("a".repeat(64));
+    const newAccount = await f.deps.store.load("b".repeat(64));
+    expect(oldAccount.deliveries["2026-10-21:approaching:native"]?.state).toBe("accepted");
+    expect(newAccount.deliveries).toEqual({});
+    expect(f.runtime.status().recordError).toBe("");
+  } finally {
+    f.runtime.pause();
+    await rm(directory, { recursive: true, force: true });
+  }
+});
+
 function fixture() {
   let clock = at("16:40:00");
   let identity: NotificationSession | null = { accountId: "a".repeat(64), expiresAt: at("23:59:00") };
@@ -113,6 +156,30 @@ function fixture() {
     time: (value: string) => { clock = at(value); }, offline: () => { offline = true; },
     identity: (value: NotificationSession | null) => { identity = value; }, reports: () => reports };
 }
+
+test.each([1e306, 9_007_000_000_000])("Telegram bekleme taşması %s disk kaydını bozmaz ve erken göndermez", async seconds => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-notification-rate-limit-"));
+  const f = fixture();
+  const store = createNotificationStore(directory);
+  f.deps.store = store;
+  const telegram = createTelegram(async () => Response.json({ ok: false, error_code: 429, parameters: { retry_after: seconds } }, { status: 429 }));
+  f.deps.sendTelegram = async () => {
+    f.sent.push("telegram");
+    await telegram.send({ token: "fixture", chatId: "12345", label: "@fixture" }, "Başlık", "Gövde");
+  };
+  try {
+    await f.runtime.sync(plans);
+    await f.runtime.connectTelegram({});
+    await f.runtime.save({ ...defaultNotificationPreferences(), approaching: { native: false, telegram: true } });
+    await f.runtime.refresh();
+    f.time("16:50:00"); await f.runtime.tick();
+    const delivery = (await store.load("a".repeat(64))).deliveries["2026-10-21:approaching:telegram"];
+    expect(delivery).toMatchObject({ state: "failed", attempts: 1, retryAt: Number.MAX_SAFE_INTEGER });
+    f.time("16:50:30"); await f.runtime.tick();
+    expect(f.sent).toEqual(["telegram"]);
+    expect((await store.load("a".repeat(64))).deliveries["2026-10-21:approaching:telegram"]).toEqual(delivery);
+  } finally { f.runtime.pause(); await rm(directory, { recursive: true, force: true }); }
+});
 
 test.each(["NETWORK_ERROR", "SESSION_EXPIRED"])("geciken eski plan hatası yeni planı veya oturumu bozamaz (%s)", async code => {
   const f = fixture(); await f.runtime.sync(plans); await f.runtime.refresh();
@@ -474,6 +541,39 @@ test("hız sınırında bekleme ve üç deneme sınırı bildirim geçerliliği 
   await f.runtime.sync(plans); await f.runtime.connectTelegram({}); await f.enable();
   for (const time of ["16:50:00", "16:50:00", "16:50:01", "16:50:02", "16:50:03"]) { f.time(time); await f.runtime.tick(); }
   expect(f.sent).toEqual(["native", "attempt", "attempt", "attempt"]);
+});
+
+test.each(["accepted", "failed", "unknown"] as const)("aynı hesaba yeniden bağlanırken tamamlanan gönderim sonucu korunur (%s)", async outcome => {
+  const directory = await mkdtemp(join(tmpdir(), "pofis-notification-retry-"));
+  const f = fixture();
+  f.deps.store = createNotificationStore(directory);
+  try {
+    await f.runtime.sync(plans); await f.runtime.refresh(); await f.runtime.connectTelegram({});
+    await f.runtime.save({ ...defaultNotificationPreferences(), approaching: { native: false, telegram: true } });
+    let release!: () => void;
+    let started!: () => void;
+    const sending = new Promise<void>(resolve => { started = resolve; });
+    f.deps.sendTelegram = async () => {
+      f.sent.push("telegram");
+      if (f.sent.length === 1) {
+        started(); await new Promise<void>(resolve => { release = resolve; });
+        if (outcome === "failed") throw new DeliveryError("rate limit", 1000);
+        if (outcome === "unknown") throw new DeliveryError("timeout", null, true);
+      }
+    };
+    f.time("16:50:00");
+    const first = f.runtime.tick(); await sending;
+    f.runtime.pause(); await f.runtime.sync(plans); await f.runtime.refresh();
+    release(); await first;
+    expect((await f.deps.store.load("a".repeat(64))).deliveries["2026-10-21:approaching:telegram"].state).toBe(outcome);
+    f.time("16:50:01"); await f.runtime.tick();
+    expect(f.sent).toEqual(outcome === "failed" ? ["telegram", "telegram"] : ["telegram"]);
+    expect((await f.deps.store.load("a".repeat(64))).deliveries["2026-10-21:approaching:telegram"].state)
+      .toBe(outcome === "unknown" ? "unknown" : "accepted");
+  } finally {
+    f.runtime.pause();
+    await rm(directory, { recursive: true, force: true });
+  }
 });
 
 test("bildirim kaydı yazılamıyorsa göndermez; rapor yenilemesi hatayı gizlemez ve başarılı kayıt temizler", async () => {

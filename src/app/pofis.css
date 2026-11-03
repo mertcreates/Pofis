@@ -1,8 +1,6 @@
 .dashboard-card {
   background: var(--paper);
-  border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: var(--card-shadow);
 }
 .page-loading,
 .session-loading {
@@ -69,13 +67,11 @@
   font-size: 29px;
   line-height: 1.15;
   font-weight: 700;
-  letter-spacing: -1.1px;
   margin-top: 16px;
   white-space: nowrap;
 }
 .metric-value small {
   font-size: var(--metric-unit-size);
-  letter-spacing: -0.3px;
   font-weight: 500;
 }
 .metric-foot {
@@ -466,7 +462,6 @@ body {
   min-height: 0;
   font-size: 26px;
   font-weight: 760;
-  letter-spacing: -1.3px;
   color: var(--ink);
   text-decoration: none;
 }
@@ -693,7 +688,6 @@ body {
 .dashboard-topbar h1 {
   font-size: var(--page-title-size);
   line-height: 1.2;
-  letter-spacing: -0.9px;
   font-weight: 700;
   margin: 8px 0 4px;
 }
@@ -704,7 +698,6 @@ body {
   color: var(--ink);
   font-size: var(--section-title-size);
   line-height: 1.3;
-  letter-spacing: -0.5px;
   font-weight: 600;
   margin: 0;
 }
@@ -892,7 +885,6 @@ body {
   display: block;
   font-size: 20px;
   white-space: normal;
-  letter-spacing: -0.5px;
 }
 .exit-seconds {
   font-size: 0.65em;
@@ -1418,7 +1410,6 @@ body {
   }
   .metric-value {
     font-size: 29px;
-    letter-spacing: -0.7px;
   }
   .metric-value small {
     font-size: 12px;
@@ -1635,7 +1626,6 @@ body {
 .connection-form h1 {
   font-size: var(--page-title-size);
   font-weight: 700;
-  letter-spacing: -0.02em;
   margin: 0;
 }
 .connection-form form {

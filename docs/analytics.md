@@ -17,7 +17,7 @@
 
 [Kendi raporu route'u](../src/app/api/report/route.js) aktif oturumu doğruladıktan sonra yanıta `analyticsUserId` ekler. Bu alan raporun `no-store` sınırını kullanır. Kimlik her yanıtta mevcut hesap anahtarından türetilir. Bu kimlik takma kimliktir; sürümlü hash ve ayrı kullanım alanı anonimlik veya tahmin saldırısına direnç garantisi vermez.
 
-[use-pdks](../src/data/use-pdks.ts) yalnız güncel, doğrulanmış raporun kimliğini [biçim denetiminden](../src/lib/analytics-identity.ts) geçirir; gecikmiş/iptal edilmiş yanıt kimliği değiştiremez. İlk başarılı rapor gelene kadar olaylar cihaz kimliğiyle ölçülür. Kimlik eksik/geçersizse hesap eşleştirmesi temizlenir; mesai ekranının kullanılabilirliği korunur.
+[pdks-lifecycle](../src/data/pdks-lifecycle.ts) güncel, doğrulanmış raporu seçer; [use-pdks](../src/data/use-pdks.ts) raporun kimliğini [biçim denetiminden](../src/lib/analytics-identity.ts) geçirir. Gecikmiş veya iptal edilmiş yanıt kimliği değiştiremez. İlk başarılı rapor gelene kadar olaylar cihaz kimliğiyle ölçülür. Kimlik eksik/geçersizse hesap eşleştirmesi temizlenir; mesai ekranının kullanılabilirliği korunur.
 
 İstemci `gtag('set', { user_id: id })` ile kimliği etkinleştirir. Etiket hazırsa hesap kimliği etkinleştiğinde `account_identified` olayı gönderilir; aynı kimlikle rapor yenilemesi bu olayı tekrarlamaz. Kimlik etiketten önce gelirse ilk sayfa olayına hazırlanır. `user_id` konfigürasyon alanıdır; özel kullanıcı özelliği veya olay parametresi olarak çoğaltılmaz.
 

@@ -7,7 +7,7 @@
 - [pdks-failure.ts](../src/lib/pdks-failure.ts): ortak hata sınıfları, izinli tanı alanları ve işlem bazında toparlanma sözleşmesi.
 - [api-client.js](../src/lib/api-client.js): HTTP/JSON doğrulaması, tarayıcı ağ hatası ve istek iptali. [http.js](../src/server/http.js) sunucu hatasını aynı tanı alanlarıyla serileştirir.
 - [session-response.js](../src/lib/session-response.js): oturum GET yanıtındaki boolean durumu, giriş/heartbeat POST yanıtındaki `true` ve çıkış DELETE yanıtındaki `false` değerini doğrular. Eksik veya çelişkili başarılı yanıt `INVALID_RESPONSE` olur.
-- [pdks-state.ts](../src/data/pdks-state.ts): bağlantı, rapor tazeliği ve hata durumunun atomik geçişleri. [use-pdks.ts](../src/data/use-pdks.ts) istekleri ve iptali yürütür.
+- [pdks-state.ts](../src/data/pdks-state.ts): bağlantı, rapor tazeliği ve hata durumunun atomik geçişleri. [pdks-lifecycle.ts](../src/data/pdks-lifecycle.ts) istek paylaşımını, iptali ve raporun oturuma uygunluğunu yönetir; [use-pdks.ts](../src/data/use-pdks.ts) sonuçları ekran durumuna ve masaüstü olaylarına bağlar.
 - [pdks-error-presentation.ts](../src/components/pdks-error-presentation.ts): anlamsal hata sınıfını kullanıcı mesajına ve eylem etiketine uyarlar. Metinler [ui-text.js](../src/lib/ui-text.js), çizim [RequestError](../src/components/request-error.js) sahibindedir.
 
 ## API sözleşmesi
@@ -33,7 +33,7 @@ Kaynak adaptörü Bun'ın doğrudan `error.code` ve Node fetch'in `error.cause.c
 | `SOURCE_CHANGED`, `INVALID_RESPONSE`, `INTERNAL_ERROR`, bilinmeyen kod | Güvenli kullanıcı mesajı; teknik ayrıntılar İz kaydı düzeninde sürekli görünür. | Geçerli rapor varsa korunur; başarısız yenilemede tahmin durur. |
 | `TOO_MANY_RESULTS` | Rapor sınırı ve başka hafta seçme açıklaması. | Kısmi rapor başarı gibi gösterilmez. |
 
-Yalnız doğru kod/durum çiftine sahip `SESSION_EXPIRED` oturumu bitirir. Kod içermeyen veya okunamayan 401 yanıtı oturumu düşürmez. Heartbeat aynı sınıflandırmayı kullanır; geçici heartbeat erişim sorunu raporu silmez.
+Yalnız doğru kod/durum çiftine sahip `SESSION_EXPIRED` oturumu bitirir. Kod içermeyen veya okunamayan 401 yanıtı oturumu düşürmez. Heartbeat ve masaüstü planı aynı sınıflandırmayı kullanır; geçici heartbeat erişim sorunu raporu silmez, plan yazma hatası son başarılı planı korur.
 
 Bu çiftin tek sahibi `isSessionExpired` kontrolüdür; API temizliği, kaynak doğrulaması, keepalive ve istemci aynı koşulu kullanır. Kaynakta başarılı HTTP yanıtındaki giriş sayfası veya kaynak 401 yanıtı oturum bitişi üretir. `403/429/5xx` hata yanıtının gövdesi giriş formu içerse de HTTP hata sınıfı korunur. Bozuk form/yönlendirme adresi veya doğrulanamayan profil `SOURCE_CHANGED` olur. İstek hazırlığındaki uygulama hatası ağ hatası olarak maskelenmez; oturum iptali özgün nedeni korur, kaynak zaman aşımı bağlantı hatasıdır. Tarayıcıda yarıda kesilen/çözülemeyen gövde `NETWORK_ERROR`, geçersiz JSON `INVALID_RESPONSE` olur.
 
@@ -47,9 +47,9 @@ Rapor varken hata kısa bir bildirim olarak raporun üzerinde kalır; rapor yokk
 
 Teknik ayrıntılar kutusuz İz kaydı düzeninde sürekli görünür. “Sorunun nedeni” güvenli açıklama, hata kodu ve kısa İstanbul zamanını içerir. “İstek ayrıntıları” Pofis API ve PDKS alanlarını kendi isteklerinin altında toplar; verisi bulunmayan kaynak grubu çizilmez. API ve PDKS HTTP durumları kendi istek bağlamında gösterilir. Alanlar yalnız boşlukla ayrılır, uzun yollar satır kırar. “Teknik ayrıntıları kopyala” tüm izinli alanları ve özgün zaman damgasını kopyalar; başarı veya erişim reddi durum metniyle bildirilir.
 
-Her `usePdks` örneğinde aynı istek neslindeki çakışan oturum kontrolleri tek bekleyen isteği paylaşır; rapor çağrılarında hafta da eşleşmelidir. Hafta değişimi bekleyen raporu iptal eder. Giriş, çıkış, oturum bitişi ve Mini'nin arka plan hesap geçişi bekleyen işleri geçersizleştirir; gecikmiş yanıtlar elenir. Gizli Mini yeniden etkinleştiğinde oturum doğrulaması ilk görünürlüğe bırakılır.
+`usePdks`, aynı nesilde çakışan oturum kontrollerini ve aynı hafta için yapılan rapor isteklerini paylaşır. Oturum kontrolü bekleyen raporu geçersizleştirirse başarılı kontrol veya yeniden denemeden sonra güncel hafta yeniden istenir. Hafta değişimi bekleyen raporu iptal eder. Giriş, çıkış, oturum bitişi ve Mini'nin arka plan hesap geçişi bekleyen işleri geçersizleştirir; yalnız güncel yanıtlar uygulanır. Gizli Mini yeniden etkinleştiğinde oturum ilk görünürlükte doğrulanır.
 
-Masaüstünden gelen doğrulanmış güncel rapor, aynı haftanın bekleyen HTTP rapor isteğini iptal edip nesil sayacını ilerletir; geciken yanıt yeni raporu ezemez. Daha eski `fetchedAt` taşıyan olay reddedilir. Devam eden yenileme sırasında mevcut raporla aynı alınma zamanına sahip önbellek olayı yeni isteği iptal etmez. Mini'nin abone olduğu arka plan yenileme hatası mevcut hata/tazelik durumuna aktarılır; başarılı rapor hatayı temizler ve canlı tahmini yeniden açar. İş kuralları [rapor ve süre sahiplerinde](rules/README.md) kalır.
+Masaüstünden gelen doğrulanmış güncel rapor, aynı haftanın bekleyen HTTP isteğinin yerini alır; daha eski `fetchedAt` taşıyan olay reddedilir. Yenileme sürerken mevcut raporla aynı `fetchedAt` taşıyan olay alınırsa HTTP isteği devam eder. Mini'de arka plan yenileme hatası mevcut hata ve tazelik durumuna aktarılır; başarılı rapor hatayı temizler ve canlı tahmini yeniden açar. İş kuralları [rapor ve süre sahiplerinde](rules/README.md) kalır.
 
 ## Uygulama içi hata ve yerel bildirimler
 

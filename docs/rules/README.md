@@ -28,33 +28,7 @@ Her kuralın bir kod sahibi vardır. Görünümler, route'lar ve depolama adapt�
 
 ## Hesap bağımlılıkları
 
-```mermaid
-flowchart TD
-  S[Turnike hareketleri] --> R[Günlük ilk giriş / son çıkış]
-  S --> P[Geçiş eşleşmesi / açık giriş]
-  C[Takvim] --> R
-  C --> P
-  R --> D[Kayıtlı / canlı süre]
-  P --> D
-  P --> K[Günlük kayıt durumu]
-  R --> K
-  D --> K
-  K --> A
-  K --> W
-  G[Hedef ilerlemesi] --> D
-  C --> W[Mesai planı]
-  R --> A[Rapor uyarlaması]
-  W --> A
-  D --> A
-  D --> F[Pofi durumu]
-  P --> F
-  F --> A
-  A --> V[Ekranlar]
-  A --> T[Haftalık toplam]
-  T --> V
-```
-
-Oklar kural sonuçlarının kullanıldığı yerleri gösterir. Rapor uyarlaması hesapları sahiplerinden alıp DTO'yu ekran modeline çevirir. UI renkleri ve yerleşimi [DESIGN](../../DESIGN.md) belgesinde, bileşen sorumlulukları [arayüz sahiplerinde](../architecture/ui-components.md) yönetilir.
+Turnike hareketleri ve takvim, günlük özet ile geçişleri belirler. Bu sonuçlar süre, kayıt durumu, mesai planı ve Pofi durumunda kullanılır. Rapor uyarlaması sonuçları sahiplerinden alıp DTO'yu ekran modeline çevirir; ekranlar ve haftalık toplam bu modeli kullanır. UI renkleri ve yerleşimi [DESIGN](../../DESIGN.md) belgesinde, bileşen sorumlulukları [arayüz sahiplerinde](../architecture/ui-components.md) yönetilir.
 
 ## Diğer tek sahipler
 
@@ -62,12 +36,12 @@ Oklar kural sonuçlarının kullanıldığı yerleri gösterir. Rapor uyarlamas�
 | --- | --- |
 | Rapor hazırlığı ve saat izdüşümü | [report.ts](../../src/domain/report.ts): kaynak ve planı ekran modeline uyarlar; hesapları ilgili kurallardan alır |
 | Pofi notları | [İçerik yönetim rehberi](../pofi-notes.md): not defteri ve odadaki günlük faaliyet kayıtlarının içerik/seçim sahipleri; [sunucu](../../src/server/pofi-notes.js) ortak hesap anahtarını defter seçimine bağlar |
-| Plan kalıcılığı | [plan-storage](../../src/lib/plan-storage.js) şema doğrulama; [work-plans](../../src/data/work-plans.ts) web/demo, [work-plan-storage](../../src/server/work-plan-storage.js) Electron hesap dosyaları; [desktop-work-plans](../../src/data/desktop-work-plans.ts) ve [use-work-plans](../../src/data/use-work-plans.ts) oturuma bağlı istemci durumu; [sözleşme](work-plan.md#kalıcılık-ve-navigasyon) |
+| Plan kalıcılığı | [work-plan](../../src/domain/rules/work-plan.ts) plan bütünlüğü; [plan-storage](../../src/lib/plan-storage.js) JSON ve depolama sınırı; [work-plans](../../src/data/work-plans.ts) web/demo, [work-plan-storage](../../src/server/work-plan-storage.js) Electron hesap dosyaları; [work-plan-identity](../../src/server/work-plan-identity.js) oturum bağlayıcısı; [desktop-work-plans](../../src/data/desktop-work-plans.ts) ve [use-work-plans](../../src/data/use-work-plans.ts) oturuma bağlı istemci durumu; [sözleşme](work-plan.md#kalıcılık-ve-navigasyon) |
 | Sürüm geçmişi takibi | [changelog.ts](../../src/domain/changelog.ts) uygulama ve yayın için katalog doğrulama, sıralama ve `pofis:changelog-seen` depolama anahtarı; [app-footer.js](../../src/components/shell/app-footer.js) okundu durumunu günceller |
 | Tema | [theme](../../src/lib/theme.js) tercih değerleri ve `pofis:theme:v1` depolama anahtarı; [use-appearance](../../src/data/use-appearance.ts) işletim sistemi ve depolama olayları |
 | Kullanım ölçümü | [analytics](../../src/lib/analytics.ts): sabit GA4 alanları ve başlangıç; [ölçüm sözleşmesi](../analytics.md) akış ayarlarını ve veri sınırlarını yönetir |
 | Metin ve marka | [ui-text](../../src/lib/ui-text.js), [ton rehberi](../brand/pofi-tone-guide.md) ve [görsel kaynaklar](../brand/assets.md) |
-| Kaynak tazeliği ve istek yaşamı | [use-pdks](../../src/data/use-pdks.ts): başarısız yenilemede eski rapor, geç kalan yanıtın ayrılması ve oturum bitişinde temizleme |
+| Kaynak tazeliği ve istek yaşamı | [pdks-lifecycle](../../src/data/pdks-lifecycle.ts) istek paylaşımı ve geç yanıtların elenmesi; [pdks-state](../../src/data/pdks-state.ts) rapor tazeliği ve oturum durumları; [hata sözleşmesi](../pdks-errors.md#kullanıcı-davranışı) |
 | PDKS hata sözleşmesi | [pdks-failure](../../src/lib/pdks-failure.ts): ortak sınıflandırma ve toparlanma; [hata sözleşmesi](../pdks-errors.md) taşıma, durum ve sunum sahiplerini açıklar |
 | Telegram girdileri | [telegram-input](../../src/lib/telegram-input.ts): token ve kişisel sohbet kimliği biçimi; form, keşif ve sağlayıcı adaptörü aynı sahibi kullanır |
 | Demo verisi ve saati | [Demo rehberi](../demo.md): veri, gezinti ve istemci sahipleri; canlı görünümle ortak hesaplar |

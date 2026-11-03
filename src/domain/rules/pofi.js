@@ -63,8 +63,8 @@ function resolveBreakContext({ passages, day, today, isToday }) {
 
 /**
  * @param {string} state
- * @param {Partial<{state: string, asset: string, title: string, message: string, percentage: number, basis: 'recorded' | 'live', badge: string}>} overrides
- * @returns {{state: string, asset: string, title: string, message: string, percentage?: number, basis?: 'recorded' | 'live', badge: string}}
+ * @param {Partial<{state: string, asset: string, title: string, message: string, percentage: number, basis: 'recorded' | 'live'}>} overrides
+ * @returns {{state: string, asset: string, title: string, message: string, percentage?: number, basis?: 'recorded' | 'live'}}
  */
 function buildResult(state, overrides = {}) {
   const base = pofiStates[state] ?? pofiStates.idle;
@@ -72,7 +72,6 @@ function buildResult(state, overrides = {}) {
     ...base,
     percentage: undefined,
     basis: undefined,
-    badge: ui.awaitingEntry,
     ...overrides,
   };
 }
@@ -95,19 +94,18 @@ export function pofiNote({
     (!isToday && record === "open") ||
     breakContext.uncertain
   ) {
-    return buildResult("error", { badge: ui.incompleteRecord });
+    return buildResult("error");
   }
 
   if (!workingDay) {
     return buildResult("idle", {
-      badge: ui.nonWorkingDay,
       title: ui.pofi.nonWorkingTitle,
       message: ui.pofi.nonWorking,
     });
   }
 
   if (record === "empty") {
-    return buildResult("idle", { badge: ui.awaitingEntry });
+    return buildResult("idle");
   }
 
   const progress = dailyDurationState({
@@ -121,15 +119,11 @@ export function pofiNote({
 
   if (progress?.basis === "recorded") {
     const { percentage, remaining } = progress;
-    const badge = `%${percentage}`;
-
     if (remaining === 0) {
       const state = stateForProgress(progress, { isOpen: false });
       return buildResult(state, {
         percentage,
         basis: "recorded",
-        badge,
-        message: pofiStates[state].message,
       });
     }
 
@@ -137,7 +131,6 @@ export function pofiNote({
       return buildResult("break", {
         percentage,
         basis: "recorded",
-        badge,
       });
     }
 
@@ -145,21 +138,16 @@ export function pofiNote({
     return buildResult(state, {
       percentage,
       basis: "recorded",
-      badge,
-      message: pofiStates[state].message,
     });
   }
 
   if (progress?.basis === "live") {
     const { percentage, remaining } = progress;
     const state = stateForProgress(progress, { isOpen: true });
-    const badge = `%${percentage}`;
-
     if (remaining === 0 && state === "working") {
       return buildResult(state, {
         percentage,
         basis: "live",
-        badge,
         title: "",
         message: ui.pofi.staying,
       });
@@ -168,10 +156,8 @@ export function pofiNote({
     return buildResult(state, {
       percentage,
       basis: "live",
-      badge,
-      message: pofiStates[state].message,
     });
   }
 
-  return buildResult("working", { badge: ui.mesaiOngoing });
+  return buildResult("working");
 }

@@ -2,7 +2,7 @@ import { expect, test } from "bun:test";
 import { NextRequest } from "next/server";
 import { GET, POST } from "../app/api/session/route.js";
 import { SESSION_COOKIE } from "./session-manager.js";
-import { workPlanSessionId } from "./work-plan-storage.js";
+import { workPlanSessionId } from "./work-plan-identity.js";
 
 const managerKey = Symbol.for("pofis.session-manager:account-key-v3");
 const token = "a".repeat(64);

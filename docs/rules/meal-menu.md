@@ -16,15 +16,15 @@ Gün geçişlerinde yükleme görünümü, menü bölümleri ve Pofi notunun yer
 
 | Sorumluluk | Sahip |
 | --- | --- |
-| Birliktelikler: 38 senaryo, 103 bütün varyant | [pairs.ts](../../src/lib/meals/commentary/pairs.ts) |
-| Tekil yemekler: 51 senaryo, 115 bütün varyant | [dishes.ts](../../src/lib/meals/commentary/dishes.ts) |
-| Sofra sahneleri: 12 senaryo, 36 bütün varyant | [scenes.ts](../../src/lib/meals/commentary/scenes.ts) |
+| Yemek birliktelikleri | [pairs.ts](../../src/lib/meals/commentary/pairs.ts) |
+| Tekil yemekler | [dishes.ts](../../src/lib/meals/commentary/dishes.ts) |
+| Sofra sahneleri | [scenes.ts](../../src/lib/meals/commentary/scenes.ts) |
 | Tek güncel havuz | [catalogue.ts](../../src/lib/meals/commentary/catalogue.ts) |
 | Yemek adı eşdeğerlikleri | [foods.ts](../../src/lib/meals/commentary/foods.ts) |
 | Menüye uygun senaryolar ve rol koşulları | [matching.ts](../../src/lib/meals/commentary/matching.ts) |
 | Hesap/tarih bazlı seçim ve not kimliği | [commentary.ts](../../src/lib/meals/commentary.ts) |
 
-Güncel havuz **101 senaryo ve 254 yorum** içerir. Her senaryoda 2–3 bağımsız bütün metin bulunur; her metin 1–2 cümle ve en çok 160 karakterdir. Dil, mizah ve sahne sürekliliği [ton rehberinde](../brand/pofi-tone-guide.md#birleşmiş-notu-okuma) yönetilir. Kalori, kullanıcı tercihi, geçmiş tüketim ve kaynakta belirtilmeyen tat/porsiyon bilgisi metinlere eklenmez.
+Her senaryoda 2–3 bağımsız bütün metin bulunur; her metin 1–2 cümle ve en çok 160 karakterdir. Güncel senaryo ve yorum sayıları aşağıdaki `validate` komutundan alınır. Dil, mizah ve sahne sürekliliği [ton rehberinde](../brand/pofi-tone-guide.md#birleşmiş-notu-okuma) yönetilir. Kalori, kullanıcı tercihi, geçmiş tüketim ve kaynakta belirtilmeyen tat/porsiyon bilgisi metinlere eklenmez.
 
 Yemek adları Türkçe harf dönüşümü, Unicode ve boşluk/nokta aralığı normalizasyonundan sonra incelenmiş tam adlarla eşleşir. Yemek ailesi adları yorum eşleştirmesinde kullanılır; ekranda kaynak adı ve vejetaryen işareti korunur. İki yemek gerektiren senaryo iki ayrı öğe ister.
 

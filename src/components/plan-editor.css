@@ -95,7 +95,7 @@
 }
 .work-plan-day strong { font-size: 14px; font-weight: 600; }
 .work-plan-day > span { max-width: 100%; text-align: center; overflow-wrap: anywhere; line-height: 1.25; }
-.work-plan-day .work-plan-day-time { font-size: 12px; font-weight: 500; white-space: normal; letter-spacing: -.02em; }
+.work-plan-day .work-plan-day-time { font-size: 12px; font-weight: 500; white-space: normal; }
 .work-plan-duration-part { white-space: nowrap; }
 .work-plan-day .work-plan-day-label { display: inline-flex; align-items: center; gap: 4px; }
 .work-plan-day-label svg { flex-shrink: 0; }

@@ -1,16 +1,36 @@
 import { expect, test } from "bun:test";
 import {
   DEFAULT_WORK_PLAN, readDayPlan, resolveWeekPlan as resolvePlan, weeklyTarget, completeWeekPlan, resolveStoredTarget,
-  emptyWorkPlans, changeDefaultPlan, changeWeekPlan, resolveStoredPlan, setDayMinutes,
+  emptyWorkPlans, hasSpecialWeek, changeDefaultPlan, changeWeekPlan, resolveStoredPlan, setDayMinutes,
   completedDaySeconds, editRequiredMinutes,
 } from "./work-plan";
 import type { DayState } from "./record-status";
-import type { WorkPlan } from "./work-plan";
+import type { WorkPlan, WorkPlans } from "./work-plan";
 
 // Geri dönüş sözleşmesi: mevcut dağıtım senaryoları azaltma açıkken doğrulanır.
 function resolveWeekPlan(...args: Parameters<typeof resolvePlan>) {
   return resolvePlan(args[0], args[1], args[2], args[3], args[4], args[5], true);
 }
+
+test("haftaya ait plan, hedef, izin, açık gün, kilit veya saat kaydı özel hafta sayılır", () => {
+  const week = "2026-10-12";
+  const nextWeek = "2026-10-19";
+  const base = emptyWorkPlans();
+  const cases: Partial<WorkPlans>[] = [
+    { weekOverrides: { [week]: readDayPlan([420, 480, 480, 480, 480, 0, 0])! } },
+    { weekTargets: { [week]: 0 } },
+    { weekLeaves: { [week]: [0] } },
+    { weekZeroOpenDays: { [week]: [1] } },
+    { weekLockedDays: { [week]: [2] } },
+    { weekTimes: { [week]: { 0: { anchor: "entry", minute: 540 } } } },
+  ];
+  expect(hasSpecialWeek(base, week)).toBe(false);
+  for (const entry of cases) {
+    const plans = { ...base, ...entry };
+    expect(hasSpecialWeek(plans, week)).toBe(true);
+    expect(hasSpecialWeek(plans, nextWeek)).toBe(false);
+  }
+});
 
 test("Sıfırla 9×5 şablonunun 45 saatini esas alır; kilitli eski planlar ve gerçekleşenler korunur", () => {
   const week = "2026-10-12";

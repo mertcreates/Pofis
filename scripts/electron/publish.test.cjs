@@ -16,6 +16,8 @@ test("yayın sürümü kaynak sürümüyle tam eşleşir", () => {
   for (const version of ["01.2.3", "v1.2.3", "1.2.3-beta", "1.2.4", "1.2.3\n"]) {
     expect(() => assertVersion(version, "1.2.3")).toThrow();
   }
+  expect(() => assertVersion("9007199254740992.0.0", "9007199254740992.0.0")).toThrow();
+  expect(() => assertVersion("1.2.3\n", "1.2.3\n")).toThrow();
 });
 
 test("dört hedef yalnız kendi public release paket adresini kabul eder", () => {
@@ -25,9 +27,14 @@ test("dört hedef yalnız kendi public release paket adresini kabul eder", () =>
       sha256: "a".repeat(64),
       url: `https://github.com/mertcreates/pofis-landing/releases/download/v1.2.3/Pofis-1.2.3-${id}.${archiveExtension}` };
     expect(() => assertManifest(manifest, "1.2.3", id)).not.toThrow();
+    expect(() => assertManifest({ ...manifest, size: 2 ** 31 - 1 }, "1.2.3", id)).not.toThrow();
     for (const invalid of [{ url: "https://example.com/package.zip" }, { size: 0 }, { size: 2 ** 31 },
       { version: "1.2.4" }, { arch: "ia32" }, { sha256: "bad" }]) {
       expect(() => assertManifest({ ...manifest, ...invalid }, "1.2.3", id)).toThrow();
+    }
+    for (const version of ["01.2.3", "9007199254740992.0.0", "1.2.3\n"]) {
+      const url = `https://github.com/mertcreates/pofis-landing/releases/download/v${version}/Pofis-${version}-${id}.${archiveExtension}`;
+      expect(() => assertManifest({ ...manifest, version, url }, version, id)).toThrow();
     }
   }
   expect(() => targetFor("linux-arm64")).toThrow();

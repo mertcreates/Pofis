@@ -127,3 +127,39 @@ test("oturum değişimi veya bozuk okuma eski planı kullanılamaz kılar", asyn
   expect(changedSession).toBe(1);
   client.stop();
 });
+
+for (const status of [401, 500]) {
+  test(`plan okumasında SESSION_EXPIRED / ${status} yalnız 401'de oturum kontrolü başlatır`, async () => {
+    const states: DesktopPlanState[] = [];
+    let sessionChecks = 0;
+    const client = createDesktopWorkPlans({ session: sessionA, receive: state => states.push(state), onSaved() {},
+      onSessionChanged() { sessionChecks++; }, request: async () => { throw { code: "SESSION_EXPIRED", status }; } });
+    await client.reload();
+    expect(states.at(-1)).toMatchObject({ snapshot: null, saving: false, error: ui.desktopPlanReadError });
+    expect(sessionChecks).toBe(status === 401 ? 1 : 0);
+    client.stop();
+  });
+
+  test(`plan kaydında SESSION_EXPIRED / ${status} yalnız 401'de oturumu değiştirir`, async () => {
+    const states: DesktopPlanState[] = [];
+    let sessionChecks = 0;
+    let saved = 0;
+    const client = createDesktopWorkPlans({ session: sessionA, receive: state => states.push(state),
+      onSaved() { saved++; }, onSessionChanged() { sessionChecks++; },
+      request: async (_path, options) => {
+        if (options?.method === "PUT") throw { code: "SESSION_EXPIRED", status };
+        return snapshot(sessionA);
+      },
+    });
+    await client.reload();
+    expect(await client.save(() => changed)).toBe(false);
+    expect(states.at(-1)).toMatchObject({
+      snapshot: status === 401 ? null : snapshot(sessionA),
+      saving: false,
+      error: status === 401 ? ui.desktopPlanReadError : ui.desktopPlanWriteError,
+    });
+    expect(sessionChecks).toBe(status === 401 ? 1 : 0);
+    expect(saved).toBe(0);
+    client.stop();
+  });
+}

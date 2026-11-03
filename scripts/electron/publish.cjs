@@ -2,6 +2,7 @@ const { createHash } = require("node:crypto");
 const { readFile, writeFile, appendFile, mkdir, open, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
+const { validReleaseManifest, archiveName } = require("../../electron/release-manifest.cjs");
 const { prepareSite, prepareChangelog, readChangelog, verifyPreparedChangelog, verifyRelease, normalizeInstaller } = require("./prepare-site.cjs");
 const { checkVersion, run } = require("./ci-build.cjs");
 const { assertSiteCommands, readSiteContent } = require("./install-command.cjs");
@@ -32,10 +33,8 @@ function targetFor(id) {
 
 function assertManifest(manifest, version, id) {
   const target = targetFor(id);
-  const url = `https://github.com/${REPOSITORY}/releases/download/v${version}/Pofis-${version}-${id}.${target.archiveExtension}`;
-  if (manifest.schemaVersion !== 1 || manifest.version !== version || manifest.platform !== target.platform ||
-      manifest.arch !== target.arch || manifest.url !== url || !Number.isSafeInteger(manifest.size) ||
-      manifest.size <= 0 || manifest.size >= 2 ** 31 || !/^[a-f0-9]{64}$/.test(manifest.sha256)) {
+  const url = `https://github.com/${REPOSITORY}/releases/download/v${version}/${archiveName(target, version)}`;
+  if (!validReleaseManifest(manifest, target) || manifest.version !== version || manifest.url !== url) {
     throw new Error(`Geçersiz yayın manifesti: ${id}`);
   }
 }
@@ -116,7 +115,7 @@ async function cleanupDraft(version) {
   console.log(`Pofis ${version}: başarısız derlemenin sürüm taslağı ve paketleri silindi.`);
 }
 function assetNames(version, id) {
-  return [`Pofis-${version}-${id}.${targetFor(id).archiveExtension}`, installerAsset(id), manifestName(id)];
+  return [archiveName(targetFor(id), version), installerAsset(id), manifestName(id)];
 }
 // Each native job owns its own assets; the two macOS jobs never race on install.sh.
 function installerAsset(id) { return id === "win32-x64" ? "install.ps1" : `install-${id}.sh`; }

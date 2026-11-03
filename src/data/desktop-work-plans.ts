@@ -1,5 +1,6 @@
 import { api } from "@/lib/api-client.js";
 import { readStoredPlans } from "@/lib/plan-storage.js";
+import { isSessionExpired } from "@/lib/pdks-failure";
 import { ui } from "@/lib/ui-text.js";
 import type { WorkPlans } from "@/domain/rules/work-plan";
 
@@ -54,7 +55,7 @@ export function createDesktopWorkPlans({ session, receive, onSaved, onSessionCha
     } catch (error) {
       if (!active || version !== readVersion || controller.signal.aborted) return;
       publish({ snapshot: null, saving: false, error: ui.desktopPlanReadError });
-      if (error instanceof PlanSessionChanged || (error as { code?: string })?.code === "SESSION_EXPIRED")
+      if (error instanceof PlanSessionChanged || isSessionExpired(error))
         onSessionChanged();
     } finally {
       if (readController === controller) readController = null;
@@ -82,7 +83,7 @@ export function createDesktopWorkPlans({ session, receive, onSaved, onSessionCha
     } catch (error) {
       if (!active) return false;
       const code = (error as { code?: string })?.code;
-      if (error instanceof PlanSessionChanged || code === "PLAN_SESSION_CHANGED" || code === "SESSION_EXPIRED") {
+      if (error instanceof PlanSessionChanged || code === "PLAN_SESSION_CHANGED" || isSessionExpired(error)) {
         publish({ snapshot: null, saving: false, error: ui.desktopPlanReadError });
         onSessionChanged();
       } else {

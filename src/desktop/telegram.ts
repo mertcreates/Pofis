@@ -25,7 +25,10 @@ export function createTelegram(fetchImpl: (url: string, init: RequestInit) => Pr
       const code = result?.error_code ?? response.status;
       if (code === 429) {
         const seconds = result?.parameters?.retry_after;
-        throw new DeliveryError(ui.telegramErrors.rateLimit, Number.isFinite(seconds) ? Math.max(1000, seconds * 1000) : 60_000);
+        const milliseconds = typeof seconds === "number" && Number.isFinite(seconds) && seconds >= 0
+          ? Math.ceil(seconds * 1000) : NaN;
+        const retryAfter = Number.isSafeInteger(milliseconds) ? Math.max(1000, milliseconds) : null;
+        throw new DeliveryError(ui.telegramErrors.rateLimit, retryAfter);
       }
       if (code === 401) throw new DeliveryError(ui.telegramErrors.invalidToken);
       if (code === 403) throw new DeliveryError(ui.telegramErrors.forbidden);
@@ -49,11 +52,25 @@ export function createTelegram(fetchImpl: (url: string, init: RequestInit) => Pr
     },
     async verify(input: unknown, signal?: AbortSignal): Promise<TelegramCredentials> {
       const credentials = readTelegramInput(input);
-      const bot = await call(credentials, "getMe", {}, signal);
-      if (bot?.is_bot !== true) throw new Error(ui.telegramErrors.unverifiedBot);
-      const chat = await call(credentials, "getChat", { chat_id: credentials.chatId }, signal);
-      if (chat?.type !== "private" || String(chat.id) !== credentials.chatId) throw new Error(ui.telegramErrors.privateChatRequired);
-      return { ...credentials, label: typeof bot.username === "string" ? `@${bot.username}` : ui.telegramErrors.botLabel };
+      const controller = new AbortController();
+      const checkSignal = signal ? AbortSignal.any([signal, controller.signal]) : controller.signal;
+      const botRequest = call(credentials, "getMe", {}, checkSignal);
+      // Observe an early chat failure while keeping bot errors first.
+      const chatRequest = call(credentials, "getChat", { chat_id: credentials.chatId }, checkSignal).then(
+        chat => ({ chat }),
+        error => ({ error }),
+      );
+      try {
+        const bot = await botRequest;
+        if (bot?.is_bot !== true) throw new Error(ui.telegramErrors.unverifiedBot);
+        const result = await chatRequest;
+        if ("error" in result) throw result.error;
+        const chat = result.chat;
+        if (chat?.type !== "private" || String(chat.id) !== credentials.chatId) throw new Error(ui.telegramErrors.privateChatRequired);
+        return { ...credentials, label: typeof bot.username === "string" ? `@${bot.username}` : ui.telegramErrors.botLabel };
+      } finally {
+        controller.abort();
+      }
     },
     async send(credentials: TelegramCredentials, title: string, body: string, signal?: AbortSignal) {
       await call(credentials, "sendMessage", { chat_id: credentials.chatId, text: `${title}\n\n${body}` }, signal);

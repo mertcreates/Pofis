@@ -45,6 +45,42 @@ test("macOS PID kontrolü yalnız kaybolan süreçleri kabul eder; ps hatasını
     .rejects.toThrow("Geçersiz süreç durumu");
 });
 
+test("CI çalıştırıcısı miras alınan süreç grubunu sinyal kurulumu gerektirmeden korur", async () => {
+  const cases = [
+    { platform: "darwin", inherited: true, initialize: false, detached: false },
+    { platform: "darwin", inherited: false, initialize: false, detached: true },
+    { platform: "darwin", inherited: true, initialize: true, detached: false },
+    { platform: "linux", inherited: true, initialize: false, detached: false },
+    { platform: "linux", inherited: false, initialize: false, detached: true },
+    { platform: "win32", inherited: true, initialize: false, detached: false },
+    { platform: "win32", inherited: false, initialize: false, detached: false },
+  ];
+  for (const { platform, inherited, initialize, detached } of cases) {
+    const script = `
+      const { EventEmitter } = require('node:events');
+      const childProcess = require('node:child_process');
+      const { promisify } = require('node:util');
+      const fakeExecFile = () => { throw new Error('unexpected direct call'); };
+      fakeExecFile[promisify.custom] = (_command, _args, options) => {
+        const result = Promise.resolve({ stdout: JSON.stringify({ detached: options.detached,
+          childGroup: options.env.POFIS_CI_PROCESS_GROUP ?? null }), stderr: '' });
+        result.child = { stdout: new EventEmitter(), stderr: new EventEmitter() };
+        return result;
+      };
+      childProcess.execFile = fakeExecFile;
+      Object.defineProperty(process, 'platform', { value: ${JSON.stringify(platform)} });
+      const { run, handleCancellation } = require(${JSON.stringify(join(__dirname, "ci-build.cjs"))});
+      if (${initialize}) handleCancellation();
+      console.log(await run('fixture', []));
+    `;
+    const env = { ...process.env };
+    if (inherited) env.POFIS_CI_PROCESS_GROUP = "1";
+    else delete env.POFIS_CI_PROCESS_GROUP;
+    const { stdout } = await promisify(execFile)(process.execPath, ["-e", script], { env, windowsHide: true });
+    expect(JSON.parse(stdout.trim())).toEqual({ detached, childGroup: platform !== "win32" || inherited ? "1" : null });
+  }
+});
+
 test("iptal edilen CI komutu hazır alt süreçlerini de kapatır", async () => {
   const directory = await mkdtemp(join(tmpdir(), "pofis-ci-timeout-"));
   const script = join(directory, "hang.cjs");
@@ -341,12 +377,13 @@ test.each(["darwin-x64", "linux-x64"])("%s ARM çıktısını yeniden derlemeden
       await mkdir(join(directory, path), { recursive: true });
     }
     await copyFile(join(__dirname, "ci-build.cjs"), join(directory, "scripts/electron/ci-build.cjs"));
+    await copyFile(join(__dirname, "../../electron/release-manifest.cjs"), join(directory, "electron/release-manifest.cjs"));
     await writeFile(join(directory, "package.json"), JSON.stringify({ version }));
     await writeFile(join(directory, "electron/platform.cjs"), `module.exports.platformTarget = (platform, arch) => {
       if (platform !== '${platform}' || arch !== 'x64') throw Error('Intel target was not selected from native ARM host');
       return {
       id: '${targetId}', platform: '${platform}', arch: 'x64', outputDirectory: '${linux ? 'linux' : 'macos'}', releaseDirectory: '${linux ? 'linux/x64' : 'macos/x64'}', installer: '${linux ? 'install-linux.sh' : 'install-macos.sh'}',
-      electronExecutable: 'Electron.app/Contents/MacOS/Electron'
+      electronExecutable: 'Electron.app/Contents/MacOS/Electron', archiveExtension: '${linux ? 'tar.gz' : 'zip'}'
     }; };`);
     await writeFile(join(directory, "scripts/electron/prepare-site.cjs"), "module.exports.prepareSite = async () => {};");
     await promisify(execFile)(process.execPath, ["-e", `
@@ -371,7 +408,9 @@ test.each(["darwin-x64", "linux-x64"])("%s ARM çıktısını yeniden derlemeden
     expect(scriptCall("release.cjs").args[2]).toBe(join(directory, "new package"));
     expect(scriptCall(linux ? "linux-static-check.cjs" : "macos-static-check.cjs").args[1]).toBe(join(directory, "new package"));
     expect(scriptCall("release.cjs").args.slice(3)).toEqual(["-Arch", "x64", ...(linux ? ["-Platform", "linux"] : [])]);
-    expect(calls.some(call => call.command === (linux ? "/usr/bin/tar" : "/usr/bin/unzip"))).toBe(true);
+    const archiveCall = calls.find(call => call.command === (linux ? "/usr/bin/tar" : "/usr/bin/unzip"));
+    expect(archiveCall.args).toEqual([linux ? "-tzf" : "-tq", join(directory, "dist/releases", linux ? "linux/x64" : "macos/x64",
+      version, `Pofis-${version}-${targetId}.${linux ? "tar.gz" : "zip"}`)]);
     expect(calls.some(call => call.args.some(arg => /clipboard|distribution|test:desktop:smoke/.test(arg)))).toBe(false);
   } finally { await rm(directory, { recursive: true, force: true }); }
 });

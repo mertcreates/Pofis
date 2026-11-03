@@ -4,7 +4,7 @@ import { savePlans, serializePlans } from "@/lib/plan-storage.js";
 import { subscribeWorkPlans, workPlanStorage, type PlanScope } from "./work-plans";
 import { createDesktopWorkPlans } from "./desktop-work-plans";
 import {
-  emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, resolveUserLockedDays, resolveWeekTimes, changeWeekTime, changeWeekLockedDays, changeWeekPlan, changeDefaultPlan,
+  emptyWorkPlans, hasSpecialWeek, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, resolveUserLockedDays, resolveWeekTimes, changeWeekTime, changeWeekLockedDays, changeWeekPlan, changeDefaultPlan,
   type WorkPlan, type WorkPlans, type PlanTime,
 } from "@/domain/rules/work-plan";
 import { ui } from "@/lib/ui-text.js";
@@ -132,7 +132,7 @@ export function useWorkPlans(week: string, scope: PlanScope = "live", session?: 
     zeroOpenDays: resolveZeroOpenDays(plans, week),
     userLockedDays: resolveUserLockedDays(plans, week),
     times: resolveWeekTimes(plans, week),
-    special: Boolean(plans.weekOverrides[week] || plans.weekTargets?.[week] !== undefined || plans.weekLeaves?.[week]?.length || plans.weekZeroOpenDays?.[week]?.length || plans.weekLockedDays?.[week]?.length || plans.weekTimes?.[week]),
+    special: hasSpecialWeek(plans, week),
     ready,
     saving,
     error,

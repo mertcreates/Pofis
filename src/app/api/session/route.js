@@ -13,7 +13,7 @@ import {
   SESSION_SECONDS,
 } from "@/server/session.js";
 import { notificationSession } from "@/server/notification-identity";
-import { workPlanSessionId } from "@/server/work-plan-storage.js";
+import { workPlanSessionId } from "@/server/work-plan-identity.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

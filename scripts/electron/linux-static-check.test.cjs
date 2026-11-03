@@ -34,6 +34,7 @@ test("Linux runtime sürüm ve ELF mimarisini ikiliyi çalıştırmadan doğrula
   try {
     for (const name of ["electron/main.cjs", "electron/server.cjs", "electron/server-entry.cjs", "electron/startup.cjs",
       "electron/platform.cjs", "electron/background.cjs", "electron/transport.cjs", "electron/update-bridge.cjs",
+      "electron/updates.cjs", "electron/release-manifest.cjs",
       "server/server.js", "server/preload.cjs", "server/pofis-notifications.cjs", "server/.next/BUILD_ID", "public/pofi/pofi-mark-256.png"]) {
       await mkdir(join(app, name, ".."), { recursive: true });
       await writeFile(join(app, name), "fixture");
@@ -51,6 +52,9 @@ test("Linux runtime sürüm ve ELF mimarisini ikiliyi çalıştırmadan doğrula
     await unlink(join(app, "server/preload.cjs"));
     await expect(checkLinuxPackage(directory)).rejects.toMatchObject({ code: "ENOENT" });
     await writeFile(join(app, "server/preload.cjs"), "fixture");
+    await unlink(join(app, "electron/release-manifest.cjs"));
+    await expect(checkLinuxPackage(directory)).rejects.toMatchObject({ code: "ENOENT" });
+    await writeFile(join(app, "electron/release-manifest.cjs"), "fixture");
     await writeFile(join(app, "server/host-native"), elf());
     await expect(checkLinuxPackage(directory)).rejects.toThrow("native dosya");
     await unlink(join(app, "server/host-native"));

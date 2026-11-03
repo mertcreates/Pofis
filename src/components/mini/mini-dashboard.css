@@ -15,7 +15,7 @@
 .pofi-mini-header, .pofi-mini-brand, .pofi-mini-week-heading {
   display: flex; align-items: center; justify-content: space-between;
 }
-.pofi-mini-header { -webkit-app-region: drag; flex-wrap: wrap; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.pofi-mini-header { -webkit-app-region: drag; flex-wrap: wrap; gap: 12px; padding-bottom: 16px; }
 .pofi-mini-brand { justify-content: start; gap: 10px; }
 .pofi-mini-pin { -webkit-app-region: no-drag; }
 .pofi-mini-brand img { width: 34px; height: 34px; object-fit: contain; }
@@ -32,13 +32,13 @@
 .pofi-mini-summary p { margin: 0; color: var(--secondary); font-size: 13px; line-height: 1.5; }
 .pofi-mini-summary p strong { font-weight: 500; font-variant-numeric: tabular-nums; }
 .pofi-mini-label { color: var(--muted); font-size: 12px; }
-.pofi-mini-duration { font-size: 29px; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; line-height: 1.15; }
+.pofi-mini-duration { font-size: 29px; font-variant-numeric: tabular-nums; line-height: 1.15; }
 .pofi-mini-status { color: var(--accent-text); font-size: 12px; line-height: 1.4; min-height: 17px; }
 .pofi-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .pofi-mini-grid > div { display: grid; gap: 7px; }
 .pofi-mini-grid > div:last-child { text-align: right; }
 .pofi-mini-grid strong { font-size: 18px; font-weight: 650; font-variant-numeric: tabular-nums; }
-.pofi-mini-week { display: grid; gap: 10px; border-top: 1px solid var(--line); padding-top: 16px; }
+.pofi-mini-week { display: grid; gap: 10px; padding-top: 16px; }
 .pofi-mini-week-heading { align-items: start; gap: 4px; flex-wrap: wrap; }
 .pofi-mini-week-heading > span { color: var(--muted); font-size: 12px; }
 .pofi-mini-week-heading strong { font-size: 13px; font-variant-numeric: tabular-nums; }

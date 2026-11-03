@@ -178,7 +178,8 @@ Kontrol sınırı bileşenin rolüne göre seçilir:
 
 | Bileşen | Sınır ve durum |
 | --- | --- |
-| Kart/panel | Dekoratif `border`. |
+| Dashboard kartı | `surface` zemin; çevre sınırı ve gölge kullanılmaz. |
+| Diğer kart/panel | Gerektiğinde dekoratif `border`. |
 | Segmentli seçim kapsayıcısı | `border` veya `subtle` yüzey. |
 | Metinli ikincil buton, +/−, kapatma | Metin/simge kontrolü tanımlar; hafif `border`, sade yüzey veya çerçevesiz görünüm. |
 | Boş input/select | `control-border`; sınırın komşu zemine kontrastı en az 3:1. |
@@ -207,7 +208,7 @@ Renk değerleri frontmatter'da, uygulama karşılıkları ortak süre tokenları
 
 - **Sayfa başlığı:** `page-title`; sayfa başına bir ana başlık.
 - **Bölüm başlığı:** `section-title`; gerektiğinde semantik hiyerarşi korunarak daha küçük kart başlığı kullanılabilir.
-- **Dashboard kart başlıkları:** Günün akışı, Haftalık toplam, Giriş-çıkış raporu ve Pofi aynı `h2` rolünü kullanır: `section-title` (18 px/600, 1.3), −0.5 px harf aralığı, `ink` rengi ve sıfır dış boşluk. Tarih, yüzde ve rozetler ayrı ikincil bilgi olarak kalır. Ortak stil [dashboard stillerinde](src/app/pofis.css) tanımlıdır.
+- **Dashboard kart başlıkları:** Günün akışı, Haftalık toplam, Giriş-çıkış raporu ve Pofi aynı `h2` rolünü kullanır: `section-title` (18 px/600, 1.3), doğal harf aralığı, `ink` rengi ve sıfır dış boşluk. Tarih ve yüzde ayrı ikincil bilgi olarak kalır. Ortak stil [dashboard stillerinde](src/app/pofis.css) tanımlıdır.
 - **Modal başlığı:** `modal-title` (20 px/600, 1.3); bölüm başlığından ayrı basamaktır.
 - **Ana metin:** `body` (14 px).
 - **Etiket/kontrol metni:** `label`.
@@ -233,7 +234,7 @@ Metin, kullanıcının mevcut bilgiyi anlamasına veya sonraki eylemi seçmesine
 
 ## Elevation & Depth
 
-Yüzeyler zemin ve ince sınırla ayrılır. Kartın hafif gölgesi, popover ve modal gölgesi ortak CSS tokenlarından gelir: `--card-shadow`, `--popover-shadow`, `--modal-shadow`. Odak ve kontrol sınırları [etkileşim kurallarını](#etkileşim-ve-formlar) kullanır.
+Yüzey gölgeleri ortak CSS tokenlarından gelir: `--card-shadow`, `--popover-shadow`, `--modal-shadow`. Odak ve kontrol sınırları [etkileşim kurallarını](#etkileşim-ve-formlar) kullanır.
 
 ## Shapes
 
@@ -294,7 +295,7 @@ Sayısal veriler tabular gösterilir. Saat/dakika baskın, saniye ikincildir. Bi
 - “Şimdi” etiketi ve saati canlı süre çubuğunun ucunu takip eder; çıkış kaydında “Son çıkış” olur. “Hedef çıkış” etiketi ve saati kendi hedef işaretine bağlıdır; hedef aşılana kadar eksenin sonunda, aşıldığında geride kalır. İlk giriş bilgisi eksenin başındadır. Çıkış kaydı günün tamamlandığını söylemez. Sıfır olmayan saniyeler saat/dakikadan daha küçük, ikincil renkle görünür; tam değer erişilebilir ad ve başlıkta korunur. Hedef başka güne geçerse tarihi ayrıca gösterilir.
 - İşaret çizgileri gerçek zaman konumunu korur. Ölçek ilk girişten kayıtlı/canlı süre ile hedefin en ilerisine uzanır. Hedef nötr kesik çizgi, mevcut süre ucu vurgu çizgisidir. Etiketler kendi işaretlerini takip eder; kenarlarda metin kapsayıcı içine kayar. Canlı etiket üstte, hedef etiketi çubuğun hemen altındadır. İlk giriş başlangıçta kalır; hedef ilk beşte birlik alandaysa veya kapsayıcı 360 piksel ve altındaysa olası çakışmayı önlemek için hedef etiketi sonraki satıra geçer. Etiketler normal akışta içerikleri kadar yükseklik alır; sabit üst/alt dolgu ile boş alan ayrılmaz. Hedef saat üst özette tekrar edilmez.
 - Giriş kaydı ve bilinen süre yoksa grafik, sıfır süre ve lejant gösterilmez; kısa kayıt durumu kalır. Süre bilinmese de ilk girişten hesaplanabilen hedef çıkış korunur; bilinmeyen mesai süresi çizgidir, kalan süre üretilmez.
-- Belirsiz durumda kullanılabilir kayıtlı/anlık süre yoksa veya okunamayan kayıt ya da geçmişte eksik çıkış gibi hesabı etkileyen neden varsa kısa “Kayıtlarda belirsizlik var” uyarısı ve “Kayıtları aç” eylemi görünür; eylem bugünün rapor satırını açıp odaklar. Çift giriş/çıkış ve süresi bilinen güne ait eşleşmeyen ara çıkış Günün akışı'nda tek başına uyarı üretmez; ayrıntılı nedenler rapor ayrıntısında kalır. Bilinen süre ve güvenilir açık girişe dayanan canlı tahmin korunur. Lejant yalnız mevcut kayıtlı/anlık bölümler için gösterilir.
+- Gün akışında [kayıt sözleşmesindeki](docs/rules/record-status.md#bağlı-sonuçlar) uyarı koşulları oluştuğunda “Kayıtlarda belirsizlik var” ve “Kayıtları aç” gösterilir; eylem bugünün rapor satırını açıp odaklar. Lejant mevcut kayıtlı/anlık bölümleri gösterir.
 
 [Süre](docs/rules/duration.md), [hedef](docs/rules/work-plan.md) ve [ölçek](docs/rules/progress.md) hesapları kural sahiplerinden gelir. [Yerleşim stilleri](src/components/attendance/day-flow.css) demo ve canlıda ortaktır.
 
@@ -328,7 +329,7 @@ Masaüstü güncellemesi ortak modalı kullanır. Stil sahibi [desktop-update.cs
 
 Seçim vurgusu `--accent` zemin ve `--accent-content` metin kullanır; bilgi kutularının `--accent-soft` zemini üzerinde de ayırt edilir. Metin seçimi normal bağlantılar, açıklamalar, girdiler ve teknik ayrıntılarda açıktır; buton ve `.button-link` üzerinde kapalıdır. Rapor akordeonunda klavye odağı metin rengi, zemin ve alt çizgi değişimiyle tüm satırda görünür; ortak odak kuralı [etkileşim ve formlar](#etkileşim-ve-formlar) bölümündedir.
 
-Ortak [Modal](src/components/modal.js) native dialog kullanır: Escape, kapatma düğmesi, açan kontrole odak dönüşü ve içeride kaydırma. Masaüstünde (700 px ve üzeri) yatayda ortalanır, üst kenarı ekranın üstünden 32 px uzaklıkta sabit kalır; sekme ve içerik değişimleri aşağı doğru büyür. Alt kenarda en az 32 px boşluk kalır, uzun içerik modal içinde kayar. Varsayılan başlangıç odağı kapatma düğmesinde, plan modalında başlıktadır. Mobil tutamak aşağı sürükleyerek kapatır. Modal köşeleri `rounded.modal`, başlıkları `modal-title`, dairesel kapatma düğmesi ve geri düğmesi varsayılan küçük ikon basamağını kullanır; yemek modalında standart kontrol basamağıyla hizalanır. Dokunmatik hedefler 44 px'tir.
+Ortak [Modal](src/components/modal.js) native dialog kullanır: Escape, kapatma düğmesi, açan kontrole odak dönüşü ve içeride kaydırma. Masaüstünde (700 px ve üzeri) yatayda ortalanır, üst kenarı ekranın üstünden 32 px uzaklıkta sabit kalır; sekme ve içerik değişimleri aşağı doğru büyür. Alt kenarda en az 32 px boşluk kalır, uzun içerik modal içinde kayar. Varsayılan başlangıç odağı kapatma düğmesinde, plan modalında başlıktadır. Mobil tutamak aşağı sürükleyerek kapatır. Modal köşeleri `rounded.modal`, başlıkları `modal-title`, dairesel kapatma düğmesi ve geri düğmesi varsayılan küçük ikon basamağını kullanır; yemek modalında standart kontrol basamağıyla hizalanır. Yemek grupları ayraç yerine boşlukla ayrılır. Dokunmatik hedefler 44 px'tir.
 
 Güncelleme modalında kopyalama sonucu kalıcı `role="status"` alanıyla duyurulur. Başarı duyurusu görsel olarak gizlidir; hata açıklaması komutun altında görünür. Dar menüden açılan modal kapanınca odak menü düğmesine döner.
 
@@ -362,7 +363,7 @@ Panel başlığında ürün adı **Pofis** bulunur; özellik adı menülerde **P
 
 Başlıktaki sabitleme düğmesi yalnız ikondur; kalıcı çerçeve veya zemin kullanmaz. Üzerine gelindiğinde hafif vurgu zemini görünür, sabitlenmiş durumda ikon vurgu rengini alır. 32 px tıklama alanı, açıklama balonu, erişilebilir ad, basılı durum ve görünür klavye odağı korunur.
 
-Haftalık toplam, ilerleme ve **Pofis’i aç** eylemi bütün günlük görünümlerde kalır. Haftalık toplam hedefe ulaşmış ve kayıtlar eksiksizse **Haftalık hedef tamamlandı** görünür; eksik kayıtta öncelik kayıt uyarısındadır. İçerik tek yüzeyde akar; günlük ve haftalık bilgiler kart zemini, çevre çerçevesi veya yuvarlatılmış kapsayıcı kullanmaz. Başlık ve haftalık bölüm ince ayraçlarla ayrılır; renkler ve tipografi mevcut tema tokenlarını kullanır. Ana eylem içeriği izler, pencerenin altına itilmez. Pencere genişliği sabit, yüksekliği içeriğe bağlıdır; [boyut sınırları](docs/desktop.md#pofi-mini-ve-macos-menü-çubuğu) ana süreçte uygulanır.
+Haftalık toplam, ilerleme ve **Pofis’i aç** eylemi bütün günlük görünümlerde kalır. Haftalık toplam hedefe ulaşmış ve kayıtlar eksiksizse **Haftalık hedef tamamlandı** görünür; eksik kayıtta öncelik kayıt uyarısındadır. İçerik tek yüzeyde akar; günlük ve haftalık bilgiler kart zemini, çevre çerçevesi veya yuvarlatılmış kapsayıcı kullanmaz. Başlık ve haftalık bölüm boşlukla ayrılır; renkler ve tipografi mevcut tema tokenlarını kullanır. Ana eylem içeriği izler, pencerenin altına itilmez. Pencere genişliği sabit, yüksekliği içeriğe bağlıdır; [boyut sınırları](docs/desktop.md#pofi-mini-ve-macos-menü-çubuğu) ana süreçte uygulanır.
 
 ## Bileşen kabulü
 

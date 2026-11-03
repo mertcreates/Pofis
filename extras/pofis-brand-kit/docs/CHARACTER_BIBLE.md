@@ -18,7 +18,7 @@ Bu belge görsel kimliği, oranları ve sahne yerleşimini tanımlar. Pofi'nin s
 - Açık krem ve lavanta tonları, düşük kontrastlı doğal gölgeler
 - Sakin ve hafif gülümseyen yüz
 - Tam gövde, dengeli ve doğal iki ayaklı dik duruş
-- Statik illüstrasyon
+- Görsel kaynaklar statik illüstrasyondur; bekleme hareketi [DESIGN](../../../DESIGN.md#gezinme-ve-kontroller) sahibindedir.
 - Karakterin yüzü, gövdesi ve kartı bir bütün olarak kullanılır
 
 ## Karakter renkleri

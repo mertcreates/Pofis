@@ -27,7 +27,7 @@ test("yayın kataloğu doğrulanırken özgün metin ve ek alanlar korunur", asy
   const root = await mkdtemp(join(tmpdir(), "pofis-catalogue-fixture-"));
   try {
     for (const file of ["scripts/electron/prepare-site.cjs", "scripts/electron/unix-installer.cjs",
-      "electron/platform.cjs", "electron/ui-text.cjs", "src/domain/changelog.ts", "src/lib/ui-text.js"]) {
+      "electron/platform.cjs", "electron/release-manifest.cjs", "electron/ui-text.cjs", "src/domain/changelog.ts", "src/lib/ui-text.js"]) {
       const destination = join(root, file);
       await mkdir(dirname(destination), { recursive: true });
       await copyFile(join(__dirname, "../..", file), destination);
@@ -87,6 +87,26 @@ test("yalnız doğrulanmış paketin public manifestini ve installer'ını aktar
     await writeFile(archive, "eksik");
     await expect(prepareSite(options)).rejects.toThrow("boyutu");
     expect(await readFile(publishedPath, "utf8")).toBe(published);
+  } finally { await rm(root, { recursive: true, force: true }); }
+});
+
+test("site hazırlığı yayımlanamayacak sürüm ve boyutları paket okumadan reddeder", async () => {
+  const root = await mkdtemp(join(tmpdir(), "pofis-invalid-release-"));
+  try {
+    const siteDirectory = join(root, "site");
+    const releaseDirectory = join(root, "release");
+    await mkdir(siteDirectory);
+    await mkdir(releaseDirectory);
+    await writeFile(join(siteDirectory, "package.json"), JSON.stringify({ name: "pofis-landing",
+      repository: { url: "https://github.com/example/pofis-landing.git" } }));
+    const manifest = { schemaVersion: 1, platform: "win32", arch: "x64", version: "1.2.3", size: 42,
+      sha256: "a".repeat(64), url: "1.2.3/Pofis-1.2.3-win32-x64.zip" };
+    for (const invalid of [{ size: 2 ** 31 }, { version: "01.2.3" },
+      { version: "9007199254740992.0.0" }, { version: "1.2.3\n" }, { sha256: "A".repeat(64) }]) {
+      await writeFile(join(releaseDirectory, "latest.json"), JSON.stringify({ ...manifest, ...invalid }));
+      await expect(verifyRelease({ siteDirectory, releaseDirectory })).rejects.toThrow("Dağıtım manifesti geçersiz");
+      await expect(access(join(siteDirectory, "public"))).rejects.toHaveProperty("code", "ENOENT");
+    }
   } finally { await rm(root, { recursive: true, force: true }); }
 });
 

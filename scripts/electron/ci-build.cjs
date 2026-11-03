@@ -4,21 +4,20 @@ const { promisify } = require("node:util");
 const { readFile, appendFile, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
+const { versionParts, archiveName } = require("../../electron/release-manifest.cjs");
 const execute = promisify(execFile);
 const root = resolve(__dirname, "../..");
 
 function assertVersion(version, actual) {
-  if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version) || version !== actual) {
+  if (!versionParts(version) || version !== actual) {
     throw new Error("Seçilen sürüm package.json sürümüyle eşleşen x.y.z biçiminde olmalı.");
   }
 }
 
 const cancellation = new AbortController();
 const running = new Set();
-let inheritedProcessGroup = false;
 
 function handleCancellation() {
-  inheritedProcessGroup = process.env.POFIS_CI_PROCESS_GROUP === "1";
   const stop = async () => {
     cancellation.abort(new Error("CI çalışması iptal edildi."));
     await Promise.allSettled([...running]);
@@ -34,7 +33,7 @@ async function run(command, args, cwd = root, env = process.env, { timeoutMs = 6
   let timer, stopping, expired = false, pending, abort;
   // Nested CI commands inherit their owner's group. Otherwise each detached
   // Bun invocation would escape cancellation of the outer command.
-  const processGroup = process.platform !== "win32" && !inheritedProcessGroup;
+  const processGroup = process.platform !== "win32" && process.env.POFIS_CI_PROCESS_GROUP !== "1";
   const stop = () => stopping ||= process.platform === "win32"
     ? require("../../electron/server.cjs").stopProcessTree(pending.child)
     : require("./ci-processes.cjs").stopCIProcesses(pending.child, { processGroup });
@@ -171,9 +170,9 @@ async function build(version, siteDirectory, { execute = run, summary = process.
   const failures = checks.filter(result => result.status === "rejected").map(result => result.reason);
   if (failures.length) throw new AggregateError(failures, failures.map(error => error.message).join("\n"));
   if (crossLinux) await stage("Linux tar.gz bütünlüğü", () => execute("/usr/bin/tar", ["-tzf",
-    join(root, "dist/releases", target.releaseDirectory, version, `Pofis-${version}-${target.id}.tar.gz`)]));
+    join(root, "dist/releases", target.releaseDirectory, version, archiveName(target, version))]));
   else if (!acceptance) await stage("Intel ZIP bütünlüğü", () => execute("/usr/bin/unzip", ["-tq",
-    join(root, "dist/releases", target.releaseDirectory, version, `Pofis-${version}-${target.id}.zip`)]));
+    join(root, "dist/releases", target.releaseDirectory, version, archiveName(target, version))]));
   const { prepareSite } = require("./prepare-site.cjs");
   await stage("Dağıtım dosyalarını doğrula ve siteyi hazırla", () => prepareSite({ siteDirectory, releaseDirectory: join(root, "dist/releases", target.releaseDirectory),
     installerPath: join(__dirname, target.installer) }));

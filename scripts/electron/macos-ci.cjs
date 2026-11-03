@@ -1,6 +1,8 @@
 const { appendFile, readFile } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { run, handleCancellation } = require("./ci-build.cjs");
+const { platformTarget } = require("../../electron/platform.cjs");
+const { archiveName } = require("../../electron/release-manifest.cjs");
 const root = resolve(__dirname, "../..");
 
 async function finishMacBuild({ version, siteDirectory, intelDirectory, linuxDirectory,
@@ -45,8 +47,9 @@ async function finishMacBuild({ version, siteDirectory, intelDirectory, linuxDir
       };
       // Bun/tools stay native to the host; only Electron's download targets the foreign runtime.
       const preparation = command(process.execPath, ["install", "--frozen-lockfile"], directory, env);
+      const nativeTarget = platformTarget("darwin", "arm64");
       source ||= reuseNative ? command("/usr/bin/ditto", ["-x", "-k",
-        join(root, "dist/releases/macos/arm64", version, `Pofis-${version}-darwin-arm64.zip`),
+        join(root, "dist/releases", nativeTarget.releaseDirectory, version, archiveName(nativeTarget, version)),
         join(root, ".next/recovered-arm64")], root, process.env) : nativePackage;
       const prepared = await Promise.allSettled([preparation, source]);
       const failures = prepared.filter(result => result.status === "rejected").map(result => result.reason);

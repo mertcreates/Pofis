@@ -10,11 +10,11 @@ Görsellerin lisans kapsamı ve üçüncü taraf bildirimleri [görsel lisans bi
 | `public/pofi/pofi-full.webp` | [Pofi bekleme görselinin](../../src/components/pofi/idle.tsx) taban çizimi |
 | `public/pofi/pofi-blink-patch-v1.webp` | Göz kırpma sırasında göz alanını temizleyen 470×190, 54,6 KB kayıpsız WebP katmanı |
 | `public/brand/pofi-full-512.webp` | Marka kitinden korunmuş görsel referans |
-| `public/pofi/states/*.webp` | 1.0.0 Docker arşivindeki break, completed, error, idle, overworked, tired, working; durum paneli ve albüm |
+| `public/pofi/states/*.webp` | Durum paneli ve albümde kullanılan durum görselleri |
 | `public/pofi/pofi-meal.webp` | Yemek menüsündeki Pofi notu ve fotoğraf albümündeki “Yemeği beklerken” sahnesi |
-| `public/pofi/` | Arşivin kanonik Pofi varlıkları |
-| `public/icons/` | Arşiv ikonları; lisans aynı klasörde |
+| `public/pofi/` | Uygulamada kullanılan Pofi görselleri |
+| `public/icons/` | Uygulama ikonları; lisans aynı klasörde |
 
-Durum görsellerinin seçim koşulları [Pofi kuralında](../rules/pofi.md) yönetilir. Slogan **Mesaiye biraz Pofi**; durum görsellerinin kaynak arşivi `pofis-1.0.0-docker-source.zip`; SHA-256 değeri `555d19dfde9e26f6513cde3b9807f241dcccf51e5cf5d463b8f70a490ac907ca`.
+Durum görsellerinin seçim koşulları [Pofi kuralında](../rules/pofi.md) yönetilir.
 
 [İnceleme setleri](pofi-review-2026-10-15/README.md) etkin dosyalardan ayrı tutulur. Yeni görseller uygulamaya alınmadan önce karakter kuralları ve kullanıcı seçimiyle değerlendirilir.

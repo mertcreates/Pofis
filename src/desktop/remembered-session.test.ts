@@ -25,6 +25,8 @@ async function fixture() {
   let failure = "";
   let holdLogin: Promise<void> | null = null;
   let loginStarted = () => {};
+  let holdCheck: Promise<void> | null = null;
+  let checkStarted = () => {};
   const methods: string[] = [];
   const logins: { username: string; password: string }[] = [];
   const events: string[] = [];
@@ -41,6 +43,11 @@ async function fixture() {
     async fetch(path, options) {
       expect(path).toBe("/api/session");
       const method = options.method!; methods.push(method);
+      if (method === "GET") {
+        checkStarted();
+        if (holdCheck) await holdCheck;
+        if (failure === "get-rate-limit") return Response.json({ error: "wait", code: "SOURCE_ERROR", details: { retryAfterMs: 90_000 } }, { status: 502 });
+      }
       if (method === "POST") {
         logins.push(JSON.parse(options.body as string));
         loginStarted();
@@ -62,6 +69,7 @@ async function fixture() {
     fail: (value: string) => { failure = value; },
     hold: (value: Promise<void>, started: () => void) => { holdLogin = value; loginStarted = started; },
     releaseHold: () => { holdLogin = null; },
+    holdCheck: (value: Promise<void>, started: () => void) => { holdCheck = value; checkStarted = started; },
     async cleanup() { runtime.stop(); await rm(directory, { recursive: true, force: true }); },
   };
 }
@@ -85,6 +93,90 @@ test("yalnız seçilen bilgiler şifreli dosyaya yazılır, yeniden başlatmada 
     expect(await f.store.load()).toBeNull();
     expect(await f.runtime.recover()).toBe(false);
   } finally { await f.cleanup(); }
+});
+
+test("bekleyen oturum kontrolü sırasında kaynak hatası gelirse giriş yenilenir", async () => {
+  const f = await fixture();
+  let release!: () => void, started!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const checking = new Promise<void>(resolve => { started = resolve; });
+  try {
+    await f.runtime.connect(credentials, true);
+    f.holdCheck(gate, started);
+    const normal = f.runtime.recover();
+    await checking;
+    const forced = f.runtime.recover(true);
+    expect(forced).toBe(normal);
+    release();
+    expect(await forced).toBe(true);
+    expect(f.methods).toEqual(["POST", "GET", "POST"]);
+    expect(f.events).toEqual(["recovered"]);
+  } finally { release(); await f.cleanup(); }
+});
+
+test("kontrol hatasının bekleme süresi korunurken zorunlu giriş sonraki denemeye taşınır", async () => {
+  const f = await fixture();
+  let release!: () => void, started!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const checking = new Promise<void>(resolve => { started = resolve; });
+  try {
+    await f.runtime.connect(credentials, true);
+    f.holdCheck(gate, started); f.fail("get-rate-limit");
+    const normal = f.runtime.recover();
+    await checking;
+    const forced = f.runtime.recover(true);
+    release();
+    await expect(forced).rejects.toMatchObject({ code: "SOURCE_ERROR" });
+    await Bun.sleep(0);
+    expect(f.timers.map(timer => timer.delay)).toEqual([90_000]);
+    f.fail("");
+    f.timers.shift()!.callback();
+    expect(await f.runtime.recover(true)).toBe(true);
+    expect(f.methods).toEqual(["POST", "GET", "POST"]);
+    expect(f.events).toEqual(["recovered"]);
+  } finally { release(); await f.cleanup(); }
+});
+
+test("normal yeniden deneme beklerken kaynak hatası gelirse süre korunur ve giriş yenilenir", async () => {
+  const f = await fixture();
+  try {
+    await f.runtime.connect(credentials, true);
+    f.setConnected(false); f.fail("network");
+    await expect(f.runtime.recover()).rejects.toMatchObject({ code: "CONNECTION_FAILED" });
+    await Bun.sleep(0);
+    expect(f.timers.map(timer => timer.delay)).toEqual([30_000]);
+    f.setConnected(true); f.fail("");
+    expect(await f.runtime.recover(true)).toBe(false);
+    expect(f.timers.map(timer => timer.delay)).toEqual([30_000]);
+    f.timers.shift()!.callback();
+    expect(await f.runtime.recover(true)).toBe(true);
+    expect(f.methods).toEqual(["POST", "GET", "POST", "POST"]);
+    expect(f.events).toEqual(["recovered"]);
+  } finally { await f.cleanup(); }
+});
+
+test.each(["disconnect", "connect", "stop"] as const)("bekleyen bağlı oturum kontrolü %s ile geçersizleşir", async action => {
+  const f = await fixture();
+  let release!: () => void, started!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  const checking = new Promise<void>(resolve => { started = resolve; });
+  try {
+    await f.runtime.connect(credentials, true);
+    f.holdCheck(gate, started);
+    const recovery = f.runtime.recover();
+    await checking;
+    expect(f.runtime.recover(true)).toBe(recovery);
+    const next = action === "disconnect" ? f.runtime.disconnect()
+      : action === "connect" ? f.runtime.connect({ username: "other-user", password: "other-password" }, true)
+      : (f.runtime.stop(), null);
+    release();
+    expect(await recovery).toBe(false);
+    if (next) await next;
+    expect(f.methods).toEqual(action === "disconnect" ? ["POST", "GET", "DELETE"]
+      : action === "connect" ? ["POST", "GET", "POST"] : ["POST", "GET"]);
+    expect(f.events).toEqual([]);
+    expect(f.timers).toHaveLength(0);
+  } finally { release(); await f.cleanup(); }
 });
 
 test("çıkış kesintiden kalan şifreli giriş dosyalarını siler, başka dosyaları korur", async () => {

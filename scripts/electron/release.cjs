@@ -5,12 +5,13 @@ const { createHash, randomUUID } = require("node:crypto");
 const { mkdir, readFile, writeFile, copyFile, rename, stat, access, rm } = require("node:fs/promises");
 const { join, resolve } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
+const { versionParts, validReleaseManifest, archiveName } = require("../../electron/release-manifest.cjs");
 const { unixInstaller } = require("./unix-installer.cjs");
 const execute = promisify(execFile);
 
 function releaseManifest(target, version, size, sha256) {
   return { schemaVersion: 1, platform: target.platform, arch: target.arch, version, size, sha256,
-    url: `${version}/Pofis-${version}-${target.id}.${target.archiveExtension}` };
+    url: `${version}/${archiveName(target, version)}` };
 }
 
 async function release(packageDirectory, arch = process.arch, platform = process.platform) {
@@ -18,7 +19,7 @@ async function release(packageDirectory, arch = process.arch, platform = process
   const root = resolve(__dirname, "../..");
   const directory = resolve(packageDirectory);
   const app = JSON.parse(await readFile(join(directory, target.resources, "app", "package.json"), "utf8"));
-  if (!/^\d+\.\d+\.\d+$/.test(app.version)) throw new Error("Dağıtım sürümü x.y.z biçiminde olmalı.");
+  if (!versionParts(app.version)) throw new Error("Dağıtım sürümü x.y.z biçiminde olmalı.");
   const metadataPath = join(directory, target.metadataFile);
   const metadata = JSON.parse(await readFile(metadataPath, "utf8"));
   if (metadata.version !== app.version || metadata.platform !== target.platform || metadata.arch !== target.arch) {
@@ -29,7 +30,7 @@ async function release(packageDirectory, arch = process.arch, platform = process
   const output = join(root, "dist", "releases", target.releaseDirectory);
   const versionDirectory = join(output, app.version);
   await mkdir(versionDirectory, { recursive: true });
-  const name = `Pofis-${app.version}-${target.id}.${target.archiveExtension}`;
+  const name = archiveName(target, app.version);
   const archive = join(versionDirectory, name);
   if (await stat(archive).then(() => true, error => { if (error.code === "ENOENT") return false; throw error; })) {
     throw new Error("Bu sürümün dağıtımı zaten var. Yeni sürüm numarası kullan.");
@@ -51,6 +52,7 @@ async function release(packageDirectory, arch = process.arch, platform = process
     const hash = createHash("sha256");
     for await (const chunk of createReadStream(temporary)) hash.update(chunk);
     const manifest = releaseManifest(target, app.version, (await stat(temporary)).size, hash.digest("hex"));
+    if (!validReleaseManifest(manifest, target)) throw new Error("Dağıtım manifesti geçersiz.");
     await rename(temporary, archive);
     const json = JSON.stringify(manifest, null, 2) + "\n";
     await writeFile(join(versionDirectory, "manifest.json"), json);

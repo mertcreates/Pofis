@@ -39,6 +39,22 @@ test("429 sağlayıcı bekleme süresi korunur; izin reddi yeniden denenmez", as
   }
 });
 
+test.each([
+  { seconds: 17, retryAfterMs: 17_000 },
+  { seconds: 0, retryAfterMs: 1_000 },
+  { seconds: 1.0001, retryAfterMs: 1_001 },
+  { seconds: 1e306, retryAfterMs: null },
+  { seconds: 10_000_000_000_000, retryAfterMs: null },
+  { seconds: -1, retryAfterMs: null },
+  { seconds: "17", retryAfterMs: null },
+  { seconds: { valueOf: 2, toString: 2 }, retryAfterMs: null },
+  { seconds: null, retryAfterMs: null },
+])("429 bekleme değeri $seconds için güvenli yeniden deneme $retryAfterMs", async ({ seconds, retryAfterMs }) => {
+  const telegram = createTelegram(async () => Response.json({ ok: false, error_code: 429, parameters: { retry_after: seconds } }, { status: 429 }));
+  await expect(telegram.send({ ...input, label: "bot" }, "title", "body"))
+    .rejects.toMatchObject({ retryAfterMs });
+});
+
 test("sohbet keşfi offset göndermeden kişisel sohbetleri tekilleştirir", async () => {
   const telegram = createTelegram((async (_url, init) => {
     expect(JSON.parse(init!.body as string)).not.toHaveProperty("offset");

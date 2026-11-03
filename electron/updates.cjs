@@ -1,12 +1,5 @@
 const { ui } = require("./ui-text.cjs");
-function versionParts(version) {
-  if (typeof version !== "string" || !/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) {
-    throw new Error(ui.desktop.invalidVersion);
-  }
-  const parts = version.split(".").map(Number);
-  if (!parts.every(Number.isSafeInteger)) throw new Error(ui.desktop.invalidVersion);
-  return parts;
-}
+const { versionParts, validReleaseManifest, archiveName } = require("./release-manifest.cjs");
 
 async function checkForUpdates({ target, currentVersion, isActive,
   fetchManifest = globalThis.fetch, timeoutMs = 5000 }) {
@@ -19,10 +12,9 @@ async function checkForUpdates({ target, currentVersion, isActive,
   const manifest = await response.json();
   const current = versionParts(currentVersion);
   const next = versionParts(manifest?.version);
-  if (manifest.schemaVersion !== 1 || manifest.platform !== target.platform || manifest.arch !== target.arch ||
-      !Number.isSafeInteger(manifest.size) || manifest.size <= 0 || manifest.size >= 2 ** 31 ||
-      typeof manifest.sha256 !== "string" || !/^[a-f0-9]{64}$/.test(manifest.sha256) ||
-      manifest.url !== `https://github.com/mertcreates/pofis-landing/releases/download/v${manifest.version}/Pofis-${manifest.version}-${target.id}.${target.archiveExtension}`) {
+  if (!current || !next) throw new Error(ui.desktop.invalidVersion);
+  if (!validReleaseManifest(manifest, target) ||
+      manifest.url !== `https://github.com/mertcreates/pofis-landing/releases/download/v${manifest.version}/${archiveName(target, manifest.version)}`) {
     throw new Error(ui.desktop.invalidVersionInfo);
   }
   const difference = next.findIndex((part, index) => part !== current[index]);

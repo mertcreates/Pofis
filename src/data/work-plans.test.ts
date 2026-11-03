@@ -18,7 +18,7 @@ test("senaryo planı revizyon başına bir kez kurulur; ikinci pencere kullanıc
 import { subscribeWorkPlans, workPlanStorage } from "./work-plans";
 import type { WorkPlans } from "@/domain/rules/work-plan";
 import { emptyWorkPlans, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveWeekTimes, changeWeekTime, changeWeekPlan, changeDefaultPlan, readDayPlan, readWeekPlan, resolveWeekPlan } from "@/domain/rules/work-plan";
-import { loadPlans, savePlans, PLAN_STORAGE_KEY } from "@/lib/plan-storage.js";
+import { loadPlans, savePlans, readStoredPlans, PLAN_STORAGE_KEY } from "@/lib/plan-storage.js";
 
 function storage(initial: Record<string, string> = {}) {
   const values = new Map(Object.entries(initial));
@@ -127,6 +127,47 @@ test("sıfır süreli açık günler doğrulanır; izinle çelişki reddedilir, 
   for (const days of [[], [4]]) {
     const store = storage({ [PLAN_STORAGE_KEY]: JSON.stringify({ ...emptyWorkPlans(), weekZeroOpenDays: { [week]: days } }) });
     expect(loadPlans(store)).toEqual(emptyWorkPlans());
+  }
+});
+
+test("v1 planı haftalık izin, açık gün ve kilitleri birlikte doğrulayıp normalize eder", () => {
+  const week = "2026-10-12", lockedWeek = "2026-10-19", ordinaryWeek = "2026-10-26";
+  const defaultPlan = readDayPlan([480, 480, 480, 480, 480, 0, 0])!;
+  const specialPlan = readDayPlan([480, 480, 0, 480, 0, 0, 0])!;
+  const input = {
+    defaultPlan,
+    weekOverrides: { [week]: specialPlan, [lockedWeek]: defaultPlan, [ordinaryWeek]: defaultPlan },
+    weekTargets: { [week]: 144000 },
+    weekLeaves: { [week]: [2] },
+    weekZeroOpenDays: { [week]: [4, 3] },
+    weekLockedDays: { [week]: [1], [lockedWeek]: [4] },
+    weekTimes: { [week]: { 0: { anchor: "entry", minute: 540 } } },
+    unused: "ignored",
+  };
+  expect(readStoredPlans(JSON.stringify(input))).toEqual({
+    defaultPlan,
+    weekOverrides: { [week]: specialPlan, [lockedWeek]: defaultPlan },
+    weekTargets: { [week]: 144000 },
+    weekLeaves: { [week]: [2] },
+    weekZeroOpenDays: { [week]: [4] },
+    weekLockedDays: { [week]: [1], [lockedWeek]: [4] },
+    weekTimes: { [week]: { 0: { anchor: "entry", minute: 540 } } },
+  });
+});
+
+test("çelişen v1 günleri ve plansız kilit reddedilir; özgün kayıt değiştirilmez", () => {
+  const week = "2026-10-12";
+  const override = { [week]: [480, 480, 480, 480, 0, 0, 0] };
+  const cases = [
+    { input: { weekOverrides: override, weekLeaves: { [week]: [4] }, weekZeroOpenDays: { [week]: [4] } }, error: "açık gün" },
+    { input: { weekOverrides: override, weekLeaves: { [week]: [4] }, weekLockedDays: { [week]: [4] } }, error: "kilitli gün" },
+    { input: { weekLockedDays: { [week]: [4] } }, error: "kilitli gün" },
+  ];
+  for (const { input, error } of cases) {
+    const raw = JSON.stringify({ ...emptyWorkPlans(), ...input });
+    const store = storage({ [PLAN_STORAGE_KEY]: raw });
+    expect(() => loadPlans(store)).toThrow(error);
+    expect(store.getItem(PLAN_STORAGE_KEY)).toBe(raw);
   }
 });
 

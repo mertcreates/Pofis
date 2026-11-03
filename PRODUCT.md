@@ -27,7 +27,7 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 ## Capabilities and Constraints
 
 - Kişisel turnike kayıtlarından [kayıtlı süre](docs/rules/recorded-time.md), [anlık tahmin](docs/rules/duration.md) ve [kayıt bütünlüğü](docs/rules/record-status.md) gösterilir.
-- Kullanıcı [mesai planında](docs/rules/work-plan.md) varsayılan şablonu, haftalık süreleri ve izinli günleri düzenler. Plan tarayıcıda saklanır; gerçekleşen süre PDKS'den gelir.
+- Kullanıcı [mesai planında](docs/rules/work-plan.md) varsayılan şablonu, haftalık süreleri ve izinli günleri düzenler. Plan web'de tarayıcı profilinde, masaüstünde hesaba bağlı dosyada saklanır; gerçekleşen süre PDKS'den gelir.
 - Her kullanıcı kendi PDKS hesabıyla giriş yapar ve yalnız kendi raporunu görür. [Oturum politikası](docs/rules/session-policy.md) ve [kaynak politikası](docs/rules/source-policy.md) kimlik, kalıcılık ve erişim sınırlarını yönetir.
 - [Mesaim demosu](docs/demo.md), ortak ekran ve hesapları örnek kayıtlarla giriş gerektirmeden sunar.
 - Oturum açmış kullanıcı [yemek menüsünü](docs/rules/meal-menu.md) ve seçilen güne ait Pofi yorumunu görüntüler.

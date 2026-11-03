@@ -167,18 +167,8 @@ export function createSessionManager({
   }
 
   async function maintain() {
-    await expireSessions();
-    if (clock() >= nextDiskCleanup) {
-      nextDiskCleanup = clock() + SESSION_POLICY.diskCleanupMs;
-      try {
-        await storage.pruneExpired?.(clock());
-      } catch (error) {
-        console.error(
-          ui.serverDiagnostics.pdksSessionDiskCleanupFailed,
-          error.code || error.name,
-        );
-      }
-    }
+    // Expiration removes and aborts sessions before its disk cleanup settles.
+    const expiration = expireSessions();
     for (const [id, session] of sessions) {
       const state = session.keepAlive;
       if (!activeLease(session)) {
@@ -227,6 +217,18 @@ export function createSessionManager({
         .finally(() => {
           state.pending = false;
         });
+    }
+    await expiration;
+    if (clock() >= nextDiskCleanup) {
+      nextDiskCleanup = clock() + SESSION_POLICY.diskCleanupMs;
+      try {
+        await storage.pruneExpired?.(clock());
+      } catch (error) {
+        console.error(
+          ui.serverDiagnostics.pdksSessionDiskCleanupFailed,
+          error.code || error.name,
+        );
+      }
     }
     stopIdleTimer();
   }

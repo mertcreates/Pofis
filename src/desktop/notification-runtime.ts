@@ -103,6 +103,24 @@ export function createNotificationRuntime(deps: Dependencies) {
     mutations = task.catch(() => {});
     return task;
   }
+  function persistDeliveryResult(current: ReturnType<typeof requireAccount>, key: string, result: NotificationAccount["deliveries"][string]) {
+    const task = mutations.then(async () => {
+      const active = current.generation === generation && account !== null;
+      const sameAccount = session?.accountId === current.session.accountId && account !== null;
+      const latest = sameAccount ? account! : await deps.store.load(current.session.accountId);
+      const samePreferences = (latest.preferencesRevision ?? 0) === current.preferencesRevision;
+      if (!samePreferences && !active) return;
+      const next = samePreferences ? { ...latest, deliveries: { ...latest.deliveries, [key]: result } } : latest;
+      await deps.store.save(current.session.accountId, next);
+      if (samePreferences && session?.accountId === current.session.accountId && account &&
+          (account.preferencesRevision ?? 0) === current.preferencesRevision) {
+        account = { ...account, deliveries: { ...account.deliveries, [key]: result } };
+      }
+      if (active && current.generation === generation) recordError = "";
+    });
+    mutations = task.catch(() => {});
+    return task;
+  }
   async function sync(rawPlans: string, expectedSession: string | null = null) {
     if (typeof rawPlans !== "string" || rawPlans.length > 4 * 1024 * 1024 ||
         (expectedSession !== null && !/^[a-f0-9]{64}$/.test(expectedSession)))
@@ -251,24 +269,14 @@ export function createNotificationRuntime(deps: Dependencies) {
             delete deliveryErrors[channel];
         } catch (error) {
           const failure = error instanceof DeliveryError ? error : new DeliveryError(ui.notificationErrors.deliveryFailed, null, true);
-          const retryAt = failure.retryAfterMs === null ? Number.MAX_SAFE_INTEGER : now() + failure.retryAfterMs;
+          const retryAt = failure.retryAfterMs !== null && Number.isSafeInteger(failure.retryAfterMs) && failure.retryAfterMs >= 0
+            ? Math.min(Number.MAX_SAFE_INTEGER, now() + failure.retryAfterMs) : Number.MAX_SAFE_INTEGER;
           result = { state: failure.uncertain ? "unknown" : "failed", attempts, retryAt, error: failure.message };
           if (current.generation === generation && (account?.preferencesRevision ?? 0) === current.preferencesRevision)
             deliveryErrors[channel] = failure.message;
         }
-        // A completed send must not restore records reset by a later preference change.
-        if (current.generation === generation && account) {
-          await persist(value => (value.preferencesRevision ?? 0) === current.preferencesRevision
-            ? { ...value, deliveries: { ...value.deliveries, [key]: result } } : value, current);
-        } else {
-          const task = mutations.then(async () => {
-            const latest = await deps.store.load(current.session.accountId);
-            if ((latest.preferencesRevision ?? 0) !== current.preferencesRevision) return;
-            await deps.store.save(current.session.accountId, { ...latest, deliveries: { ...latest.deliveries, [key]: result } });
-          });
-          mutations = task.catch(() => {});
-          await task;
-        }
+        // Resolve account ownership and preference revision when the queued write runs.
+        await persistDeliveryResult(current, key, result);
         publish();
       }
     } catch (error) {

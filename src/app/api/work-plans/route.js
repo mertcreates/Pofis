@@ -1,6 +1,7 @@
 import { json, readBody, failure } from "@/server/http.js";
 import { requireSession, assertSessionActive, commitWhileSessionActive } from "@/server/session.js";
-import { createWorkPlanStorage, workPlanSessionId, validPlanHash } from "@/server/work-plan-storage.js";
+import { createWorkPlanStorage } from "@/server/work-plan-storage.js";
+import { workPlanSessionId, validPlanHash } from "@/server/work-plan-identity.js";
 import { isAccountKey } from "@/domain/rules/account-identity";
 import { PdksError } from "@/server/pdks.js";
 import { ui } from "@/lib/ui-text.js";

@@ -6,7 +6,7 @@
 
 [account-identity.ts](../../src/domain/rules/account-identity.ts) giriş ve hesap adı dönüşümlerini ve hesap anahtarı biçimini tanımlar. Giriş adı ilk `@` öncesindeki bölümün çevresindeki boşluklar temizlenerek elde edilir ve harf biçimi korunarak PDKS'ye gönderilir. Boş giriş adı reddedilir.
 
-Hesap adı aynı giriş adındaki yalnız ASCII `A–Z` harfleri küçültülerek oluşturulur. Örneğin `MERT.ERCAN@trt.net.tr` ve `mert.ercan` aynı hesap adını verir. ASCII dışındaki karakterler korunur.
+Hesap adı aynı giriş adındaki yalnız ASCII `A–Z` harfleri küçültülerek oluşturulur. Örneğin `KULLANICI@trt.net.tr` ve `kullanici` aynı hesap adını verir. ASCII dışındaki karakterler korunur.
 
 [PDKS adaptörü](../../src/server/pdks.js) başarılı doğrulamada `SHA-256(JSON.stringify(["pofis:pofi-account:v1", kaynakOrigin, hesapAdı]))` hesaplar ve sonucu sunucu oturumunda `self.accountKey` olarak saklar. Anahtar 64 küçük onaltılık karakterden oluşur. Aynı kaynak ve hesap adı, farklı oturum ve cihazlarda aynı anahtarı üretir. Rapor erişimini PDKS oturumu belirler.
 

@@ -131,7 +131,6 @@
   margin: 4px 0 0;
   font-size: 1.625rem;
   font-weight: 600;
-  letter-spacing: -0.025em;
 }
 .pofi-room-welcome p {
   margin: 0;
@@ -364,7 +363,6 @@
 .pofi-room-identity dl > div:first-child dd {
   font-size: 1.5rem;
   font-weight: 600;
-  letter-spacing: -0.02em;
 }
 .pofi-room-fiction {
   max-width: 840px;

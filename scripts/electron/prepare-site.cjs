@@ -3,6 +3,7 @@ const { createReadStream } = require("node:fs");
 const { readFile, writeFile, mkdir, stat } = require("node:fs/promises");
 const { resolve, join } = require("node:path");
 const { platformTarget } = require("../../electron/platform.cjs");
+const { validReleaseManifest, archiveName } = require("../../electron/release-manifest.cjs");
 const { parseChangelog } = require("../../src/domain/changelog.ts");
 const { unixInstaller } = require("./unix-installer.cjs");
 
@@ -44,13 +45,13 @@ async function verifyRelease({ siteDirectory, releaseDirectory }) {
   const repository = packageJson.repository?.url?.match(/^https:\/\/github\.com\/([\w-]+\/[\w.-]+)\.git$/)?.[1];
   if (!repository) throw new Error("Tanıtım sitesinin package.json dosyasında GitHub repository.url tanımlanmalı.");
   const manifest = JSON.parse(await readFile(join(releaseDirectory, "latest.json"), "utf8"));
+  if (!manifest || typeof manifest !== "object" || !manifest.platform || !manifest.arch)
+    throw new Error("Dağıtım manifesti geçersiz.");
   const target = platformTarget(manifest.platform, manifest.arch);
-  if (manifest.schemaVersion !== 1 || manifest.platform !== target.platform || manifest.arch !== target.arch ||
-      !/^\d+\.\d+\.\d+$/.test(manifest.version) ||
-      !Number.isSafeInteger(manifest.size) || manifest.size <= 0 || !/^[a-f0-9]{64}$/.test(manifest.sha256)) {
+  if (!validReleaseManifest(manifest, target)) {
     throw new Error("Dağıtım manifesti geçersiz.");
   }
-  const name = `Pofis-${manifest.version}-${target.id}.${target.archiveExtension}`;
+  const name = archiveName(target, manifest.version);
   if (manifest.url !== `${manifest.version}/${name}`) throw new Error("Yerel paket adresi manifestle eşleşmiyor.");
   const archive = resolve(releaseDirectory, manifest.version, name);
   if ((await stat(archive)).size !== manifest.size) throw new Error("Paket boyutu manifestle eşleşmiyor.");

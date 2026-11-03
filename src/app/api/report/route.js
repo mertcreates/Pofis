@@ -11,7 +11,7 @@ import { dateKey } from "@/domain/rules/calendar";
 import { pofiNotesForWeek } from "@/server/pofi-notes.js";
 import { analyticsUserIdForAccount } from "@/server/analytics-identity";
 import { notificationSession } from "@/server/notification-identity";
-import { workPlanSessionId } from "@/server/work-plan-storage.js";
+import { workPlanSessionId } from "@/server/work-plan-identity.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

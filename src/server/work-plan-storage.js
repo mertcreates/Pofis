@@ -6,12 +6,7 @@ import { isAccountKey } from "../domain/rules/account-identity";
 import { readStoredPlans } from "../lib/plan-storage.js";
 import { ui } from "../lib/ui-text.js";
 import { PdksError } from "./pdks.js";
-
-const HASH_PATTERN = /^[a-f0-9]{64}$/;
-
-export function validPlanHash(value) {
-  return typeof value === "string" && HASH_PATTERN.test(value);
-}
+import { validPlanHash } from "./work-plan-identity.js";
 
 // Object ordering must not turn identical plans into conflicting revisions.
 function sorted(value) {
@@ -27,13 +22,6 @@ function snapshot(raw) {
     revision: createHash("sha256").update(canonical).digest("hex"),
     canonical,
   };
-}
-
-export function workPlanSessionId(session) {
-  if (!validPlanHash(session?.id)) throw new Error(ui.apiErrors.requestFailed);
-  return createHash("sha256")
-    .update(JSON.stringify(["pofis:work-plan-session:v1", session.id]))
-    .digest("hex");
 }
 
 export function createWorkPlanStorage(directory, { files = { chmod, mkdir, readFile, rename, rm, writeFile } } = {}) {
