@@ -48,14 +48,14 @@ const DayRow = memo(function DayRow({
   }), [day.date, today]);
   const id = `day-passages-${day.date}`;
   const label = formatDate(day.date);
-  if (day.date > today) {
+  if (onLeave || day.date > today) {
     const content = <div className="report-future-day">
       <span className="report-accordion-date">{label} <small>{formatDate(day.date, { weekday: "long" })}</small></span>
       <span className="report-status">{onLeave ? ui.planner.onLeave : ui.reportFutureDay}</span>
     </div>;
     return compact
-      ? <div className="report-accordion-day future-row">{content}</div>
-      : <tr className="future-row"><th colSpan={6} className="report-future-cell">{content}</th></tr>;
+      ? <div ref={node => { row.current = node; }} tabIndex={-1} className="report-accordion-day future-row">{content}</div>
+      : <tr ref={node => { row.current = node; }} tabIndex={-1} className="future-row"><th colSpan={6} className="report-future-cell">{content}</th></tr>;
   }
   const hasDetails = day.records.length > 0 || day.state === "uncertain" || day.recordIssues.length > 0;
   const detailLabel = day.records.length > 0 ? ui.recordsForDate(label) : ui.recordStatus;

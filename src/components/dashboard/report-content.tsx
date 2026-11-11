@@ -4,6 +4,7 @@ import { dateKey } from "@/domain/rules/calendar";
 import type { prepareReport } from "@/domain/report";
 import { ui } from "@/lib/ui-text.js";
 import { ReportTable, type ReportTableHandle } from "../attendance/report-table";
+import { WeekChart } from "../attendance/week-chart";
 import { DashboardMetrics } from "./metrics";
 import { PofiPanel } from "./pofi-panel";
 
@@ -32,11 +33,10 @@ export function ReportContent({ prepared, initialNow, today, isCurrent, liveCloc
   }
   return <section className="dashboard" aria-label={ui.personRecords(owner)}>
     <DashboardMetrics targetSeconds={targetSeconds} days={days} today={today} isCurrent={isCurrent} week={week} leaveDays={leaveDays} onSelectDay={selectDay} onOpenRecords={() => report.current?.openDay(today)} />
-    {isCurrent && todayReport && <div className="middle-grid">
-      <ReportTable ref={report} days={days} today={today} compact leaveDays={leaveDays} />
-      <PofiPanel key={today} day={todayReport} now={now} onOpen={onOpenRoom} />
+    {isCurrent && <div className="middle-grid">
+      <WeekChart days={days} today={today} start={week} current />
+      {todayReport && <PofiPanel key={today} day={todayReport} now={now} onOpen={onOpenRoom} />}
     </div>}
-    {!isCurrent && <ReportTable ref={report} days={days} today={today} compact leaveDays={leaveDays} />}
-    {isCurrent && !todayReport && <ReportTable ref={report} days={days} today={today} leaveDays={leaveDays} />}
+    <ReportTable ref={report} days={days} today={today} compact={!isCurrent || !!todayReport} leaveDays={leaveDays} />
   </section>;
 }

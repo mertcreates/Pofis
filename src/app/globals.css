@@ -344,8 +344,10 @@ details p {
 }
 .records {
   overflow: hidden;
+  border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--paper);
+  box-shadow: var(--card-shadow);
 }
 .records-title {
   padding: var(--panel-padding);

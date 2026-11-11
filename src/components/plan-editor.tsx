@@ -5,8 +5,8 @@ import { ui } from "@/lib/ui-text.js";
 import {
   completeWeekPlan, editRequiredMinutes, isOpenPlanDay, referenceWeekTarget, resolveWeekPlan, samePlan, setDayMinutes, weeklyTarget, DEFAULT_WORK_PLAN, PLAN_LIMITS, WORK_PLAN_POLICY, WORKING_DAY_COUNT, type WorkPlan, type PlanDay, type PlanTime, type WeekTimes,
 } from "@/domain/rules/work-plan";
-import { weekLabel, durationText } from "@/domain/time";
-import { parsePlanDuration, planDisplayMinutes, stepPlanDuration } from "@/domain/rules/plan-duration";
+import { weekLabel, durationText, formatClock } from "@/domain/time";
+import { parsePlanClock, parsePlanDuration, planDisplayMinutes, stepPlanDuration } from "@/domain/rules/plan-duration";
 import { weekday, weekStart } from "@/domain/rules/calendar";
 import Modal from "./modal.js";
 import { PlanTimePlanner } from "./plan-time-planner";
@@ -42,7 +42,7 @@ export function PlanEditor({
 }: {
   plan: WorkPlan;
   defaultPlan: WorkPlan;
-  days: readonly PlanDay[];
+  days: readonly (PlanDay & { firstEntry?: number | null })[];
   special: boolean;
   ready: boolean;
   week: string;
@@ -77,6 +77,8 @@ export function PlanEditor({
   const plannerOpen = plannerDay === plannerKey;
   const weekDays = days.filter(day => weekStart(day.date) === week);
   const resolved = resolveWeekPlan(weekDays, plan, today, weekDays.length !== 7, targetSeconds, zeroOpenDays, WORK_PLAN_POLICY.autoReduceSurplus, userLockedDays);
+  const firstEntry = weekDays.find(day => day.date === today && weekday(day.date) === selectedDay)?.firstEntry;
+  const recordedEntry = firstEntry == null ? null : parsePlanClock(formatClock(firstEntry, false));
   const preservedSurplus = !WORK_PLAN_POLICY.autoReduceSurplus && resolved.unallocatedSeconds < 0;
   const activePlan = scope === "default" ? defaultPlan : plan;
   const locked = scope === "week" && resolved.locked[selectedDay];
@@ -260,9 +262,10 @@ export function PlanEditor({
             {!closed && canApplyToOtherDays && <button type="button" className="work-plan-apply"
               aria-label={copy.applyDurationToOpen(hours(value))} onClick={applyToOpenDays}>{copy.applyToOpen}</button>}
           </div>
-          {scope === "week" && !closed && onSetTime && plannerOpen && <PlanTimePlanner key={plannerKey} id={`${id}-clock`} time={times[selectedDay]}
-            seconds={selectedSeconds} day={selectedDay} disabled={userLocked}
-            onCommit={time => onSetTime(selectedDay, time)} />}
+          {scope === "week" && !closed && onSetTime && plannerOpen && <PlanTimePlanner key={`${plannerKey}-${recordedEntry ?? "planned"}`} id={`${id}-clock`}
+            time={recordedEntry === null ? times[selectedDay] : { anchor: "entry", minute: recordedEntry }}
+            seconds={selectedSeconds} day={selectedDay} disabled={userLocked || recordedEntry !== null} recordedEntry={recordedEntry !== null}
+            onCommit={time => recordedEntry === null && onSetTime(selectedDay, time)} />}
         </fieldset>
         )}
         {scope === "default" && !samePlan(defaultPlan, DEFAULT_WORK_PLAN) && (

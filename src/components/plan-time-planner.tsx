@@ -9,11 +9,12 @@ import { PlanTimeInput } from "./plan-time-input";
 
 const copy = ui.planner;
 
-export function PlanTimePlanner({ time, seconds, day, disabled, id, onCommit }: {
+export function PlanTimePlanner({ time, seconds, day, disabled, recordedEntry = false, id, onCommit }: {
   time: PlanTime | undefined;
   seconds: number;
   day: number;
   disabled: boolean;
+  recordedEntry?: boolean;
   id: string;
   onCommit: (time: PlanTime | null) => boolean | Promise<boolean>;
 }) {
@@ -50,7 +51,7 @@ export function PlanTimePlanner({ time, seconds, day, disabled, id, onCommit }: 
   }, [focusHour]);
 
   async function saveTime() {
-    if (disabled) return;
+    if (disabled || recordedEntry) return;
     if (draft.trim() && minute === null) { setInvalid(true); return; }
     const next = minute === null ? null : { anchor: mode, minute };
     const changed = (next?.minute ?? null) !== (time?.minute ?? null) || next?.anchor !== time?.anchor;
@@ -76,23 +77,23 @@ export function PlanTimePlanner({ time, seconds, day, disabled, id, onCommit }: 
         <div className="work-plan-clock-controls">
           <div className="work-plan-clock-prompt">
             <div className="work-plan-time-field">
-              <PlanTimeInput inputRef={inputRef} value={draft} disabled={disabled}
+              <PlanTimeInput inputRef={inputRef} value={draft} disabled={disabled || recordedEntry}
                 label={`${ui.weekdays[day].long} ${ui[mode].toLocaleLowerCase("tr-TR")} saati`} invalid={invalid} errorId={`${id}-error`}
                 onChange={next => { setDraft(next); setInvalid(false); }} onConfirm={saveTime} />
-              {clocks && <span className="work-plan-time-suffix">{copy.clockAt(clocks[mode].value).slice(5)}</span>}
-              <button type="button" className="work-plan-time-clear" disabled={disabled || !draft} aria-label={copy.clearTime}
+              {!recordedEntry && clocks && <span className="work-plan-time-suffix">{copy.clockAt(clocks[mode].value).slice(5)}</span>}
+              {!recordedEntry && <button type="button" className="work-plan-time-clear" disabled={disabled || !draft} aria-label={copy.clearTime}
                 onClick={async () => {
                   if (await onCommit(null)) { setDraft(""); setInvalid(false); setFocusHour(true); }
-                }}><X size={16} aria-hidden="true" /></button>
+                }}><X size={16} aria-hidden="true" /></button>}
             </div>
           </div>
-          <div className="work-plan-time-choice" role="group" aria-label={copy.timeChoice}>
+          {recordedEntry ? <span className="small-label">{ui.firstEntry}</span> : <div className="work-plan-time-choice" role="group" aria-label={copy.timeChoice}>
             <button type="button" disabled={disabled} aria-pressed={mode === "entry"}
               onClick={() => setMode("entry")}>{copy.ifEntry}</button>
             <span aria-hidden="true">/</span>
             <button type="button" disabled={disabled} aria-pressed={mode === "exit"}
               onClick={() => setMode("exit")}>{copy.toExit}</button>
-          </div>
+          </div>}
         </div>
         <div className="work-plan-clock-operation">
           {result && <ArrowRight size={16} aria-hidden="true" />}

@@ -57,7 +57,7 @@
 .meal-pofi { display: block; width: 40px; height: 40px; flex: 0 0 40px; border-radius: var(--radius-control); object-fit: cover; }
 .meal-pofi-note p { min-width: 0; margin: 0; color: var(--accent-text); font-size: 13px; font-weight: 400; line-height: 1.45; overflow-wrap: anywhere; }
 
-.meal-tray { display: grid; gap: 0; }
+.meal-tray { --meal-divider: color-mix(in srgb, var(--line) 55%, transparent); display: grid; gap: 0; }
 .meal-top-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; padding: 10px 4px; }
 .meal-top-cards--single { grid-template-columns: minmax(0, 1fr); }
 .meal-side-card { display: grid; align-content: start; min-width: 0; padding: 0; border: 0; border-radius: 0; background: transparent; }
@@ -68,7 +68,7 @@
 .meal-side-card-featured, .meal-side-card-items { display: grid; gap: 4px; min-width: 0; margin: 0; padding: 0; color: var(--ink); list-style: none; overflow-wrap: anywhere; }
 .meal-side-card-featured { font-size: 14px; font-weight: 600; line-height: 1.4; }
 .meal-side-card-items { font-size: 13px; font-weight: 400; line-height: 1.45; }
-.meal-main-group { min-width: 0; padding: 8px 4px 12px; }
+.meal-main-group { min-width: 0; padding: 8px 4px 12px; border: 0; border-bottom: 1px solid var(--meal-divider); border-radius: 0; background: transparent; }
 .meal-main-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; margin: 0 0 8px; padding: 0; }
 .meal-main-heading-copy { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px; min-width: 0; }
 .meal-main-label { color: var(--accent-text); font-size: 12px; font-weight: 500; }
@@ -77,7 +77,7 @@
 .meal-main-choice-line { display: flex; min-width: 0; align-items: baseline; gap: 8px; }
 .meal-main-choice { min-width: 0; color: var(--ink); font-size: 16px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; }
 .meal-main-choice-meta { flex: 0 0 auto; color: var(--secondary); font-size: 12px; font-weight: 500; line-height: 1.4; }
-.meal-finishes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: 12px 4px 4px; }
+.meal-finishes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; padding: 12px 4px 4px; border-top: 1px solid var(--meal-divider); }
 .meal-side-card--finish { padding: 0; border: 0; border-radius: 0; background: transparent; }
 .meal-side-card--finish .meal-side-card-heading { margin-bottom: 4px; }
 .meal-source-menu { padding: 0; }
@@ -86,6 +86,7 @@
 .meal-request-error p { margin: 0; }
 .meal-request-error .text-button { min-height: var(--control-height); }
 .meal-source-row { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-block: 10px; overflow-wrap: anywhere; }
+.meal-source-row + .meal-source-row { border-top: 1px solid var(--line); }
 
 .meal-menu-modal .app-modal-header { display: grid; grid-template-columns: minmax(0, 1fr) var(--control-height); grid-template-rows: auto auto; align-items: center; gap: 4px 8px; padding: 8px 18px 6px; border-bottom: 0; }
 .meal-menu-modal .app-modal-header-copy { display: contents; }

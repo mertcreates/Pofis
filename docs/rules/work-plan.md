@@ -185,6 +185,7 @@ Seçili haftada, açık ve PDKS kaydıyla kilitlenmemiş günün eylem satırın
 - Süre, devir veya Tamamla değiştiğinde seçilen saat sabit kalır, karşı saat yeniden hesaplanır. Saat türünü değiştirmek girilen saati korur ve o saati yeni giriş/çıkış sınırı olarak yorumlar.
 - Perşembe günü giriş 20:00 ve süre 8 saat → “04:00’te Cuma çıkarım”. Çıkış 06:30 ve süre 8 saat → “22:30’da Çarşamba girmeliyim”. Gün değiştiğinde sonuç cümlesi ilgili günün tam adını gösterir; aynı günse gün adı tekrarlanmaz. Seçilen saat ilgili güne aittir.
 - İzinle kapanan günün seçimi saklanır ve yeniden açıldığında Planlayıcı içinde görünür. Planı sıfırla, tamamlanmamış günlerin saatlerini de kaldırır; tamamlanmış günlerin ve diğer haftaların seçimlerini korur. Sıfırlama başarılıysa Planlayıcı bölümü kapanır.
+- Bugünün ilk giriş kaydı varsa Planlayıcı kayıtlı ilk giriş saatini sabit gösterir; saat girişi, temizleme ve giriş/çıkış türü seçimi kapanır. Karşı çıkış saati gereken süre değiştikçe yeniden hesaplanır. Önceden kaydedilmiş plan saati korunur; kayıtlı giriş plan deposuna yazılmaz. Henüz giriş yapılmamış bugünde ve gelecek günlerde saat seçimi düzenlenebilir. Modal açıkken ilk giriş geldiğinde kayıtlı saat gösterimine geçilir.
 - Bu saatler kişisel planlama içindir. PDKS kayıtları, rapordaki gerçek giriş/çıkışlar ve bildirimlerin kayda dayanan hedef çıkışı mevcut sahiplerinden hesaplanmaya devam eder.
 
 Saklanan `WorkPlans` durumu `{ defaultPlan, weekOverrides, weekTargets?, weekLeaves?, weekZeroOpenDays?, weekLockedDays?, weekTimes? }` biçimindedir:
