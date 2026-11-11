@@ -3,7 +3,7 @@ const { until } = require("./acceptance-wait.cjs");
 
 // LaunchServices children escape the CI process group. Own them by the exact
 // executable paths inside this disposable bundle, never by a global app name.
-function fixtureProcesses({ appPath, profile, execute, kill = process.kill, timeoutMs = 10000 }) {
+function fixtureProcesses({ appPath, execute, kill = process.kill, timeoutMs = 10000 }) {
   const main = `${appPath}/Contents/MacOS/Pofis`;
   const frameworks = `${appPath}/Contents/Frameworks/`;
   const list = async () => {
@@ -35,8 +35,9 @@ function fixtureProcesses({ appPath, profile, execute, kill = process.kill, time
   const close = async ({ force = false } = {}) => {
     try {
       if ((await list()).some(process => process.main)) {
-        // Start the secondary instance directly so Electron receives the quit arguments.
-        await execute(main, [`--user-data-dir=${profile}`, "--pofis-quit"],
+        // Use the installer's native quit request for this exact bundle.
+        await execute("/usr/bin/osascript", ["-e",
+          "on run argv\nwith timeout of 5 seconds\ntell application (item 1 of argv) to quit\nend timeout\nend run", appPath],
           { timeout: timeoutMs });
       }
       await wait();

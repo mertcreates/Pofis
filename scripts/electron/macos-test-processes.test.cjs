@@ -4,13 +4,14 @@ const appPath = "/tmp/pofis test/Applications/Pofis.app";
 const main = `${appPath}/Contents/MacOS/Pofis`;
 const helper = `${appPath}/Contents/Frameworks/Pofis Helper (Renderer).app/Contents/MacOS/Pofis Helper (Renderer)`;
 
-test("normal çıkış isteğini doğrudan aynı pakete ve profile gönderir, yardımcı süreçleri bekler", async () => {
+test("normal çıkış installer ile aynı native isteği tam paket yoluna gönderir", async () => {
   let quitting = false, polls = 0;
   const processes = fixtureProcesses({ appPath, profile: "/tmp/profile", timeoutMs: 1000,
     execute: async (command, args) => {
       if (command !== "/bin/ps") {
-        expect(command).toBe(main);
-        expect(args).toEqual(["--user-data-dir=/tmp/profile", "--pofis-quit"]);
+        expect(command).toBe("/usr/bin/osascript");
+        expect(args).toEqual(["-e",
+          "on run argv\nwith timeout of 5 seconds\ntell application (item 1 of argv) to quit\nend timeout\nend run", appPath]);
         quitting = true;
         return {};
       }
