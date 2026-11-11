@@ -3,22 +3,35 @@ const { until } = require("./acceptance-wait.cjs");
 
 // LaunchServices children escape the CI process group. Own them by the exact
 // executable paths inside this disposable bundle, never by a global app name.
-function fixtureProcesses({ appPath, profile, execute, kill = process.kill, timeoutMs = 5000 }) {
+function fixtureProcesses({ appPath, profile, execute, kill = process.kill, timeoutMs = 10000 }) {
   const main = `${appPath}/Contents/MacOS/Pofis`;
   const frameworks = `${appPath}/Contents/Frameworks/`;
   const list = async () => {
-    const { stdout } = await execute("/bin/ps", ["-ww", "-axo", "pid=,comm="], { timeout: timeoutMs });
-    return stdout.split("\n").map(line => line.trim().match(/^(\d+)\s+(.*)$/)).filter(Boolean)
-      .filter(([, , path]) => {
+    const { stdout } = await execute("/bin/ps", ["-ww", "-axo", "pid=,stat=,comm="], { timeout: timeoutMs });
+    return stdout.split("\n").map(line => line.trim().match(/^(\d+)\s+(\S+)\s+(.*)$/)).filter(Boolean)
+      .filter(([, , state, path]) => {
+        if (state.startsWith("Z")) return false;
         if (path === main) return true;
         if (!path.startsWith(frameworks)) return false;
         const name = posix.basename(path);
         return /^Pofis Helper(?: \([A-Za-z]+\))?$/.test(name) &&
           path === `${frameworks}${name}.app/Contents/MacOS/${name}`;
-      }).map(([, pid, path]) => ({ pid: Number(pid), main: path === main }));
+      }).map(([, pid, , path]) => ({ pid: Number(pid), main: path === main }));
   };
-  const wait = () => until(async () => (await list()).length === 0, timeoutMs,
-    "Test paketinin süreçleri kapanmadı; geçici dosyalar korundu.");
+  const wait = async () => {
+    const message = "Test paketinin süreçleri kapanmadı.";
+    let remaining = [];
+    try {
+      await until(async () => {
+        remaining = await list();
+        return remaining.length === 0;
+      }, timeoutMs, message);
+    } catch (error) {
+      if (error.message !== message || remaining.length === 0) throw error;
+      const pids = remaining.map(({ pid, main }) => `${pid} (${main ? "ana" : "yardımcı"})`).join(", ");
+      throw new Error(`${message} Son gözlenen PID’ler: ${pids}`, { cause: error });
+    }
+  };
   const close = async ({ force = false } = {}) => {
     try {
       if ((await list()).some(process => process.main)) {
