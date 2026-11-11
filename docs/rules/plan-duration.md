@@ -38,3 +38,7 @@ Saat/dakika bölümlerinin yazma, silme, odak, ok tuşları ve yapıştırma dav
 `parsePlanClock`, `H:mm`, `HH:mm` ve dört rakamlı `HHmm` girişini 0–1439 arasında tam dakikaya çevirir. Başta ve sonda boşluklar temizlenir. `9:00`, `09:00` ve `0900`, 540 dakikadır; geçerli aralık `00:00`–`23:59` olur. Boş, eksik, tanınmayan veya sınır dışı giriş `null` döndürür. `9:0`, `900`, `24:00` ve `2360` geçersizdir. Boş taslağın seçimi temizlemesi, geçersiz taslağın korunması ve kaydetme anı [haftalık saat seçimi sözleşmesinde](work-plan.md#haftalık-girişçıkış-saati) yönetilir.
 
 `planClockTimes`, haftanın seçili giriş veya çıkış saatini görünür gereken dakikayla birleştirir; karşı saati `HH:mm` ve gün farkıyla döndürür. Seçim yoksa sonuç `null` olur. Gece yarısı sonrası çıkış ertesi güne, gece yarısından geriye düşen giriş önceki güne aittir. Etkileşim ve kalıcılık [haftalık saat seçimi sözleşmesindedir](work-plan.md#haftalık-girişçıkış-saati).
+
+## Saat taslağının tamamlanması
+
+`planClockInputState`, bölümlü saat alanındaki boş, tamamlanmamış, tamamlanmış ve geçersiz taslakları ayırır. `14:0` ve `1:00` yazım sırasında tamamlanmamıştır; `14:00` tamamlanmıştır. Planlama’da eksik alan yazılırken hata gösterilmez; saat grubundan çıkışta veya Enter ile eksiklik bildirilir. Günlük kapasite yalnız tamamlanmış, geçerli saatlerden hesaplanır. Eksik taslak kesin haftalık toplam üretmez.

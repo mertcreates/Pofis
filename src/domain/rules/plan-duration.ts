@@ -9,6 +9,13 @@ export function parsePlanClock(input: string): number | null {
   return hour < 24 && minute < 60 ? hour * 60 + minute : null;
 }
 
+export function planClockInputState(input: string): "empty" | "incomplete" | "complete" | "invalid" {
+  if (!input) return "empty";
+  const match = /^(\d{0,2}):(\d{0,2})$/.exec(input);
+  if (!match || Number(match[1]) > 23 || Number(match[2]) > 59) return "invalid";
+  return match[1].length === 2 && match[2].length === 2 ? "complete" : "incomplete";
+}
+
 export function planClockTimes(time: PlanTime | undefined, requiredSeconds: number) {
   if (!time) return null;
   const duration = planDisplayMinutes(requiredSeconds, "required");

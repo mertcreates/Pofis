@@ -10,7 +10,7 @@ test.each([8 * 3600, 9 * 3600])("kayıtlı giriş düzenlenemez; çıkış gerek
   expect(html("input:not(:disabled)")).toHaveLength(0);
   expect(html("input").map((_, el) => html(el).attr("value")).get()).toEqual(["08", "15"]);
   expect(html("button")).toHaveLength(0);
-  expect(html(".small-label").text()).toBe("İlk giriş");
+  expect(html(".small-label")).toHaveLength(0);
   expect(html("output strong").text()).toContain(seconds === 8 * 3600 ? "16:15" : "17:15");
 });
 

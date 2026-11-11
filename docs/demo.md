@@ -27,6 +27,8 @@ Mesai planı → Bu hafta → düzenlenebilir gün → Planlayıcı, canlı ekra
 
 Seçilen saat, yalnız seçili hafta/gün için demo plan deposuna kaydedilir; canlı planları değiştirmez. Yerel hata senaryoları aynı bileşeni bellek içi durumla kullanır.
 
+Mesai planı → **Planlama** sekmesinde demo kayıtlarıyla **Bu hafta** veya çalışma düzeninden başlayan **Yeni hafta** denenebilir. Yeni hafta taslağı demo deposunda saklanır ve sayfa yenilendiğinde geri gelir. Taslağı temizlemek için Yeni hafta içindeki **Hesabı sıfırla** eylemini kullan. [Planlama kuralları](rules/week-schedule.md).
+
 ## Mesai bildirimi ayarları
 
 Yan menüdeki Bildirimler, Electron ile aynı [NotificationSettings](../src/components/notifications/settings.tsx) ekranını açar. Kontroller, açık kaydetme eylemi ve Telegram kurulumu aynı bileşenden gelir.

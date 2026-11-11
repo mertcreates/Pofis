@@ -80,6 +80,14 @@ const check = (condition: boolean, message: string) => { if (!condition) throw n
 (window as unknown as { runLifecycle(): Promise<object> }).runLifecycle = async () => {
   await wait(() => main.ready && mini.ready && demo.ready);
   check(main.plan[0] === 480 && mini.plan[0] === 480, "Legacy local plan was applied to the account");
+  const independent = { plan: main.defaultPlan, drafts: { 0: { anchor: "exit" as const, entry: "09:00", exit: "16:00" } }, leaveChanges: { 4: true }, completion: null };
+  const notificationPlans = main.serialized;
+  main.setIndependentWeek(independent);
+  main.setIndependentWeek({ ...independent, drafts: { 0: { ...independent.drafts[0], exit: "15:00" } } });
+  await wait(() => !main.saving && accounts.A.plans.independentWeek?.drafts[0]?.exit === "15:00");
+  check(main.independentWeek?.drafts[0]?.exit === "15:00", "Latest independent draft did not reach the hook");
+  check(main.serialized === notificationPlans, "Hypothetical draft changed notification plans");
+  check(!demo.independentWeek, "Independent draft leaked to demo");
 
   const exitChoice = Array.from(document.querySelectorAll<HTMLButtonElement>("#clock button"))
     .find(button => button.textContent === ui.planner.toExit)!;
@@ -149,6 +157,7 @@ const check = (condition: boolean, message: string) => { if (!condition) throw n
   render();
   await wait(() => main.ready && mini.ready && main.session === accountB && mini.session === accountB);
   check(main.plan[0] === 480 && mini.plan[0] === 480, "B received A's plan");
+  check(!main.independentWeek && !mini.independentWeek, "B received A's independent draft");
   for (const release of heldReads) release();
   await new Promise(resolve => setTimeout(resolve, 40));
   check(main.plan[0] === 480 && mini.plan[0] === 480, "Late A read replaced B's plan");
@@ -158,7 +167,8 @@ const check = (condition: boolean, message: string) => { if (!condition) throw n
   render();
   await wait(() => main.ready && mini.ready && main.session === secondA && mini.session === secondA);
   check(main.plan[0] === 420 && mini.plan[0] === 420, "A's saved plan was not restored");
+  check(main.independentWeek?.drafts[0]?.exit === "15:00", "A's independent draft was lost after account or default-plan changes");
   check(demo.plan[0] === 360, "Account switching changed the demo plan");
   root.unmount();
-  return { accountSwitch: true, legacyIgnored: true, crossWindow: true, failedWrite: true, delayedRead: true, demoIsolated: true, retryRead: true, timeDraftSync: true, timeFailedWrite: true };
+  return { accountSwitch: true, legacyIgnored: true, crossWindow: true, failedWrite: true, delayedRead: true, demoIsolated: true, retryRead: true, timeDraftSync: true, timeFailedWrite: true, independentDraft: true };
 };

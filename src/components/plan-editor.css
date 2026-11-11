@@ -1,4 +1,30 @@
 .work-plan-modal { --plan-control-size: var(--control-compact); }
+.week-schedule-context-choice { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 12px; margin: 20px 0; }
+.week-schedule-context-switch { display: inline-flex; flex-shrink: 0; min-width: 0; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-control); }
+.week-schedule-context-switch label { position: relative; cursor: pointer; }
+.week-schedule-context-switch label span { display: flex; align-items: center; justify-content: center; min-height: 32px; padding: 4px 12px; border-radius: calc(var(--radius-control) - 1px); color: var(--secondary); font-size: 12px; }
+.week-schedule-context-switch input:checked + span { background: var(--accent-soft); color: var(--accent-text); font-weight: 500; }
+.week-schedule-context-switch input:focus-visible + span { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+.week-schedule-help, .week-schedule-label { color: var(--secondary); font-size: 12px; }
+.work-plan-day-editor.week-schedule-editor,
+.work-plan-day-editor.work-plan-week-editor { margin-top: 24px; padding: 0; border: 0; border-radius: 0; background: transparent; }
+.week-schedule-clocks { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 8px; }
+.week-schedule-clocks > svg { color: var(--muted); margin-top: 20px; flex-shrink: 0; }
+.week-schedule-clock { display: grid; gap: 8px; }
+.week-schedule-clock .work-plan-time-field { padding: 4px 0; }
+.week-schedule-clock input:disabled { opacity: 1; color: var(--secondary); }
+.week-schedule-title { display: flex; align-items: center; gap: 12px; }
+.week-schedule-day-summary { display: flex; align-items: center; gap: 8px; }
+.work-plan-modal .week-schedule-day-reset { display: inline-grid; place-items: center; width: 32px; min-height: 36px; padding: 0; border: 0; background: transparent; color: var(--secondary); }
+.work-plan-modal .week-schedule-day-reset:hover:not(:disabled) { background: var(--surface-subtle); color: var(--ink); }
+.week-schedule-duration { font-size: 14px; color: var(--secondary); }
+.week-schedule-state { color: var(--secondary); font-size: 13px; margin: 12px 0 0; }
+@media (max-width: 480px) {
+  .week-schedule-clocks { flex-wrap: wrap; gap: 8px; }
+}
+@media (max-width: 380px) {
+  .week-schedule-clocks > svg { display: none; }
+}
 .work-plan-modal button {
   min-height: var(--plan-control-size);
   appearance: none;
@@ -18,7 +44,7 @@
 .work-planner > .inline-notice { margin: 16px 0 0; }
 .work-plan-tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr);
   gap: 4px;
   padding: 4px;
   border-radius: 12px;
@@ -97,6 +123,17 @@
 .work-plan-day > span { max-width: 100%; text-align: center; overflow-wrap: anywhere; line-height: 1.25; }
 .work-plan-day .work-plan-day-time { font-size: 12px; font-weight: 500; white-space: normal; }
 .work-plan-duration-part { white-space: nowrap; }
+.work-plan-day > .week-schedule-day-clocks {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 3px;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--secondary);
+}
+.week-schedule-day-clocks > span { white-space: nowrap; }
+.work-plan-day[aria-pressed="true"] > .week-schedule-day-clocks { color: inherit; }
 .work-plan-day .work-plan-day-label { display: inline-flex; align-items: center; gap: 4px; }
 .work-plan-day-label svg { flex-shrink: 0; }
 .work-plan-recorded-time { display: inline-flex; align-items: center; gap: 4px; font-size: 16px; font-weight: 600; white-space: nowrap; }
@@ -156,7 +193,7 @@
 .work-plan-modal :is(.work-plan-lock, .work-plan-day-action, .work-plan-clock-toggle) { min-height: var(--control-sm); }
 .work-plan-clock { min-width: 0; }
 .work-plan-clock-toggle[aria-expanded="true"] svg { transform: rotate(180deg); }
-.work-plan-clock-panel { margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--line); }
+.work-plan-clock-panel { margin-top: 8px; padding-top: 12px; }
 .work-plan-time-result { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 0; color: var(--secondary); font-size: 13px; text-align: right; }
 .work-plan-time-conclusion { display: flex; align-items: center; min-height: var(--plan-control-size); }
 .work-plan-time-result strong { display: flex; align-items: center; min-height: var(--plan-control-size); color: var(--accent-text); font-size: 22px; font-weight: 600; }
@@ -282,4 +319,9 @@
   .work-plan-clock-result { padding-top: 0; }
   .work-plan-day-title strong { font-size: 14px; }
   .work-plan-duration-input { width: 80px; }
+}
+
+@media (pointer: coarse) {
+  .week-schedule-context-switch label span { min-height: 44px; }
+  .work-plan-modal .week-schedule-day-reset { width: 44px; min-height: 44px; }
 }

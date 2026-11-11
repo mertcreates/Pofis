@@ -5,7 +5,7 @@ import { subscribeWorkPlans, workPlanStorage, type PlanScope } from "./work-plan
 import { createDesktopWorkPlans } from "./desktop-work-plans";
 import {
   emptyWorkPlans, hasSpecialWeek, resolveStoredPlan, resolveStoredTarget, resolveLeaveDays, resolveZeroOpenDays, resolveUserLockedDays, resolveWeekTimes, changeWeekTime, changeWeekLockedDays, changeWeekPlan, changeDefaultPlan,
-  type WorkPlan, type WorkPlans, type PlanTime,
+  changeIndependentWeek, type IndependentWeekPlan, type WorkPlan, type WorkPlans, type PlanTime,
 } from "@/domain/rules/work-plan";
 import { ui } from "@/lib/ui-text.js";
 
@@ -92,7 +92,12 @@ export function useWorkPlans(week: string, scope: PlanScope = "live", session?: 
     (mode === "local" || (mode === "desktop" && binding !== null && state.session === binding));
   const ready = matches && state.ready;
   const plans = ready ? state.plans : emptyWorkPlans();
-  const serialized = useMemo(() => ready ? serializePlans(state.plans) : null, [ready, state.plans]);
+  const serialized = useMemo(() => {
+    if (!ready) return null;
+    // Notification scheduling consumes real plans; hypothetical edits must not resync it.
+    const { independentWeek: _, ...actualPlans } = state.plans;
+    return serializePlans(actualPlans);
+  }, [ready, state.plans]);
   const saving = matches && state.saving;
   const error = matches ? state.error : "";
 
@@ -123,6 +128,14 @@ export function useWorkPlans(week: string, scope: PlanScope = "live", session?: 
   }
 
   return {
+    independentWeek: mode === "desktop" && ready ? desktop.current?.client.independentWeek() : plans.independentWeek,
+    setIndependentWeek: (value: IndependentWeekPlan) => {
+      if (!ready) return;
+      if (mode === "desktop") {
+        const current = desktop.current;
+        if (current?.session === binding) current.client.setIndependentWeek(value);
+      } else void persist(current => changeIndependentWeek(current, value));
+    },
     plan: resolveStoredPlan(plans, week),
     serialized,
     session: mode === "desktop" && ready ? binding : null,

@@ -16,9 +16,10 @@
 | Hafta/şablon kaydetme ve sıfırlama | `changeWeekPlan`, `changeDefaultPlan` |
 | Kayıtlı süreyi, kilitli ve dağıtıma uygun günleri belirleme | `completedDaySeconds`, `lockedDays`, `planProtectionMarkers`, `planAdjustmentDays` |
 | Günün açık durumunu ve sıfır süreli açık günleri okuma | `isOpenPlanDay`, `resolveZeroOpenDays` |
-| Devir, gereken süreler ve haftalık toplam | `resolveWeekPlan` |
+| Devir, gereken süreler ve haftalık toplam | `resolveWeekPlan`; dağıtım için ortak `distributeRequiredSeconds` |
 | Gereken süreyi elle düzenleme | `editRequiredMinutes` |
 | İzin sonrası referans hedefe tamamlama | `completeWeekPlan` |
+| Bağımsız yeni hafta taslağını doğrulama ve güncelleme | `readIndependentWeek`, `changeIndependentWeek`; [taslak sözleşmesi](week-schedule.md) |
 | Hedef çıkış | `targetExitAt` |
 
 [PlanEditor](../../src/components/plan-editor.tsx) bu işlemleri kullanıcı eylemlerine bağlar; [report.ts](../../src/domain/report.ts) sonuçlarını ekran modeline taşır.
@@ -106,6 +107,8 @@ Tamamla veya otomatik azaltmayla sıfıra inen gereken süre günün açık duru
 
 Örnek: Pzt 6 saat plan/5,5 saat kayıt, Sal 10 saat, Çar–Cum 8 saat → Sal 10 saat, Cum gereken 8,5 saat, haftalık hedef 40 saat. Pzt 6,5 saat çalışılsaydı güncel ayarda Cum 8 saat kalır; beklenen toplam 40,5 saat ve fazla süre 30 dakika olur. `autoReduceSurplus: true` iken Cum gereken 7,5 saattir.
 
+`resolveWeekPlan` varsayılan `automatic` dengeleme modunda yukarıdaki devir davranışını korur. Planlama önizlemesi, yerel izin ve tamamlama taslağını `manual` modda çözer: günlük süreler korunur, fark görünür kalır. Önizlemede dağıtım yalnız kullanıcının ortak `completeWeekPlan` eylemiyle yapılır.
+
 ## Elle haftalık düzenleme ve sıfırlama
 
 `editRequiredMinutes`, tamamlanmamış günlerin güncel gereken sürelerini yeni çalışma planına alır. Pozitif süre düzenlemesinde haftalık hedef, açıkça değiştirilen gereken süre farkı kadar güncellenir. Tamamlanan günlerin kayıtlı planları korunur. Yeni hedefle otomatik devir yeniden hesaplanır; dağıtılamayan bakiye varsa elle düzenlenen güne de uygulanabilir.
@@ -144,7 +147,7 @@ Kapasite örneği: hedef 40 sa, Pzt–Çar gerçekleşeni 6 sa, Per/Cum gereken 
 | Günlere eşit dağıt | Tüm uygun günlere pazartesi–cuma sırasıyla 30 dakikalık ekleme veya azaltma turları; son adım kalan saniye kadar |
 | Son mesai gününe dağıt | Son uygun günden geriye ekleme veya azaltma; günlük sınıra ulaşıldığında önceki uygun güne geçiş |
 
-Başarılı işlem kalan gereken süreleri çalışma planına, izin sonrası referansı haftalık hedefe kaydeder. Bütün uygun günlerin kapasitesi yetersizse sonuç `null` olur; arayüz işlemi kapasite açıklamasıyla devre dışı gösterir ve mevcut kayıt korunur.
+Normal hafta sekmesindeki başarılı işlem gereken süreleri çalışma planına, izin sonrası referansı haftalık hedefe kaydeder. Planlama sekmesi aynı hesabı kendi taslağına uygular ve iki saati belirlenmiş günleri dağıtımdan çıkarır. Bütün uygun günlerin kapasitesi yetersizse sonuç `null` olur; arayüz işlemi kapasite açıklamasıyla devre dışı gösterir ve mevcut kayıt korunur. [Planlama dağıtımı](week-schedule.md#hedef-ve-dağıtım).
 
 Otomatik devir, mevcut haftalık hedefe göre kendiliğinden hesaplanır. Tamamla ise kullanıcının eylemiyle haftalık hedefi izin sonrası referansa getirir ve dağılımı kaydeder.
 
@@ -188,9 +191,10 @@ Seçili haftada, açık ve PDKS kaydıyla kilitlenmemiş günün eylem satırın
 - Bugünün ilk giriş kaydı varsa Planlayıcı kayıtlı ilk giriş saatini sabit gösterir; saat girişi, temizleme ve giriş/çıkış türü seçimi kapanır. Karşı çıkış saati gereken süre değiştikçe yeniden hesaplanır. Önceden kaydedilmiş plan saati korunur; kayıtlı giriş plan deposuna yazılmaz. Henüz giriş yapılmamış bugünde ve gelecek günlerde saat seçimi düzenlenebilir. Modal açıkken ilk giriş geldiğinde kayıtlı saat gösterimine geçilir.
 - Bu saatler kişisel planlama içindir. PDKS kayıtları, rapordaki gerçek giriş/çıkışlar ve bildirimlerin kayda dayanan hedef çıkışı mevcut sahiplerinden hesaplanmaya devam eder.
 
-Saklanan `WorkPlans` durumu `{ defaultPlan, weekOverrides, weekTargets?, weekLeaves?, weekZeroOpenDays?, weekLockedDays?, weekTimes? }` biçimindedir:
+Saklanan `WorkPlans` durumu `{ defaultPlan, weekOverrides, weekTargets?, weekLeaves?, weekZeroOpenDays?, weekLockedDays?, weekTimes?, independentWeek? }` biçimindedir:
 
 - `defaultPlan`: güncel şablon.
+- `independentWeek`: [Yeni hafta taslağı](week-schedule.md); başlangıç şablonu, saatler, izinler ve seçilen dağıtım saklanır. Gerçek haftalara ve bildirimlere uygulanmaz. Şablon/hafta değişiklikleri veya haftanın sıfırlanması bu alanı korur. Yalnız Yeni hafta içindeki Hesabı sıfırla eylemi güncel şablonla boş taslak yazar. Eski kayıtlarda bu alanın bulunması gerekmez.
 - `weekOverrides`: pazartesi tarihiyle (`YYYY-MM-DD`) anahtarlanan hafta planları. Yedi değerin tamamı şablonla eşleştiğinde ve manuel kilit kalmadığında özel kayıt kaldırılır. Manuel kilit varsa kilitlenen süreyi koruyan plan kaydı tutulur.
 - `weekTargets`: izin karşılıkları düşülmeden önceki haftalık hedef, saniye cinsinden. Okunan net hedef `max(0, saklanan hedef − güncel izin karşılıkları)` olur. İzinli haftada bu kayıt tutulur; izinsiz haftada günlük toplamla eşleşen hedef girdisi kaldırılır. Kayıt yoksa hedef, izinler uygulanmış günlük plan toplamıdır.
 - `weekLeaves`: pazartesi tarihiyle anahtarlanan, tekil 0–4 gün indeksleri. Okunan haftalık planda bu günler sıfırlanır. Boş liste kaldırılır. Güncel şablon izin karşılığının tek kaynağıdır.

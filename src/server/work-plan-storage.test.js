@@ -27,6 +27,19 @@ const bob = "b".repeat(64);
 const sevenHours = { defaultPlan: [420, 420, 420, 420, 420, 0, 0], weekOverrides: {} };
 const sixHours = { defaultPlan: [360, 360, 360, 360, 360, 0, 0], weekOverrides: {} };
 
+test("yeni hafta taslağı diskten yeniden açılır ve diğer hesaba geçmez", async () => {
+  await fixture(async directory => {
+    const store = createWorkPlanStorage(directory);
+    const initial = await store.load(alice, active);
+    const independentWeek = { plan: [480,480,480,480,480,0,0],
+      drafts: { 0: { anchor: "exit", entry: "09:00", exit: "16:00" } }, leaveChanges: { 4: true }, completion: null };
+    await store.save(alice, { ...initial.plans, independentWeek }, initial.revision, authorization);
+    const reopened = createWorkPlanStorage(directory);
+    expect((await reopened.load(alice, active)).plans.independentWeek).toEqual(independentWeek);
+    expect((await reopened.load(bob, active)).plans.independentWeek).toBeUndefined();
+  });
+});
+
 test("hesap planları ayrı saklanır ve yeniden açılır; kanonik plan aynı revizyonu üretir", async () => {
   await fixture(async directory => {
     const store = createWorkPlanStorage(directory);

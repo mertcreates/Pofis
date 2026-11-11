@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { parsePlanClock, parsePlanDuration, planDisplayMinutes, stepPlanDuration, planClockTimes } from "./plan-duration";
+import { planClockInputState, parsePlanClock, parsePlanDuration, planDisplayMinutes, stepPlanDuration, planClockTimes } from "./plan-duration";
 
 test("plan saati iki noktayla veya sayısal klavyeden dört rakamla girilir", () => {
   for (const input of ["09:00", "9:00", "0900", " 09:00 "]) expect(parsePlanClock(input)).toBe(540);
@@ -64,4 +64,12 @@ test("artı ve eksi, mevcut süreyi izleyen 30 dakikalık çizgiye gider", () =>
   expect(stepPlanDuration(480, 1)).toBe(510);
   expect(stepPlanDuration(960, 1)).toBe(960);
   expect(stepPlanDuration(0, -1)).toBe(0);
+});
+
+test.each([
+  ["", "empty"], ["14:", "incomplete"], ["14:0", "incomplete"], ["1:00", "incomplete"],
+  ["14:00", "complete"], ["00:00", "complete"], ["23:59", "complete"],
+  ["24:00", "invalid"], ["14:60", "invalid"], ["14:000", "invalid"], ["x:00", "invalid"],
+] as const)("saat taslağı %s tamamlanma durumunu %s olarak ayırır", (input, state) => {
+  expect(planClockInputState(input)).toBe(state);
 });

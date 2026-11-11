@@ -2,7 +2,7 @@ import { api } from "@/lib/api-client.js";
 import { readStoredPlans } from "@/lib/plan-storage.js";
 import { isSessionExpired } from "@/lib/pdks-failure";
 import { ui } from "@/lib/ui-text.js";
-import type { WorkPlans } from "@/domain/rules/work-plan";
+import { changeIndependentWeek, type IndependentWeekPlan, type WorkPlans } from "@/domain/rules/work-plan";
 
 export type DesktopPlanSnapshot = { plans: WorkPlans; revision: string; session: string };
 export type DesktopPlanState = { snapshot: DesktopPlanSnapshot | null; saving: boolean; error: string };
@@ -33,6 +33,22 @@ export function createDesktopWorkPlans({ session, receive, onSaved, onSessionCha
   let readVersion = 0;
   let reloadAfterSave = false;
   let readController: AbortController | null = null;
+  let independentWeek: IndependentWeekPlan | undefined;
+  let independentDirty = false;
+  let independentWriting = false;
+
+  async function flushIndependentWeek() {
+    if (!active || independentWriting || state.saving || !state.snapshot || !independentDirty) return;
+    independentWriting = true;
+    independentDirty = false;
+    const value = independentWeek!;
+    const saved = await save(plans => changeIndependentWeek(plans, value));
+    independentWriting = false;
+    if (saved) {
+      if (independentDirty) void flushIndependentWeek();
+      else independentWeek = undefined;
+    }
+  }
 
   function publish(next: DesktopPlanState) {
     state = next;
@@ -97,12 +113,21 @@ export function createDesktopWorkPlans({ session, receive, onSaved, onSessionCha
         reloadAfterSave = false;
         void reload(Boolean(state.error));
       }
+      if (!independentWriting) void flushIndependentWeek();
     }
   }
 
   return {
     reload,
     save,
+    independentWeek: () => independentWeek ?? state.snapshot?.plans.independentWeek,
+    setIndependentWeek(value: IndependentWeekPlan) {
+      if (!active || !state.snapshot) return;
+      independentWeek = value;
+      independentDirty = true;
+      publish({ ...state });
+      void flushIndependentWeek();
+    },
     stop() {
       active = false;
       ++readVersion;

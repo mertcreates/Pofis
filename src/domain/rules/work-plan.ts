@@ -7,6 +7,13 @@ export type WorkPlan = readonly [number, number, number, number, number, 0, 0];
 export const WORKING_DAY_COUNT = 5;
 export type PlanTime = { anchor: "entry" | "exit"; minute: number };
 export type WeekTimes = Readonly<Partial<Record<number, PlanTime>>>;
+export type ScheduleClockDraft = { anchor: "entry" | "exit"; entry?: string; exit?: string };
+export type ScheduleDraft = {
+  drafts: Record<number, ScheduleClockDraft>;
+  leaveChanges: Record<number, boolean>;
+  completion: { plan: WorkPlan; targetSeconds: number; leaveDays: readonly number[]; zeroOpenDays: readonly number[] } | null;
+};
+export type IndependentWeekPlan = ScheduleDraft & { plan: WorkPlan };
 export type WorkPlans = {
   defaultPlan: WorkPlan;
   weekOverrides: Record<string, WorkPlan>;
@@ -17,6 +24,7 @@ export type WorkPlans = {
   weekZeroOpenDays?: Record<string, readonly number[]>;
   weekLockedDays?: Record<string, readonly number[]>;
   weekTimes?: Record<string, WeekTimes>;
+  independentWeek?: IndependentWeekPlan;
 };
 export const PLAN_LIMITS = Object.freeze({ stepMinutes: 30, maxDailyMinutes: 960 });
 export const WORK_PLAN_POLICY = Object.freeze({ autoReduceSurplus: false });
@@ -95,6 +103,47 @@ function isPlanRecord(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
+export function readIndependentWeek(value: unknown): IndependentWeekPlan | null {
+  if (!isPlanRecord(value)) return null;
+  const plan = readWeekPlan(value.plan);
+  if (!plan || !isPlanRecord(value.drafts) || !isPlanRecord(value.leaveChanges)) return null;
+  const drafts: ScheduleDraft["drafts"] = {};
+  for (const [day, draft] of Object.entries(value.drafts)) {
+    if (!/^[0-4]$/.test(day) || !isPlanRecord(draft) || (draft.anchor !== "entry" && draft.anchor !== "exit")) return null;
+    const next: ScheduleClockDraft = { anchor: draft.anchor };
+    for (const field of ["entry", "exit"] as const) {
+      const time = draft[field];
+      if (time === undefined) continue;
+      if (typeof time !== "string" || (time !== "" && (!/^\d{0,2}:\d{0,2}$/.test(time) ||
+        Number(time.split(":")[0]) > 23 || Number(time.split(":")[1]) > 59))) return null;
+      next[field] = time;
+    }
+    drafts[Number(day)] = next;
+  }
+  const leaveChanges: ScheduleDraft["leaveChanges"] = {};
+  for (const [day, leave] of Object.entries(value.leaveChanges)) {
+    if (!/^[0-4]$/.test(day) || typeof leave !== "boolean") return null;
+    leaveChanges[Number(day)] = leave;
+  }
+  let completion: ScheduleDraft["completion"] = null;
+  if (value.completion !== null) {
+    if (!isPlanRecord(value.completion)) return null;
+    const input = value.completion;
+    const completedPlan = readWeekPlan(input.plan), leaves = readLeaveDays(input.leaveDays), zeros = readLeaveDays(input.zeroOpenDays);
+    if (!completedPlan || !leaves || !zeros || hasLeaveConflict(zeros, leaves) ||
+      typeof input.targetSeconds !== "number" || !Number.isSafeInteger(input.targetSeconds) || input.targetSeconds < 0 ||
+      [...leaves, ...zeros].some(day => completedPlan[day] !== 0)) return null;
+    completion = { plan: completedPlan, targetSeconds: input.targetSeconds, leaveDays: leaves, zeroOpenDays: zeros };
+  }
+  return { plan, drafts, leaveChanges, completion };
+}
+
+export function changeIndependentWeek(plans: WorkPlans, value: IndependentWeekPlan): WorkPlans {
+  const independentWeek = readIndependentWeek(value);
+  if (!independentWeek) throw new WorkPlansValidationError("plan");
+  return { ...plans, independentWeek };
+}
+
 type WorkPlansIssue = "plan" | "week" | "target" | "leave" | "openDays" | "lockedDays" | "times";
 
 export class WorkPlansValidationError extends Error {
@@ -159,7 +208,9 @@ export function readWorkPlans(value: unknown): WorkPlans {
     if (!isPlanWeek(week) || !times) throw new WorkPlansValidationError("times");
     if (Object.keys(times).length) weekTimes[week] = times;
   }
-  return { defaultPlan, weekOverrides, ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
+  const independentWeek = value.independentWeek === undefined ? undefined : readIndependentWeek(value.independentWeek);
+  if (independentWeek === null) throw new WorkPlansValidationError("plan");
+  return { defaultPlan, weekOverrides, ...(independentWeek ? { independentWeek } : {}), ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
     ...(Object.keys(weekLeaves).length ? { weekLeaves } : {}),
     ...(Object.keys(weekZeroOpenDays).length ? { weekZeroOpenDays } : {}),
     ...(Object.keys(weekLockedDays).length ? { weekLockedDays } : {}),
@@ -307,6 +358,7 @@ export function changeDefaultPlan(plans: WorkPlans, defaultPlan: WorkPlan, week?
   }
   return {
     defaultPlan,
+    ...(plans.independentWeek ? { independentWeek: plans.independentWeek } : {}),
     weekOverrides: Object.fromEntries(Object.entries(weekOverrides)
       .filter(([key, plan]) => resolveUserLockedDays(plans, key).length || !samePlan(plan, defaultPlan))),
     ...(Object.keys(weekTargets).length ? { weekTargets } : {}),
@@ -375,22 +427,35 @@ export function planAdjustmentDays(days: readonly PlanDay[], plan: WorkPlan, wee
     days.find(day => day.date === date)?.state !== "uncertain");
 }
 
-export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today: string, partial = false, targetSeconds = weeklyTarget(plan), zeroOpenDays: readonly number[] = [], autoReduceSurplus: boolean = WORK_PLAN_POLICY.autoReduceSurplus, userLockedDays: readonly number[] = []) {
+export function distributeRequiredSeconds(
+  required: readonly number[], eligible: readonly boolean[], balance: number,
+  autoReduceSurplus: boolean = WORK_PLAN_POLICY.autoReduceSurplus,
+) {
+  const seconds = [...required];
+  if (balance > 0 || autoReduceSurplus) {
+    for (let day = seconds.length - 1; day >= 0; day--) {
+      if (!eligible[day]) continue;
+      const next = Math.max(0, Math.min(PLAN_LIMITS.maxDailyMinutes * 60, seconds[day] + balance));
+      balance -= next - seconds[day];
+      seconds[day] = next;
+    }
+  }
+  return { seconds, unallocatedSeconds: balance };
+}
+
+export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today: string, partial = false, targetSeconds = weeklyTarget(plan), zeroOpenDays: readonly number[] = [], autoReduceSurplus: boolean = WORK_PLAN_POLICY.autoReduceSurplus, userLockedDays: readonly number[] = [], balanceMode: "automatic" | "manual" = "automatic") {
   const week = weekStart(days[0]?.date ?? today);
   const completed = completedDaySeconds(days, week, today);
   const locked = lockedDays(days, week, today);
   const workingDays = plan.map((_, day) => isOpenPlanDay(plan, day, zeroOpenDays));
   const eligible = planAdjustmentDays(days, plan, week, today, zeroOpenDays, userLockedDays);
-  const openDays = plan.flatMap((_, day) => eligible[day] ? [day] : []);
-  const required = plan.map(minutes => Math.round(minutes * 60));
+  let required = plan.map(minutes => Math.round(minutes * 60));
   let unallocatedSeconds = completed.reduce<number>((sum, seconds, index) =>
     seconds === null ? sum : sum + Math.round(plan[index] * 60) - seconds, targetSeconds - weeklyTarget(plan));
-  if (!partial && (unallocatedSeconds > 0 || autoReduceSurplus)) {
-    for (const index of [...openDays].reverse()) {
-      const next = Math.max(0, Math.min(PLAN_LIMITS.maxDailyMinutes * 60, required[index] + unallocatedSeconds));
-      unallocatedSeconds -= next - required[index];
-      required[index] = next;
-    }
+  if (!partial && balanceMode === "automatic") {
+    const distribution = distributeRequiredSeconds(required, eligible, unallocatedSeconds, autoReduceSurplus);
+    required = distribution.seconds;
+    unallocatedSeconds = distribution.unallocatedSeconds;
   }
   const targets = days.map(day => required[weekday(day.date)]);
   const todayIndex = days.findIndex(day => day.date === today);

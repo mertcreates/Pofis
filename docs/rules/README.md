@@ -17,6 +17,7 @@ Her kuralın bir kod sahibi vardır. Görünümler, route'lar ve depolama adapt�
 | [Anlık tahmin ve süre bölümleri](duration.md)      | [duration.js](../../src/domain/rules/duration.js)                   |
 | [Hedef ilerlemesi ve grafik ölçeği](progress.md)   | [progress.js](../../src/domain/rules/progress.js)                   |
 | [Mesai planı ve çıkış hedefi](work-plan.md)        | [work-plan.ts](../../src/domain/rules/work-plan.ts)                 |
+| [Haftalık saat denemesi](week-schedule.md) | [week-schedule.ts](../../src/domain/rules/week-schedule.ts) |
 | [Plan süresi girişi](plan-duration.md)            | [plan-duration.ts](../../src/domain/rules/plan-duration.ts)         |
 | [Görünen haftalık toplam](week.md)                 | [week.ts](../../src/domain/rules/week.ts)                           |
 | [Pofi durum seçimi](pofi.md)                       | [pofi.js](../../src/domain/rules/pofi.js)                           |

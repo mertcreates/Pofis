@@ -208,6 +208,7 @@ export function DashboardView({
             targetSeconds={workPlans.targetSeconds}
             days={days}
             defaultPlan={workPlans.defaultPlan}
+            independentWeek={{ value: workPlans.independentWeek, onChange: workPlans.setIndependentWeek }}
             leaveDays={workPlans.leaveDays}
             zeroOpenDays={workPlans.zeroOpenDays}
             userLockedDays={workPlans.userLockedDays}

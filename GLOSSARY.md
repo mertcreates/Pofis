@@ -67,6 +67,9 @@ Mesai planına dahil olan hafta günü. Gereken süresi sıfır olsa da çalış
 **Seçili gün**:
 Plan düzenleyicisinde ayrıntıları ve süre kontrolleri gösterilen gün.
 
+**Planlama**:
+Mesai planında giriş ve çıkış saatleriyle haftalık süreyi deneme sekmesi. **Bu hafta** raporda açık olan haftayı kullanır. **Yeni hafta** çalışma düzeninden başlayan, ayrı saklanan bir taslaktır. [Haftalık saat denemesi](docs/rules/week-schedule.md).
+
 **Manuel gün kilidi**:
 Kullanıcının haftalık planda günün gereken süresini korumak için koyduğu kilit. Otomatik devir ve toplu düzenlemeler o günü korur; Planı sıfırla kilidi kaldırır. Tamamlanmış günün PDKS kaydı nedeniyle oluşan kilidi kayıt sahibine bağlıdır.
 

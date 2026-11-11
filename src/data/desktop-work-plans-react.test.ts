@@ -31,7 +31,7 @@ async function runFixture(source: string, markup: string) {
 test("Electron'da hesap değişimi, pencere eşitlemesi ve kaydetme hatası", async () => {
   expect(await runFixture("desktop-work-plans.tsx", '<div id="root"></div>'))
     .toEqual({ accountSwitch: true, legacyIgnored: true, crossWindow: true,
-      failedWrite: true, delayedRead: true, demoIsolated: true, retryRead: true, timeDraftSync: true, timeFailedWrite: true });
+      failedWrite: true, delayedRead: true, demoIsolated: true, retryRead: true, timeDraftSync: true, timeFailedWrite: true, independentDraft: true });
 }, 20000);
 
 test("ana pencere ve Mini plan okuma hatasından yeniden dener", async () => {

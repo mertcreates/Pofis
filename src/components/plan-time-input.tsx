@@ -1,10 +1,17 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState, type RefObject } from "react";
+import { X } from "lucide-react";
 import { parsePlanClock } from "@/domain/rules/plan-duration";
 import { ui } from "@/lib/ui-text.js";
 
 type ClockPart = "hour" | "minute";
+
+export function PlanTimeClear({ label, disabled, onClear }: { label: string; disabled: boolean; onClear: () => void }) {
+  return <button type="button" className="work-plan-time-clear" disabled={disabled} aria-label={label} onClick={onClear}>
+    <X size={16} aria-hidden="true" />
+  </button>;
+}
 
 export function editPlanTimeSegment(clock: string, part: ClockPart, input: string) {
   const maximum = part === "hour" ? 23 : 59;

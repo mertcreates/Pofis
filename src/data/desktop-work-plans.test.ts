@@ -1,11 +1,75 @@
 import { expect, test } from "bun:test";
-import { emptyWorkPlans, readDayPlan } from "@/domain/rules/work-plan";
+import { DEFAULT_WORK_PLAN, emptyWorkPlans, readDayPlan, type IndependentWeekPlan } from "@/domain/rules/work-plan";
 import { ui } from "@/lib/ui-text.js";
 import { createDesktopWorkPlans, readDesktopPlanSnapshot, type DesktopPlanState } from "./desktop-work-plans";
 
 const sessionA = "a".repeat(64), sessionB = "b".repeat(64);
 const revision1 = "1".repeat(64), revision2 = "2".repeat(64);
 const original = emptyWorkPlans();
+const independent = (exit: string): IndependentWeekPlan => ({ plan: DEFAULT_WORK_PLAN,
+  drafts: { 0: { anchor: "exit", entry: "09:00", exit } }, leaveChanges: { 4: true }, completion: null });
+
+test("hızlı taslak değişikliklerinde son değer sırayla yazılır; yeniden açılan istemci onu okur", async () => {
+  const firstWrite = deferred<unknown>(), finished = deferred<void>();
+  let stored = original, writes = 0;
+  const client = createDesktopWorkPlans({ session: sessionA, receive() {}, onSessionChanged() {},
+    onSaved() { if (writes === 2) finished.resolve(); },
+    request: async (_, options) => {
+      if (options?.method !== "PUT") return snapshot(sessionA, revision1, stored);
+      const { plans } = JSON.parse(String(options.body));
+      writes++;
+      if (writes === 1) await firstWrite.promise;
+      stored = plans;
+      return snapshot(sessionA, revision2, stored);
+    } });
+  await client.reload();
+  client.setIndependentWeek(independent("16:00"));
+  client.setIndependentWeek(independent("15:00"));
+  client.setIndependentWeek(independent("14:00"));
+  expect(client.independentWeek()).toEqual(independent("14:00"));
+  expect(writes).toBe(1);
+  firstWrite.resolve(undefined);
+  await finished.promise;
+  expect(writes).toBe(2);
+  expect(stored.independentWeek).toEqual(independent("14:00"));
+  client.stop();
+  const reopened = createDesktopWorkPlans({ session: sessionA, receive() {}, onSaved() {}, onSessionChanged() {},
+    request: async () => snapshot(sessionA, revision2, stored) });
+  await reopened.reload();
+  expect(reopened.independentWeek()).toEqual(independent("14:00"));
+  reopened.stop();
+});
+
+test("taslak yazı hatası bildirilir; durdurulan hesabın kuyruğu yeni hesaba taşınmaz", async () => {
+  const held = deferred<unknown>();
+  const states: DesktopPlanState[] = [];
+  let writes = 0;
+  const client = createDesktopWorkPlans({ session: sessionA, receive: state => states.push(state), onSaved() {}, onSessionChanged() {},
+    request: async (_, options) => {
+      if (options?.method !== "PUT") return snapshot(sessionA);
+      writes++; return held.promise;
+    } });
+  await client.reload();
+  client.setIndependentWeek(independent("16:00"));
+  client.setIndependentWeek(independent("15:00"));
+  client.stop();
+  held.resolve(snapshot(sessionA, revision2, { ...original, independentWeek: independent("16:00") }));
+  await Promise.resolve(); await Promise.resolve();
+  expect(writes).toBe(1);
+  const b = createDesktopWorkPlans({ session: sessionB, receive() {}, onSaved() {}, onSessionChanged() {}, request: async () => snapshot(sessionB) });
+  await b.reload();
+  expect(b.independentWeek()).toBeUndefined();
+  b.stop();
+  const failed = deferred<void>();
+  const failing = createDesktopWorkPlans({ session: sessionA, receive: state => { if (state.error) { states.push(state); failed.resolve(); } }, onSaved() {}, onSessionChanged() {},
+    request: async (_, options) => { if (options?.method === "PUT") throw Error("disk full"); return snapshot(sessionA); } });
+  await failing.reload();
+  failing.setIndependentWeek(independent("14:00"));
+  await failed.promise;
+  expect(states.at(-1)?.error).toBe(ui.desktopPlanWriteError);
+  expect(failing.independentWeek()).toEqual(independent("14:00"));
+  failing.stop();
+});
 const changed = { ...original, defaultPlan: readDayPlan([420, 420, 420, 420, 420, 0, 0])! };
 const snapshot = (session: string, revision = revision1, plans = original) => ({ session, revision, plans });
 

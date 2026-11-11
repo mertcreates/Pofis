@@ -1,11 +1,11 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { ArrowRight, X } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { ui } from "@/lib/ui-text.js";
 import { parsePlanClock, planClockTimes } from "@/domain/rules/plan-duration";
 import type { PlanTime } from "@/domain/rules/work-plan";
-import { PlanTimeInput } from "./plan-time-input";
+import { PlanTimeClear, PlanTimeInput } from "./plan-time-input";
 
 const copy = ui.planner;
 
@@ -81,13 +81,13 @@ export function PlanTimePlanner({ time, seconds, day, disabled, recordedEntry = 
                 label={`${ui.weekdays[day].long} ${ui[mode].toLocaleLowerCase("tr-TR")} saati`} invalid={invalid} errorId={`${id}-error`}
                 onChange={next => { setDraft(next); setInvalid(false); }} onConfirm={saveTime} />
               {!recordedEntry && clocks && <span className="work-plan-time-suffix">{copy.clockAt(clocks[mode].value).slice(5)}</span>}
-              {!recordedEntry && <button type="button" className="work-plan-time-clear" disabled={disabled || !draft} aria-label={copy.clearTime}
-                onClick={async () => {
+              {!recordedEntry && <PlanTimeClear disabled={disabled || !draft} label={copy.clearTime}
+                onClear={async () => {
                   if (await onCommit(null)) { setDraft(""); setInvalid(false); setFocusHour(true); }
-                }}><X size={16} aria-hidden="true" /></button>}
+                }} />}
             </div>
           </div>
-          {recordedEntry ? <span className="small-label">{ui.firstEntry}</span> : <div className="work-plan-time-choice" role="group" aria-label={copy.timeChoice}>
+          {!recordedEntry && <div className="work-plan-time-choice" role="group" aria-label={copy.timeChoice}>
             <button type="button" disabled={disabled} aria-pressed={mode === "entry"}
               onClick={() => setMode("entry")}>{copy.ifEntry}</button>
             <span aria-hidden="true">/</span>

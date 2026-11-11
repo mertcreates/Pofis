@@ -10,6 +10,7 @@ Her konu aşağıdaki sahibinde güncellenir; diğer belgeler ayrıntıyı bağl
 | Görsel kararlar ve etkileşimler | [DESIGN](../DESIGN.md) |
 | Ortak kavramlar | [GLOSSARY](../GLOSSARY.md) |
 | Hesaplar, politikalar ve kod sahipleri | [Kural haritası](rules/README.md) |
+| Planlama taslakları, saat düzenleme ve dağıtım | [Haftalık saat denemesi](rules/week-schedule.md) |
 | Oturum yaşam döngüsü ve tek süreç sınırları | [Çok kullanıcılı yapı](architecture/multi-user-sessions.md) |
 | Çalışma ortamı, proxy ve Docker | [Dağıtım](deployment.md) |
 | Ortak Windows/macOS/Linux Electron altyapısı, paketleme, kurulum ve kabul durumu | [Masaüstü](desktop.md) |
