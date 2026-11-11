@@ -60,25 +60,34 @@ async function run() {
   const expectFailure = async pattern => {
     const result = await install(); assert.notEqual(result.code, 0, result.output); assert.match(result.output, pattern);
   };
-  const processes = fixtureProcesses({ appPath, profile, execute });
+  const processes = fixtureProcesses({ appPath, profile,
+    execute: (command, args, options) => execute(command, args, { ...options, env }) });
   const pids = async () => (await processes.list()).filter(process => process.main).map(process => process.pid);
-  const assertInstalled = async result => {
-    if (result.code !== 0) {
-      // Only this disposable fixture's exact executable is sampled. A blocked
-      // main thread cannot write a startup receipt or explain itself over IPC.
-      try {
-        for (const pid of await pids()) {
-          const samplePath = join(directory, `startup-${pid}.txt`);
-          await execute("/usr/bin/sample", [String(pid), "1", "-file", samplePath], { timeout: 8000 });
-          const sample = await readFile(samplePath, "utf8");
-          const start = sample.indexOf("Call graph:");
-          console.error(`Pofis startup PID ${pid}:\n${sample.slice(start < 0 ? 0 : start).split("\n").slice(0, 65).join("\n")}`);
-        }
-      } catch (error) { console.error(`Açılış süreç örneği alınamadı: ${error.message}`); }
+  // Sample only the main process of this disposable bundle, before cleanup.
+  async function sampleMainProcesses(phase) {
+    try {
+      for (const pid of await pids()) {
+        const samplePath = join(directory, `${pid}-sample.txt`);
+        await execute("/usr/bin/sample", [String(pid), "1", "-file", samplePath], { timeout: 8000 });
+        const sample = await readFile(samplePath, "utf8");
+        const start = sample.indexOf("Call graph:");
+        console.error(`Pofis ${phase} PID ${pid}:\n${sample.slice(start < 0 ? 0 : start).split("\n").slice(0, 65).join("\n")}`);
+      }
+    } catch (error) {
+      console.error(`Pofis ${phase} süreç örneği alınamadı: ${error.message}`);
     }
+  }
+  const assertInstalled = async result => {
+    if (result.code !== 0) await sampleMainProcesses("açılış");
     assert.equal(result.code, 0, result.output);
   };
-  const close = () => processes.close();
+  const close = async () => {
+    try { await processes.close(); }
+    catch (error) {
+      await sampleMainProcesses("kapanış");
+      throw error;
+    }
+  };
   let cleanupPromise;
   const cleanup = () => cleanupPromise ||= (async () => {
     try {

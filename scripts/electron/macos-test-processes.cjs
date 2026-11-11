@@ -35,7 +35,8 @@ function fixtureProcesses({ appPath, profile, execute, kill = process.kill, time
   const close = async ({ force = false } = {}) => {
     try {
       if ((await list()).some(process => process.main)) {
-        await execute("/usr/bin/open", ["-n", appPath, "--args", "--pofis-quit", `--user-data-dir=${profile}`],
+        // Start the secondary instance directly so Electron receives the quit arguments.
+        await execute(main, [`--user-data-dir=${profile}`, "--pofis-quit"],
           { timeout: timeoutMs });
       }
       await wait();

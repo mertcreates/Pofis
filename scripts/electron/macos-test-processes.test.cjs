@@ -4,12 +4,13 @@ const appPath = "/tmp/pofis test/Applications/Pofis.app";
 const main = `${appPath}/Contents/MacOS/Pofis`;
 const helper = `${appPath}/Contents/Frameworks/Pofis Helper (Renderer).app/Contents/MacOS/Pofis Helper (Renderer)`;
 
-test("normal çıkış yardımcı süreçlerin de bitmesini bekler", async () => {
+test("normal çıkış isteğini doğrudan aynı pakete ve profile gönderir, yardımcı süreçleri bekler", async () => {
   let quitting = false, polls = 0;
   const processes = fixtureProcesses({ appPath, profile: "/tmp/profile", timeoutMs: 1000,
     execute: async (command, args) => {
-      if (command === "/usr/bin/open") {
-        expect(args).toEqual(["-n", appPath, "--args", "--pofis-quit", "--user-data-dir=/tmp/profile"]);
+      if (command !== "/bin/ps") {
+        expect(command).toBe(main);
+        expect(args).toEqual(["--user-data-dir=/tmp/profile", "--pofis-quit"]);
         quitting = true;
         return {};
       }
