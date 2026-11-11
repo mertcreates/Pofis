@@ -46,6 +46,9 @@ Tamamlanan günlerin gerçekleşen süreleri ile tamamlanmamış günlerin günc
 **Çıkış hedefi**:
 İlk girişe etkin günlük hedefin eklenmesiyle bulunan çıkış saati.
 
+**Önceki günlerin açığı**:
+Aynı haftanın bugünden önceki günlerinde planlanan sürenin gerçekleşen süreyi aşan net kısmı. [Açığı bugün kapatma saati](docs/rules/work-plan.md#açığı-bugün-kapatma-saati).
+
 **Açık giriş**:
 Ardından güvenilir bir çıkış bulunmayan son turnike girişi.
 

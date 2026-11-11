@@ -1,16 +1,15 @@
 [
   {
-    "version": "1.1.1",
+    "version": "1.2.0",
     "publishedOn": "2026-11-11",
     "features": [
-      "Haftalık grafik artık bu haftada da görünüyor; giriş-çıkış raporu en altta tam genişlikte yer alıyor.",
-      "Mesai planına Planlama sekmesi eklendi. Giriş ve çıkış saatlerini değiştirerek haftalık hedefe ne kadar kaldığını görebilir, farkı günlere dağıtabilirsin.",
-      "Bu haftanın kayıtlarıyla saat denemesi yapabilir veya çalışma düzeninden yeni bir hafta oluşturabilirsin. Uygulamayı yeniden açtığında Yeni hafta taslağına kaldığın yerden devam edebilirsin."
+      "Haftalık toplamda önceki günlerin açığını, bu açığı bugün kapatmak için kaçta çıkman gerektiğini ve açık kapandıktan sonra ne kadar fazla çalıştığını görebilirsin.",
+      "Mesai planındaki Planlama sekmesinde giriş ve çıkış saatlerini deneyebilir, haftalık hedefe kalan süreyi günlere dağıtabilirsin. Bu haftanın kayıtlarıyla başlayabilir veya çalışma düzeninden bir Yeni hafta taslağı oluşturup daha sonra sürdürebilirsin.",
+      "Bu haftanın günlük süreleri de haftalık grafikte görünüyor. Giriş-çıkış raporu sayfanın altında tam genişlikte yer alıyor."
     ],
     "fixes": [
-      "Giriş-çıkış raporunda izinli günler yalnız tarih ve “İzinli” bilgisiyle gösteriliyor.",
-      "Bugün giriş yaptıysan mesai planında gerçek ilk giriş saatin sabit gösteriliyor; gereken süreyi değiştirdiğinde çıkış saati güncelleniyor.",
-      "Haftalık toplamdaki günlerin üzerine gelince görünen çerçeve kaldırıldı; klavye odağı görünür kalıyor."
+      "Giriş-çıkış raporunda izinli günler tarih ve “İzinli” etiketiyle gösteriliyor.",
+      "Bugünün planı kayıtlı ilk giriş saatini kullanıyor. Gereken süreyi değiştirdiğinde çıkış saati güncelleniyor."
     ]
   },
   {

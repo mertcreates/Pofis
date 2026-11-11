@@ -78,6 +78,7 @@ Gün önizlemesinde örnekler:
 - 15 Ekim: 04:51:52 kayıtlı süre; varsayılan 8 saat hedefe göre eksik.
 - 7 Ekim: 09:15:58 kayıtlı süre; 13:11:58'de arada çıkış kaydı olmadan yeni giriş vardır. Tekrar uyarısı saatiyle gösterilir; günlük hedef farkı ve Pofi ilerlemesi kayıtlı süreyi kullanır. Ek süre seçimi de açıktır.
 - 28 Eylül: eşleşmeyen ara hareketler; ham hareketler ve ilk giriş–son çıkış özeti birlikte korunuyor.
+- 30 Eylül: varsayılan planda günlük hedef çıkış 14:45:10, önceki günlerin açığı 1 sa 48 dk 20 sn, açığı bugün kapatma saati 16:33:30. [Açık kapatma kabulü](verification.md#açığı-bugün-kapatma-kabulü).
 - 14 Ekim: 05:57:32 erken giriş; İstanbul saatinde gösteriliyor.
 - 15 Ekim: 2 saatlik ek süre seçimi 04:51:52 kayıtlı süreyi korur ve 02:00:00 anlık tahmin üretir.
 - 16 Ekim: henüz giriş yok; 17–18 Ekim gelecek gün.

@@ -6,6 +6,94 @@ import { readDayPlan } from "@/domain/rules/work-plan";
 
 const now = Date.parse("2026-10-16T15:00:00+03:00");
 
+function catchUpFixture(mondayExit = "16:15:00", tuesdayExit = "16:45:00"): Report {
+  return {
+    ...fixture(),
+    passages: [
+      { date: "2026-10-12", time: "09:00:00", direction: "in" },
+      { date: "2026-10-12", time: mondayExit, direction: "out" },
+      { date: "2026-10-13", time: "09:00:00", direction: "in" },
+      { date: "2026-10-13", time: tuesdayExit, direction: "out" },
+      { date: "2026-10-14", time: "09:00:00", direction: "in" },
+    ],
+  };
+}
+
+const wednesday = Date.parse("2026-10-14T15:00:00+03:00");
+
+test("önceki günlerin açığı Çarşamba için 18:00 seçeneği sunar ve Cuma devrini korur", () => {
+  const result = presentReport(catchUpFixture(), DEFAULT_WORK_PLAN, wednesday, false);
+  const day = result.days[2];
+  expect(day.source.exitGoalSeconds).toBe(8 * 3600);
+  expect(day.source.catchUp).toEqual({ goalSeconds: 9 * 3600, deficitSeconds: 3600, remainingSeconds: 0, closed: false, estimate: null, extra: null });
+  expect(day.firstEntry! + day.source.catchUp!.goalSeconds * 1000)
+    .toBe(Date.parse("2026-10-14T18:00:00+03:00"));
+  expect(result.days[4].source.dailyGoalSeconds).toBe(9 * 3600);
+});
+
+test("fazla süre açığı azaltır ve son mesai gününde ana hedef açığı da karşılar", () => {
+  const report = catchUpFixture("16:00:00", "17:30:00");
+  const result = presentReport(report, DEFAULT_WORK_PLAN, wednesday, false);
+  expect(result.days[2].source.catchUp).toEqual({ goalSeconds: 30600, deficitSeconds: 1800, remainingSeconds: 0, closed: false, estimate: null, extra: null });
+  const lastDay = presentReport(report, [480, 480, 480, 0, 0, 0, 0], wednesday, false);
+  expect(lastDay.days[2].source.exitGoalSeconds).toBe(30600);
+  expect(lastDay.days[2].source.catchUp?.goalSeconds).toBe(30600);
+});
+
+test("16 saat sınırında kapanmayan açık görünür kalır", () => {
+  const result = presentReport(catchUpFixture("12:00:00", "13:00:00"), DEFAULT_WORK_PLAN, wednesday, false);
+  expect(result.days[2].source.catchUp).toEqual({ goalSeconds: 16 * 3600, deficitSeconds: 9 * 3600, remainingSeconds: 3600, closed: false, estimate: null, extra: null });
+});
+
+test("eski veya eksik raporda ya da belirsiz geçmiş kayıtta kesin açık üretilmez", () => {
+  const report = catchUpFixture();
+  const unreliable = { ...report, passages: report.passages.filter((_, index) => index !== 3) };
+  expect(presentReport(report, DEFAULT_WORK_PLAN, wednesday, true).days[2].source.catchUp).toBeNull();
+  expect(presentReport({ ...report, to: "2026-10-16" }, DEFAULT_WORK_PLAN, wednesday, false).days[2].source.catchUp).toBeNull();
+  expect(presentReport(unreliable, DEFAULT_WORK_PLAN, wednesday, false).days[2].source.catchUp).toBeNull();
+});
+
+test("ilk giriş beklenirken geçmiş günlerin bilinen açığı korunur", () => {
+  const report = catchUpFixture();
+  report.passages.pop();
+  const day = presentReport(report, DEFAULT_WORK_PLAN, wednesday, false).days[2];
+  expect(day.firstEntry).toBeNull();
+  expect(day.source.catchUp?.deficitSeconds).toBe(3600);
+});
+
+test("canlı tahmin tam eşiğinde kapanış öngörür, çıkış kaydı kapanışı kesinleştirir", () => {
+  const report = catchUpFixture();
+  const evening = Date.parse("2026-10-14T18:00:00+03:00");
+  const project = prepareReport(report, DEFAULT_WORK_PLAN, "2026-10-14", false);
+  expect(project(evening - 1000).days[2].source.catchUp?.estimate).toBeNull();
+  const estimated = project(evening).days[2];
+  expect(estimated.source.catchUp?.estimate).toBe("closed");
+  expect(estimated.source.catchUp?.closed).toBe(false);
+  expect(estimated.source.catchUp?.extra).toBeNull();
+  expect(project(evening + 420_000).days[2].source.catchUp?.extra).toEqual({ seconds: 420, estimated: true });
+  report.passages.push({ date: "2026-10-14", time: "18:00:00", direction: "out" });
+  const recorded = presentReport(report, DEFAULT_WORK_PLAN, evening, false).days[2].source.catchUp;
+  expect(recorded?.closed).toBe(true);
+  expect(recorded?.estimate).toBeNull();
+  expect(recorded?.extra).toBeNull();
+  report.passages[5].time = "18:07:00";
+  const later = presentReport(report, DEFAULT_WORK_PLAN, evening + 420_000, false).days[2].source.catchUp;
+  expect(later?.extra).toEqual({ seconds: 420, estimated: false });
+});
+
+test("canlı süre önce plan sınırına, ardından açığın tamamına ulaşır", () => {
+  const report = catchUpFixture("12:00:00", "13:00:00");
+  report.passages[4].time = "06:00:00";
+  const project = prepareReport(report, DEFAULT_WORK_PLAN, "2026-10-14", false);
+  const atLimit = project(Date.parse("2026-10-14T22:00:00+03:00")).days[2].source.catchUp;
+  expect(atLimit?.estimate).toBe("plan-limit");
+  expect(atLimit?.remainingSeconds).toBe(3600);
+  expect(atLimit?.extra).toBeNull();
+  const fullyCovered = project(Date.parse("2026-10-14T23:00:00+03:00")).days[2].source.catchUp;
+  expect(fullyCovered?.estimate).toBe("closed");
+  expect(fullyCovered?.closed).toBe(false);
+});
+
 test("kaydedilmiş sıfır açık Cuma borcu ve hedef çıkışı rapora/Pofi'ye taşır", () => {
   const report = fixture();
   report.passages = ["20:00:00", "20:00:00", "16:00:00", "15:00:00"].flatMap((time, day) => [

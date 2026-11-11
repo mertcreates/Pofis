@@ -168,6 +168,18 @@ Geçmiş kayıtsız veya süresi hesaplanamayan günün gerçekleşeni devir top
 
 Hesaplar, Tamamla dağıtımı ve kalıcılık saniye hassasiyetini korur. Gereken sürenin dakika gösterimi yukarı, gerçekleşen süreninki aşağı yuvarlanır; gösterim kaynak kayıtları değiştirmez. Yuvarlama ve düzenleme sınırı [plan süresi sözleşmesinde](plan-duration.md#güvenli-dakika-gösterimi), görünür ve erişilebilir süre biçimleri [DESIGN](../../DESIGN.md#sayılar-ve-süreler) sahibindedir.
 
+### Açığı bugün kapatma saati
+
+Tam ve güncel hafta raporunda bugün planlı bir mesai günüyse ve bugüne kadarki kayıtlar güvenilir durumdaysa, **Haftalık toplam** önceki günlerin net açığını gösterir. Bu açık aynı haftanın önceki günlerinin kayıtlı plan süreleri ile gerçekleşen süreleri arasındaki pozitif farktır. Fazla süreler açığı azaltır.
+
+İlk giriş kaydı geldiğinde, ilk girişe bugünün kayıtlı plan süresi ve net açık eklenerek çıkış saati hesaplanır. Hesap 16 saatlik günlük plan sınırında durur. Sınırı aşan süre **Bugüne sığmayan açık** olarak görünür. Günlük hedef çıkış açığı zaten karşılıyorsa kart bunu metinle belirtir. Bugünün kayıtlı süresi plan ve net açığın toplamına ulaştığında kart **Önceki günlerin açığı kapandı.** durumunu gösterir.
+
+Canlı toplam plan ve açık toplamına ulaştığında saat yerine **Anlık tahmine göre açık kapandı.** görünür. Bu toplam aşıldığında kart yalnız aşan kısmı **Açık sonrası fazla** olarak gösterir ve canlı tahmin kullanılıyorsa etikette belirtir. Canlı toplam 16 saatlik plan sınırına ulaşmış ve açık hâlâ varsa kart plan sınırına ulaşıldığını ve sınırı aşan süreyi gösterir.
+
+Örnek: Pazartesi 7 sa 15 dk ve salı 7 sa 45 dk kayıt, günde 8 saat plan ve çarşamba ilk giriş 09:00 → günlük hedef çıkış 17:00, önceki günlerin açığı 1 saat, açığı bugün kapatma saati 18:00. Otomatik devir, cuma uygunsa açığı cuma hedefinde tutar.
+
+`resolveWeekPlan` temel sonucu üretir. Rapor güncel veride bugünün canlı toplamını `projectCatchUp` hesabına verir ve sonucu `catchUp` alanında taşır. **Haftalık toplam** sonucu gösterir ve günlük hedef çıkışla karşılaştırır. Yerleşim [tasarım rehberindedir](../../DESIGN.md#haftalık-toplam-ve-grafik).
+
 ## Kalıcılık ve navigasyon
 
 ### Haftalık giriş/çıkış saati

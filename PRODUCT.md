@@ -28,6 +28,7 @@ Europe/Istanbul takvimi. Güncel haftada canlı tahmin, geçmiş haftalarda kay�
 
 - Kişisel turnike kayıtlarından [kayıtlı süre](docs/rules/recorded-time.md), [anlık tahmin](docs/rules/duration.md) ve [kayıt bütünlüğü](docs/rules/record-status.md) gösterilir.
 - Kullanıcı [mesai planında](docs/rules/work-plan.md) varsayılan şablonu, haftalık süreleri ve izinli günleri düzenler. Plan web'de tarayıcı profilinde, masaüstünde hesaba bağlı dosyada saklanır; gerçekleşen süre PDKS'den gelir.
+- Kullanıcı **Haftalık toplam** kartında önceki günlerin açığını ve bu açığı bugün kapatabileceği [çıkış saatini](docs/rules/work-plan.md#açığı-bugün-kapatma-saati) görür.
 - Kullanıcı **Planlama** sekmesinde raporda açık olan haftayı veya bağımsız bir yeni haftayı saatler üzerinden deneyebilir. Haftalık farkı görüp süreyi istediğinde dağıtır. Yeni hafta taslağı yeniden açıldığında kaldığı yerden devam eder. [Planlama kuralları](docs/rules/week-schedule.md).
 - Her kullanıcı kendi PDKS hesabıyla giriş yapar ve yalnız kendi raporunu görür. [Oturum politikası](docs/rules/session-policy.md) ve [kaynak politikası](docs/rules/source-policy.md) kimlik, kalıcılık ve erişim sınırlarını yönetir.
 - [Mesaim demosu](docs/demo.md), ortak ekran ve hesapları örnek kayıtlarla giriş gerektirmeden sunar.

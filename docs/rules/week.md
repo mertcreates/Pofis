@@ -18,6 +18,8 @@ Görünen gerçekleşen toplam = kayıtlı süreler toplamı + canlı ek tahmin
 
 Haftalık hedef, gereken süreler ve çıkış hedefi [plan sahibinden](work-plan.md) gelir. Görünen gerçekleşen toplam ile plandaki beklenen toplam [sözlükte](../../GLOSSARY.md) ayrı tanımlıdır.
 
+**Haftalık hedefe kalan**, haftalık hedef ile görünen gerçekleşen toplam arasındaki pozitif farktır. [Önceki günlerin açığı ve kapatma saati](work-plan.md#açığı-bugün-kapatma-saati) plan sahibinden gelir.
+
 ## Bağımlılıklar
 
 - [Günlük kayıt durumu](record-status.md): boş geçmiş planlı gün `missing`, belirsiz gün `uncertain` sonucuyla haftalık bütünlüğü etkiler.

@@ -15,7 +15,13 @@
 .weekly-ruler-tick { position: relative; display: block; flex-shrink: 0; height: 22px; margin-bottom: 8px; border-radius: 4px; background: linear-gradient(to right, var(--duration-recorded) 0 var(--ruler-recorded), var(--duration-estimated) var(--ruler-recorded) var(--ruler-filled), var(--track) var(--ruler-filled) 100%); }
 .weekly-ruler-leave { display: flex; align-items: center; justify-content: center; background: var(--surface-subtle); color: var(--secondary); }
 .weekly-ruler-leave-duration { display: block; margin-top: 4px; color: var(--secondary); font-size: 12px; font-variant-numeric: tabular-nums; text-wrap: balance; }
-.weekly-total-difference small { font-size: inherit; }
-.weekly-total-difference { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; margin: auto 0 0; padding-top: 16px; font-size: 12px; }
-.weekly-total-difference dt { color: var(--secondary); }
-.weekly-total-difference dd { margin: 0; font-weight: 600; }
+.weekly-total-footer { margin-top: auto; padding-top: 16px; font-size: 12px; }
+.weekly-total-footer dl { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 4px 12px; margin: 0; }
+.weekly-total-footer dt { color: var(--secondary); }
+.weekly-total-footer dd { margin: 0; text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; }
+.weekly-total-footer small { font-size: 12px; }
+.weekly-catch-up { display: grid; gap: 4px; margin-top: 8px; }
+.weekly-catch-up time { white-space: nowrap; }
+.weekly-catch-up-status { margin: 0; font-weight: 500; }
+.weekly-catch-up dl + .weekly-catch-up-status { color: var(--secondary); font-weight: 400; }
+.weekly-total-exit-date { display: block; color: var(--secondary); font-weight: 400; }

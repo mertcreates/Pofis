@@ -1,4 +1,5 @@
 import type { DayState } from "./rules/record-status";
+import type { projectCatchUp } from "./rules/work-plan";
 type Passage = { id: string; at: string; direction: "entry" | "exit" };
 type Interval = {
   entry: number | null;
@@ -19,6 +20,7 @@ export type DayReport = {
     workingDay: boolean;
     dailyGoalSeconds: number;
     exitGoalSeconds: number | null;
+    catchUp: ReturnType<typeof projectCatchUp>;
     total: number;
     recorded: number;
     estimated: number;

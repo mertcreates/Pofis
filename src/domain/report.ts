@@ -1,6 +1,6 @@
 import { ui } from "../lib/ui-text.js";
 import { summarize } from "./rules/recorded-time.js";
-import { resolveWeekPlan, isOpenPlanDay, weeklyTarget, WORK_PLAN_POLICY, type WorkPlan } from "./rules/work-plan";
+import { resolveWeekPlan, projectCatchUp, isOpenPlanDay, weeklyTarget, WORK_PLAN_POLICY, type WorkPlan } from "./rules/work-plan";
 import { dailyDurationState, durationTotals } from "./rules/duration.js";
 import { passageDay, passageRecordRows } from "./rules/passages.js";
 import { dailyRecordStatus } from "./rules/record-status";
@@ -41,7 +41,7 @@ export function prepareReport(
     const state = dailyRecordStatus({ ...statusInput, live: false });
     return { row, passage, statusInput, state };
   });
-  const { targets, blocked, exitGoal } = resolveWeekPlan(
+  const { targets, blocked, exitGoal, catchUp } = resolveWeekPlan(
     sourceDays.map(({ row, state, passage }) => ({ date: row.date, state, recordedSeconds: row.duration, records: passage.events })),
     plan,
     today,
@@ -104,19 +104,22 @@ export function prepareReport(
       dailyGoalSeconds: targets[index],
       exitGoalSeconds: selected && row.date === today ? exitGoal : null,
     };
+    const todayCatchUp = !stale && row.date === today ? catchUp : null;
     const initialDuration = dailyDurationState({ ...input, now: startOfDay });
     function project(duration: typeof initialDuration, now: Date): DayReport {
       const state = dailyRecordStatus({
         ...statusInput,
         live: duration.basis === "live",
       });
+      const totals = durationTotals(row.duration, duration);
       return {
         ...fixed,
         state,
         liveSeconds: duration.basis === "live" ? duration.seconds : null,
         source: {
           ...goals,
-          ...durationTotals(row.duration, duration),
+          ...totals,
+          catchUp: projectCatchUp(todayCatchUp, duration.basis === "live" ? totals.total : null),
           pofi: pofiNote({ ...input, now, today, workingDay: selected }),
         },
       };

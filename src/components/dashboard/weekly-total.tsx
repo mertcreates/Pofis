@@ -1,10 +1,11 @@
 import type { CSSProperties } from "react";
 import { TriangleAlert } from "lucide-react";
 import type { DayReport } from "@/domain/attendance";
-import { weekday } from "@/domain/rules/calendar";
+import { dateKey, weekday } from "@/domain/rules/calendar";
 import { percentage } from "@/domain/rules/progress.js";
 import { summarizeWeek } from "@/domain/rules/week";
-import { durationText } from "@/domain/time";
+import { targetExitAt } from "@/domain/rules/work-plan";
+import { durationText, formatClock, formatDateLabel } from "@/domain/time";
 import { ui } from "@/lib/ui-text.js";
 import { Duration } from "../primitives";
 import { Tooltip } from "../tooltip";
@@ -27,6 +28,20 @@ export function WeeklyTotal({ days, target, summary, isCurrent, leaveDays, today
   const differenceLabel = difference === 0 ? ui.equalTargetLabel
     : difference > 0 ? ui.excessLabel
     : isCurrent ? ui.remainingLabel : ui.shortfallLabel;
+  const todayReport = isCurrent ? days.find(day => day.date === today) : undefined;
+  const firstEntry = todayReport?.firstEntry ?? null;
+  const catchUp = todayReport?.source.catchUp;
+  const catchUpAt = todayReport && catchUp && !catchUp.closed && catchUp.estimate === null && catchUp.goalSeconds > (todayReport.source.exitGoalSeconds ?? 0)
+    ? targetExitAt(firstEntry, catchUp.goalSeconds)
+    : null;
+  const catchUpDate = catchUpAt === null ? today : dateKey(catchUpAt);
+  let catchUpStatus = null;
+  if (catchUp && !catchUp.extra) {
+    if (catchUp.closed) catchUpStatus = ui.catchUpClosed;
+    else if (catchUp.estimate === "closed") catchUpStatus = ui.catchUpEstimatedClosed;
+    else if (catchUp.estimate === "plan-limit") catchUpStatus = ui.catchUpEstimatedLimit;
+    else if (firstEntry !== null && catchUpAt === null && catchUp.remainingSeconds === 0) catchUpStatus = ui.catchUpWithTarget;
+  }
   return <section className="dashboard-card metric weekly-total">
     <div className="metric-header">
       <h2>{ui.weeklyTotal}</h2>
@@ -73,9 +88,33 @@ export function WeeklyTotal({ days, target, summary, isCurrent, leaveDays, today
         })}
       </div>
     </>}
-    {(!isCurrent || !summary.incomplete) && <dl className="weekly-total-difference">
-      <dt>{differenceLabel}</dt>
-      <dd aria-label={summary.incomplete ? ui.approximateWeekDifference(durationText(Math.abs(difference))) : undefined}>{summary.incomplete && "≈ "}<Duration seconds={Math.abs(difference)} /></dd>
-    </dl>}
+    {(!isCurrent || !summary.incomplete) && <div className="weekly-total-footer">
+      <dl className="weekly-total-difference">
+        <dt>{differenceLabel}</dt>
+        <dd aria-label={summary.incomplete ? ui.approximateWeekDifference(durationText(Math.abs(difference))) : undefined}>{summary.incomplete && "≈ "}<Duration seconds={Math.abs(difference)} /></dd>
+      </dl>
+      {catchUp && <div className="weekly-catch-up">
+        {catchUp.extra && <dl>
+          <dt>{catchUp.extra.estimated ? ui.catchUpEstimatedExtra : ui.catchUpExtra}</dt>
+          <dd><Duration seconds={catchUp.extra.seconds} /></dd>
+        </dl>}
+        {!catchUp.closed && catchUp.estimate !== "closed" && <dl>
+          <dt>{ui.previousDaysDeficit}</dt>
+          <dd><Duration seconds={catchUp.deficitSeconds} /></dd>
+          {catchUpAt !== null && <>
+            <dt>{catchUp.remainingSeconds > 0 ? ui.catchUpLimitExit : ui.catchUpExit}</dt>
+            <dd>
+              <time dateTime={new Date(catchUpAt).toISOString()}>{formatClock(catchUpAt, catchUpAt % 60_000 !== 0)}</time>
+              {catchUpDate !== today && <small className="weekly-total-exit-date">{formatDateLabel(catchUpDate, today)}</small>}
+            </dd>
+          </>}
+          {firstEntry !== null && catchUp.remainingSeconds > 0 && <>
+            <dt>{ui.catchUpRemaining}</dt>
+            <dd><Duration seconds={catchUp.remainingSeconds} /></dd>
+          </>}
+        </dl>}
+        {catchUpStatus && <p className="weekly-catch-up-status">{catchUpStatus}</p>}
+      </div>}
+    </div>}
   </section>;
 }

@@ -450,8 +450,9 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
   const workingDays = plan.map((_, day) => isOpenPlanDay(plan, day, zeroOpenDays));
   const eligible = planAdjustmentDays(days, plan, week, today, zeroOpenDays, userLockedDays);
   let required = plan.map(minutes => Math.round(minutes * 60));
-  let unallocatedSeconds = completed.reduce<number>((sum, seconds, index) =>
-    seconds === null ? sum : sum + Math.round(plan[index] * 60) - seconds, targetSeconds - weeklyTarget(plan));
+  const previousDaysBalance = completed.reduce<number>((sum, seconds, index) =>
+    seconds === null ? sum : sum + Math.round(plan[index] * 60) - seconds, 0);
+  let unallocatedSeconds = targetSeconds - weeklyTarget(plan) + previousDaysBalance;
   if (!partial && balanceMode === "automatic") {
     const distribution = distributeRequiredSeconds(required, eligible, unallocatedSeconds, autoReduceSurplus);
     required = distribution.seconds;
@@ -461,15 +462,46 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
   const todayIndex = days.findIndex(day => day.date === today);
   const dailySeconds = todayIndex === -1 ? 0 : targets[todayIndex];
   const blocked = days.some(day => day.date <= today && (day.state === "uncertain" || day.state === "missing"));
-  const exitGoal = !partial && todayIndex !== -1 && workingDays[weekday(today)] && days[todayIndex].state !== "uncertain"
+  const todayWeekday = weekday(today);
+  const exitGoal = !partial && todayIndex !== -1 && workingDays[todayWeekday] && days[todayIndex].state !== "uncertain"
     ? dailySeconds : null;
+  const catchUp = exitGoal !== null && !blocked && previousDaysBalance > 0
+    ? catchUpGoal(Math.round(plan[todayWeekday] * 60), previousDaysBalance, days[todayIndex].recordedSeconds)
+    : null;
   const displaySeconds = plan.map((minutes, index) => {
     if (completed[index] !== null) return completed[index]!;
     const dayIndex = days.findIndex(day => weekStart(day.date) === week && weekday(day.date) === index);
     return dayIndex === -1 ? Math.round(minutes * 60) : targets[dayIndex];
   });
   const projectedWeeklySeconds = displaySeconds.reduce((sum, seconds) => sum + seconds, 0);
-  return { targets, workingDays, completed, locked, eligible, displaySeconds, unallocatedSeconds, projectedWeeklySeconds, weeklySeconds: targetSeconds, blocked, exitGoal };
+  return { targets, workingDays, completed, locked, eligible, displaySeconds, unallocatedSeconds, projectedWeeklySeconds, weeklySeconds: targetSeconds, blocked, exitGoal, catchUp };
+}
+
+function catchUpGoal(plannedSeconds: number, deficitSeconds: number, recordedSeconds: number | null) {
+  const requiredSeconds = plannedSeconds + deficitSeconds;
+  const goalSeconds = Math.min(requiredSeconds, PLAN_LIMITS.maxDailyMinutes * 60);
+  const remainingSeconds = requiredSeconds - goalSeconds;
+  const recordedExtraSeconds = recordedSeconds !== null && recordedSeconds >= requiredSeconds
+    ? recordedSeconds - requiredSeconds
+    : null;
+  return { goalSeconds, deficitSeconds, remainingSeconds, recordedExtraSeconds };
+}
+
+export function projectCatchUp(goal: ReturnType<typeof catchUpGoal> | null, liveTotalSeconds: number | null) {
+  if (goal === null) return null;
+  const { recordedExtraSeconds, ...details } = goal;
+  const closed = recordedExtraSeconds !== null;
+  const requiredSeconds = goal.goalSeconds + goal.remainingSeconds;
+  let estimate: "closed" | "plan-limit" | null = null;
+  if (!closed && liveTotalSeconds !== null && liveTotalSeconds >= goal.goalSeconds) {
+    estimate = liveTotalSeconds >= requiredSeconds ? "closed" : "plan-limit";
+  }
+  const recordedExtra = recordedExtraSeconds ?? 0;
+  const liveExtra = (liveTotalSeconds ?? 0) - requiredSeconds;
+  const extra = liveExtra > recordedExtra ? { seconds: liveExtra, estimated: true }
+    : recordedExtra > 0 ? { seconds: recordedExtra, estimated: false }
+    : null;
+  return { ...details, closed, estimate, extra };
 }
 
 export function editRequiredMinutes(plan: WorkPlan, resolved: ReturnType<typeof resolveWeekPlan>, updates: readonly { day: number; minutes: number }[], defaultPlan = DEFAULT_WORK_PLAN, leaveDays: readonly number[] = []) {
