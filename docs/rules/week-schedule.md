@@ -37,4 +37,6 @@
 
 [WeekSchedulePreview](../../src/components/week-schedule-preview.tsx) canlı ve demo arayüzünü ortak kullanır. [previewWeekSchedule](../../src/domain/rules/week-schedule.ts) sabitlenen günlük süreleri başlangıç haftasına uygular. İzin değişikliği `editRequiredMinutes`, isteğe bağlı dağıtım `completeWeekPlan` ile hesaplanır. İki işlem de [mesai planı kuralının](work-plan.md) sahipliğindedir.
 
-**Yeni hafta**, başlangıç şablonu, saat taslakları, izinler ve dağıtım sonucunu `independentWeek` alanında saklar. [Mesai planı deposu](work-plan.md#kalıcılık-ve-navigasyon) masaüstünde hesap ve revizyon denetimini, webde tarayıcı profilini, demoda ayrı demo alanını kullanır. Masaüstünde devam eden yazıdan sonra en son taslak gönderilir. Yazı hatası görünümde gösterilir ve açık taslak bellekte kalır. Sonraki düzenleme yeni yazı başlatır.
+**Yeni hafta**, başlangıç şablonu, saat taslakları, izinler ve dağıtım sonucunu `independentWeek` alanında saklar. [Mesai planı deposu](work-plan.md#kalıcılık-ve-navigasyon) masaüstünde hesap ve revizyon denetimini, webde tarayıcı profilini, demoda ayrı demo alanını kullanır.
+
+Masaüstünde kayıt sürerken yapılan düzenlemelerden sonuncusu sırada bekler. Yazma sırasında hata oluşursa sıradaki düzenleme güncel revizyon okunduktan sonra gönderilir. Kaydedilemeyen taslak açık oturumda bellekte kalır. Sonraki düzenleme kaydı yeniden başlatır.

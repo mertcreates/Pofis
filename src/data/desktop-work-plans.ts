@@ -38,16 +38,15 @@ export function createDesktopWorkPlans({ session, receive, onSaved, onSessionCha
   let independentWriting = false;
 
   async function flushIndependentWeek() {
-    if (!active || independentWriting || state.saving || !state.snapshot || !independentDirty) return;
+    if (!active || independentWriting || state.saving || !state.snapshot || !independentDirty ||
+        (readController && !readController.signal.aborted)) return;
     independentWriting = true;
     independentDirty = false;
     const value = independentWeek!;
     const saved = await save(plans => changeIndependentWeek(plans, value));
     independentWriting = false;
-    if (saved) {
-      if (independentDirty) void flushIndependentWeek();
-      else independentWeek = undefined;
-    }
+    if (independentDirty) void flushIndependentWeek();
+    else if (saved) independentWeek = undefined;
   }
 
   function publish(next: DesktopPlanState) {
@@ -74,7 +73,10 @@ export function createDesktopWorkPlans({ session, receive, onSaved, onSessionCha
       if (error instanceof PlanSessionChanged || isSessionExpired(error))
         onSessionChanged();
     } finally {
-      if (readController === controller) readController = null;
+      if (readController === controller) {
+        readController = null;
+        void flushIndependentWeek();
+      }
     }
   }
 
@@ -105,7 +107,7 @@ export function createDesktopWorkPlans({ session, receive, onSaved, onSessionCha
       } else {
         publish({ snapshot: previous, saving: false,
           error: code === "PLAN_CONFLICT" ? ui.desktopPlanConflict : ui.desktopPlanWriteError });
-        if (code === "PLAN_CONFLICT") reloadAfterSave = true;
+        if (code === "PLAN_CONFLICT" || independentDirty) reloadAfterSave = true;
       }
       return false;
     } finally {

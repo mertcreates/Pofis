@@ -40,6 +40,45 @@ test("hızlı taslak değişikliklerinde son değer sırayla yazılır; yeniden 
   reopened.stop();
 });
 
+test.each(["network", "PLAN_CONFLICT"])("ilk yazma %s ile bitince sıradaki taslak güncel revizyonla kaydedilir", async code => {
+  const firstWrite = deferred<unknown>(), reload = deferred<void>();
+  let stored = original, revision = revision1, reads = 0;
+  const writes: { revision: string; plans: typeof original }[] = [];
+  const makeClient = () => createDesktopWorkPlans({ session: sessionA, receive() {}, onSaved() {}, onSessionChanged() {},
+    request: async (_, options) => {
+      if (options?.method !== "PUT") {
+        if (++reads === 2) await reload.promise;
+        return snapshot(sessionA, revision, stored);
+      }
+      const write = JSON.parse(String(options.body));
+      writes.push(write);
+      if (writes.length === 1) return firstWrite.promise;
+      expect(write.revision).toBe(revision);
+      stored = write.plans;
+      return snapshot(sessionA, revision, stored);
+    } });
+  const client = makeClient();
+  await client.reload();
+  client.setIndependentWeek(independent("16:00"));
+  client.setIndependentWeek(independent("17:00"));
+  stored = code === "PLAN_CONFLICT" ? changed : writes[0].plans;
+  revision = revision2;
+  firstWrite.reject(Object.assign(new Error(code), { code }));
+  await Bun.sleep(0);
+  expect(writes).toHaveLength(1);
+  expect(reads).toBe(2);
+  reload.resolve(undefined);
+  await Bun.sleep(0);
+  expect(writes.map(write => write.revision)).toEqual([revision1, revision2]);
+  expect(stored.defaultPlan).toEqual(code === "PLAN_CONFLICT" ? changed.defaultPlan : original.defaultPlan);
+  client.stop();
+
+  const reopened = makeClient();
+  await reopened.reload();
+  expect(reopened.independentWeek()).toEqual(independent("17:00"));
+  reopened.stop();
+});
+
 test("taslak yazı hatası bildirilir; durdurulan hesabın kuyruğu yeni hesaba taşınmaz", async () => {
   const held = deferred<unknown>();
   const states: DesktopPlanState[] = [];
