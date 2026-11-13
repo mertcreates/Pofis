@@ -1,6 +1,6 @@
 {
   "name": "pofis",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "main": "electron/main.cjs",
   "private": true,
   "license": "SEE LICENSE IN LICENSE",

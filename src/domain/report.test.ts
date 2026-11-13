@@ -21,6 +21,45 @@ function catchUpFixture(mondayExit = "16:15:00", tuesdayExit = "16:45:00"): Repo
 
 const wednesday = Date.parse("2026-10-14T15:00:00+03:00");
 
+test("Cuma planına alınan açık ikinci kez eklenmez; 40 saat 14:52:41'de tamamlanır", () => {
+  const report = fixture();
+  const exits = ["11:59:18", "15:14:17", "15:29:17", "12:32:41"];
+  report.passages = exits.flatMap((time, index) => [
+    { date: `2026-10-${12 + index}`, time: "06:00:00", direction: "in" as const },
+    { date: `2026-10-${12 + index}`, time, direction: "out" as const },
+  ]);
+  report.passages.push({ date: "2026-10-16", time: "06:08:14", direction: "in" });
+  const cases = [
+    { plan: [480, 480, 480, 480, 480, 0, 0], deficit: 2667 },
+    { plan: [480, 480, 480, 570, 524 + 27 / 60, 0, 0], deficit: null },
+  ] as const;
+  for (const { plan, deficit } of cases) {
+    const project = prepareReport(report, plan, "2026-10-16", false, 40 * 3600);
+    const morning = project(Date.parse("2026-10-16T08:30:12+03:00"));
+    const day = morning.days[4];
+    expect(summarizeWeek(morning.days, day.date).totalSeconds).toBe(33 * 3600 + 37 * 60 + 31);
+    expect(day.firstEntry! + day.source.exitGoalSeconds! * 1000).toBe(Date.parse("2026-10-16T14:52:41+03:00"));
+    expect(day.source.catchUp?.deficitSeconds ?? null).toBe(deficit);
+    const after = project(Date.parse("2026-10-16T15:00:00+03:00")).days[4];
+    expect(after.source.catchUp?.extra ?? null).toEqual(deficit === null ? null : { seconds: 439, estimated: true });
+  }
+});
+
+test("haftalık hedefte karşılanan geçmiş farkı yeni bir açık üretmez", () => {
+  const result = presentReport(catchUpFixture(), DEFAULT_WORK_PLAN, wednesday, false, 39 * 3600);
+  expect(result.days[2].source.catchUp).toBeNull();
+  expect(result.days[2].source.exitGoalSeconds).toBe(8 * 3600);
+});
+
+test("haftalık hedef değişikliği açık kapatma eşiğini ve fazla süreyi aynı miktarda değiştirir", () => {
+  const report = catchUpFixture();
+  const halfHour = presentReport(report, DEFAULT_WORK_PLAN, wednesday, false, 39.5 * 3600).days[2];
+  expect(halfHour.source.catchUp?.deficitSeconds).toBe(1800);
+  expect(halfHour.source.catchUp?.goalSeconds).toBe(30600);
+  const after = presentReport(report, DEFAULT_WORK_PLAN, Date.parse("2026-10-14T17:40:00+03:00"), false, 39.5 * 3600).days[2];
+  expect(after.source.catchUp?.extra).toEqual({ seconds: 600, estimated: true });
+});
+
 test("önceki günlerin açığı Çarşamba için 18:00 seçeneği sunar ve Cuma devrini korur", () => {
   const result = presentReport(catchUpFixture(), DEFAULT_WORK_PLAN, wednesday, false);
   const day = result.days[2];

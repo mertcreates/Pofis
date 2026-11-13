@@ -6,6 +6,7 @@
 
 - [notifications.ts](../../src/domain/rules/notifications.ts) bildirim türlerini, varsayılan kapalı tercihleri, ön süreyi, geçerlilik aralığını ve tekrar deneme sınırını yönetir.
 - [notification-report.ts](../../src/desktop/notification-report.ts), raporu mevcut geçiş/rapor/plan sahipleriyle değerlendirir. Güvenilir açık giriş ve güncel İstanbul günü için çalışma planındaki çıkış hedefini kullanır.
+- Hatırlatma saati raporun `exitGoalSeconds` alanından gelir. Haftalık toplamda gösterilen [açığı bugün kapatma saati](work-plan.md#açığı-bugün-kapatma-saati), kullanıcıya ek bir çıkış önizlemesi sunar.
 - [notification-runtime.ts](../../src/desktop/notification-runtime.ts) Electron ana sürecinde zamanlamayı, oturum yaşamını ve kanal başına gönderim kaydını yönetir.
 - [install-notifications.ts](../../src/desktop/install-notifications.ts) sınırlı IPC, native bildirim, yerel sunucu erişimi ve güvenli saklama adaptörlerini bağlar.
 - [telegram.ts](../../src/desktop/telegram.ts) kullanıcının botunu ve kişisel sohbetini doğrular; mesajları Telegram Bot API ile gönderir.

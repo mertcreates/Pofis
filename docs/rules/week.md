@@ -20,6 +20,8 @@ Haftalık hedef, gereken süreler ve çıkış hedefi [plan sahibinden](work-pla
 
 **Haftalık hedefe kalan**, haftalık hedef ile görünen gerçekleşen toplam arasındaki pozitif farktır. [Önceki günlerin açığı ve kapatma saati](work-plan.md#açığı-bugün-kapatma-saati) plan sahibinden gelir.
 
+Haftalık fark bütün haftanın hedefini kullanır. Açık grubu, geçmiş günlerin farkını güncel plan ve haftalık hedefle dengeleyen ayrı sonucu sunar. Açık kapandıktan sonraki fazla süre de bu grubun kapatma eşiğinden hesaplanır. Gösterim koşulları [plan sözleşmesindedir](work-plan.md#açığı-bugün-kapatma-saati).
+
 ## Bağımlılıklar
 
 - [Günlük kayıt durumu](record-status.md): boş geçmiş planlı gün `missing`, belirsiz gün `uncertain` sonucuyla haftalık bütünlüğü etkiler.

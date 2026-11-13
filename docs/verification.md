@@ -78,7 +78,7 @@ Yetkili PDKS hesaplarıyla paketli Electron'da A hesabının planını ve bildir
 | [Electron plan deposu](../src/server/work-plan-storage.test.js), [route](../src/server/work-plan-route.test.js), [oturum](../src/server/desktop-plan-session.test.js) ve [PDKS](../src/server/pdks.test.js) | Hesap ayrımı ve ASCII kullanıcı adı, varsayılan plan, yeniden açılış, geçersiz oturum, revizyon çatışması, bozuk dosya, başarısız yazı ve çıkışla süren kayıt; geçici dizin ve sahte oturum/kaynak |
 | [Electron plan istemcisi](../src/data/desktop-work-plans.test.ts) | Hesap değişimi, geciken okuma, yazma hatası ve revizyon çakışması. Sıradaki Yeni hafta düzenlemesinin güncel revizyonla kaydedilmesi ve yeniden açıldığında okunması |
 | [Electron React kabulü](../src/data/desktop-work-plans-react.test.ts) ve [rapor bağlayıcısı](../src/data/pdks-plan-session.test.ts) | A → B → A, iki plan tüketicisi, demo ayrımı, geciken rapor ve Dashboard ile Mini’de plan okumayı yeniden deneme. Electron kabulü geçici profil ve sahte HTTP kullanır |
-| [Rapor](../src/domain/report.test.ts) | Ortak gereken süre, kayıt durumu, Pofi, hedef çıkış ve önceki günlerin açığı. Açık için netleştirme, plan sınırı, rapor tazeliği, ilk giriş, canlı eşik ve kayıtla kapanış |
+| [Rapor](../src/domain/report.test.ts) | Ortak gereken süre, kayıt durumu, Pofi, hedef çıkış ve önceki günlerin açığı. Haftalık hedef/plan farkıyla dengeleme, cuma kapatma saati, plan sınırı, rapor tazeliği, ilk giriş, canlı eşik ve kayıtla kapanış |
 | [Kural mimarisi](../src/domain/rules/rules.test.ts) | Belge/kod sahipliği ve bağımlılık sınırları |
 
 ### Açığı bugün kapatma kabulü
@@ -87,8 +87,8 @@ Yetkili PDKS hesaplarıyla paketli Electron'da A hesabının planını ve bildir
 
 1. 16 Ekim Cuma → Haftalık toplam kartı önceki günlerin açığını gösterir. Bugüne ait giriş kaydı olmadığı için kapatma saati alanı gizlidir.
 2. 28 Eylül–4 Ekim haftasında 30 Eylül Çarşamba → Günün akışı 14:45:10 hedef çıkışını gösterir. Haftalık toplamda **Haftalık hedefe kalan**, **Önceki günlerin açığı** (1 sa 48 dk 20 sn) ve **Bugün açığı kapatmak için** (16:33:30) bu sırayla görünür. Masaüstünde ve 375 px genişlikte etiketleri soldan, değerleri sağdan hizalı kontrol edin.
-3. 30 Eylül’de **Anlık ek süre** kontrolünü 2 sa 45 dk'ya çıkarın → saat yerine **Açık sonrası tahmini fazla** görünür ve 9 dk 37 sn'den itibaren artar. Ek süreyi sıfırlayın → saat yeniden görünür.
-4. 7 Ekim Çarşamba → çıkış kaydı açığı 4 dk 46 sn geçtiği için **Açık sonrası fazla** görünür. 9 Ekim Cuma → kayıtsız gün bulunduğundan haftalık hedef farkı ve açık grubu gizlidir.
+3. 30 Eylül’de **Anlık ek süre** kontrolünü 2 sa 45 dk'ya çıkarın → saat yerine **Açığı kapattıktan sonra tahmini fazla mesai** görünür ve 9 dk 37 sn'den itibaren artar. Ek süreyi sıfırlayın → saat yeniden görünür.
+4. 7 Ekim Çarşamba → çıkış kaydı açığı 4 dk 46 sn geçtiği için **Açığı kapattıktan sonra fazla mesai** görünür. 9 Ekim Cuma → kayıtsız gün bulunduğundan haftalık hedef farkı ve açık grubu gizlidir.
 
 ### Haftalık cetvelden güne geçiş
 

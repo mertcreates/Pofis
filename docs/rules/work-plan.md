@@ -21,6 +21,7 @@
 | İzin sonrası referans hedefe tamamlama | `completeWeekPlan` |
 | Bağımsız yeni hafta taslağını doğrulama ve güncelleme | `readIndependentWeek`, `changeIndependentWeek`; [taslak sözleşmesi](week-schedule.md) |
 | Hedef çıkış | `targetExitAt` |
+| Açığı bugün kapatma ve açığı kapattıktan sonraki fazla mesai | `resolveWeekPlan.catchUp`, `projectCatchUp`; [sözleşme](#açığı-bugün-kapatma-saati) |
 
 [PlanEditor](../../src/components/plan-editor.tsx) bu işlemleri kullanıcı eylemlerine bağlar; [report.ts](../../src/domain/report.ts) sonuçlarını ekran modeline taşır.
 
@@ -170,13 +171,24 @@ Hesaplar, Tamamla dağıtımı ve kalıcılık saniye hassasiyetini korur. Gerek
 
 ### Açığı bugün kapatma saati
 
-Tam ve güncel hafta raporunda bugün planlı bir mesai günüyse ve bugüne kadarki kayıtlar güvenilir durumdaysa, **Haftalık toplam** önceki günlerin net açığını gösterir. Bu açık aynı haftanın önceki günlerinin kayıtlı plan süreleri ile gerçekleşen süreleri arasındaki pozitif farktır. Fazla süreler açığı azaltır.
+Tam ve güncel hafta raporunda bugün açık bir mesai günüyse ve bugüne kadarki kayıtlar güvenilir durumdaysa, **Haftalık toplam** önceki günlerden kalan açığı gösterir. Önceki günlerin plan ve gerçekleşen farkı net olarak pozitif olmalı, [otomatik devirdeki](#otomatik-devir) başlangıç bakiyesi de pozitif kalmalıdır. Kapatılacak açık bu bakiyedir. İzin karşılıkları düşülmüş haftalık hedef ve izinli günleri sıfırlanmış plan kullanılır.
 
-İlk giriş kaydı geldiğinde, ilk girişe bugünün kayıtlı plan süresi ve net açık eklenerek çıkış saati hesaplanır. Hesap 16 saatlik günlük plan sınırında durur. Sınırı aşan süre **Bugüne sığmayan açık** olarak görünür. Günlük hedef çıkış açığı zaten karşılıyorsa kart bunu metinle belirtir. Bugünün kayıtlı süresi plan ve net açığın toplamına ulaştığında kart **Önceki günlerin açığı kapandı.** durumunu gösterir.
+İlk giriş kaydı geldiğinde kapatma eşiği, bugünün kayıtlı plan süresine bu açık eklenerek hesaplanır. Çıkış önizlemesi ilk giriş + en fazla 16 saat olur. Eşiğin 16 saati aşan kısmı **Bugüne sığmayan açık** olarak görünür. Günlük hedef çıkış bu eşiği zaten karşılıyorsa kart **Bugünkü hedef çıkış açığı da kapatır.** bilgisini gösterir. Bakiye sıfır veya negatifse günlük hedef çıkış kullanılır ve açık grubu gizlenir.
 
-Canlı toplam plan ve açık toplamına ulaştığında saat yerine **Anlık tahmine göre açık kapandı.** görünür. Bu toplam aşıldığında kart yalnız aşan kısmı **Açık sonrası fazla** olarak gösterir ve canlı tahmin kullanılıyorsa etikette belirtir. Canlı toplam 16 saatlik plan sınırına ulaşmış ve açık hâlâ varsa kart plan sınırına ulaşıldığını ve sınırı aşan süreyi gösterir.
+| Bugünkü süre | Açık grubundaki sonuç |
+| --- | --- |
+| İlk giriş bekleniyor | Önceki günlerin açığı |
+| Kapatma eşiğinin altında | Açık, hesaplanabilen kapatma saati ve varsa sınırı aşan süre |
+| Kayıtlı süre kapatma eşiğine eşit | Önceki günlerin açığı kapandı. |
+| Canlı toplam kapatma eşiğine eşit | Anlık tahmine göre açık kapandı. |
+| Kapatma eşiğinin üzerinde | Eşiği aşan süre; **Açığı kapattıktan sonra fazla mesai** veya **Açığı kapattıktan sonra tahmini fazla mesai** |
+| Canlı toplam 16 saate ulaşmış, kapatma eşiğinin altında | Plan sınırına ulaşıldığı bilgisi ve sınırı aşan açık |
+
+Fazla sürenin eşiği, günlük plan ile kapatılacak açığın tamamıdır. Canlı toplam kayıtlı fazla süreyi aştığında artan değer tahmini olarak gösterilir. Rapor eskidiğinde açık grubu yeni güncel raporu bekler.
 
 Örnek: Pazartesi 7 sa 15 dk ve salı 7 sa 45 dk kayıt, günde 8 saat plan ve çarşamba ilk giriş 09:00 → günlük hedef çıkış 17:00, önceki günlerin açığı 1 saat, açığı bugün kapatma saati 18:00. Otomatik devir, cuma uygunsa açığı cuma hedefinde tutar.
+
+Cuma örneği: Pazartesi–perşembe toplamı 31 sa 15 dk 33 sn, haftalık hedef 40 saat ve cuma ilk giriş 06:08:14 → cuma gereken süre 8 sa 44 dk 27 sn, çıkış 14:52:41. Kayıtlı plan toplamı 42 sa 14 dk 27 sn ve önceki günlerin plan farkı 2 sa 14 dk 27 sn ise haftalık düzeltme bu farkı karşılar. Bakiye sıfırdır, açık grubu gizlenir ve günlük hedef çıkış 14:52:41 görünür.
 
 `resolveWeekPlan` temel sonucu üretir. Rapor güncel veride bugünün canlı toplamını `projectCatchUp` hesabına verir ve sonucu `catchUp` alanında taşır. **Haftalık toplam** sonucu gösterir ve günlük hedef çıkışla karşılaştırır. Yerleşim [tasarım rehberindedir](../../DESIGN.md#haftalık-toplam-ve-grafik).
 

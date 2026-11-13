@@ -452,7 +452,8 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
   let required = plan.map(minutes => Math.round(minutes * 60));
   const previousDaysBalance = completed.reduce<number>((sum, seconds, index) =>
     seconds === null ? sum : sum + Math.round(plan[index] * 60) - seconds, 0);
-  let unallocatedSeconds = targetSeconds - weeklyTarget(plan) + previousDaysBalance;
+  const balanceSeconds = targetSeconds - weeklyTarget(plan) + previousDaysBalance;
+  let unallocatedSeconds = balanceSeconds;
   if (!partial && balanceMode === "automatic") {
     const distribution = distributeRequiredSeconds(required, eligible, unallocatedSeconds, autoReduceSurplus);
     required = distribution.seconds;
@@ -465,8 +466,8 @@ export function resolveWeekPlan(days: readonly PlanDay[], plan: WorkPlan, today:
   const todayWeekday = weekday(today);
   const exitGoal = !partial && todayIndex !== -1 && workingDays[todayWeekday] && days[todayIndex].state !== "uncertain"
     ? dailySeconds : null;
-  const catchUp = exitGoal !== null && !blocked && previousDaysBalance > 0
-    ? catchUpGoal(Math.round(plan[todayWeekday] * 60), previousDaysBalance, days[todayIndex].recordedSeconds)
+  const catchUp = exitGoal !== null && !blocked && previousDaysBalance > 0 && balanceSeconds > 0
+    ? catchUpGoal(Math.round(plan[todayWeekday] * 60), balanceSeconds, days[todayIndex].recordedSeconds)
     : null;
   const displaySeconds = plan.map((minutes, index) => {
     if (completed[index] !== null) return completed[index]!;

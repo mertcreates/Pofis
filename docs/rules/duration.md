@@ -30,7 +30,7 @@ Canlı toplam ilk girişten şimdiki İstanbul saatine kadar geçen süredir. Ya
 - [report.ts](../../src/domain/report.ts)
 - [pofi.js](../../src/domain/rules/pofi.js)
 
-`report.ts` sabit rapor hazırlığını saat izdüşümünden ayırır. Saat güncellemelerinde yalnız bugünün `dailyDurationState` sonucu değerlendirilir; anlık tahmin, hedef ilerlemesi ve Pofi kendi sahiplerinden gelir. Rapor, plan, İstanbul tarihi veya tazelik değiştiğinde hazırlık yeniden kurulur. [Orkestrasyon sahibi](README.md#diğer-tek-sahipler).
+`report.ts` sabit rapor hazırlığını saat izdüşümünden ayırır. Saat güncellemelerinde bugünün `dailyDurationState` sonucu değerlendirilir. Anlık tahmin, hedef ilerlemesi ve Pofi kendi sahiplerinden gelir. Canlı toplam [plan sahibinin](work-plan.md#açığı-bugün-kapatma-saati) `projectCatchUp` hesabında açık kapatma durumunu ve fazla süreyi günceller. Rapor, plan, İstanbul tarihi veya tazelik değiştiğinde hazırlık yeniden kurulur. [Orkestrasyon sahibi](README.md#diğer-tek-sahipler).
 
 ## Testler
 
